@@ -15,7 +15,7 @@
 * PURPOSE ARE DISCLAIMED.SEE YOUR CHOOSEN LICENSE FOR MORE DETAILS.
 */
 
-require_once('./engine/xanthine.inc.php');
+require_once('./engine/xanthin.inc.php');
 xanth_init();
 
 ?>

@@ -18,7 +18,24 @@
 //------------------------------------------------------------------------------------------------------------------//
 // Log functions
 //------------------------------------------------------------------------------------------------------------------//
- 
+class xanthLogEntry
+{
+	var $level;
+	var $component;
+	var $message;
+	var $filename;
+	var $line;
+	
+	function xanthLogEntry($level,$component,$message,$filename,$line)
+	{
+		$this->level = $level;
+		$this->component = $component;
+		$this->message = $message;
+		$this->filename = $filename;
+		$this->line = $line;
+	}
+};
+
 /**
  * Enqueue a log entry for async display.
  */
@@ -27,12 +44,12 @@ function xanth_add_screen_log($level, $component,$message,$filename,$line)
 	global $xanth_screen_log;
 	if(!isSet($xanth_screen_log))
 		$xanth_screen_log = array();
-	array_push($xanth_screen_log,array('level' => $level,'message' => $message,'component' => $component,'filename' => $filename,'line' => $line));
+		
+	$xanth_screen_log[] = new xanthLogEntry($level,$component,$message,$filename,$line);
 }
 
 /**
- * Get screen log entries in form of array of map array \n
- * e.g. $returval[0] = array('level' => $level,'message' => $message, 'component' => $component,'filename' => $filename,'line' => $line)
+ * Get screen log entries as anarray of objects xanthLogEntry
  *
  * @param $level (OPTIONAL)
  */
@@ -41,6 +58,7 @@ function xanth_get_screen_log($level = -1)
 	global $xanth_screen_log;
 	if(!isSet($xanth_screen_log))
 		$xanth_screen_log = array();
+		
 	if($level == -1)
 	{
 		return $xanth_screen_log;
@@ -50,8 +68,8 @@ function xanth_get_screen_log($level = -1)
 		$retArr = array();
 		foreach($xanth_screen_log as $log_entry)
 		{
-			if($log_entry['level'] == $level)
-				array_push($retArr,$log_entry);
+			if($log_entry->level == $level)
+				$retArr[] = $log_entry;
 		}
 		return $retArr;
 	}
@@ -62,10 +80,10 @@ function xanth_get_screen_log($level = -1)
  *
  * @param $level (OPTIONAL)
  */
-function xanth_clear_screen_log($level)
+function xanth_clear_screen_log($level = -1)
 {
 	global $xanth_screen_log;
-	if(!isSet($level))
+	if($level == -1)
 	{
 		unset($xanth_screen_log);
 	}
@@ -73,7 +91,7 @@ function xanth_clear_screen_log($level)
 	{
 		for($i = 0;$i < count($xanth_screen_log);)
 		{
-			if($xanth_screen_log[$i]['level'] == $level)
+			if($xanth_screen_log[$i]->level == $level)
 				array_splice($xanth_screen_log,$i,1);
 			else
 				$i++;

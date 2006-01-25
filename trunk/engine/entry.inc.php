@@ -16,14 +16,25 @@
 */
 
 
-$xanth_conf['db_type'] = 'mysql';
-$xanth_conf['db_host'] = 'localhost';
-$xanth_conf['db_name'] = 'xanthine';
-$xanth_conf['db_user'] = 'root';
-$xanth_conf['db_pass'] = 'pass';
-$xanth_conf['db_port'] = '';
-$xanth_conf['db_doc_path'] = 'xanthinplus/';
+/**
+* \ingroup Events
+* This is a special event, you should append to this event identifier the name of the level path you would like to handle content creation.\n
+* For example if you want to andle a path named admin/my_module you should register for an event named EVT_CORE_CREATE_CONTENT_ENTRY_ . 'admin/module'
+* Arguments passed to callback are:\n
+*/
+define('EVT_CORE_CREATE_CONTENT_ENTRY_','evt_core_create_content_entry_');
 
-$xanth_conf['debug'] = true;
+
+class xanthContentEntry
+{
+	var $id;
+	var $title;
+	var $author;
+	var $creation_time;
+	var $body;
+	var $cathegories;
+}
+
+
 
 ?>

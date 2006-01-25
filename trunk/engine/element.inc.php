@@ -16,14 +16,14 @@
 */
 
 
-$xanth_conf['db_type'] = 'mysql';
-$xanth_conf['db_host'] = 'localhost';
-$xanth_conf['db_name'] = 'xanthine';
-$xanth_conf['db_user'] = 'root';
-$xanth_conf['db_pass'] = 'pass';
-$xanth_conf['db_port'] = '';
-$xanth_conf['db_doc_path'] = 'xanthinplus/';
+/**
+* Return the content of a page element. An element is a simple content that is named indipendently of the theme in with is inserted.
+* Possible elements are.
+*/
+function xanth_content_get_element($name)
+{
+	
+}
 
-$xanth_conf['debug'] = true;
 
 ?>

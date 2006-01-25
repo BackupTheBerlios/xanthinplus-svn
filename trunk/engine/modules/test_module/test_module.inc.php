@@ -15,14 +15,10 @@
 * PURPOSE ARE DISCLAIMED.SEE YOUR CHOOSEN LICENSE FOR MORE DETAILS.
 */
 
-function writeSomething($event,$module,$arg1)
-{
-	echo "this event ($event) is generated from $module, and this is the first argument: $arg1";
-}
 
-function xanth_init_test_module()
+function xanth_init_module_test_module()
 {
-	xanth_register_callback(EVT_CORE_PAGE_CREATION,'writeSomething');
+	/*xanth_register_callback(EVT_CORE_PAGE_CREATION,'writeSomething');*/
 }
 
 

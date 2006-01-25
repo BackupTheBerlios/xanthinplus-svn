@@ -99,7 +99,7 @@ function xanth_list_dirs($path)
 	//read builtin directory
 	while(($file = readdir($dh)) !== false) 
 	{
-		if(is_dir($path . $file) && $file !== '.' && $file !== '..')
+		if(is_dir($path . $file) && $file{0} !== '.')
 		{
 			array_push($dirs,array('name' => $file,'path' => $path . $file . '/'));
 		}
@@ -107,6 +107,32 @@ function xanth_list_dirs($path)
 	closedir($dh);
 
 	return $dirs;
+}
+
+/**
+*
+*/
+function xanth_valid_xanthpath($path) 
+{
+    if (!preg_match('/^(([A-Z0-9_-]+)(\/[A-Z0-9_-]+)*)$/i', $path)) 
+	{
+        return false;
+    } else 
+	{
+        return true;
+    }
+}
+
+/**
+*
+*/
+function xanth_valid_email($email)
+{
+   if(eregi("^[a-zA-Z0-9]+[_a-zA-Z0-9-]*(\.[_a-z0-9-]+)*@[a-z??????0-9]+(-[a-z??????0-9]+)*(\.[a-z??????0-9-]+)*(\.[a-z]{2,4})$", $email))
+   {
+       return TRUE;
+   }
+   return FALSE;
 }
 
 

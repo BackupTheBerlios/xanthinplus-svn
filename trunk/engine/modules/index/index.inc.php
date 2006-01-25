@@ -15,15 +15,20 @@
 * PURPOSE ARE DISCLAIMED.SEE YOUR CHOOSEN LICENSE FOR MORE DETAILS.
 */
 
+/*
+* Handle index creation.
+*/
+function xanth_index_content_creation($eventName,$source_component)
+{
+	echo "this is the index page";
+}
 
-$xanth_conf['db_type'] = 'mysql';
-$xanth_conf['db_host'] = 'localhost';
-$xanth_conf['db_name'] = 'xanthine';
-$xanth_conf['db_user'] = 'root';
-$xanth_conf['db_pass'] = 'pass';
-$xanth_conf['db_port'] = '';
-$xanth_conf['db_doc_path'] = 'xanthinplus/';
 
-$xanth_conf['debug'] = true;
+function xanth_init_module_index()
+{
+	xanth_register_callback(EVT_CORE_CREATE_CONTENT_ENTRY_,'xanth_index_content_creation');
+}
+
+
 
 ?>

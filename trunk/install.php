@@ -16,7 +16,7 @@
 */
 
 
-require_once('./engine/xanthine.inc.php');
+require_once('./engine/xanthin.inc.php');
 
 
 function xanth_install_db()
@@ -27,8 +27,8 @@ function xanth_install_db()
 	
 	foreach(xanth_list_existing_modules() as $module)
 	{
-		include_once($module['path'] . '/install.inc.php');
-		$inst_func = 'xanth_install_db_' . $module['name'];
+		include_once($module->path . '/install.inc.php');
+		$inst_func = 'xanth_install_db_' . $module->name;
 		$inst_func();
 	}
 }

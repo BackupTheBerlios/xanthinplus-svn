@@ -21,8 +21,38 @@
 
 /**
 * \ingroup Events
-* An event triggered on page creation
+* An event triggered on page creation.Usually you never need to handle this event, it exists only for use in cms core.\n
 */
-define('EVT_CORE_PAGE_CREATION','evt_core_page_creation');
+define('EVT_CORE_CREATE_PAGE','evt_core_create_page');
+
+
+
+
+
+function xanth_get_xanthpath()
+{
+	if(isset($_GET['p']))
+	{
+		$p = $_GET['p'];
+	}
+	else
+	{
+		return '';
+	}
+	
+	//see if it is correct
+	if(xanth_valid_xanthpath($p))
+	{
+		return $p;
+	}
+	else
+	{
+		return '';
+	}
+}
+
+
+
+
 
 ?>

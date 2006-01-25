@@ -20,10 +20,14 @@ require_once('engine/globals.inc.php');
 require_once('engine/base.inc.php');
 require_once('engine/db.inc.php');
 require_once('engine/log.inc.php');
+require_once('engine/event.inc.php');
 require_once('engine/module.inc.php');
 require_once('engine/theme.inc.php');
 require_once('engine/session.inc.php');
 require_once('engine/core.inc.php');
+require_once('engine/box.inc.php');
+require_once('engine/entry.inc.php');
+require_once('engine/element.inc.php');
 
 /**
 * @defgroup Core Core
@@ -40,22 +44,15 @@ function xanth_init()
 	session_set_save_handler("on_session_start","on_session_end","on_session_read","on_session_write","on_session_destroy","on_session_gc");
 	session_start();
 	xanth_init_modules();
-	xanth_broadcast_event(EVT_CORE_PAGE_CREATION,'core','an argument');
+	xanth_init_theme(xanth_get_default_theme());
 	
+	xanth_broadcast_event(EVT_CORE_CREATE_PAGE,'core');
 	
 	//print log
 	foreach(xanth_get_screen_log() as $entry)
 	{
-		echo '<br />' . $entry['level'] . ' ' . $entry['component'] . ' ' . $entry['message'] . ' ' . $entry['filename'] . '@' . $entry['line'];
+		echo '<br />' . $entry->level . ' ' . $entry->component . ' ' . $entry->message . ' ' . $entry->filename . '@' . $entry->line;
 	}
-}
-
-/**
-*
-*/
-function xanth_create_page()
-{
-	
 }
 
 

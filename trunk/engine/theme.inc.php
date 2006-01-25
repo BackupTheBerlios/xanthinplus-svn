@@ -17,19 +17,82 @@
 
 
 /**
- * Returns an array of mapped array representing all existing themes \n
- * $ret[0] = array(name,path)
+* @ingroup Events
+* This event is emitted on page creation, you can catch it when implementing your template, and printing you desired page structure.\n
+* Additional arguments are:\n
+* 1) $areas : A mapped array containing the content of every area.
+* 2) $elements: a mapped array containing a set of generic elements that you can include in your page (eg. counters,page title,metatags,navigation links)
+*/
+define('EVT_THEME_PAGE_TEMPLATE','evt_theme_page_template');
+
+
+/**
+* @ingroup Events
+* This event is emitted on a content entry creation, you can catch it when implementing your template, and printing you desired content entry structure. \n
+* Additional arguments are:\n
+* 1) $title: the entry title
+* 2) $body: the entry content
+*/
+define('EVT_THEME_CONTENT_ENTRY_TEMPLATE','evt_theme_content_entry_template');
+
+/**
+* @ingroup Events
+* An event for asking the structure that a box must have.\n
+* Additional arguments are:\n
+* 1) $title: the box title
+* 2) $body: the box content
+*/
+define('EVT_THEME_BOX_TEMPLATE','evt_theme_box_template');
+
+/**
+* @ingroup Events
+* An event for asking the structure that an area must have.This is a special event , you must append to it the name of the area.\n
+* Additional arguments are:\n
+* 1) $boxes: an array containing all boxes assigned to the area.
+* 2) $content: The main content related to a page.
+* 3) $elements: a mapped array containing a set of generic elements that you can include in your page (eg. counters,navigation links)
+*/
+define('EVT_THEME_AREA_TEMPLATE_','evt_theme_area_template_');
+
+
+/**
+* @ingroup Events
+* An event for asking the structure that an area must have.This is a special event , you must append to it the name of the area.\n
+* Additional arguments are:\n
+* 1) &$arealist: a reference to an array to fill with area names.
+*/
+define('EVT_THEME_AREA_LIST','evt_theme_area_list');
+
+
+
+class xanthTheme
+{
+	var $path;
+	var $name;
+	
+	function xanthTheme($path,$name)
+	{
+		$this->path = $path;
+		$this->name = $name;
+	}
+};
+
+/**
+ * Returns an array of objects xanthTheme representing all existing themes \n
  */
 function xanth_list_existing_themes()
 {
 	$themes = array();
 	
 	//read builtin directory
-	$dir = xanth_get_working_dir() . '/themes/';
-	if($dh = opendir($dir))
+	$dir = './themes/';
+	$dirs_data = xanth_list_dirs($path);
+	if(is_array($dirs_data))
 	{
-        $themes = array_merge($themes,xanth_list_dirs($dh));
-        closedir($dh);
+		foreach($dirs_data as $dir_data)
+		{
+			$themes[] = new xanthTheme($dir_data['path'],$dir_data['name']);
+		}
     }
 	else
 	{
@@ -42,29 +105,29 @@ function xanth_list_existing_themes()
 /**
 *
 */
-function xanth_theme_exists($name,$path)
+function xanth_theme_exists($theme)
 {
-	return is_dir($path . $name);
+	return is_dir($theme->path . $theme->name);
 }
 
 
 /**
 *
 */
-function xanth_set_default_theme($path,$name)
+function xanth_set_default_theme($theme)
 {
-	if(xanth_theme_exists($name,$path))
+	if(xanth_theme_exists($theme))
 	{
 		xanth_db_query("UPDATE themes SET is_default = 0");
-		$result = xanth_db_query("SELECT is_default FROM themes WHERE name = '%s'",$name);
+		$result = xanth_db_query("SELECT is_default FROM themes WHERE name = '%s'",$theme->name);
 		if($row = xanth_db_fetch_array($result))
 		{
 			if(!$row['is_default'])
-				xanth_db_query("UPDATE themes SET is_default = 1 WHERE name = '%s'",$name);
+				xanth_db_query("UPDATE themes SET is_default = 1 WHERE name = '%s'",$theme->name);
 		}
 		else
 		{
-			xanth_db_query("INSERT INTO themes(name,path,is_default) VALUES('%s','%s',%d)",$name,$path,1);
+			xanth_db_query("INSERT INTO themes(name,path,is_default) VALUES('%s','%s',%d)",$theme->name,$theme->path,1);
 		}
 		
 		return true;
@@ -73,33 +136,34 @@ function xanth_set_default_theme($path,$name)
 }
 
 /**
- * Returns the current default theme as a mapped array of type: \n
- * $ret = array(path,name)
+ * Returns the current default theme.
  */
 function xanth_get_default_theme()
 {
 	$enabled_theme = NULL;
 	foreach(xanth_list_existing_modules() as $theme)
 	{
-		$result = xanth_db_query("SELECT is_default FROM themes");
+		$result = xanth_db_query("SELECT * FROM themes WHERE is_default = 1");
 		if($row = xanth_db_fetch_array($result))
 		{
 			if($row['is_default'] !== 0)
 			{
-				$enabled_theme = array($row['path'],$row['name']);
+				return new xanthTheme($row['path'],$row['name']);
 			}
 		}
 	}
-	return $enabled_theme;
 }
-
 
 /**
 * 
 */
-function xanth_include_theme($theme)
+function xanth_init_theme($theme)
 {
-	
+	if(xanth_theme_exists($theme))
+	{
+		include_once($theme->path . $theme->name . "/" . $theme->name . ".theme.php");
+		xanth_theme_init();
+	}
 }
 
 
