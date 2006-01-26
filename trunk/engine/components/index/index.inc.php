@@ -15,12 +15,19 @@
 * PURPOSE ARE DISCLAIMED.SEE YOUR CHOOSEN LICENSE FOR MORE DETAILS.
 */
 
-
-function xanth_install_db_index()
+/*
+* Handle index creation.
+*/
+function xanth_index_content_creation($eventName,$source_component)
 {
-	
+	echo "this is the index page";
 }
 
+
+function xanth_init_component_index()
+{
+	xanth_register_callback(EVT_CORE_CREATE_CONTENT_ENTRY_,'xanth_index_content_creation');
+}
 
 
 

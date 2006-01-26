@@ -91,6 +91,8 @@ function xanth_get_working_dir()
 function xanth_list_dirs($path)
 {
 	$dirs = array();
+	$path = $path . '/';
+	$path = str_replace("//", "/", $path);
 	
 	$dh = opendir($path);
 	if(!$dh)
@@ -101,13 +103,39 @@ function xanth_list_dirs($path)
 	{
 		if(is_dir($path . $file) && $file{0} !== '.')
 		{
-			array_push($dirs,array('name' => $file,'path' => $path . $file . '/'));
+			$dirs[] = array('name' => $file,'path' => $path . $file . '/');
 		}
 	}
 	closedir($dh);
 
 	return $dirs;
 }
+
+/**
+ * Returns an array of mapped array representing all existing files (not dirs) in a specified path \n
+ * $ret[0] = array(name,path)
+ */
+function xanth_list_files($path)
+{
+	$files = array();
+	
+	$dh = opendir($path);
+	if(!$dh)
+		return NULL;
+		
+	//read builtin directory
+	while(($file = readdir($dh)) !== false) 
+	{
+		if(is_file($path . $file) && $file{0} !== '.')
+		{
+			$files[] = array('name' => $file,'path' => $path . $file);
+		}
+	}
+	closedir($dh);
+
+	return $files;
+}
+
 
 /**
 *

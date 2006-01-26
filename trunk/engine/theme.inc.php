@@ -80,13 +80,13 @@ class xanthTheme
 /**
  * Returns an array of objects xanthTheme representing all existing themes \n
  */
-function xanth_list_existing_themes()
+function xanth_theme_list_existing()
 {
 	$themes = array();
 	
 	//read builtin directory
 	$dir = './themes/';
-	$dirs_data = xanth_list_dirs($path);
+	$dirs_data = xanth_list_dirs($dir);
 	if(is_array($dirs_data))
 	{
 		foreach($dirs_data as $dir_data)
@@ -96,7 +96,7 @@ function xanth_list_existing_themes()
     }
 	else
 	{
-		xanth_log(LOG_LEVEL_FATAL_ERROR,"Theme directory directory $dir not found","Core",__FILE__,__LINE__);
+		xanth_log(LOG_LEVEL_FATAL_ERROR,"Theme directory directory $dir not found","Core",__FUNCTION__);
 	}
 	
 	return $themes;
@@ -114,7 +114,7 @@ function xanth_theme_exists($theme)
 /**
 *
 */
-function xanth_set_default_theme($theme)
+function xanth_theme_set_default($theme)
 {
 	if(xanth_theme_exists($theme))
 	{
@@ -138,10 +138,10 @@ function xanth_set_default_theme($theme)
 /**
  * Returns the current default theme.
  */
-function xanth_get_default_theme()
+function xanth_theme_get_default()
 {
 	$enabled_theme = NULL;
-	foreach(xanth_list_existing_modules() as $theme)
+	foreach(xanth_theme_list_existing() as $theme)
 	{
 		$result = xanth_db_query("SELECT * FROM themes WHERE is_default = 1");
 		if($row = xanth_db_fetch_array($result))
@@ -157,12 +157,12 @@ function xanth_get_default_theme()
 /**
 * 
 */
-function xanth_init_theme($theme)
+function xanth_theme_init($theme)
 {
 	if(xanth_theme_exists($theme))
 	{
 		include_once($theme->path . $theme->name . "/" . $theme->name . ".theme.php");
-		xanth_theme_init();
+		xanth_theme_init_default();
 	}
 }
 

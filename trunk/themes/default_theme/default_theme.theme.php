@@ -15,8 +15,10 @@
 * PURPOSE ARE DISCLAIMED.SEE YOUR CHOOSEN LICENSE FOR MORE DETAILS.
 */
 
-function default_page_template($eventName,$component,$areas)
+function default_page_template($eventName,$component,$arguments)
 {
+	list($areas) = $arguments;
+	
 	echo "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\n";
 	echo "<html>\n";
 	echo "<head>\n";
@@ -28,21 +30,27 @@ function default_page_template($eventName,$component,$areas)
 }
 
 
-function default_content_entry_template($eventName,$component,$title,$body)
+function default_content_entry_template($eventName,$component,$arguments)
 {
+	list($title,$body) = $arguments;
+	
 	echo "<strong>$title</strong> <br> $body";
 }
 
 
 
-function default_box_template($eventName,$component,$title,$body)
+function default_box_template($eventName,$component,$arguments)
 {
+	list($title,$body) = $arguments;
+	
 	echo "<strong>$title</strong> <br> $body";
 }
 
 
-function default_custom_area_template($eventName,$component,$boxes,$content,$elements)
+function default_custom_area_template($eventName,$component,$arguments)
 {
+	list($boxes,$content,$elements) = $arguments;
+	
 	foreach($boxes as $box)
 	{
 		echo "$box <br>";
@@ -52,13 +60,13 @@ function default_custom_area_template($eventName,$component,$boxes,$content,$ele
 }
 
 
-function xanth_custom_theme_areas($eventName,$component,&$areas)
+function xanth_custom_theme_areas($eventName,$component,$arguments)
 {
-	$areas[] = 'custom area';
+	$arguments[0][] = 'custom area';
 }
 
 
-function xanth_theme_init()
+function xanth_theme_init_default()
 {
 	xanth_register_callback(EVT_THEME_PAGE_TEMPLATE,'default_page_template');
 	xanth_register_callback(EVT_THEME_CONTENT_ENTRY_TEMPLATE,'default_content_entry_template');

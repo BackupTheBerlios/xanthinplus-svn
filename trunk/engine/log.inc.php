@@ -115,26 +115,26 @@ define('LOG_LEVEL_DEBUG',64);
 * LOG_LEVEL_INFORMATIONAL: Application will log a message only in database\n
 * LOG_LEVEL_DEBUG: Print debug message only in database if $debug is defined in config\n
 */
-function xanth_log($level,$message,$component = '',$filename = '',$line = 0)
+function xanth_log($level,$message,$component = '',$filename_or_function = '',$line = 0)
 {
 	if($level == LOG_LEVEL_FATAL_ERROR)
 	{
-		exit("Fatal Error on component $component ($filename@$line), $message");
+		exit("Fatal Error on component $component ($filename_or_function@$line), $message");
 	}
 	
 	if($level == LOG_LEVEL_ERROR || $level == LOG_LEVEL_WARNING || $level == LOG_LEVEL_NOTICE)
 	{
-		xanth_add_screen_log($level,$component,$message,$filename,$line);
+		xanth_add_screen_log($level,$component,$message,$filename_or_function,$line);
 	}
 	
 	if($level > LOG_LEVEL_FATAL_ERROR && $level < LOG_LEVEL_DEBUG)
 	{
-		xanth_db_log($level,$component,$message,$filename,$line);
+		xanth_db_log($level,$component,$message,$filename_or_function,$line);
 	}
 	
 	if($level == LOG_LEVEL_DEBUG && xanth_conf_get('debug', false))
 	{
-		xanth_db_log($level,$component,$message,$filename,$line);
+		xanth_db_log($level,$component,$message,$filename_or_function,$line);
 	}
 }
 

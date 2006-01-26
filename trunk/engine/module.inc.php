@@ -25,6 +25,9 @@ class xanthModule
 	var $path;
 	var $name;
 	
+	/**
+	 *
+	 */
 	function xanthModule($path,$name)
 	{
 		$this->path = $path;
@@ -36,25 +39,9 @@ class xanthModule
 /**
  * Returns an array of xanthModule objects  representing all existing modules \n
  */
-function xanth_list_existing_modules()
+function xanth_module_list_existing()
 {
 	$modules = array();
-	
-	//read builtin directory
-	$dir = './engine/modules/';
-	$dir_list = xanth_list_dirs($dir);
-	if(is_array($dir_list))
-	{
-		foreach($dir_list as $raw_module)
-		{
-			$modules[] = new xanthModule($raw_module['path'],$raw_module['name']);
-		}
-    }
-	else
-	{
-		xanth_log(LOG_LEVEL_FATAL_ERROR,"Builtin module directory $dir not found","Core",__FILE__,__LINE__);
-	}
-	
 	
 	//read additional module directory
 	$dir = './modules/';
@@ -77,10 +64,10 @@ function xanth_list_existing_modules()
 /**
 *
 */
-function xanth_list_enabled_modules()
+function xanth_module_list_enabled()
 {
 	$enabled_mod = array();
-	foreach(xanth_list_existing_modules() as $module)
+	foreach(xanth_module_list_existing() as $module)
 	{
 		$result = xanth_db_query("SELECT enabled FROM modules WHERE name = '%s'",$module->name);
 		if($row = xanth_db_fetch_array($result))
@@ -105,7 +92,7 @@ function xanth_module_exists($module)
 /**
 *
 */
-function xanth_enable_module($module)
+function xanth_module_enable($module)
 {
 	if(xanth_module_exists($module))
 	{
@@ -128,7 +115,7 @@ function xanth_enable_module($module)
 /**
 *
 */
-function xanth_disable_module($module)
+function xanth_module_disable($module)
 {
 	if(xanth_module_exists($name,$path))
 	{
@@ -146,9 +133,9 @@ function xanth_disable_module($module)
 /**
  * Include enabled modules and call xanth_init_module_[modulename] for every loaded module
  */
-function xanth_init_modules()
+function xanth_modules_init()
 {
-	foreach(xanth_list_enabled_modules() as $module)
+	foreach(xanth_module_list_enabled() as $module)
 	{
 		include_once($module->path . $module->name . '.inc.php');
 		$init_func = "xanth_init_module_".$module->name;

@@ -29,11 +29,15 @@ class xanthContentEntry
 {
 	var $id;
 	var $title;
+	var $type;
 	var $author;
 	var $creation_time;
 	var $body;
 	var $cathegories;
 }
+
+
+
 
 
 

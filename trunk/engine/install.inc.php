@@ -50,21 +50,30 @@ function xanth_db_install_core()
 		PRIMARY KEY  (name)
 		)");
 		
-	//enable default modules
-	xanth_enable_module(new xanthModule('./engine/modules/','test_module'));
-	xanth_enable_module(new xanthModule('./engine/modules/','page'));
-	xanth_enable_module(new xanthModule('./engine/modules/','index'));
+	
+	//content format
+	xanth_db_query("
+		CREATE TABLE content_format (
+		name VARCHAR(64) PRIMARY KEY NOT NULL,
+		stripped_html TINYINT NOT NULL,
+		php_source TINYINT NOT NULL,
+		new_line_to_line_break TINYINT NOT NULL
+		)");
 	
 	//box
 	xanth_db_query("
 		CREATE TABLE box (
-		boxName VARCHAR(64) PRIMARY KEY NOT NULL,
+		boxName VARCHAR(64) NOT NULL,
 		title VARCHAR(255),
 		content TEXT,
-		is_user_defined TINYINT NOT NULL
+		content_format_name VARCHAR(64) NOT NULL,
+		is_user_defined TINYINT NOT NULL,
+		PRIMARY KEY(boxName),
+		FOREIGN KEY(content_format_name) REFERENCES content_format(name),
+		INDEX(content_format_name)
 		)");
 		
-	//create builint box
+	//create builtint box
 	//xanth_create_box(new xanthBox(''));
 	
 	
@@ -73,7 +82,9 @@ function xanth_db_install_core()
 		CREATE TABLE boxToArea (
 		boxName VARCHAR(64) NOT NULL,
 		area VARCHAR(255) NOT NULL,
-		UNIQUE (boxName,area)
+		UNIQUE (boxName,area),
+		FOREIGN KEY(boxName) REFERENCES box(boxName),
+		INDEX(boxName)
 		)");
 	
 	//themes
@@ -85,7 +96,7 @@ function xanth_db_install_core()
 		PRIMARY KEY  (name)
 		)");
 	
-	xanth_set_default_theme(new xanthTheme('./themes/','default_theme'));
+	xanth_theme_set_default(new xanthTheme('./themes/','default_theme'));
 }
 
 

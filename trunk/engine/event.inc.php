@@ -44,7 +44,7 @@ function xanth_unregister_callback($eventName,$callback)
 /**
  * Triggers an event, calling all registered callbacks.
  */
-function xanth_broadcast_event($eventName,$source_component,&$arg1 = NULL,&$arg2 = NULL,&$arg3 = NULL,&$arg4 = NULL,&$arg5 = NULL,&$arg6 = NULL)
+function xanth_broadcast_event($eventName,$source_component,$arguments = array())
 {
 	global $xanth_events;
 	if(!isSet($xanth_events[$eventName]))
@@ -53,7 +53,7 @@ function xanth_broadcast_event($eventName,$source_component,&$arg1 = NULL,&$arg2
 	$arrayOfAnEvent = $xanth_events[$eventName];
 	foreach($arrayOfAnEvent as $callback)
 	{
-		$callback($eventName,$source_component,$arg1,$arg2,$arg3,$arg4,$arg5,$arg6);
+		$callback($eventName,$source_component,$arguments);
 	}
 }
 

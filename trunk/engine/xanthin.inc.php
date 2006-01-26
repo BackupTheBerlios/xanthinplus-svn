@@ -18,9 +18,10 @@
 require_once('conf.inc.php');
 require_once('engine/globals.inc.php');
 require_once('engine/base.inc.php');
-require_once('engine/db.inc.php');
+require_once('engine/dba/db.inc.php');
 require_once('engine/log.inc.php');
 require_once('engine/event.inc.php');
+require_once('engine/component.inc.php');
 require_once('engine/module.inc.php');
 require_once('engine/theme.inc.php');
 require_once('engine/session.inc.php');
@@ -43,8 +44,9 @@ function xanth_init()
 	xanth_db_connect(xanth_conf_get('db_host',''),xanth_conf_get('db_name',''),xanth_conf_get('db_user',''),xanth_conf_get('db_pass',''),xanth_conf_get('db_port',''));
 	session_set_save_handler("on_session_start","on_session_end","on_session_read","on_session_write","on_session_destroy","on_session_gc");
 	session_start();
-	xanth_init_modules();
-	xanth_init_theme(xanth_get_default_theme());
+	xanth_components_init();
+	xanth_modules_init();
+	xanth_theme_init(xanth_theme_get_default());
 	
 	xanth_broadcast_event(EVT_CORE_CREATE_PAGE,'core');
 	

@@ -19,16 +19,55 @@
 require_once('./engine/xanthin.inc.php');
 
 
+function weight_cmp($a,$b)
+{
+	if($a[0] < $b[0])
+	{
+		return -1;
+	}
+	
+	if($a[0] > $b[0])
+	{
+		return 1;
+	}
+	
+	return 0;
+}
+
 function xanth_install_db()
 {
 	//install core db
 	require_once('./engine/install.inc.php');
 	xanth_db_install_core();
 	
-	foreach(xanth_list_existing_modules() as $module)
+	$weighted_components = array();
+	foreach(xanth_component_list_existing() as $component)
+	{
+		include_once($component->path . '/install.inc.php');
+		$weight_func = 'xanth_db_install_weight_' . $component->name;
+		$weighted_components[] = array($weight_func(),$component);
+	}
+	
+	usort($weighted_components,'weight_cmp');
+	foreach($weighted_components as $component)
+	{
+		$inst_func = 'xanth_db_install_' . $component[1]->name;
+		$inst_func();
+	}
+	
+	
+	$weighted_modules = array();
+	foreach(xanth_module_list_existing() as $module)
 	{
 		include_once($module->path . '/install.inc.php');
-		$inst_func = 'xanth_install_db_' . $module->name;
+		$weight_func = 'xanth_db_install_weight_' . $module->name;
+		$weighted_modules[] = array($weight_func(),$module);
+	}
+	
+	usort($weighted_modules,'weight_cmp');
+	foreach($weighted_modules as $module)
+	{
+		$inst_func = 'xanth_db_install_' . $module[1]->name;
 		$inst_func();
 	}
 }

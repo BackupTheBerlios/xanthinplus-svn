@@ -15,13 +15,14 @@
 * PURPOSE ARE DISCLAIMED.SEE YOUR CHOOSEN LICENSE FOR MORE DETAILS.
 */
 
-
-function xanth_install_db_test_module()
+function xanth_db_install_weight_page()
 {
-	
+	return 100;
 }
 
-
+function xanth_db_install_page()
+{
+}
 
 
 ?>

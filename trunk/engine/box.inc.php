@@ -31,11 +31,13 @@ class xanthBox
 	var $title;
 	var $user_defined;
 	var $content;
+	var $content_format;
 	
-	function xanthBox($name,$title,$content,$user_defined)
+	function xanthBox($name,$title,$content,$content_format,$user_defined)
 	{
 		$this->name = $name;
 		$this->title = $title;
+		$this->content_format = $content_format;
 		$this->user_defined = $user_defined;
 		$this->content = $content;
 	}
@@ -64,7 +66,7 @@ function xanth_box_create($xanth_box)
 {
 	if(!xanth_exists_box($xanth_box->name))
 	{
-		xanth_db_query("INSERT INTO box(boxName,title,content,is_user_defined) VALUES('%s','%s','%s',%d)",$xanth_box->name,$xanth_box->title,$xanth_box->content,$xanth_box->user_defined);
+		xanth_db_query("INSERT INTO box(boxName,title,content,content_format_name,is_user_defined) VALUES('%s','%s','%s','%s',%d)",$xanth_box->name,$xanth_box->title,$xanth_box->content,$xanth_box->content_format,$xanth_box->user_defined);
 	}
 	else
 	{
@@ -79,7 +81,7 @@ function xanth_box_update($xanth_box)
 {
 	if(xanth_exists_box($xanth_box->name))
 	{
-		xanth_db_query("UPDATE box SET content = '%s',title = '%s' WHERE boxName = '%s'",$xanth_box->content,$xanth_box->title,$xanth_box->name);
+		xanth_db_query("UPDATE box SET content = '%s',content_format_name = '%s',title = '%s' WHERE boxName = '%s'",$xanth_box->content,$xanth_box->content_format,$xanth_box->title,$xanth_box->name);
 	}
 }
 
@@ -90,6 +92,7 @@ function xanth_box_update($xanth_box)
 function xanth_box_delete($xanth_box)
 {
 	xanth_db_query("DELETE FROM box WHERE boxName = '%s'",$xanth_box->name);
+	xanth_db_query("DELETE FROM boxtoarea WHERE boxName = '%s'",$xanth_box->name);
 }
 
 
@@ -110,11 +113,15 @@ function xanth_box_list($area = '')
 	
 	while($row = xanth_db_fetch_array($result))
 	{
-		$current_box = new xanthBox($row['boxName'],$row['title'],$row['content'],$row['is_user_defined']);
+		$current_box = new xanthBox($row['boxName'],$row['title'],$row['content'],$row['content_format_name'],$row['is_user_defined']);
 		if($current_box->user_defined)
 		{
 			//retrieve built-in box content
-			xanth_broadcast_event(EVT_CORE_CREATE_BOX_CONTENT_ . $current_box->name,'core',$current_box->content);
+			xanth_broadcast_event(EVT_CORE_CREATE_BOX_CONTENT_ . $current_box->name,'core',array(&$current_box->content));
+		}
+		else
+		{
+			$current_box->content = xanth_apply_content_format($current_box->content,$row['content_format_name']);
 		}
 		$boxes[] = $current_box;
 	}
