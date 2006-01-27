@@ -23,7 +23,7 @@ function xanth_page_page_creation($eventName,$source_component)
 	//retrieve content page
 	$path = xanth_get_xanthpath();
 	ob_start();
-	xanth_broadcast_event(EVT_CORE_CREATE_CONTENT_ENTRY_ . $path,'page');
+	xanth_broadcast_event(EVT_CORE_MAIN_ENTRY_CREATE_ . $path,'page');
 	$content = ob_get_clean();
 
 	//retrieve areas
@@ -63,7 +63,7 @@ function xanth_page_page_creation($eventName,$source_component)
 
 function xanth_init_component_page()
 {
-	xanth_register_callback(EVT_CORE_CREATE_PAGE,'xanth_page_page_creation');
+	xanth_register_callback(EVT_CORE_PAGE_CREATE,'xanth_page_page_creation');
 }
 
 

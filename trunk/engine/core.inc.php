@@ -23,9 +23,16 @@
 * \ingroup Events
 * An event triggered on page creation.Usually you never need to handle this event, it exists only for use in cms core.\n
 */
-define('EVT_CORE_CREATE_PAGE','evt_core_create_page');
+define('EVT_CORE_PAGE_CREATE','evt_core_page_create');
 
 
+/**
+* \ingroup Events
+* An event triggered on main entry creation.The main entry is the main content of the page.
+* This is a special event, you should append to this event identifier the name of the level path you would like to handle content creation.\n
+* For example if you want to handle a path named admin/my_module you should register for an event named EVT_CORE_MAIN_ENTRY_CREATE_ . 'admin/module'
+*/
+define('EVT_CORE_MAIN_ENTRY_CREATE_','evt_core_main_entry_create_');
 
 
 

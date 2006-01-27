@@ -44,34 +44,11 @@ class xanthBox
 };
 
 /**
-*
-*/
-function xanth_box_exists($box_name)
-{
-	$result = xanth_db_query("SELECT FROM box WHERE boxName = '%s'",$box_name);
-	if(xanth_db_fetch_array($result))
-	{
-		return true;
-	}
-	else
-	{
-		return false;
-	}
-}
-
-/**
 * Create a new box and add it in database. Return false if a box with that name already exists.
 */
 function xanth_box_create($xanth_box)
 {
-	if(!xanth_exists_box($xanth_box->name))
-	{
-		xanth_db_query("INSERT INTO box(boxName,title,content,content_format_name,is_user_defined) VALUES('%s','%s','%s','%s',%d)",$xanth_box->name,$xanth_box->title,$xanth_box->content,$xanth_box->content_format,$xanth_box->user_defined);
-	}
-	else
-	{
-		return false;
-	}
+	xanth_db_query("INSERT INTO box(boxName,title,content,content_format_name,is_user_defined) VALUES('%s','%s','%s','%s',%d)",$xanth_box->name,$xanth_box->title,$xanth_box->content,$xanth_box->content_format,$xanth_box->user_defined);
 }
 
 /**
@@ -79,10 +56,7 @@ function xanth_box_create($xanth_box)
 */
 function xanth_box_update($xanth_box)
 {
-	if(xanth_exists_box($xanth_box->name))
-	{
-		xanth_db_query("UPDATE box SET content = '%s',content_format_name = '%s',title = '%s' WHERE boxName = '%s'",$xanth_box->content,$xanth_box->content_format,$xanth_box->title,$xanth_box->name);
-	}
+	xanth_db_query("UPDATE box SET content = '%s',content_format_name = '%s',title = '%s' WHERE boxName = '%s'",$xanth_box->content,$xanth_box->content_format,$xanth_box->title,$xanth_box->name);
 }
 
 
@@ -92,7 +66,6 @@ function xanth_box_update($xanth_box)
 function xanth_box_delete($xanth_box)
 {
 	xanth_db_query("DELETE FROM box WHERE boxName = '%s'",$xanth_box->name);
-	xanth_db_query("DELETE FROM boxtoarea WHERE boxName = '%s'",$xanth_box->name);
 }
 
 
@@ -127,5 +100,6 @@ function xanth_box_list($area = '')
 	}
 	return $boxes;
 }
+
 
 ?>

@@ -15,30 +15,8 @@
 * PURPOSE ARE DISCLAIMED.SEE YOUR CHOOSEN LICENSE FOR MORE DETAILS.
 */
 
-
-/**
-* \ingroup Events
-* This is a special event, you should append to this event identifier the name of the level path you would like to handle content creation.\n
-* For example if you want to andle a path named admin/my_module you should register for an event named EVT_CORE_CREATE_CONTENT_ENTRY_ . 'admin/module'
-* Arguments passed to callback are:\n
-*/
-define('EVT_CORE_CREATE_CONTENT_ENTRY_','evt_core_create_content_entry_');
-
-
-class xanthContentEntry
-{
-	var $id;
-	var $title;
-	var $type;
-	var $author;
-	var $creation_time;
-	var $body;
-	var $cathegories;
-}
-
-
-
-
-
+require_once('engine/dbobjects/box.inc.php');
+require_once('engine/dbobjects/category.inc.php');
+require_once('engine/dbobjects/entry.inc.php');
 
 ?>

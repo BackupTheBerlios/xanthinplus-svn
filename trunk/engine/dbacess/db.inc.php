@@ -72,6 +72,7 @@ function _xanth_db_query_callback($match, $init = FALSE)
  */
 function xanth_db_query($query) 
 {
+	global $transaction_is_started;
 	$args = func_get_args();
 	array_shift($args);
 	if(isset($args[0]) and is_array($args[0])) // 'All arguments in one array' syntax
@@ -81,10 +82,70 @@ function xanth_db_query($query)
 	
 	_xanth_db_query_callback($args, TRUE);
 	$query = preg_replace_callback('/(%d|%s|%%|%f|%b)/', '_xanth_db_query_callback', $query);
-	return _xanth_db_query($query);
+	$result = _xanth_db_query($query);
+	
+	if($result == FALSE)
+	{
+		//rollback from transaction
+		if(! empty($transaction_is_started))
+		{
+			_xanth_db_rollback();
+			$transaction_is_started = FALSE;
+		}
+	}
+
+	return $result;
+}
+
+/**
+*
+*/
+function xanth_db_decode_timestamp($db_timestamp)
+{
+	preg_match('/(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})/',$db_timestamp,$pieces);
+	$unix_timestamp = mktime($pieces[4], $pieces[5], $pieces[6],$pieces[2], $pieces[3], $pieces[1]);
+	return($unix_timestamp);
 }
 
 
+/**
+*
+*/
+function xanth_db_start_transaction()
+{
+	global $transaction_is_started;
+	if(empty($transaction_is_started)
+	{
+		_xanth_db_start_transaction();
+		$transaction_is_started = TRUE;
+	}
+}
+
+/**
+*
+*/
+function xanth_db_commit()
+{
+	global $transaction_is_started;
+	if(! empty($transaction_is_started))
+	{
+		_xanth_db_commit();
+		$transaction_is_started = FALSE;
+	}
+}
+
+/**
+*
+*/
+function xanth_db_rollback()
+{
+	global $transaction_is_started;
+	if(! empty($transaction_is_started))
+	{
+		_xanth_db_rollback();
+		$transaction_is_started = FALSE;
+	}
+}
 
 
 ?>

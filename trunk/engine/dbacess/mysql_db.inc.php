@@ -47,7 +47,7 @@ function _xanth_db_query($query)
 
 	if(mysql_errno())
 	{
-		trigger_error(mysql_error() ."\nquery: ". $query, E_USER_WARNING);
+		trigger_error("(errno: ". mysql_errno() .")" . mysql_error() ."\nquery: ". $query, E_USER_WARNING);
 		return FALSE;
 	}
 	
@@ -163,6 +163,36 @@ function xanth_db_unlock_tables()
 	xanth_db_query('UNLOCK TABLES');
 }
 
+/**
+*
+*/
+function _xanth_db_start_transaction()
+{
+	xanth_db_query('START TRANSACTION');
+}
+
+/**
+*
+*/
+function _xanth_db_commit()
+{
+	xanth_db_query('COMMIT');
+}
+
+/**
+*
+*/
+function _xanth_db_rollback()
+{
+	xanth_db_query('ROLLBACK');
+}
+
+function xanth_db_get_last_id()
+{
+	$result = xanth_db_query('SELECT LAST_INSERT_ID()');
+	$row = xanth_db_fetch_array($result);
+	return $row[0];
+}
 
 /**
 *

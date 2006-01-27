@@ -66,11 +66,11 @@ function xanth_db_install_core()
 		boxName VARCHAR(64) NOT NULL,
 		title VARCHAR(255),
 		content TEXT,
-		content_format_name VARCHAR(64) NOT NULL,
+		content_format VARCHAR(64) NOT NULL,
 		is_user_defined TINYINT NOT NULL,
 		PRIMARY KEY(boxName),
-		FOREIGN KEY(content_format_name) REFERENCES content_format(name),
-		INDEX(content_format_name)
+		FOREIGN KEY(content_format) REFERENCES content_format(name),
+		INDEX(content_format)
 		)");
 		
 	//create builtint box
@@ -83,7 +83,7 @@ function xanth_db_install_core()
 		boxName VARCHAR(64) NOT NULL,
 		area VARCHAR(255) NOT NULL,
 		UNIQUE (boxName,area),
-		FOREIGN KEY(boxName) REFERENCES box(boxName),
+		FOREIGN KEY(boxName) REFERENCES box(boxName) ON DELETE CASCADE,
 		INDEX(boxName)
 		)");
 	
@@ -95,8 +95,52 @@ function xanth_db_install_core()
 		is_default TINYINT NOT NULL,
 		PRIMARY KEY  (name)
 		)");
-	
 	xanth_theme_set_default(new xanthTheme('./themes/','default_theme'));
+	
+	//category
+	xanth_db_query("
+		CREATE TABLE category (
+		id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+		title VARCHAR(255) NOT NULL,
+		parent INT,
+		PRIMARY KEY (id),
+		INDEX(parent),
+		FOREIGN KEY(parent) REFERENCES category(id) ON DELETE CASCADE
+		)");
+	
+	//entry type
+	xanth_db_query("
+		CREATE TABLE entryType (
+		name VARCHAR(32) NOT NULL,
+		PRIMARY KEY (name)
+		)");
+	
+	
+	//entry
+	xanth_db_query("
+		CREATE TABLE entry (
+		id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+		title VARCHAR(255) NOT NULL,
+		type VARCHAR(64) NOT NULL,
+		author VARCHAR(64) NOT NULL,
+		content TEXT NOT NULL,
+		content_format VARCHAR(64) NOT NULL,
+		creation_time TIMESTAMP NOT NULL,
+		PRIMARY KEY  (id),
+		INDEX(type),
+		FOREIGN KEY(type) REFERENCES entryType(name) ON DELETE RESTRICT
+		)");
+		
+	xanth_db_query("
+		CREATE TABLE categorytoentry (
+		entryId INT UNSIGNED NOT NULL,
+		catId INT UNSIGNED NOT NULL,
+		UNIQUE(entryId,catId),
+		INDEX(entryId),
+		INDEX(catId),
+		FOREIGN KEY(entryId) REFERENCES entry(id) ON DELETE CASCADE,
+		FOREIGN KEY(catId) REFERENCES category(id) ON DELETE CASCADE
+		)");
 }
 
 
