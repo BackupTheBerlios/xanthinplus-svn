@@ -22,8 +22,13 @@ function xanth_page_page_creation($eventName,$source_component)
 {
 	//retrieve content page
 	$path = xanth_get_xanthpath();
+	if($path == NULL)
+	{
+		xanth_log(LOG_LEVEL_ERROR,'Invalid xanth path','page',__FUNCTION__);
+	}
+	
 	ob_start();
-	xanth_broadcast_event(EVT_CORE_MAIN_ENTRY_CREATE_ . $path,'page');
+	xanth_broadcast_event(EVT_CORE_MAIN_ENTRY_CREATE_ . $path->get_base_path(),'page',array($path->get_resource_id()));
 	$content = ob_get_clean();
 
 	//retrieve areas

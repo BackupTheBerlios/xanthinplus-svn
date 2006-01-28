@@ -136,21 +136,6 @@ function xanth_list_files($path)
 	return $files;
 }
 
-
-/**
-*
-*/
-function xanth_valid_xanthpath($path) 
-{
-    if (!preg_match('/^(([A-Z0-9_-]+)(\/[A-Z0-9_-]+)*)$/i', $path)) 
-	{
-        return false;
-    } else 
-	{
-        return true;
-    }
-}
-
 /**
 *
 */

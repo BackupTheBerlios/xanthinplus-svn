@@ -30,10 +30,9 @@ define('EVT_THEME_PAGE_TEMPLATE','evt_theme_page_template');
 * @ingroup Events
 * This event is emitted on a content entry creation, you can catch it when implementing your template, and printing you desired content entry structure. \n
 * Additional arguments are:\n
-* 1) $title: the entry title
-* 2) $body: the entry content
+* arguments[0]: the entry object.
 */
-define('EVT_THEME_CONTENT_ENTRY_TEMPLATE','evt_theme_content_entry_template');
+define('EVT_THEME_ENTRY_TEMPLATE','evt_theme_content_entry_template');
 
 /**
 * @ingroup Events

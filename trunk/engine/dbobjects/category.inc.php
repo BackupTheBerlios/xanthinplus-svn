@@ -19,14 +19,32 @@ class xanthCategory
 {
 	var $id;
 	var $title;
-	var $parentId;
+	var $parent_id;
 	
-	function xanthCategory($id,$title,$parentId = NULL)
+	function xanthCategory($id,$title,$parent_id = NULL)
 	{
-		$this->id = $id;
-		$this->title = strip_tags($title);
-		$this->parentId = $parentId;
+		$this->set_id($id);
+		$this->set_title($title);
+		$this->set_parent_id($parent_id);
 	}
+	
+	function set_id($id)
+	{$this->id = $id;}
+	
+	function set_title($title)
+	{$this->title = strip_tags($title);}
+	
+	function set_parent_id($parent_id)
+	{$this->parent_id = $parent_id;}
+	
+	function get_id()
+	{return $this->id;}
+	
+	function get_title()
+	{return $this->title;}
+	
+	function get_parent_id()
+	{return $this->parent_id;}
 }
 
 /**
@@ -34,22 +52,23 @@ class xanthCategory
 */
 function xanth_category_create($category)
 {
-	if($category->parentId == NULL)
+	if($category->get_parent_id() == NULL)
 	{
-		xanth_db_query("INSERT INTO category (title) VALUES ('%s')",$category->title);
+		xanth_db_query("INSERT INTO category (title) VALUES ('%s')",$category->get_title());
 	}
 	else
 	{
-		xanth_db_query("INSERT INTO category (title,parentId) VALUES ('%s','%d')",$category->title,$category->parentId);
+		xanth_db_query("INSERT INTO category (title,parentId) VALUES ('%s','%d')",
+			$category->get_title(),$category->get_parent_id());
 	}
 }
 
 /**
 *
 */
-function xanth_category_delete($category)
+function xanth_category_delete($category_id)
 {
-	xanth_db_query("DELETE FROM category WHERE id = '%d'",$category->id);
+	xanth_db_query("DELETE FROM category WHERE id = '%d'",$category_id);
 }
 
 /**

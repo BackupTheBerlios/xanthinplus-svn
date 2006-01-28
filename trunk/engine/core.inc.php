@@ -31,11 +31,61 @@ define('EVT_CORE_PAGE_CREATE','evt_core_page_create');
 * An event triggered on main entry creation.The main entry is the main content of the page.
 * This is a special event, you should append to this event identifier the name of the level path you would like to handle content creation.\n
 * For example if you want to handle a path named admin/my_module you should register for an event named EVT_CORE_MAIN_ENTRY_CREATE_ . 'admin/module'
+* Additional arguments
+* $arguments[0] : resource id if one is selected in xanth path.
 */
 define('EVT_CORE_MAIN_ENTRY_CREATE_','evt_core_main_entry_create_');
 
 
+class xanthPath
+{
+	var $base_path;
+	var $resource_id;
+	
+	function xanthPath($base_path = NULL,$resource_id = NULL)
+	{
+		$this->set_resource_id($resource_id);
+		$this->set_base_path($base_path);
+	}
+	
+	function set_resource_id($id)
+	{$this->resource_id = $id;}
+	
+	function set_base_path($path)
+	{$this->base_path = $path;}
+	
+	function get_resource_id()
+	{return $this->resource_id;}
+	
+	function get_base_path()
+	{return $this->base_path;}
+};
 
+/**
+*Return NULL if fails to parse, otherwise a xanthPth object
+*/
+function xanth_xanthpath_parse($path) 
+{
+    if (!preg_match('/^(([A-Z_]+)?(\/[A-Z_]+)*)(\/(\d+))?$/i', $path,$pieces))
+	{
+        return NULL;
+    }
+	else 
+	{
+		$path = new xanthPath();
+		$path->set_base_path($pieces[1]);
+		if(isSet($pieces[5]))
+		{
+			$path->set_resource_id($pieces[5]);
+		}
+		return $path;
+    }
+}
+
+
+/**
+ * Return a valid xanthPath object on success, false on parsing error.
+ */
 function xanth_get_xanthpath()
 {
 	if(isset($_GET['p']))
@@ -44,18 +94,10 @@ function xanth_get_xanthpath()
 	}
 	else
 	{
-		return '';
+		return new xanthPath();
 	}
 	
-	//see if it is correct
-	if(xanth_valid_xanthpath($p))
-	{
-		return $p;
-	}
-	else
-	{
-		return '';
-	}
+	return xanth_xanthpath_parse($p);
 }
 
 

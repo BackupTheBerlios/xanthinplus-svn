@@ -18,15 +18,15 @@
 /*
 * Handle index creation.
 */
-function xanth_index_content_creation($eventName,$source_component)
+function xanth_frontpage_content_creation($eventName,$source_component,$arguments)
 {
-	echo "this is the index page";
+	echo "this is the frontpage";
 }
 
 
-function xanth_init_component_index()
+function xanth_init_component_frontpage()
 {
-	xanth_register_callback(EVT_CORE_CREATE_CONTENT_ENTRY_,'xanth_index_content_creation');
+	xanth_register_callback(EVT_CORE_MAIN_ENTRY_CREATE_,'xanth_frontpage_content_creation');
 }
 
 

@@ -28,18 +28,68 @@ class xanthEntry
 	var $content_format;
 	var $categories;
 	
-	function xanthEntry($id,$title,$type,$author,$content,$content_format,,$categories,$creation_time)
+	function xanthEntry($id = NULL,$title = NULL,$type = NULL,$author = NULL,$content = NULL,
+		$content_format = NULL,$categories = NULL,$creation_time = NULL)
 	{
-		$this->id = $id;
-		$this->title = strip_tags($title);
-		$this->type = $type;
-		$this->author = strip_tags($author);
-		$this->creation_time = $creation_time;
-		$this->content = $content;
-		$this->content_format = $content_format;
-		$this->categories = $categories;
+		$this->set_id($id);
+		$this->set_title($title);
+		$this->set_type($type);
+		$this->set_author($author);
+		$this->set_creation_time($creation_time);
+		$this->set_content($content);
+		$this->set_content_format($content_format);
+		$this->set_categories($categories);
 	}
+	
+	function set_id($id)
+	{$this->id = $id;}
+	
+	function set_title($title)
+	{$this->title = strip_tags($title);}
+	
+	function set_type($type)
+	{$this->type = strip_tags($type);}
+	
+	function set_author($author)
+	{$this->author = strip_tags($author);}
+	
+	function set_creation_time($creation_time)
+	{$this->creation_time = $creation_time;}
+	
+	function set_content($content)
+	{$this->content = $content;}
+	
+	function set_content_format($content_format)
+	{$this->content_format = $content_format;}
+	
+	function set_categories($categories)
+	{$this->categories = $categories;}
+	
+	function &get_id()
+	{return $this->id;}
+	
+	function &get_title()
+	{return $this->title;}
+	
+	function &get_type()
+	{return $this->type;}
+	
+	function &get_author()
+	{return $this->author;}
+	
+	function &get_creation_time()
+	{return $this->creation_time;}
+	
+	function &get_content()
+	{return $this->content;}
+	
+	function &get_content_format()
+	{return $this->content_format;}
+	
+	function &get_categories()
+	{return $this->categories;}
 }
+
 
 
 /**
@@ -50,16 +100,19 @@ function xanth_entry_create($entry)
 	xanth_db_start_transaction();
 	$time = time();
 	xanth_db_query("INSERT INTO entry (title,type,author,content,content_format,creation_time) VALUES('%s','%s','%s','%s','%s',UNIX_TIMESTAMP(%d))",
-		$entry->title,$entry->type,$entry->author,$entry->content,$entry->content_format,$time);
+		$entry->get_title(),$entry->get_type(),$entry->get_author(),$entry->get_content(),
+		$entry->get_content_format(),$time);
 	
-	$entry->time = $time;
-	$entry->id = xanth_db_get_last_id();
+	$entry->set_creation_time($time);
+	$entry->set_id(xanth_db_get_last_id());
 	
-	if(!empty($entry->categories))
+	$categories = $entry->get_categories();
+	if(!empty($categories))
 	{
-		foreach($entry->categories as $category)
+		foreach($categories as $category)
 		{
-			xanth_db_query("INSERT INTO categorytoentry (entryId,catId) VALUES('%d','%d')",$entry->id,$category->id);
+			xanth_db_query("INSERT INTO categorytoentry (entryId,catId) VALUES('%d','%d')",
+				$entry->get_id(),$category->get_id());
 		}
 	}
 	
@@ -85,15 +138,18 @@ function xanth_entry_update($entry)
 {
 	xanth_db_start_transaction();
 	
-	xanth_db_query("UPDATE entry SET title = '%s',type = '%s',author = '%s',content = '%s',content_format = '%s' WHERE id = %d",$entry->id
-		$entry->title,$entry->type,$entry->author,$entry->content,$entry->content_format);
+	xanth_db_query("UPDATE entry SET title = '%s',type = '%s',author = '%s',content = '%s',content_format = '%s' WHERE id = %d",
+		$entry->get_id(),$entry->get_title(),$entry->get_type(),$entry->get_author(),
+		$entry->get_content(),$entry->get_content_format());
 	
-	xanth_db_query("DELETE FROM categorytoentry WHERE entryId = '%d'",$entry->id);
-	if(!empty($entry->categories))
+	xanth_db_query("DELETE FROM categorytoentry WHERE entryId = '%d'",$entry->get_id());
+	$categories = $entry->get_categories();
+	if(!empty($categories))
 	{
-		foreach($entry->categories as $category)
+		foreach($categories as $category)
 		{
-			xanth_db_query("INSERT INTO categorytoentry (entryId,catId) VALUES('%d','%d')",$entry->id,$category->id);
+			xanth_db_query("INSERT INTO categorytoentry (entryId,catId) VALUES('%d','%d')",
+				$entry->get_id(),$category->get_id());
 		}
 	}
 
@@ -109,17 +165,19 @@ function xanth_entry_get($entry_id)
 	xanth_db_start_transaction();
 	
 	$entry = NULL;
-	$result = xanth_db_query("SELECT * FROM entry WHERE id = %d",$entry->id);
+	$result = xanth_db_query("SELECT * FROM entry WHERE id = %d",$entry_id);
 	if($row = xanth_db_fetch_object($result))
 	{
 		$entry = new xanthEntry($row->id,$row->title,$row->type,$row->author,$row->content,
 			$row->content_format,array(),xanth_db_decode_timestamp($row->creation_time));
 		
 		$result = xanth_db_query("SELECT * FROM categorytoentry WHERE entryId = %d",$entry_id);
+		$categories = array();
 		while($row = xanth_db_fetch_object($result))
 		{
-			$entry->categories[] = new xanthCategory($row->id,$row->title,$row->parentId);
+			$categories[] = new xanthCategory($row->id,$row->title,$row->parentId);
 		}
+		$entry->set_categories($categories);
 	}
 
 	xanth_db_commit();
@@ -142,10 +200,12 @@ function xanth_entry_list()
 			$row->content_format,array(),xanth_db_decode_timestamp($row->creation_time));
 		
 		$result = xanth_db_query("SELECT * FROM categorytoentry WHERE entryId = %d",$row->id);
+		$categories = array();
 		while($row = xanth_db_fetch_object($result))
 		{
-			$entry[$i]->categories[] = new xanthCategory($row->id,$row->title,$row->parentId);
+			$categories[] = new xanthCategory($row->id,$row->title,$row->parentId);
 		}
+		$entry[$i]->set_categories($categories);
 	}
 
 	xanth_db_commit();

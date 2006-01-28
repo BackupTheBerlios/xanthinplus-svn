@@ -32,9 +32,9 @@ function default_page_template($eventName,$component,$arguments)
 
 function default_content_entry_template($eventName,$component,$arguments)
 {
-	list($title,$body) = $arguments;
+	$entry = $arguments[0];
 	
-	echo "<strong>$title</strong> <br> $body";
+	echo "<strong>" . $entry->get_title() ."</strong> <br>" . $entry->get_content();
 }
 
 
@@ -69,7 +69,7 @@ function xanth_custom_theme_areas($eventName,$component,$arguments)
 function xanth_theme_init_default()
 {
 	xanth_register_callback(EVT_THEME_PAGE_TEMPLATE,'default_page_template');
-	xanth_register_callback(EVT_THEME_CONTENT_ENTRY_TEMPLATE,'default_content_entry_template');
+	xanth_register_callback(EVT_THEME_ENTRY_TEMPLATE,'default_content_entry_template');
 	xanth_register_callback(EVT_THEME_BOX_TEMPLATE,'default_box_template');
 	xanth_register_callback(EVT_THEME_AREA_TEMPLATE_ . 'custom area','default_custom_area_template');
 	xanth_register_callback(EVT_THEME_AREA_LIST,'xanth_custom_theme_areas');

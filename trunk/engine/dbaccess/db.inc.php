@@ -102,7 +102,7 @@ function xanth_db_query($query)
 */
 function xanth_db_decode_timestamp($db_timestamp)
 {
-	preg_match('/(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})/',$db_timestamp,$pieces);
+	preg_match('/(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})/',$db_timestamp,$pieces);
 	$unix_timestamp = mktime($pieces[4], $pieces[5], $pieces[6],$pieces[2], $pieces[3], $pieces[1]);
 	return($unix_timestamp);
 }
@@ -114,7 +114,7 @@ function xanth_db_decode_timestamp($db_timestamp)
 function xanth_db_start_transaction()
 {
 	global $transaction_is_started;
-	if(empty($transaction_is_started)
+	if(empty($transaction_is_started))
 	{
 		_xanth_db_start_transaction();
 		$transaction_is_started = TRUE;

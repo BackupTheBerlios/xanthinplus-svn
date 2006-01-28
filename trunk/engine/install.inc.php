@@ -63,12 +63,12 @@ function xanth_db_install_core()
 	//box
 	xanth_db_query("
 		CREATE TABLE box (
-		boxName VARCHAR(64) NOT NULL,
+		id INT UNSIGNED AUTO_INCREMENT NOT NULL,
 		title VARCHAR(255),
 		content TEXT,
 		content_format VARCHAR(64) NOT NULL,
 		is_user_defined TINYINT NOT NULL,
-		PRIMARY KEY(boxName),
+		PRIMARY KEY(id),
 		FOREIGN KEY(content_format) REFERENCES content_format(name),
 		INDEX(content_format)
 		)");
@@ -80,11 +80,11 @@ function xanth_db_install_core()
 	//box to area mapping
 	xanth_db_query("
 		CREATE TABLE boxToArea (
-		boxName VARCHAR(64) NOT NULL,
+		boxId VARCHAR(64) NOT NULL,
 		area VARCHAR(255) NOT NULL,
-		UNIQUE (boxName,area),
-		FOREIGN KEY(boxName) REFERENCES box(boxName) ON DELETE CASCADE,
-		INDEX(boxName)
+		UNIQUE (boxId,area),
+		FOREIGN KEY(boxId) REFERENCES box(id) ON DELETE CASCADE,
+		INDEX(boxId)
 		)");
 	
 	//themes

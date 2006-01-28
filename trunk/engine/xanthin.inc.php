@@ -18,7 +18,7 @@
 require_once('conf.inc.php');
 require_once('engine/globals.inc.php');
 require_once('engine/base.inc.php');
-require_once('engine/dba/db.inc.php');
+require_once('engine/dbaccess/db.inc.php');
 require_once('engine/log.inc.php');
 require_once('engine/event.inc.php');
 require_once('engine/component.inc.php');
@@ -49,7 +49,7 @@ function xanth_init()
 	xanth_modules_init();
 	xanth_theme_init(xanth_theme_get_default());
 	
-	xanth_broadcast_event(EVT_CORE_CREATE_PAGE,'core');
+	xanth_broadcast_event(EVT_CORE_PAGE_CREATE,'core');
 	
 	//print log
 	foreach(xanth_get_screen_log() as $entry)
