@@ -23,28 +23,10 @@ class xanthCategory
 	
 	function xanthCategory($id,$title,$parent_id = NULL)
 	{
-		$this->set_id($id);
-		$this->set_title($title);
-		$this->set_parent_id($parent_id);
+		$this->id = $id;
+		$this->title = $title;
+		$this->parent_id = $parent_id;
 	}
-	
-	function set_id($id)
-	{$this->id = $id;}
-	
-	function set_title($title)
-	{$this->title = strip_tags($title);}
-	
-	function set_parent_id($parent_id)
-	{$this->parent_id = $parent_id;}
-	
-	function get_id()
-	{return $this->id;}
-	
-	function get_title()
-	{return $this->title;}
-	
-	function get_parent_id()
-	{return $this->parent_id;}
 }
 
 /**
@@ -52,14 +34,14 @@ class xanthCategory
 */
 function xanth_category_create($category)
 {
-	if($category->get_parent_id() == NULL)
+	if($category->parent_id == NULL)
 	{
-		xanth_db_query("INSERT INTO category (title) VALUES ('%s')",$category->get_title());
+		xanth_db_query("INSERT INTO category (title) VALUES ('%s')",$category->title);
 	}
 	else
 	{
 		xanth_db_query("INSERT INTO category (title,parentId) VALUES ('%s','%d')",
-			$category->get_title(),$category->get_parent_id());
+			$category->title,$category->parent_id);
 	}
 }
 

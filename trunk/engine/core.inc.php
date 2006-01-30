@@ -44,21 +44,9 @@ class xanthPath
 	
 	function xanthPath($base_path = NULL,$resource_id = NULL)
 	{
-		$this->set_resource_id($resource_id);
-		$this->set_base_path($base_path);
+		$this->resource_id = $resource_id;
+		$this->base_path = $base_path;
 	}
-	
-	function set_resource_id($id)
-	{$this->resource_id = $id;}
-	
-	function set_base_path($path)
-	{$this->base_path = $path;}
-	
-	function get_resource_id()
-	{return $this->resource_id;}
-	
-	function get_base_path()
-	{return $this->base_path;}
 };
 
 /**
@@ -73,10 +61,10 @@ function xanth_xanthpath_parse($path)
 	else 
 	{
 		$path = new xanthPath();
-		$path->set_base_path($pieces[1]);
+		$path->base_path = $pieces[1];
 		if(isSet($pieces[5]))
 		{
-			$path->set_resource_id($pieces[5]);
+			$path->resource_id = $pieces[5];
 		}
 		return $path;
     }

@@ -34,7 +34,7 @@ function default_content_entry_template($eventName,$component,$arguments)
 {
 	$entry = $arguments[0];
 	
-	echo "<strong>" . $entry->get_title() ."</strong> <br>" . $entry->get_content();
+	echo "<strong>" . $entry->title ."</strong> <br>" . $entry->content;
 }
 
 

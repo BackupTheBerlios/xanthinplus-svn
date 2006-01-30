@@ -35,42 +35,12 @@ class xanthBox
 	
 	function xanthBox($id,$title,$content,$content_format,$user_defined)
 	{
-		$this->set_id($id);
-		$this->set_title($title);
-		$this->set_content_format($content_format);
-		$this->set_user_defined($user_defined);
-		$this->set_content($content);
+		$this->id = $id;
+		$this->title = $title;
+		$this->content_format = $content_format;
+		$this->user_defined = $user_defined;
+		$this->content = $content;
 	}
-	
-	function set_id($id)
-	{$this->id = $id;}
-	
-	function set_title($title)
-	{$this->title = strip_tags($title);}
-	
-	function set_content_format($content_format)
-	{$this->content_format = $content_format;}
-	
-	function set_content($content)
-	{$this->content = $content;}
-	
-	function set_user_defined($user_defined)
-	{$this->user_defined = $user_defined;}
-	
-	function get_id()
-	{return $this->id;}
-	
-	function get_title()
-	{return $this->title;}
-	
-	function get_content_format()
-	{return $this->content_format;}
-	
-	function get_content()
-	{return $this->content;}
-	
-	function get_user_defined()
-	{return $this->user_defined;}
 };
 
 /**
@@ -79,8 +49,7 @@ class xanthBox
 function xanth_box_create($xanth_box)
 {
 	xanth_db_query("INSERT INTO box(id,title,content,content_format_name,is_user_defined) VALUES(%d,'%s','%s','%s',%d)",
-		$xanth_box->get_id(),$xanth_box->get_title(),$xanth_box->get_content(),
-		$xanth_box->get_content_format(),$xanth_box->get_user_defined());
+		$xanth_box->id,$xanth_box->title,$xanth_box->content,$xanth_box->content_format,$xanth_box->user_defined);
 }
 
 /**
@@ -89,7 +58,7 @@ function xanth_box_create($xanth_box)
 function xanth_box_update($xanth_box)
 {
 	xanth_db_query("UPDATE box SET content = '%s',content_format_name = '%s',title = '%s' WHERE id = '%s'",
-	$xanth_box->get_content(),$xanth_box->get_content_format(),$xanth_box->get_title(),$xanth_box->get_id());
+		$xanth_box->content,$xanth_box->content_format,$xanth_box->title,$xanth_box->id);
 }
 
 
@@ -98,7 +67,7 @@ function xanth_box_update($xanth_box)
 */
 function xanth_box_delete($box_id)
 {
-	xanth_db_query("DELETE FROM box WHERE id = '%s'",$xanth_box->get_id());
+	xanth_db_query("DELETE FROM box WHERE id = '%s'",$box_id);
 }
 
 
@@ -124,12 +93,12 @@ function xanth_box_list($area = '')
 		{
 			//retrieve built-in box content
 			$content = '';
-			xanth_broadcast_event(EVT_CORE_CREATE_BOX_CONTENT_ . $current_box->get_id(),'core',array(&$content));
-			$current_box->set_content($content);
+			xanth_broadcast_event(EVT_CORE_CREATE_BOX_CONTENT_ . $current_box->id,'core',array(&$content));
+			$current_box->content = $content;
 		}
 		else
 		{
-			$current_box->set_content(xanth_apply_content_format($current_box->get_content(),$row['content_format']));
+			$current_box->content = xanth_apply_content_format($current_box->content,$row['content_format']);
 		}
 		$boxes[] = $current_box;
 	}

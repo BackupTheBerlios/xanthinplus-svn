@@ -28,9 +28,14 @@ function xanth_page_page_creation($eventName,$source_component)
 	}
 	
 	ob_start();
-	xanth_broadcast_event(EVT_CORE_MAIN_ENTRY_CREATE_ . $path->get_base_path(),'page',array($path->get_resource_id()));
+	xanth_broadcast_event(EVT_CORE_MAIN_ENTRY_CREATE_ . $path->base_path,'page',array($path->resource_id));
 	$content = ob_get_clean();
 
+	if(empty($content))
+	{
+		$content = "<strong>Page not found</strong>";
+	}
+	
 	//retrieve areas
 	$areas = array();
 

@@ -34,7 +34,7 @@ function xanth_content_content_create($eventName,$source_component,$arguments)
 /*
 *
 */
-function xanth_content_admin($eventName,$source_component,$arguments)
+function xanth_content_admin_content_create($eventName,$source_component,$arguments)
 {
 	$form_elements = array();
 	$form_groups = array();
@@ -42,7 +42,7 @@ function xanth_content_admin($eventName,$source_component,$arguments)
 	$form_elements[] = new xanthFormTextField('content_title','Title:','','');
 	$form_elements[] = new xanthFormSubmit('submit','Create');
 	$form_groups[] = new xanthFormGroup($form_elements,'');
-	$form = new xanthForm('?p=content/admin',$form_groups);
+	$form = new xanthForm('?p=admin/content/create',$form_groups);
 	
 	echo xanth_form_to_html($form);
 }
@@ -54,7 +54,7 @@ function xanth_content_admin($eventName,$source_component,$arguments)
 function xanth_init_component_content()
 {
 	xanth_register_callback(EVT_CORE_MAIN_ENTRY_CREATE_ . 'content','xanth_content_content_create');
-	xanth_register_callback(EVT_CORE_MAIN_ENTRY_CREATE_ . 'content/admin','xanth_content_admin');
+	xanth_register_callback(EVT_CORE_MAIN_ENTRY_CREATE_ . 'admin/content/create','xanth_content_admin_content_create');
 }
 
 
