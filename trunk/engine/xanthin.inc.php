@@ -23,6 +23,7 @@ require_once('engine/log.inc.php');
 require_once('engine/event.inc.php');
 require_once('engine/component.inc.php');
 require_once('engine/module.inc.php');
+require_once('engine/form.inc.php');
 require_once('engine/theme.inc.php');
 require_once('engine/session.inc.php');
 require_once('engine/core.inc.php');

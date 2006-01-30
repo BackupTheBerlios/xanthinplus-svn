@@ -15,12 +15,12 @@
 * PURPOSE ARE DISCLAIMED.SEE YOUR CHOOSEN LICENSE FOR MORE DETAILS.
 */
 
-function xanth_db_install_weight_page()
+function xanth_db_install_weight_content()
 {
 	return 100;
 }
 
-function xanth_db_install_page()
+function xanth_db_install_content()
 {
 }
 

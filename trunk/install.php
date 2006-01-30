@@ -73,7 +73,14 @@ function xanth_install_db()
 }
 
 xanth_db_connect(xanth_conf_get('db_host',''),xanth_conf_get('db_name',''),xanth_conf_get('db_user',''),xanth_conf_get('db_pass',''),xanth_conf_get('db_port',''));
+error_reporting(E_ALL);
 xanth_install_db();
+
+//print log
+foreach(xanth_get_screen_log() as $entry)
+{
+	echo '<br />' . $entry->level . ' ' . $entry->component . ' ' . $entry->message . ' ' . $entry->filename . '@' . $entry->line;
+}
 
 echo "xanthin+ successfully installed";
 

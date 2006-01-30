@@ -30,7 +30,7 @@ function xanth_db_install_core()
 		filename  VARCHAR(255) NOT NULL,
 		line MEDIUMINT NOT NULL,
 		timestamp TIMESTAMP
-		)");
+		)TYPE=InnoDB");
 		
 	//sessions
 	xanth_db_query("
@@ -39,7 +39,7 @@ function xanth_db_install_core()
 		session_data TEXT NOT NULL,
 		session_timestamp TIMESTAMP NOT NULL,
 		PRIMARY KEY  (session_id)
-		)");
+		)TYPE=InnoDB");
 		
 	//Modules
 	xanth_db_query("
@@ -48,7 +48,7 @@ function xanth_db_install_core()
 		path VARCHAR(255) NOT NULL,
 		enabled TINYINT NOT NULL,
 		PRIMARY KEY  (name)
-		)");
+		)TYPE=InnoDB");
 		
 	
 	//content format
@@ -58,7 +58,7 @@ function xanth_db_install_core()
 		stripped_html TINYINT NOT NULL,
 		php_source TINYINT NOT NULL,
 		new_line_to_line_break TINYINT NOT NULL
-		)");
+		)TYPE=InnoDB");
 	
 	//box
 	xanth_db_query("
@@ -71,7 +71,7 @@ function xanth_db_install_core()
 		PRIMARY KEY(id),
 		FOREIGN KEY(content_format) REFERENCES content_format(name),
 		INDEX(content_format)
-		)");
+		)TYPE=InnoDB");
 		
 	//create builtint box
 	//xanth_create_box(new xanthBox(''));
@@ -79,13 +79,13 @@ function xanth_db_install_core()
 	
 	//box to area mapping
 	xanth_db_query("
-		CREATE TABLE boxToArea (
-		boxId VARCHAR(64) NOT NULL,
+		CREATE TABLE boxtoarea (
+		boxId INT UNSIGNED NOT NULL,
 		area VARCHAR(255) NOT NULL,
 		UNIQUE (boxId,area),
 		FOREIGN KEY(boxId) REFERENCES box(id) ON DELETE CASCADE,
 		INDEX(boxId)
-		)");
+		)TYPE=InnoDB");
 	
 	//themes
 	xanth_db_query("
@@ -94,7 +94,7 @@ function xanth_db_install_core()
 		path VARCHAR(255) NOT NULL,
 		is_default TINYINT NOT NULL,
 		PRIMARY KEY  (name)
-		)");
+		)TYPE=InnoDB");
 	xanth_theme_set_default(new xanthTheme('./themes/','default_theme'));
 	
 	//category
@@ -102,18 +102,18 @@ function xanth_db_install_core()
 		CREATE TABLE category (
 		id INT UNSIGNED NOT NULL AUTO_INCREMENT,
 		title VARCHAR(255) NOT NULL,
-		parent INT,
+		parent INT UNSIGNED,
 		PRIMARY KEY (id),
 		INDEX(parent),
 		FOREIGN KEY(parent) REFERENCES category(id) ON DELETE CASCADE
-		)");
+		)TYPE=InnoDB");
 	
 	//entry type
 	xanth_db_query("
 		CREATE TABLE entryType (
 		name VARCHAR(32) NOT NULL,
 		PRIMARY KEY (name)
-		)");
+		)TYPE=InnoDB");
 	
 	
 	//entry
@@ -129,7 +129,7 @@ function xanth_db_install_core()
 		PRIMARY KEY  (id),
 		INDEX(type),
 		FOREIGN KEY(type) REFERENCES entryType(name) ON DELETE RESTRICT
-		)");
+		)TYPE=InnoDB");
 		
 	xanth_db_query("
 		CREATE TABLE categorytoentry (
@@ -140,7 +140,7 @@ function xanth_db_install_core()
 		INDEX(catId),
 		FOREIGN KEY(entryId) REFERENCES entry(id) ON DELETE CASCADE,
 		FOREIGN KEY(catId) REFERENCES category(id) ON DELETE CASCADE
-		)");
+		)TYPE=InnoDB");
 }
 
 

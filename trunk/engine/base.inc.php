@@ -15,6 +15,21 @@
 * PURPOSE ARE DISCLAIMED.SEE YOUR CHOOSEN LICENSE FOR MORE DETAILS.
 */
 
+/**
+*
+*/
+function xanth_instanceof($object,$class_name)
+{
+	if(version_compare(PHP_VERSION,"5.0.0") >= 0)
+	{
+		return is_a($object,$class_name);
+	}
+	else
+	{
+		return $object instanceof $class_name;
+	}
+}
+
 
 /**
  * Return a configuration variable.
