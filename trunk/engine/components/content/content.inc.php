@@ -20,7 +20,7 @@
 */
 function xanth_content_content_create($eventName,$source_component,$arguments)
 {
-	$selected_entry = xanth_entry_get($arguments[0]);
+	$selected_entry = xanthEntry::get($arguments[0]);
 	if($selected_entry == NULL)
 	{
 		xanth_log(LOG_LEVEL_ERROR,'content','Content not found');
@@ -44,7 +44,7 @@ function xanth_content_admin_content_create($eventName,$source_component,$argume
 	$form_groups[] = new xanthFormGroup($form_elements,'');
 	$form = new xanthForm('?p=admin/content/create',$form_groups);
 	
-	echo xanth_form_to_html($form);
+	echo $form->render();
 }
 
 

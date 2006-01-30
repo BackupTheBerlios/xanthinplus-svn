@@ -60,6 +60,7 @@ function xanth_db_install_core()
 		new_line_to_line_break TINYINT NOT NULL
 		)TYPE=InnoDB");
 	
+	
 	//box
 	xanth_db_query("
 		CREATE TABLE box (

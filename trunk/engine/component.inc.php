@@ -26,46 +26,48 @@ class xanthComponent
 		$this->path = $path;
 		$this->name = $name;
 	}
+	
+	/**
+	 * Returns an array of xanthComponent objects  representing all existing compoenents \n
+	 */
+	function find_existing()
+	{
+		$components = array();
+		
+		//read additional module directory
+		$dir = './engine/components';
+		$dir_list = xanth_list_dirs($dir);
+		if(is_array($dir_list))
+		{
+			foreach($dir_list as $raw_component)
+			{
+				$components[] = new xanthComponent($raw_component['path'],$raw_component['name']);
+			}
+		}
+		else
+		{
+			xanth_log(LOG_LEVEL_FATAL_ERROR,"Component directory $dir not found","Core",__FUNCTION__);
+		}
+		
+		return $components;
+	}
+
+
+	/**
+	 * Include enabled components and call xanth_init_component_[componentname] for every ones.
+	 */
+	function init_all()
+	{
+		foreach(xanthComponent::find_existing() as $component)
+		{
+			include_once($component->path . $component->name . '.inc.php');
+			$init_func = "xanth_init_component_" . $component->name;
+			$init_func();
+		}
+	}
 };
 
-/**
- * Returns an array of xanthComponent objects  representing all existing compoenents \n
- */
-function xanth_component_list_existing()
-{
-	$components = array();
-	
-	//read additional module directory
-	$dir = './engine/components';
-	$dir_list = xanth_list_dirs($dir);
-	if(is_array($dir_list))
-	{
-        foreach($dir_list as $raw_component)
-		{
-			$components[] = new xanthComponent($raw_component['path'],$raw_component['name']);
-		}
-    }
-	else
-	{
-		xanth_log(LOG_LEVEL_FATAL_ERROR,"Component directory $dir not found","Core",__FUNCTION__);
-	}
-	
-	return $components;
-}
 
-
-/**
- * Include enabled components and call xanth_init_component_[componentname] for every ones.
- */
-function xanth_components_init()
-{
-	foreach(xanth_component_list_existing() as $component)
-	{
-		include_once($component->path . $component->name . '.inc.php');
-		$init_func = "xanth_init_component_" . $component->name;
-		$init_func();
-	}
-}
 
 
 ?>

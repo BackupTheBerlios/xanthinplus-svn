@@ -41,69 +41,79 @@ class xanthBox
 		$this->user_defined = $user_defined;
 		$this->content = $content;
 	}
-};
-
-/**
-* Create a new box and add it in database. Return false if a box with that name already exists.
-*/
-function xanth_box_create($xanth_box)
-{
-	xanth_db_query("INSERT INTO box(id,title,content,content_format_name,is_user_defined) VALUES(%d,'%s','%s','%s',%d)",
-		$xanth_box->id,$xanth_box->title,$xanth_box->content,$xanth_box->content_format,$xanth_box->user_defined);
-}
-
-/**
-* Update an existing box.
-*/
-function xanth_box_update($xanth_box)
-{
-	xanth_db_query("UPDATE box SET content = '%s',content_format_name = '%s',title = '%s' WHERE id = '%s'",
-		$xanth_box->content,$xanth_box->content_format,$xanth_box->title,$xanth_box->id);
-}
-
-
-/**
-* Delete an existing box.
-*/
-function xanth_box_delete($box_id)
-{
-	xanth_db_query("DELETE FROM box WHERE id = '%s'",$box_id);
-}
-
-
-/**
-* List all box in an area.
-*/
-function xanth_box_list($area = '')
-{
-	$boxes = array();
-	if(empty($area))
+	
+	/**
+	*
+	*/
+	function insert()
 	{
-		$result = xanth_db_query("SELECT * FROM box");
-	}
-	else
-	{
-		$result = xanth_db_query("SELECT * FROM box,boxtoarea WHERE box.boxName = boxtoarea.boxName AND boxtoarea.area = '%s'",$area);
+		xanth_db_query("INSERT INTO box(id,title,content,content_format_name,is_user_defined) VALUES(%d,'%s','%s','%s',%d)",
+			$this->id,$this->title,$this->content,$this->content_format,$this->user_defined);
 	}
 	
-	while($row = xanth_db_fetch_array($result))
+	
+	/**
+	* Update an existing box.
+	*/
+	function update()
 	{
-		$current_box = new xanthBox($row['id'],$row['title'],$row['content'],$row['content_format_name'],$row['is_user_defined']);
-		if($current_box->get_user_defined())
+		xanth_db_query("UPDATE box SET content = '%s',content_format_name = '%s',title = '%s' WHERE id = '%s'",
+			$this->content,$this->content_format,$this->title,$this->id);
+	}
+	
+	
+	/**
+	* Delete an existing box.
+	*/
+	function delete()
+	{
+		xanth_db_query("DELETE FROM box WHERE id = '%s'",$this->id);
+	}
+	
+	/**
+	* List all box in an area.
+	*/
+	function find($area = '')
+	{
+		$boxes = array();
+		if(empty($area))
 		{
-			//retrieve built-in box content
-			$content = '';
-			xanth_broadcast_event(EVT_CORE_CREATE_BOX_CONTENT_ . $current_box->id,'core',array(&$content));
-			$current_box->content = $content;
+			$result = xanth_db_query("SELECT * FROM box");
 		}
 		else
 		{
-			$current_box->content = xanth_apply_content_format($current_box->content,$row['content_format']);
+			$result = xanth_db_query("SELECT * FROM box,boxtoarea WHERE box.boxName = boxtoarea.boxName AND boxtoarea.area = '%s'",$area);
 		}
-		$boxes[] = $current_box;
+		
+		while($row = xanth_db_fetch_array($result))
+		{
+			$current_box = new xanthBox($row['id'],$row['title'],$row['content'],$row['content_format_name'],$row['is_user_defined']);
+			if($current_box->get_user_defined())
+			{
+				//retrieve built-in box content
+				$content = '';
+				xanth_broadcast_event(EVT_CORE_CREATE_BOX_CONTENT_ . $current_box->id,'core',array(&$content));
+				$current_box->content = $content;
+			}
+			else
+			{
+				$current_box->content = xanth_apply_content_format($current_box->content,$row['content_format']);
+			}
+			$boxes[] = $current_box;
+		}
+		return $boxes;
 	}
-	return $boxes;
-}
+	
+};
+
+
+
+
+
+
+
+
+
 
 
 ?>

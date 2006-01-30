@@ -33,115 +33,114 @@ class xanthModule
 		$this->path = $path;
 		$this->name = $name;
 	}
-};
-
-
-/**
- * Returns an array of xanthModule objects  representing all existing modules \n
- */
-function xanth_module_list_existing()
-{
-	$modules = array();
 	
-	//read additional module directory
-	$dir = './modules/';
-	$dir_list = xanth_list_dirs($dir);
-	if(is_array($dir_list))
+	/**
+	 * Returns an array of xanthModule objects  representing all existing modules \n
+	 */
+	function find_existing()
 	{
-        foreach($dir_list as $raw_module)
+		$modules = array();
+		
+		//read additional module directory
+		$dir = './modules/';
+		$dir_list = xanth_list_dirs($dir);
+		if(is_array($dir_list))
 		{
-			$modules[] = new xanthModule($raw_module['path'],$raw_module['name']);
-		}
-    }
-	else
-	{
-		xanth_log(LOG_LEVEL_FATAL_ERROR,"Module directory $dir not found","Core",__FILE__,__LINE__);
-	}
-	
-	return $modules;
-}
-
-/**
-*
-*/
-function xanth_module_list_enabled()
-{
-	$enabled_mod = array();
-	foreach(xanth_module_list_existing() as $module)
-	{
-		$result = xanth_db_query("SELECT enabled FROM modules WHERE name = '%s'",$module->name);
-		if($row = xanth_db_fetch_array($result))
-		{
-			if($row['enabled'] !== 0)
+			foreach($dir_list as $raw_module)
 			{
-				$enabled_mod[] = $module;
+				$modules[] = new xanthModule($raw_module['path'],$raw_module['name']);
 			}
-		}
-	}
-	return $enabled_mod;
-}
-
-/**
-*
-*/
-function xanth_module_exists($module)
-{
-	return is_dir($module->path . $module->name);
-}
-
-/**
-*
-*/
-function xanth_module_enable($module)
-{
-	if(xanth_module_exists($module))
-	{
-		$result = xanth_db_query("SELECT enabled FROM modules WHERE name = '%s'",$module->name);
-		if($row = xanth_db_fetch_array($result))
-		{
-			if(!$row['enabled'])
-				xanth_db_query("UPDATE modules SET enabled = 1 WHERE name = '%s'",$module->name);
 		}
 		else
 		{
-			xanth_db_query("INSERT INTO modules(name,path,enabled) VALUES('%s','%s',%d)",$module->name,$module->path,1);
+			xanth_log(LOG_LEVEL_FATAL_ERROR,"Module directory $dir not found","Core",__FILE__,__LINE__);
 		}
 		
-		return true;
+		return $modules;
 	}
-	return false;
-}
-
-/**
-*
-*/
-function xanth_module_disable($module)
-{
-	if(xanth_module_exists($name,$path))
+	
+	/**
+	*
+	*/
+	function find_enabled()
 	{
-		$result = xanth_db_query("SELECT enabled FROM modules WHERE name = '%s'",$module->name);
-		if($row = xanth_db_fetch_array($result))
+		$enabled_mod = array();
+		foreach(xanthModule::find_existing() as $module)
 		{
-			if($row['enabled'])
-				xanth_db_query("UPDATE modules SET enabled = 0 WHERE name = '%s'",$module->name);
+			$result = xanth_db_query("SELECT enabled FROM modules WHERE name = '%s'",$module->name);
+			if($row = xanth_db_fetch_array($result))
+			{
+				if($row['enabled'] !== 0)
+				{
+					$enabled_mod[] = $module;
+				}
+			}
 		}
-		return true;
+		return $enabled_mod;
 	}
-	return false;
-}
 
-/**
- * Include enabled modules and call xanth_init_module_[modulename] for every loaded module
- */
-function xanth_modules_init()
-{
-	foreach(xanth_module_list_enabled() as $module)
+	/**
+	*
+	*/
+	function exists()
 	{
-		include_once($module->path . $module->name . '.inc.php');
-		$init_func = "xanth_init_module_".$module->name;
-		$init_func();
+		return is_dir($this->path . $this->name);
 	}
-}
+
+	/**
+	*
+	*/
+	function enable()
+	{
+		if($this->exists())
+		{
+			$result = xanth_db_query("SELECT enabled FROM modules WHERE name = '%s'",$this->name);
+			if($row = xanth_db_fetch_array($result))
+			{
+				if(!$row['enabled'])
+					xanth_db_query("UPDATE modules SET enabled = 1 WHERE name = '%s'",$this->name);
+			}
+			else
+			{
+				xanth_db_query("INSERT INTO modules(name,path,enabled) VALUES('%s','%s',%d)",$this->name,$this->path,1);
+			}
+			
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	*
+	*/
+	function disable()
+	{
+		if($this->exists())
+		{
+			$result = xanth_db_query("SELECT enabled FROM modules WHERE name = '%s'",$this->name);
+			if($row = xanth_db_fetch_array($result))
+			{
+				if($row['enabled'])
+					xanth_db_query("UPDATE modules SET enabled = 0 WHERE name = '%s'",$this->name);
+			}
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * Include enabled modules and call xanth_init_module_[modulename] for every loaded module
+	 */
+	function init_all()
+	{
+		foreach(xanthModule::find_enabled() as $module)
+		{
+			include_once($module->path . $module->name . '.inc.php');
+			$init_func = "xanth_init_module_".$module->name;
+			$init_func();
+		}
+	}
+};
 
 
 ?>

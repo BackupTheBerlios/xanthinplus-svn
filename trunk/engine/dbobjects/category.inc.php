@@ -27,77 +27,79 @@ class xanthCategory
 		$this->title = $title;
 		$this->parent_id = $parent_id;
 	}
-}
-
-/**
-*
-*/
-function xanth_category_create($category)
-{
-	if($category->parent_id == NULL)
-	{
-		xanth_db_query("INSERT INTO category (title) VALUES ('%s')",$category->title);
-	}
-	else
-	{
-		xanth_db_query("INSERT INTO category (title,parentId) VALUES ('%s','%d')",
-			$category->title,$category->parent_id);
-	}
-}
-
-/**
-*
-*/
-function xanth_category_delete($category_id)
-{
-	xanth_db_query("DELETE FROM category WHERE id = '%d'",$category_id);
-}
-
-/**
-*
-*/
-function xanth_category_list_root()
-{
-	$result = xanth_db_query("SELECT * FROM category WHERE parentId = NULL");
-	$categories = array();
-	while($row = xanth_db_fetch_object($result))
-	{
-		$categories[] = new xanthCategory($row->id,$row->title);
-	}
 	
-	return $categories;
-}
-
-/**
-*
-*/
-function xanth_category_list_childs($parentId)
-{
-	$result = xanth_db_query("SELECT * FROM category WHERE parentId = '%d'",$parentId);
-	$categories = array();
-	while($row = xanth_db_fetch_object($result))
+	/**
+	*
+	*/
+	function insert()
 	{
-		$categories[] = new xanthCategory($row->id,$row->title,$row->parentId);
+		if($this->parent_id == NULL)
+		{
+			xanth_db_query("INSERT INTO category (title) VALUES ('%s')",$this->title);
+		}
+		else
+		{
+			xanth_db_query("INSERT INTO category (title,parentId) VALUES ('%s','%d')",
+				$this->title,$this->parent_id);
+		}
 	}
-	
-	return $categories;
-}
 
-
-/**
-*
-*/
-function xanth_category_list()
-{
-	$result = xanth_db_query("SELECT * FROM category");
-	$categories = array();
-	while($row = xanth_db_fetch_object($result))
+	/**
+	*
+	*/
+	function delete()
 	{
-		$categories[] = new xanthCategory($row->id,$row->title,$row->parentId);
+		xanth_db_query("DELETE FROM category WHERE id = '%d'",$this->id);
 	}
-	
-	return $categories;
+
+	/**
+	*
+	*/
+	function find_root()
+	{
+		$result = xanth_db_query("SELECT * FROM category WHERE parentId = NULL");
+		$categories = array();
+		while($row = xanth_db_fetch_object($result))
+		{
+			$categories[] = new xanthCategory($row->id,$row->title);
+		}
+		
+		return $categories;
+	}
+
+	/**
+	*
+	*/
+	function find_childs()
+	{
+		$result = xanth_db_query("SELECT * FROM category WHERE parentId = '%d'",$this->parent_id);
+		$categories = array();
+		while($row = xanth_db_fetch_object($result))
+		{
+			$categories[] = new xanthCategory($row->id,$row->title,$row->parentId);
+		}
+		
+		return $categories;
+	}
+
+
+	/**
+	*
+	*/
+	function find_all()
+	{
+		$result = xanth_db_query("SELECT * FROM category");
+		$categories = array();
+		while($row = xanth_db_fetch_object($result))
+		{
+			$categories[] = new xanthCategory($row->id,$row->title,$row->parentId);
+		}
+		
+		return $categories;
+	}
+
 }
+
 
 
 ?>

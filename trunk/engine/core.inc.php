@@ -89,44 +89,4 @@ function xanth_get_xanthpath()
 }
 
 
-/**
-*
-*/
-function xanth_apply_content_format($content,$content_format)
-{
-	$result = xanth_db_query("SELECT * FROM content_format WHERE name = '%s'",$content_format);
-	if($row = xanth_db_fetch_array($result))
-	{
-		if($row['php_source'])
-		{
-			ob_start();
-			eval($content);
-			return ob_get_clean();
-		}
-		elseif($row['stripped_html'])
-		{
-			$cont = strip_tags($content,'<strong>','<ul>','<li>','<br>');
-			
-			if($row['new_line_to_line_break'])
-				$cont = nl2br($cont);
-			
-			return $cont;
-		}
-		else //full html
-		{
-			if($row['new_line_to_line_break'])
-				$cont = nl2br($content);
-			
-			return $cont;
-		}
-	}
-	else
-	{
-		xanth_log(LOG_LEVEL_ERROR,"Unknown content format: $content_format",'core',__FUNCTION__);
-	}
-}
-
-
-
-
 ?>

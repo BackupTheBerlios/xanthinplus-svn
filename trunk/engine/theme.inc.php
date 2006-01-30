@@ -74,96 +74,98 @@ class xanthTheme
 		$this->path = $path;
 		$this->name = $name;
 	}
-};
 
-/**
- * Returns an array of objects xanthTheme representing all existing themes \n
- */
-function xanth_theme_list_existing()
-{
-	$themes = array();
-	
-	//read builtin directory
-	$dir = './themes/';
-	$dirs_data = xanth_list_dirs($dir);
-	if(is_array($dirs_data))
+	/**
+	*
+	*/
+	function exists()
 	{
-		foreach($dirs_data as $dir_data)
+		return is_dir($this->path . $this->name);
+	}
+
+
+	/**
+	*
+	*/
+	function set_default()
+	{
+		if($this->exists())
 		{
-			$themes[] = new xanthTheme($dir_data['path'],$dir_data['name']);
+			xanth_db_query("UPDATE themes SET is_default = 0");
+			$result = xanth_db_query("SELECT is_default FROM themes WHERE name = '%s'",$this->name);
+			if($row = xanth_db_fetch_array($result))
+			{
+				if(!$row['is_default'])
+					xanth_db_query("UPDATE themes SET is_default = 1 WHERE name = '%s'",$this->name);
+			}
+			else
+			{
+				xanth_db_query("INSERT INTO themes(name,path,is_default) VALUES('%s','%s',%d)",$this->name,$this->path,1);
+			}
+			
+			return true;
 		}
-    }
-	else
-	{
-		xanth_log(LOG_LEVEL_FATAL_ERROR,"Theme directory directory $dir not found","Core",__FUNCTION__);
+		return false;
 	}
 	
-	return $themes;
-}
-
-/**
-*
-*/
-function xanth_theme_exists($theme)
-{
-	return is_dir($theme->path . $theme->name);
-}
-
-
-/**
-*
-*/
-function xanth_theme_set_default($theme)
-{
-	if(xanth_theme_exists($theme))
+	/**
+	 * Returns an array of objects xanthTheme representing all existing themes \n
+	 */
+	function find_existing()
 	{
-		xanth_db_query("UPDATE themes SET is_default = 0");
-		$result = xanth_db_query("SELECT is_default FROM themes WHERE name = '%s'",$theme->name);
-		if($row = xanth_db_fetch_array($result))
+		$themes = array();
+		
+		//read builtin directory
+		$dir = './themes/';
+		$dirs_data = xanth_list_dirs($dir);
+		if(is_array($dirs_data))
 		{
-			if(!$row['is_default'])
-				xanth_db_query("UPDATE themes SET is_default = 1 WHERE name = '%s'",$theme->name);
+			foreach($dirs_data as $dir_data)
+			{
+				$themes[] = new xanthTheme($dir_data['path'],$dir_data['name']);
+			}
 		}
 		else
 		{
-			xanth_db_query("INSERT INTO themes(name,path,is_default) VALUES('%s','%s',%d)",$theme->name,$theme->path,1);
+			xanth_log(LOG_LEVEL_FATAL_ERROR,"Theme directory directory $dir not found","Core",__FUNCTION__);
 		}
 		
-		return true;
+		return $themes;
 	}
-	return false;
-}
-
-/**
- * Returns the current default theme.
- */
-function xanth_theme_get_default()
-{
-	$enabled_theme = NULL;
-	foreach(xanth_theme_list_existing() as $theme)
+	
+	/**
+	  * Returns the current default theme.
+	 */
+	function find_default()
 	{
-		$result = xanth_db_query("SELECT * FROM themes WHERE is_default = 1");
-		if($row = xanth_db_fetch_array($result))
+		$enabled_theme = NULL;
+		foreach(xanthTheme::find_existing() as $theme)
 		{
-			if($row['is_default'] !== 0)
+			$result = xanth_db_query("SELECT * FROM themes WHERE is_default = 1");
+			if($row = xanth_db_fetch_array($result))
 			{
-				return new xanthTheme($row['path'],$row['name']);
+				if($row['is_default'] !== 0)
+				{
+					return new xanthTheme($row['path'],$row['name']);
+				}
 			}
 		}
 	}
-}
 
-/**
-* 
-*/
-function xanth_theme_init($theme)
-{
-	if(xanth_theme_exists($theme))
+	/**
+	* 
+	*/
+	function init()
 	{
-		include_once($theme->path . $theme->name . "/" . $theme->name . ".theme.php");
-		xanth_theme_init_default();
+		if($this->exists())
+		{
+			include_once($this->path . $this->name . "/" . $this->name . ".theme.php");
+			xanth_theme_init_default();
+		}
 	}
-}
+};
+
+
 
 
 ?>
