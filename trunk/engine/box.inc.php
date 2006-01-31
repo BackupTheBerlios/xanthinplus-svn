@@ -18,11 +18,10 @@
 
 /**
 * \ingroup Events
-* This is a special event, you should append to this event identifier the name of the box you would like to handle content creation.\n
-* Additional arguments:
-* 1) $&content: a reference to a string to fill with the  box content.
+* You can use a secondary hook id to refer to a specific box.
+* Must return the content of the box.
 */
-define('EVT_CORE_CREATE_BOX_CONTENT_','evt_core_create_box_content_');
+define('MONO_HOOK_CREATE_BOX_CONTENT','mono_hook_create_box_content');
 
 
 class xBox
@@ -91,9 +90,7 @@ class xBox
 			if($current_box->get_user_defined())
 			{
 				//retrieve built-in box content
-				$content = '';
-				xanth_broadcast_event(EVT_CORE_CREATE_BOX_CONTENT_ . $current_box->id,'core',array(&$content));
-				$current_box->content = $content;
+				$content = xanth_invoke_mono_hook(MONO_HOOK_CREATE_BOX_CONTENT,$current_box->id);
 			}
 			else
 			{

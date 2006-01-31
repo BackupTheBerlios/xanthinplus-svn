@@ -18,49 +18,53 @@
 
 /**
 * @ingroup Events
-* This event is emitted on page creation, you can catch it when implementing your template, and printing you desired page structure.\n
+* This event is emitted on page creation, you can catch it when implementing your template, and printing your desired page template.\n
+* Must return the templated page.
 * Additional arguments are:\n
 * 1) $areas : A mapped array containing the content of every area.
 * 2) $elements: a mapped array containing a set of generic elements that you can include in your page (eg. counters,page title,metatags,navigation links)
 */
-define('EVT_THEME_PAGE_TEMPLATE','evt_theme_page_template');
+define('MONO_HOOK_PAGE_TEMPLATE','mono_hook_page_template');
 
 
 /**
 * @ingroup Events
 * This event is emitted on a content entry creation, you can catch it when implementing your template, and printing you desired content entry structure. \n
+* Must return the templated entry.
 * Additional arguments are:\n
 * arguments[0]: the entry object.
 */
-define('EVT_THEME_ENTRY_TEMPLATE','evt_theme_content_entry_template');
+define('MONO_HOOK_ENTRY_TEMPLATE','mono_hook_entry_template');
 
 /**
 * @ingroup Events
 * An event for asking the structure that a box must have.\n
+* Must return the templated box.
 * Additional arguments are:\n
 * 1) $title: the box title
 * 2) $body: the box content
 */
-define('EVT_THEME_BOX_TEMPLATE','evt_theme_box_template');
+define('MONO_HOOK_BOX_TEMPLATE','mono_hook_box_template');
 
 /**
 * @ingroup Events
-* An event for asking the structure that an area must have.This is a special event , you must append to it the name of the area.\n
+* An event for asking the structure that an area must have.This is a special event , you must append to it the name of the area.
+* You can refer to a specific area by using a secondary hook id.
+* Must return the templated box.
 * Additional arguments are:\n
 * 1) $boxes: an array containing all boxes assigned to the area.
 * 2) $content: The main content related to a page.
 * 3) $elements: a mapped array containing a set of generic elements that you can include in your page (eg. counters,navigation links)
 */
-define('EVT_THEME_AREA_TEMPLATE_','evt_theme_area_template_');
+define('MONO_HOOK_AREA_TEMPLATE','mono_hook_area_template');
 
 
 /**
 * @ingroup Events
 * An event for asking the structure that an area must have.This is a special event , you must append to it the name of the area.\n
-* Additional arguments are:\n
-* 1) &$arealist: a reference to an array to fill with area names.
+* Returns an array containing the areas.
 */
-define('EVT_THEME_AREA_LIST','evt_theme_area_list');
+define('MONO_HOOK_TEMPLATE_AREAS_LIST','mono_hook_template_areas_list');
 
 
 

@@ -18,7 +18,7 @@
 /*
 *
 */
-function xanth_content_content_create($eventName,$source_component,$arguments)
+function xanth_content_content_create($hook_primary_id,$hook_secondary_id,$arguments)
 {
 	$selected_entry = xEntry::get($arguments[0]);
 	if($selected_entry == NULL)
@@ -27,14 +27,14 @@ function xanth_content_content_create($eventName,$source_component,$arguments)
 	}
 	else
 	{
-		xanth_broadcast_event(EVT_THEME_ENTRY_TEMPLATE,'content',array($selected_entry));
+		return xanth_invoke_mono_hook(MONO_HOOK_ENTRY_TEMPLATE,NULL,array($selected_entry));
 	}
 }
 
 /*
 *
 */
-function xanth_content_admin_content_create($eventName,$source_component,$arguments)
+function xanth_content_admin_content_create($hook_primary_id,$hook_secondary_id,$arguments)
 {
 	$form_elements = array();
 	$form_groups = array();
@@ -44,7 +44,7 @@ function xanth_content_admin_content_create($eventName,$source_component,$argume
 	$form_groups[] = new xFormGroup($form_elements,'');
 	$form = new xForm('?p=admin/content/create',$form_groups);
 	
-	echo $form->render();
+	return $form->render();
 }
 
 
@@ -53,8 +53,8 @@ function xanth_content_admin_content_create($eventName,$source_component,$argume
 */
 function xanth_init_component_content()
 {
-	xanth_register_callback(EVT_CORE_MAIN_ENTRY_CREATE_ . 'content','xanth_content_content_create');
-	xanth_register_callback(EVT_CORE_MAIN_ENTRY_CREATE_ . 'admin/content/create','xanth_content_admin_content_create');
+	xanth_register_mono_hook(MONO_HOOK_MAIN_ENTRY_CREATE, 'content','xanth_content_content_create');
+	xanth_register_mono_hook(MONO_HOOK_MAIN_ENTRY_CREATE, 'admin/content/create','xanth_content_admin_content_create');
 }
 
 

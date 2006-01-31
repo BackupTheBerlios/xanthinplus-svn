@@ -18,17 +18,19 @@
 /*
 *
 */
-function xanth_admin_index($eventName,$source_component,$arguments)
+function xanth_admin_index($hook_primary_id,$hook_secondary_id,$arguments)
 {
-	echo '<ul>';
-	echo '<li><a href="?p=admin/input_format">Input format</a></li>';
-	echo '</ul>';
+	$output .= '<ul>';
+	$output .= '<li><a href="?p=admin/input_format">Input format</a></li>';
+	$output .= '</ul>';
+	
+	return $output;
 }
 
 /*
 *
 */
-function xanth_admin_content_format($eventName,$source_component,$arguments)
+function xanth_admin_content_format($hook_primary_id,$hook_secondary_id,$arguments)
 {
 	
 }
@@ -39,8 +41,8 @@ function xanth_admin_content_format($eventName,$source_component,$arguments)
 */
 function xanth_init_component_admin()
 {
-	xanth_register_callback(EVT_CORE_MAIN_ENTRY_CREATE_ . 'admin','xanth_admin_index');
-	xanth_register_callback(EVT_CORE_MAIN_ENTRY_CREATE_ . 'admin/content_format','xanth_admin_content_format');
+	xanth_register_mono_hook(MONO_HOOK_MAIN_ENTRY_CREATE, 'admin','xanth_admin_index');
+	xanth_register_mono_hook(MONO_HOOK_MAIN_ENTRY_CREATE, 'admin/content_format','xanth_admin_content_format');
 }
 
 

@@ -104,7 +104,7 @@ define('LOG_LEVEL_FATAL_ERROR',2);
 define('LOG_LEVEL_ERROR',4);
 define('LOG_LEVEL_WARNING',8);
 define('LOG_LEVEL_NOTICE',16);
-define('LOG_LEVEL_INFORMATIONAL',32);
+define('LOG_LEVEL_AUDIT',32);
 define('LOG_LEVEL_DEBUG',64);
 
 /**
@@ -112,7 +112,7 @@ define('LOG_LEVEL_DEBUG',64);
 * LOG_LEVEL_FATAL_ERROR: Application will die immediately and message will be displayed only on screen.\n
 * LOG_LEVEL_ERROR: Application will stop execution, but a basic environment will be created for displaying message on screen,a log entry is added in db\n
 * LOG_LEVEL_WARNING/LOG_LEVEL_NOTICE: Application will continue execution and a message is displayed on a region of screen,a log entry is added in db\n
-* LOG_LEVEL_INFORMATIONAL: Application will log a message only in database\n
+* LOG_LEVEL_AUDIT: Application will log a message only in database\n
 * LOG_LEVEL_DEBUG: Print debug message only in database if $debug is defined in config\n
 */
 function xanth_log($level,$message,$component = '',$filename_or_function = '',$line = 0)

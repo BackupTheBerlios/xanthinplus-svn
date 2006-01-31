@@ -15,64 +15,68 @@
 * PURPOSE ARE DISCLAIMED.SEE YOUR CHOOSEN LICENSE FOR MORE DETAILS.
 */
 
-function default_page_template($eventName,$component,$arguments)
+function default_page_template($hook_primary_id,$hook_secondary_id,$arguments)
 {
 	list($areas) = $arguments;
 	
-	echo "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\n";
-	echo "<html>\n";
-	echo "<head>\n";
-	echo "</head>";
-	echo "<body>\n";
-	echo $areas['custom area'];
-	echo " </body>\n";
-	echo "</html>\n";
+	$output = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\n";
+	$output .= "<html>\n";
+	$output .= "<head>\n";
+	$output .= "</head>";
+	$output .= "<body>\n";
+	$output .= $areas['custom area'];
+	$output .= " </body>\n";
+	$output .= "</html>\n";
+	
+	return $output;
 }
 
 
-function default_content_entry_template($eventName,$component,$arguments)
+function default_content_entry_template($hook_primary_id,$hook_secondary_id,$arguments)
 {
 	$entry = $arguments[0];
 	
-	echo "<strong>" . $entry->title ."</strong> <br>" . $entry->content;
+	return "<strong>" . $entry->title ."</strong> <br>" . $entry->content;
 }
 
 
 
-function default_box_template($eventName,$component,$arguments)
+function default_box_template($hook_primary_id,$hook_secondary_id,$arguments)
 {
 	list($title,$body) = $arguments;
 	
-	echo "<strong>$title</strong> <br> $body";
+	return "<strong>$title</strong> <br> $body";
 }
 
 
-function default_custom_area_template($eventName,$component,$arguments)
+function default_custom_area_template($hook_primary_id,$hook_secondary_id,$arguments)
 {
 	list($boxes,$content,$elements) = $arguments;
 	
 	foreach($boxes as $box)
 	{
-		echo "$box <br>";
+		$output .= "$box <br>";
 	}
 
-	echo "$content <br>";
+	$output .= "$content <br>";
+	
+	return $output;
 }
 
 
-function xanth_custom_theme_areas($eventName,$component,$arguments)
+function xanth_custom_theme_areas($hook_primary_id,$hook_secondary_id,$arguments)
 {
-	$arguments[0][] = 'custom area';
+	return array('custom area');
 }
 
 
 function xanth_theme_init_default()
 {
-	xanth_register_callback(EVT_THEME_PAGE_TEMPLATE,'default_page_template');
-	xanth_register_callback(EVT_THEME_ENTRY_TEMPLATE,'default_content_entry_template');
-	xanth_register_callback(EVT_THEME_BOX_TEMPLATE,'default_box_template');
-	xanth_register_callback(EVT_THEME_AREA_TEMPLATE_ . 'custom area','default_custom_area_template');
-	xanth_register_callback(EVT_THEME_AREA_LIST,'xanth_custom_theme_areas');
+	xanth_register_mono_hook(MONO_HOOK_PAGE_TEMPLATE,NULL,'default_page_template');
+	xanth_register_mono_hook(MONO_HOOK_ENTRY_TEMPLATE,NULL,'default_content_entry_template');
+	xanth_register_mono_hook(MONO_HOOK_BOX_TEMPLATE,NULL,'default_box_template');
+	xanth_register_mono_hook(MONO_HOOK_AREA_TEMPLATE,'custom area','default_custom_area_template');
+	xanth_register_mono_hook(MONO_HOOK_TEMPLATE_AREAS_LIST,NULL,'xanth_custom_theme_areas');
 }
 
 

@@ -18,7 +18,7 @@
 /*
 * Handle page creation.
 */
-function xanth_page_page_creation($eventName,$source_component)
+function xanth_page_page_creation($hook_primary_id,$hook_secondary_id)
 {
 	//retrieve content page
 	$path = xanth_get_xanthpath();
@@ -27,9 +27,7 @@ function xanth_page_page_creation($eventName,$source_component)
 		xanth_log(LOG_LEVEL_ERROR,'Invalid xanth path','page',__FUNCTION__);
 	}
 	
-	ob_start();
-	xanth_broadcast_event(EVT_CORE_MAIN_ENTRY_CREATE_ . $path->base_path,'page',array($path->resource_id));
-	$content = ob_get_clean();
+	$content = xanth_invoke_mono_hook(MONO_HOOK_MAIN_ENTRY_CREATE,$path->base_path,array($path->resource_id));
 
 	if(empty($content))
 	{
@@ -37,9 +35,7 @@ function xanth_page_page_creation($eventName,$source_component)
 	}
 	
 	//retrieve areas
-	$areas = array();
-
-	xanth_broadcast_event(EVT_THEME_AREA_LIST,'theme',array(&$areas));
+	$areas = xanth_invoke_mono_hook(MONO_HOOK_TEMPLATE_AREAS_LIST,NULL);
 	$areas_ready_to_print = array();
 
 	//retrieve innermost elements
@@ -50,30 +46,22 @@ function xanth_page_page_creation($eventName,$source_component)
 		foreach($boxes as $box)
 		{
 			//retrieve boxes
-			ob_start();
-			xanth_broadcast_event(EVT_THEME_BOX_TEMPLATE,'page',array($box->name,$box->content));
-			$boxes_ready_to_print[] = ob_get_clean();
+			$boxes_ready_to_print[] = xanth_invoke_mono_hook(MONO_HOOK_BOX_TEMPLATE,NULL,array($box->name,$box->content));
 		}
-
 		//retrieve an area
-		ob_start();
-		xanth_broadcast_event(EVT_THEME_AREA_TEMPLATE_ . $area,'page',array($boxes_ready_to_print,$content,NULL));
-		$areas_ready_to_print[$area] = ob_get_clean();
+		$areas_ready_to_print[$area] = xanth_invoke_mono_hook(MONO_HOOK_AREA_TEMPLATE,$area,array($boxes_ready_to_print,$content,NULL));
 	}
 
 	//retrieve the full page
-	ob_start();
-	xanth_broadcast_event(EVT_THEME_PAGE_TEMPLATE,'page',array($areas_ready_to_print));
-	$page_ready_to_print = ob_get_clean();
+	$page_ready_to_print = xanth_invoke_mono_hook(MONO_HOOK_PAGE_TEMPLATE,NULL,array($areas_ready_to_print));
 
-	//now print all
-	echo $page_ready_to_print;
+	return $page_ready_to_print;
 }
 
 
 function xanth_init_component_page()
 {
-	xanth_register_callback(EVT_CORE_PAGE_CREATE,'xanth_page_page_creation');
+	xanth_register_mono_hook(MONO_HOOK_PAGE_CREATE,NULL,'xanth_page_page_creation');
 }
 
 

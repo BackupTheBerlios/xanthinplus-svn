@@ -18,15 +18,15 @@
 /*
 * Handle index creation.
 */
-function xanth_frontpage_content_creation($eventName,$source_component,$arguments)
+function xanth_frontpage_content_creation($hook_primary_id,$hook_secondary_id,$arguments)
 {
-	echo "this is the frontpage";
+	return "this is the frontpage";
 }
 
 
 function xanth_init_component_frontpage()
 {
-	xanth_register_callback(EVT_CORE_MAIN_ENTRY_CREATE_,'xanth_frontpage_content_creation');
+	xanth_register_mono_hook(MONO_HOOK_MAIN_ENTRY_CREATE,NULL,'xanth_frontpage_content_creation');
 }
 
 
