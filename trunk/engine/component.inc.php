@@ -16,19 +16,19 @@
 */
 
 
-class xanthComponent
+class xComponent
 {
 	var $path;
 	var $name;
 	
-	function xanthComponent($path,$name)
+	function xComponent($path,$name)
 	{
 		$this->path = $path;
 		$this->name = $name;
 	}
 	
 	/**
-	 * Returns an array of xanthComponent objects  representing all existing compoenents \n
+	 * Returns an array of xComponent objects  representing all existing compoenents \n
 	 */
 	function find_existing()
 	{
@@ -41,7 +41,7 @@ class xanthComponent
 		{
 			foreach($dir_list as $raw_component)
 			{
-				$components[] = new xanthComponent($raw_component['path'],$raw_component['name']);
+				$components[] = new xComponent($raw_component['path'],$raw_component['name']);
 			}
 		}
 		else
@@ -58,7 +58,7 @@ class xanthComponent
 	 */
 	function init_all()
 	{
-		foreach(xanthComponent::find_existing() as $component)
+		foreach(xComponent::find_existing() as $component)
 		{
 			include_once($component->path . $component->name . '.inc.php');
 			$init_func = "xanth_init_component_" . $component->name;

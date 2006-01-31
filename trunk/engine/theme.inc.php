@@ -64,12 +64,12 @@ define('EVT_THEME_AREA_LIST','evt_theme_area_list');
 
 
 
-class xanthTheme
+class xTheme
 {
 	var $path;
 	var $name;
 	
-	function xanthTheme($path,$name)
+	function xTheme($path,$name)
 	{
 		$this->path = $path;
 		$this->name = $name;
@@ -109,7 +109,7 @@ class xanthTheme
 	}
 	
 	/**
-	 * Returns an array of objects xanthTheme representing all existing themes \n
+	 * Returns an array of objects xTheme representing all existing themes \n
 	 */
 	function find_existing()
 	{
@@ -122,7 +122,7 @@ class xanthTheme
 		{
 			foreach($dirs_data as $dir_data)
 			{
-				$themes[] = new xanthTheme($dir_data['path'],$dir_data['name']);
+				$themes[] = new xTheme($dir_data['path'],$dir_data['name']);
 			}
 		}
 		else
@@ -139,14 +139,14 @@ class xanthTheme
 	function find_default()
 	{
 		$enabled_theme = NULL;
-		foreach(xanthTheme::find_existing() as $theme)
+		foreach(xTheme::find_existing() as $theme)
 		{
 			$result = xanth_db_query("SELECT * FROM themes WHERE is_default = 1");
 			if($row = xanth_db_fetch_array($result))
 			{
 				if($row['is_default'] !== 0)
 				{
-					return new xanthTheme($row['path'],$row['name']);
+					return new xTheme($row['path'],$row['name']);
 				}
 			}
 		}

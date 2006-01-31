@@ -20,10 +20,10 @@
 */
 function xanth_content_content_create($eventName,$source_component,$arguments)
 {
-	$selected_entry = xanthEntry::get($arguments[0]);
+	$selected_entry = xEntry::get($arguments[0]);
 	if($selected_entry == NULL)
 	{
-		xanth_log(LOG_LEVEL_ERROR,'content','Content not found');
+		xanth_log(LOG_LEVEL_ERROR,'Content not found','content');
 	}
 	else
 	{
@@ -39,10 +39,10 @@ function xanth_content_admin_content_create($eventName,$source_component,$argume
 	$form_elements = array();
 	$form_groups = array();
 	
-	$form_elements[] = new xanthFormTextField('content_title','Title:','','');
-	$form_elements[] = new xanthFormSubmit('submit','Create');
-	$form_groups[] = new xanthFormGroup($form_elements,'');
-	$form = new xanthForm('?p=admin/content/create',$form_groups);
+	$form_elements[] = new xFormTextField('content_title','Title:','','');
+	$form_elements[] = new xFormSubmit('submit','Create');
+	$form_groups[] = new xFormGroup($form_elements,'');
+	$form = new xForm('?p=admin/content/create',$form_groups);
 	
 	echo $form->render();
 }

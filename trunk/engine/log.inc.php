@@ -18,7 +18,7 @@
 //------------------------------------------------------------------------------------------------------------------//
 // Log functions
 //------------------------------------------------------------------------------------------------------------------//
-class xanthLogEntry
+class xLogEntry
 {
 	var $level;
 	var $component;
@@ -26,7 +26,7 @@ class xanthLogEntry
 	var $filename;
 	var $line;
 	
-	function xanthLogEntry($level,$component,$message,$filename,$line)
+	function xLogEntry($level,$component,$message,$filename,$line)
 	{
 		$this->level = $level;
 		$this->component = $component;
@@ -45,11 +45,11 @@ function xanth_add_screen_log($level, $component,$message,$filename,$line)
 	if(!isSet($xanth_screen_log))
 		$xanth_screen_log = array();
 		
-	$xanth_screen_log[] = new xanthLogEntry($level,$component,$message,$filename,$line);
+	$xanth_screen_log[] = new xLogEntry($level,$component,$message,$filename,$line);
 }
 
 /**
- * Get screen log entries as anarray of objects xanthLogEntry
+ * Get screen log entries as anarray of objects xLogEntry
  *
  * @param $level (OPTIONAL)
  */

@@ -17,7 +17,7 @@
 
 
 
-class xanthEntry
+class xEntry
 {
 	var $id;
 	var $title;
@@ -28,7 +28,7 @@ class xanthEntry
 	var $content_format;
 	var $categories;
 	
-	function xanthEntry($id = NULL,$title = NULL,$type = NULL,$author = NULL,$content = NULL,
+	function xEntry($id = NULL,$title = NULL,$type = NULL,$author = NULL,$content = NULL,
 		$content_format = NULL,$categories = NULL,$creation_time = NULL)
 	{
 		$this->id = $id;
@@ -108,14 +108,14 @@ class xanthEntry
 		$result = xanth_db_query("SELECT * FROM entry WHERE id = %d",$entry_id);
 		if($row = xanth_db_fetch_object($result))
 		{
-			$entry = new xanthEntry($row->id,$row->title,$row->type,$row->author,$row->content,
+			$entry = new xEntry($row->id,$row->title,$row->type,$row->author,$row->content,
 				$row->content_format,array(),xanth_db_decode_timestamp($row->creation_time));
 			
 			$result = xanth_db_query("SELECT * FROM categorytoentry WHERE entryId = %d",$entry_id);
 			$categories = array();
 			while($row = xanth_db_fetch_object($result))
 			{
-				$categories[] = new xanthCategory($row->id,$row->title,$row->parentId);
+				$categories[] = new xCategory($row->id,$row->title,$row->parentId);
 			}
 			$entry->categories = $categories;
 		}
@@ -137,14 +137,14 @@ class xanthEntry
 		$result = xanth_db_query("SELECT * FROM entry");
 		for($i = 0;$row = xanth_db_fetch_object($result);$i++)
 		{
-			$entries[$i] = new xanthEntry($row->id,$row->title,$row->type,$row->author,$row->content,
+			$entries[$i] = new xEntry($row->id,$row->title,$row->type,$row->author,$row->content,
 				$row->content_format,array(),xanth_db_decode_timestamp($row->creation_time));
 			
 			$result = xanth_db_query("SELECT * FROM categorytoentry WHERE entryId = %d",$row->id);
 			$categories = array();
 			while($row = xanth_db_fetch_object($result))
 			{
-				$categories[] = new xanthCategory($row->id,$row->title,$row->parentId);
+				$categories[] = new xCategory($row->id,$row->title,$row->parentId);
 			}
 			$entry[$i]->categories = $categories;
 		}

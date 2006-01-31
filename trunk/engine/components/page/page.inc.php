@@ -45,7 +45,7 @@ function xanth_page_page_creation($eventName,$source_component)
 	//retrieve innermost elements
 	foreach($areas as $area)
 	{
-		$boxes = xanthBox::find($area);
+		$boxes = xBox::find($area);
 		$boxes_ready_to_print = array();
 		foreach($boxes as $box)
 		{

@@ -46,9 +46,9 @@ function xanth_init()
 	xanth_db_connect(xanth_conf_get('db_host',''),xanth_conf_get('db_name',''),xanth_conf_get('db_user',''),xanth_conf_get('db_pass',''),xanth_conf_get('db_port',''));
 	session_set_save_handler("on_session_start","on_session_end","on_session_read","on_session_write","on_session_destroy","on_session_gc");
 	session_start();
-	xanthComponent::init_all();
-	xanthModule::init_all();
-	xanthTheme::find_default()->init();
+	xComponent::init_all();
+	xModule::init_all();
+	xTheme::find_default()->init();
 	
 	xanth_broadcast_event(EVT_CORE_PAGE_CREATE,'core');
 	

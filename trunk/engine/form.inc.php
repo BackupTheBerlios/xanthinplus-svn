@@ -20,13 +20,13 @@ define('FORM_DATA_TYPE_TEXT_WITH_TAGS','form_data_type_text_with_tags');
 define('FORM_DATA_TYPE_INTEGER','form_data_type_integer');
 
 
-class xanthFormValidator
+class xFormValidator
 {
 	var $data_type;
 	var $mandatory;
 	var $maxlength;
 	
-	function xanthFormValidator($data_type,$mandatory,$maxlength)
+	function xFormValidator($data_type,$mandatory,$maxlength)
 	{
 		$this->data_type = $data_type;
 		$this->mandatory = $mandatory;
@@ -37,15 +37,15 @@ class xanthFormValidator
 /**
 *
 */
-class xanthFormElement
+class xFormElement
 {
 	var $name;
 	var $label;
 	var $description;
 	var $invalid = FALSE;
-	var $xanthFormValidator;
+	var $xFormValidator;
 	
-	function xanthFormElement($name,$label,$description,$validator)
+	function xFormElement($name,$label,$description,$validator)
 	{
 		$this->name = $name;
 		$this->label = $label;
@@ -58,13 +58,13 @@ class xanthFormElement
 /**
 *
 */
-class xanthFormTextField extends xanthFormElement
+class xFormTextField extends xFormElement
 {
 	var $default_value;
 	
-	function xanthFormTextField($name,$label,$description,$default_value,$validator)
+	function xFormTextField($name,$label,$description,$default_value,$validator)
 	{
-		$this->xanthFormElement($name,$label,$description,$validator);
+		$this->xFormElement($name,$label,$description,$validator);
 		$this->default_value = $default_value;
 	}
 	
@@ -77,13 +77,13 @@ class xanthFormTextField extends xanthFormElement
 	}
 };
 
-class xanthFormTextArea extends xanthFormElement
+class xFormTextArea extends xFormElement
 {
 	var $default_value;
 	
-	function xanthFormTextArea($name,$label,$description,$default_value,$validator)
+	function xFormTextArea($name,$label,$description,$default_value,$validator)
 	{
-		$this->xanthFormElement($name,$label,$description,$validator);
+		$this->xFormElement($name,$label,$description,$validator);
 		$this->default_value = $default_value;
 	}
 	
@@ -98,14 +98,14 @@ class xanthFormTextArea extends xanthFormElement
 /**
 *
 */
-class xanthFormComboBox extends xanthFormElement
+class xFormComboBox extends xFormElement
 {
 	var $values;
 	var $default_value;
 	
-	function xanthFormTextField($name,$label,$description,$values,$default_value,$validator)
+	function xFormTextField($name,$label,$description,$values,$default_value,$validator)
 	{
-		$this->xanthFormElement($name,$label,$description,$validator);
+		$this->xFormElement($name,$label,$description,$validator);
 		$this->default_value = $default_value;
 		$this->values = $value;
 	}
@@ -114,13 +114,13 @@ class xanthFormComboBox extends xanthFormElement
 /**
 *
 */
-class xanthFormSubmit extends xanthFormElement
+class xFormSubmit extends xFormElement
 {
 	var $value;
 	
-	function xanthFormSubmit($name,$value,$label = NULL,$description = NULL)
+	function xFormSubmit($name,$value,$label = NULL,$description = NULL)
 	{
-		$this->xanthFormElement($name,$label,$description,NULL);
+		$this->xFormElement($name,$label,$description,NULL);
 		$this->value = $value;
 	}
 	
@@ -134,12 +134,12 @@ class xanthFormSubmit extends xanthFormElement
 /**
 *
 */
-class xanthFormGroup
+class xFormGroup
 {
 	var $elements;
 	var $label;
 	
-	function xanthFormGroup($elements,$label = NULL)
+	function xFormGroup($elements,$label = NULL)
 	{
 		$this->label = $label;
 		$this->elements = $elements;
@@ -149,12 +149,12 @@ class xanthFormGroup
 /**
 *
 */
-class xanthFormData
+class xFormData
 {
 	var $valid_data;
 	var $invalid_data;
 	
-	function xanthFormData($valid_data,$invalid_data)
+	function xFormData($valid_data,$invalid_data)
 	{
 		$this->valid_data = $valid_data;
 		$this->invalid_data = $invalid_data;
@@ -166,12 +166,12 @@ class xanthFormData
 /**
 *
 */
-class xanthForm
+class xForm
 {
 	var $groups;
 	var $action;
 	
-	function xanthForm($action,$groups)
+	function xForm($action,$groups)
 	{
 		$this->action = $action;
 		$this->groups = $groups;
@@ -227,7 +227,7 @@ class xanthForm
 	 */
 	function xanth_form_validate_data()
 	{
-		$outdata = new xanthFormData(array(),array());
+		$outdata = new xFormData(array(),array());
 
 		for($i = 0;$i < count($this->groups);$i++)
 		{

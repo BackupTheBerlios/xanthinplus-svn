@@ -37,12 +37,12 @@ define('EVT_CORE_PAGE_CREATE','evt_core_page_create');
 define('EVT_CORE_MAIN_ENTRY_CREATE_','evt_core_main_entry_create_');
 
 
-class xanthPath
+class xCmsPath
 {
 	var $base_path;
 	var $resource_id;
 	
-	function xanthPath($base_path = NULL,$resource_id = NULL)
+	function xCmsPath($base_path = NULL,$resource_id = NULL)
 	{
 		$this->resource_id = $resource_id;
 		$this->base_path = $base_path;
@@ -60,7 +60,7 @@ function xanth_xanthpath_parse($path)
     }
 	else 
 	{
-		$path = new xanthPath();
+		$path = new xCmsPath();
 		$path->base_path = $pieces[1];
 		if(isSet($pieces[5]))
 		{
@@ -72,7 +72,7 @@ function xanth_xanthpath_parse($path)
 
 
 /**
- * Return a valid xanthPath object on success, false on parsing error.
+ * Return a valid xCmsPath object on success, false on parsing error.
  */
 function xanth_get_xanthpath()
 {
@@ -82,7 +82,7 @@ function xanth_get_xanthpath()
 	}
 	else
 	{
-		return new xanthPath();
+		return new xCmsPath();
 	}
 	
 	return xanth_xanthpath_parse($p);

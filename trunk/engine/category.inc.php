@@ -15,13 +15,13 @@
 * PURPOSE ARE DISCLAIMED.SEE YOUR CHOOSEN LICENSE FOR MORE DETAILS.
 */
 
-class xanthCategory
+class xCategory
 {
 	var $id;
 	var $title;
 	var $parent_id;
 	
-	function xanthCategory($id,$title,$parent_id = NULL)
+	function xCategory($id,$title,$parent_id = NULL)
 	{
 		$this->id = $id;
 		$this->title = $title;
@@ -61,7 +61,7 @@ class xanthCategory
 		$categories = array();
 		while($row = xanth_db_fetch_object($result))
 		{
-			$categories[] = new xanthCategory($row->id,$row->title);
+			$categories[] = new xCategory($row->id,$row->title);
 		}
 		
 		return $categories;
@@ -76,7 +76,7 @@ class xanthCategory
 		$categories = array();
 		while($row = xanth_db_fetch_object($result))
 		{
-			$categories[] = new xanthCategory($row->id,$row->title,$row->parentId);
+			$categories[] = new xCategory($row->id,$row->title,$row->parentId);
 		}
 		
 		return $categories;
@@ -92,7 +92,7 @@ class xanthCategory
 		$categories = array();
 		while($row = xanth_db_fetch_object($result))
 		{
-			$categories[] = new xanthCategory($row->id,$row->title,$row->parentId);
+			$categories[] = new xCategory($row->id,$row->title,$row->parentId);
 		}
 		
 		return $categories;

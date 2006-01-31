@@ -25,7 +25,7 @@
 define('EVT_CORE_CREATE_BOX_CONTENT_','evt_core_create_box_content_');
 
 
-class xanthBox
+class xBox
 {
 	var $id;
 	var $title;
@@ -33,7 +33,7 @@ class xanthBox
 	var $content;
 	var $content_format;
 	
-	function xanthBox($id,$title,$content,$content_format,$user_defined)
+	function xBox($id,$title,$content,$content_format,$user_defined)
 	{
 		$this->id = $id;
 		$this->title = $title;
@@ -87,7 +87,7 @@ class xanthBox
 		
 		while($row = xanth_db_fetch_array($result))
 		{
-			$current_box = new xanthBox($row['id'],$row['title'],$row['content'],$row['content_format_name'],$row['is_user_defined']);
+			$current_box = new xBox($row['id'],$row['title'],$row['content'],$row['content_format_name'],$row['is_user_defined']);
 			if($current_box->get_user_defined())
 			{
 				//retrieve built-in box content

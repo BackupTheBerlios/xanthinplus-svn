@@ -20,7 +20,7 @@
 // Modules functions
 //------------------------------------------------------------------------------------------------------------------//
 
-class xanthModule
+class xModule
 {
 	var $path;
 	var $name;
@@ -28,14 +28,14 @@ class xanthModule
 	/**
 	 *
 	 */
-	function xanthModule($path,$name)
+	function xModule($path,$name)
 	{
 		$this->path = $path;
 		$this->name = $name;
 	}
 	
 	/**
-	 * Returns an array of xanthModule objects  representing all existing modules \n
+	 * Returns an array of xModule objects  representing all existing modules \n
 	 */
 	function find_existing()
 	{
@@ -48,7 +48,7 @@ class xanthModule
 		{
 			foreach($dir_list as $raw_module)
 			{
-				$modules[] = new xanthModule($raw_module['path'],$raw_module['name']);
+				$modules[] = new xModule($raw_module['path'],$raw_module['name']);
 			}
 		}
 		else
@@ -65,7 +65,7 @@ class xanthModule
 	function find_enabled()
 	{
 		$enabled_mod = array();
-		foreach(xanthModule::find_existing() as $module)
+		foreach(xModule::find_existing() as $module)
 		{
 			$result = xanth_db_query("SELECT enabled FROM modules WHERE name = '%s'",$module->name);
 			if($row = xanth_db_fetch_array($result))
@@ -133,7 +133,7 @@ class xanthModule
 	 */
 	function init_all()
 	{
-		foreach(xanthModule::find_enabled() as $module)
+		foreach(xModule::find_enabled() as $module)
 		{
 			include_once($module->path . $module->name . '.inc.php');
 			$init_func = "xanth_init_module_".$module->name;

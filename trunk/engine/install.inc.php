@@ -40,6 +40,50 @@ function xanth_db_install_core()
 		session_timestamp TIMESTAMP NOT NULL,
 		PRIMARY KEY  (session_id)
 		)TYPE=InnoDB");
+	
+	//Roles
+	xanth_db_query("
+		CREATE TABLE role (
+		id INT UNSIGNED NOT NULL,
+		name VARCHAR(32) NOT NULL,
+		description VARCHAR(255) NOT NULL,
+		PRIMARY KEY(id)
+		)TYPE=InnoDB");
+	$role = new xRole('Administrator','Administrator');$role->insert();
+	$role = new xRole('Authenticated','Authenticated user');$role->insert();
+	$role = new xRole('Anonymous','Anonymous visitor');$role->insert();
+	
+	//Access rules
+	xanth_db_query("
+		CREATE TABLE role_access_rule (
+		roleId INT UNSIGNED NOT NULL,
+		access_rule VARCHAR(64) NOT NULL,
+		UNIQUE(roleId,access_rule),
+		INDEX(roleId),
+		FOREIGN KEY (roleId) REFERENCES role(id) ON DELETE CASCADE
+		)TYPE=InnoDB");
+		
+	//Users
+	xanth_db_query("
+		CREATE TABLE user (
+		username VARCHAR(32) NOT NULL,
+		password VARCHAR(32) NOT NULL,
+		email VARCHAR(128) NOT NULL,
+		PRIMARY KEY (username),
+		UNIQUE(email)
+		)TYPE=InnoDB");
+		
+	//User to role
+	xanth_db_query("
+		CREATE TABLE user_to_role (
+		username VARCHAR(32) NOT NULL,
+		roleId INT UNSIGNED NOT NULL,
+		UNIQUE(username,roleId),
+		INDEX(username),
+		INDEX(roleId),
+		FOREIGN KEY (username) REFERENCES user(username) ON DELETE CASCADE,
+		FOREIGN KEY (roleId) REFERENCES role(id) ON DELETE CASCADE,
+		)TYPE=InnoDB");
 		
 	//Modules
 	xanth_db_query("
@@ -75,7 +119,7 @@ function xanth_db_install_core()
 		)TYPE=InnoDB");
 		
 	//create builtint box
-	//xanth_create_box(new xanthBox(''));
+	//xanth_create_box(new xBox(''));
 	
 	
 	//box to area mapping
@@ -96,7 +140,8 @@ function xanth_db_install_core()
 		is_default TINYINT NOT NULL,
 		PRIMARY KEY  (name)
 		)TYPE=InnoDB");
-	xanth_theme_set_default(new xanthTheme('./themes/','default_theme'));
+	$theme = new xTheme('./themes/','default_theme');
+	$theme->set_default();
 	
 	//category
 	xanth_db_query("
