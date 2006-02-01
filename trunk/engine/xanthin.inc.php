@@ -20,7 +20,7 @@ require_once('engine/globals.inc.php');
 require_once('engine/base.inc.php');
 require_once('engine/dbaccess/db.inc.php');
 require_once('engine/log.inc.php');
-require_once('engine/event.inc.php');
+require_once('engine/hook.inc.php');
 require_once('engine/component.inc.php');
 require_once('engine/module.inc.php');
 require_once('engine/form.inc.php');
@@ -28,9 +28,12 @@ require_once('engine/theme.inc.php');
 require_once('engine/session.inc.php');
 require_once('engine/core.inc.php');
 require_once('engine/element.inc.php');
-require_once('engine/dbobjects/dbobjects.inc.php');
-
-
+require_once('engine/box.inc.php');
+require_once('engine/entry.inc.php');
+require_once('engine/category.inc.php');
+require_once('engine/role.inc.php');
+require_once('engine/user.inc.php');
+require_once('engine/bbcode.inc.php');
 
 /**
 * @defgroup Core Core
@@ -50,7 +53,7 @@ function xanth_init()
 	xModule::init_all();
 	xTheme::find_default()->init();
 	
-	xanth_broadcast_event(EVT_CORE_PAGE_CREATE,'core');
+	xanth_invoke_mono_hook(MONO_HOOK_PAGE_CREATE,NULL);
 	
 	//print log
 	foreach(xanth_get_screen_log() as $entry)

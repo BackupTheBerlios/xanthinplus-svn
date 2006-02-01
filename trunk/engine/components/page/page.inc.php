@@ -49,13 +49,13 @@ function xanth_page_page_creation($hook_primary_id,$hook_secondary_id)
 			$boxes_ready_to_print[] = xanth_invoke_mono_hook(MONO_HOOK_BOX_TEMPLATE,NULL,array($box->name,$box->content));
 		}
 		//retrieve an area
-		$areas_ready_to_print[$area] = xanth_invoke_mono_hook(MONO_HOOK_AREA_TEMPLATE,$area,array($boxes_ready_to_print,$content,NULL));
+		$areas_ready_to_print[$area] = xanth_invoke_mono_hook(MONO_HOOK_AREA_TEMPLATE,$area,array($boxes_ready_to_print,$content));
 	}
 
 	//retrieve the full page
 	$page_ready_to_print = xanth_invoke_mono_hook(MONO_HOOK_PAGE_TEMPLATE,NULL,array($areas_ready_to_print));
 
-	return $page_ready_to_print;
+	echo $page_ready_to_print;
 }
 
 

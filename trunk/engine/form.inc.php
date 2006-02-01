@@ -19,18 +19,89 @@ define('FORM_DATA_TYPE_TEXT_NO_TAGS','form_data_type_text_no_tags');
 define('FORM_DATA_TYPE_TEXT_WITH_TAGS','form_data_type_text_with_tags');
 define('FORM_DATA_TYPE_INTEGER','form_data_type_integer');
 
-
+/**
+*
+*/
 class xFormValidator
 {
-	var $data_type;
 	var $mandatory;
+	
+	function xFormValidator($mandatory)
+	{
+		$this->namdatory = $mandatory;
+	}
+	
+	/**
+	 *
+	 */
+	function get_input_validate($element)
+	{
+		//if the variable is not defined
+		if(!isset($_POST[$element->name]))
+		{
+			//if the field is mandatory
+			if($this->mandatory)
+			{
+				$element->invalid = TRUE;
+				$element->value = 'Field '.$this->groups[i]->elements[j]->name.' is mandatory';
+			}
+			else
+			{
+				$outdata->valid_data[$this->groups[i]->elements[j]->name] = '';
+			}
+		}
+	}
+}
+
+/**
+*
+*/
+class xFormValidatorText extends xFormValidator
+{
 	var $maxlength;
 	
-	function xFormValidator($data_type,$mandatory,$maxlength)
+	function xFormValidatorText($maxlength,$mandatory)
 	{
-		$this->data_type = $data_type;
-		$this->mandatory = $mandatory;
+		xFormValidator::xFormValidator($mandatory);
 		$this->maxlength = $maxlength;
+	}
+	
+}
+
+
+/**
+*
+*/
+class xFormValidatorTextNoTags extends xFormValidatorText
+{
+	function xFormValidatorText($maxlength,$mandatory)
+	{
+		xFormValidatorText::xFormValidatorText($maxlength,$mandatory);
+	}
+}
+
+/**
+*
+*/
+class xFormValidatorTextRegex extends xFormValidatorText
+{
+	var $regex;
+	
+	function xFormValidatorTextRegex($regex,$maxlength,$mandatory)
+	{
+		xFormValidatorText::xFormValidatorText($maxlength,$mandatory);
+		$this->regex = regex;
+	}
+}
+
+/**
+*
+*/
+class xFormValidatorInteger extends xFormValidator
+{
+	function xFormValidatorInteger($min_val,$max_val,$mandatory)
+	{
+		xFormValidator::xFormValidator($mandatory);
 	}
 }
 
@@ -42,15 +113,17 @@ class xFormElement
 	var $name;
 	var $label;
 	var $description;
+	var $value;
+	var $validator;
 	var $invalid = FALSE;
-	var $xFormValidator;
 	
-	function xFormElement($name,$label,$description,$validator)
+	function xFormElement($name,$label,$description,$value,$validator)
 	{
 		$this->name = $name;
 		$this->label = $label;
 		$this->description = $description;
 		$this->validator = $validator;
+		$this->value = $value;
 	}
 };
 
@@ -60,37 +133,34 @@ class xFormElement
 */
 class xFormTextField extends xFormElement
 {
-	var $default_value;
-	
-	function xFormTextField($name,$label,$description,$default_value,$validator)
+	function xFormTextField($name,$label,$description,$value,$validator)
 	{
-		$this->xFormElement($name,$label,$description,$validator);
-		$this->default_value = $default_value;
+		xFormElement::xFormElement($name,$label,$description,$value,$validator);
 	}
 	
 	function render()
 	{
 		$output = '<input maxlength="' . $this->validator->maxlength . '" ';
 		$output .= ' name="' . $this->name .'" '; 
-		$output .= ' id="id-' . $this->name . '" value="'.$this->default_value.'" type="text">'."\n";
+		$output .= ' id="id-' . $this->name . '" value="'.$this->value.'" type="text">'."\n";
 		return $output;
 	}
 };
 
+/**
+*
+*/
 class xFormTextArea extends xFormElement
 {
-	var $default_value;
-	
-	function xFormTextArea($name,$label,$description,$default_value,$validator)
+	function xFormTextArea($name,$label,$description,$value,$validator)
 	{
-		$this->xFormElement($name,$label,$description,$validator);
-		$this->default_value = $default_value;
+		xFormElement::xFormElement($name,$label,$description,$value,$validator);
 	}
 	
 	function render()
 	{
 		$output = '<textarea name="' . $this->name .'" '; 
-		$output .= ' id="id-' . $this->name . '">'. $this->default_value . '</textarea>'."\n";
+		$output .= ' id="id-' . $this->name . '">'. $this->value . '</textarea>'."\n";
 		return $output;
 	}
 };
@@ -101,13 +171,11 @@ class xFormTextArea extends xFormElement
 class xFormComboBox extends xFormElement
 {
 	var $values;
-	var $default_value;
 	
-	function xFormTextField($name,$label,$description,$values,$default_value,$validator)
+	function xFormTextField($name,$label,$description,$values,$value,$validator)
 	{
-		$this->xFormElement($name,$label,$description,$validator);
-		$this->default_value = $default_value;
-		$this->values = $value;
+		xFormElement::xFormElement($name,$label,$description,$value,$validator);
+		$this->values = $values;
 	}
 };
 
@@ -116,12 +184,9 @@ class xFormComboBox extends xFormElement
 */
 class xFormSubmit extends xFormElement
 {
-	var $value;
-	
-	function xFormSubmit($name,$value,$label = NULL,$description = NULL)
+	function xFormSubmit($name,$value)
 	{
-		$this->xFormElement($name,$label,$description,NULL);
-		$this->value = $value;
+		$this->xFormElement($name,NULL,NULL,$value,NULL);
 	}
 	
 	function render()
@@ -144,31 +209,19 @@ class xFormGroup
 		$this->label = $label;
 		$this->elements = $elements;
 	}
-};
-
-/**
-*
-*/
-class xFormData
-{
-	var $valid_data;
-	var $invalid_data;
 	
-	function xFormData($valid_data,$invalid_data)
+	function render()
 	{
-		$this->valid_data = $valid_data;
-		$this->invalid_data = $invalid_data;
+		
 	}
 };
-
-
 
 /**
 *
 */
 class xForm
 {
-	var $groups;
+	var $elements;
 	var $action;
 	
 	function xForm($action,$groups)

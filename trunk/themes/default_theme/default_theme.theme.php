@@ -51,8 +51,9 @@ function default_box_template($hook_primary_id,$hook_secondary_id,$arguments)
 
 function default_custom_area_template($hook_primary_id,$hook_secondary_id,$arguments)
 {
-	list($boxes,$content,$elements) = $arguments;
+	list($boxes,$content) = $arguments;
 	
+	$output = '';
 	foreach($boxes as $box)
 	{
 		$output .= "$box <br>";

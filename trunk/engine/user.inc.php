@@ -76,7 +76,7 @@ class xUser
 	{
 		$users = array();
 		$result = xanth_db_query("SELECT * FROM user");
-		while($row = xanth_db_fetch_array($result)
+		while($row = xanth_db_fetch_array($result))
 		{
 			$users[] = new xUser($row['username'],$row['email']);
 		}

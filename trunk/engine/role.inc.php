@@ -49,7 +49,7 @@ class xRole
 	/**
 	*
 	*/
-	function update();
+	function update()
 	{
 		xanth_db_query("UPDATE role SET name = '%s',description = '%s' WHERE id = %d)",$this->name,$this->description,$this->id);
 	}
@@ -93,7 +93,7 @@ class xRole
 		$result = xanth_db_query("SELECT * FROM role_access_rule WHERE roleId = %d",$this->id);
 		while($row = xanth_db_fetch_object($result))
 		{
-			$rules[] = row['access_rule'];
+			$rules[] = $row['access_rule'];
 		}
 		return $rules;
 	}
