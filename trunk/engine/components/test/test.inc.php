@@ -20,16 +20,26 @@
 */
 function xanth_test_create($hook_primary_id,$hook_secondary_id,$arguments)
 {
-	$text = '[Tes=ts][b]dasd[/b]as[/tes][/b]';
-	$bbparser = new xBBCodeParser($text,TRUE);
+	$text = '[b][i]argumen[/i][u]t[/u][/b] fsd[color=#FF0]Hello![/color]f[size=24]sdf[/size][code] some code[/code]';
+	$text .= "[list=square][li]test[b][/b][/li][/list]&#058;";
+	$text .= "[b]\n asdasdad[/b] asdad [url=http://testf]http://test[/url] [url]http://anoterlink[/url]";
+	$text .= "<br><br> [url=http://localhost/][img]http://localhost/xanthinplus/xfiles/subversion.png[/img][/url]";
+	$bbparser = new xBBCodeParser($text);
 	$result = $bbparser->parse();
 	
 	if($result)
+	{
 		$result = "TRUE";
+		return  "<br>$result <br><br>BBtext:<br> $text<br><br> HtmlResult:<br>" .htmlspecialchars($bbparser->htmltext). 
+		"<br><br>Result:<br>". $bbparser->htmltext;
+	}	
 	else
+	{
 		$result = "FALSE";
+		return "<br>Error:<br>".$bbparser->last_error;
+	}
 		
-	return  "$result";
+	
 }
 
 
