@@ -22,7 +22,7 @@
 class xInputValidator
 {
 	var $mandatory;
-	var $last_error;
+	var $last_error = '';
 	
 	function xInputValidator($mandatory)
 	{
@@ -34,6 +34,8 @@ class xInputValidator
 	 */
 	function validate($element)
 	{
+		$this->last_error = '';
+		
 		//if the variable is not defined
 		if(!isset($_POST[$element->name]))
 		{
@@ -41,12 +43,15 @@ class xInputValidator
 			if($this->mandatory)
 			{
 				$element->invalid = TRUE;
-				$this->last_error = 'Field '.$this->groups[i]->elements[j]->name.' is mandatory';
+				$this->last_error = 'Field '.$element->label.' is mandatory';
 				return NULL;
 			}
 			
 			return '';
 		}
+		
+		
+		$element->value = htmlspecialchars($_POST[$element->name]);
 		
 		return $_POST[$element->name];
 	}
@@ -78,7 +83,7 @@ class xInputValidatorText extends xInputValidator
 		
 		if($this->maxlength > 0 && strlen($input) > $this->maxlength)
 		{
-			$this->last_error = 'Field '.$this->name.' contains too much characters (max is '.$this->maxlength.')';
+			$this->last_error = 'Field '.$element->label.' contains too much characters (max is '.$this->maxlength.')';
 			return NULL;
 		}
 
@@ -141,7 +146,7 @@ class xInputValidatorTextRegex extends xInputValidatorText
 		
 		if(!preg_match($this->regex,$input))
 		{
-			$this->last_error = 'Field '.$this->name.' does not contain a valid input';
+			$this->last_error = 'Field '.$element->label.' does not contain a valid input';
 			return NULL;
 		}
 		
@@ -169,14 +174,14 @@ class xInputValidatorTextEmail extends xInputValidatorText
 	function validate($element)
 	{
 		$input = xInputValidatorText::validate($element);
-		if($input == NULL)
+		if($input === NULL)
 		{
 			return NULL;
 		}
 		
 		if(!xanth_valid_email($input))
 		{
-			$this->last_error = 'Field '.$this->name.' does not contain a valid email address';
+			$this->last_error = 'Field '.$element->label.' does not contain a valid email address';
 			return NULL;
 		}
 		
@@ -211,7 +216,7 @@ class xInputValidatorTextUsermame extends xInputValidatorText
 		
 		if(!preg_match('#^[A-Z][A-Z0-9_-]{2,'.$this->maxlenght.'}$#i',$input))
 		{
-			$this->last_error = 'Field '.$this->name.' does not contain a valid username';
+			$this->last_error = 'Field '.$element->label.' does not contain a valid username';
 			return NULL;
 		}
 		
@@ -224,8 +229,8 @@ class xInputValidatorTextUsermame extends xInputValidatorText
 *
 */
 class xInputValidatorInteger extends xInputValidator
-{
-	function xInputValidatorInteger($min_val,$max_val,$mandatory)
+{	
+	function xInputValidatorInteger($mandatory)
 	{
 		xInputValidator::xInputValidator($mandatory);
 	}
@@ -243,7 +248,7 @@ class xInputValidatorInteger extends xInputValidator
 		
 		if(!is_numeric($input))
 		{
-			$this->last_error = 'Field '.$this->name.' must contain a valid number';
+			$this->last_error = 'Field '.$element->label.' must contain a valid number';
 			return NULL;
 		}
 		
@@ -311,8 +316,12 @@ class xFormTextField extends xFormElement
 	function render()
 	{
 		$output = '<div class="form-element" '.$this->invalid.'>'. "\n";
-		$output .= '<label for="id-'.$this->name.'">'.$this->label.'</label>' . "\n";
-		$output .= '<input maxlength="' . $this->validator->maxlength . '" ';
+		$output .= '<label for="id-'.$this->name.'">'.$this->label.':</label>' . "\n";
+		$output .= '<input';
+		if(isset($this->validator->maxlength))
+		{
+			$output .= ' maxlength="' . $this->validator->maxlength . '" ';
+		}
 		$output .= ' name="' . $this->name .'" '; 
 		$output .= ' id="id-' . $this->name . '" value="'.$this->value.'" type="text">'."\n";
 		$output .= '</div>'. "\n";
@@ -333,7 +342,7 @@ class xFormTextArea extends xFormElement
 	function render()
 	{
 		$output = '<div class="form-element" '.$this->invalid.'>'. "\n";
-		$output .= '<label for="id-'.$this->name.'">'.$this->label.'</label>' . "\n";
+		$output .= '<label for="id-'.$this->name.'">'.$this->label.':</label>' . "\n";
 		$output .= '<textarea name="' . $this->name .'" '; 
 		$output .= ' id="id-' . $this->name . '">'. $this->value . '</textarea>'."\n";
 		$output .= '</div>'. "\n";

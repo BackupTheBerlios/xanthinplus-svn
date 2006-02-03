@@ -15,6 +15,8 @@
 * PURPOSE ARE DISCLAIMED.SEE YOUR CHOOSEN LICENSE FOR MORE DETAILS.
 */
 
+require_once('engine/components/content/entry.class.inc.php');
+
 /*
 *
 */

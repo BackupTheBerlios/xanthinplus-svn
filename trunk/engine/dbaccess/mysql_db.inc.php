@@ -187,11 +187,18 @@ function _xanth_db_rollback()
 	xanth_db_query('ROLLBACK');
 }
 
+/**
+* Return last inserted id or NULL on error
+*/
 function xanth_db_get_last_id()
 {
-	$result = xanth_db_query('SELECT LAST_INSERT_ID()');
-	$row = xanth_db_fetch_array($result);
-	return $row[0];
+	$result = xanth_db_query('SELECT LAST_INSERT_ID() as id');
+	if($row = xanth_db_fetch_array($result))
+	{
+		return $row['id'];
+	}
+	
+	return NULL;
 }
 
 /**

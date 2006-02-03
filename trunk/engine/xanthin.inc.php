@@ -28,12 +28,6 @@ require_once('engine/theme.inc.php');
 require_once('engine/session.inc.php');
 require_once('engine/core.inc.php');
 require_once('engine/element.inc.php');
-require_once('engine/box.inc.php');
-require_once('engine/entry.inc.php');
-require_once('engine/category.inc.php');
-require_once('engine/role.inc.php');
-require_once('engine/user.inc.php');
-require_once('engine/bbcode.inc.php');
 
 /**
 * @defgroup Core Core

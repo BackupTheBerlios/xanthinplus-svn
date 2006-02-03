@@ -17,7 +17,8 @@
 
 function xanth_db_install_weight_page()
 {
-	return 100;
+	//no dependency
+	return 0;
 }
 
 function xanth_db_install_page()

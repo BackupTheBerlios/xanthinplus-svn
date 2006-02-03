@@ -15,36 +15,35 @@
 * PURPOSE ARE DISCLAIMED.SEE YOUR CHOOSEN LICENSE FOR MORE DETAILS.
 */
 
-function xanth_db_install_weight_content()
+function xanth_db_install_weight_user()
 {
-	//depend from content format module
+	//depend from role module
+	
 	return 100;
 }
 
-function xanth_db_install_content()
+function xanth_db_install_user()
 {
-	//entry type
+	//Users
 	xanth_db_query("
-		CREATE TABLE entryType (
-		name VARCHAR(32) NOT NULL,
-		PRIMARY KEY (name)
+		CREATE TABLE user (
+		username VARCHAR(32) NOT NULL,
+		password VARCHAR(64) NOT NULL,
+		email VARCHAR(128) NOT NULL,
+		PRIMARY KEY (username),
+		UNIQUE(email)
 		)TYPE=InnoDB");
-	
-	//entry
+		
+	//User to role
 	xanth_db_query("
-		CREATE TABLE entry (
-		id INT UNSIGNED NOT NULL AUTO_INCREMENT,
-		title VARCHAR(255) NOT NULL,
-		type VARCHAR(64) NOT NULL,
-		author VARCHAR(64) NOT NULL,
-		content TEXT NOT NULL,
-		content_format VARCHAR(64) NOT NULL,
-		creation_time TIMESTAMP NOT NULL,
-		PRIMARY KEY  (id),
-		INDEX(type),
-		INDEX(content_format),
-		FOREIGN KEY(type) REFERENCES entryType(name) ON DELETE RESTRICT
-		FOREIGN KEY(content_format) REFERENCES content_format(name) ON DELETE RESTRICT
+		CREATE TABLE user_to_role (
+		username VARCHAR(32) NOT NULL,
+		roleId INT UNSIGNED NOT NULL,
+		UNIQUE(username,roleId),
+		INDEX(username),
+		INDEX(roleId),
+		FOREIGN KEY (username) REFERENCES user(username) ON DELETE CASCADE,
+		FOREIGN KEY (roleId) REFERENCES role(id) ON DELETE CASCADE
 		)TYPE=InnoDB");
 }
 

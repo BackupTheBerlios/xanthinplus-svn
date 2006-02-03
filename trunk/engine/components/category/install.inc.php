@@ -15,36 +15,35 @@
 * PURPOSE ARE DISCLAIMED.SEE YOUR CHOOSEN LICENSE FOR MORE DETAILS.
 */
 
-function xanth_db_install_weight_content()
+function xanth_db_install_weight_category()
 {
-	//depend from content format module
-	return 100;
+	//depends on content module
+	return 200;
 }
 
-function xanth_db_install_content()
+function xanth_db_install_category()
 {
-	//entry type
+	//category
 	xanth_db_query("
-		CREATE TABLE entryType (
-		name VARCHAR(32) NOT NULL,
-		PRIMARY KEY (name)
-		)TYPE=InnoDB");
-	
-	//entry
-	xanth_db_query("
-		CREATE TABLE entry (
+		CREATE TABLE category (
 		id INT UNSIGNED NOT NULL AUTO_INCREMENT,
 		title VARCHAR(255) NOT NULL,
-		type VARCHAR(64) NOT NULL,
-		author VARCHAR(64) NOT NULL,
-		content TEXT NOT NULL,
-		content_format VARCHAR(64) NOT NULL,
-		creation_time TIMESTAMP NOT NULL,
-		PRIMARY KEY  (id),
-		INDEX(type),
-		INDEX(content_format),
-		FOREIGN KEY(type) REFERENCES entryType(name) ON DELETE RESTRICT
-		FOREIGN KEY(content_format) REFERENCES content_format(name) ON DELETE RESTRICT
+		parent INT UNSIGNED,
+		PRIMARY KEY (id),
+		INDEX(parent),
+		FOREIGN KEY(parent) REFERENCES category(id) ON DELETE CASCADE
+		)TYPE=InnoDB");
+		
+	//category to entry
+	xanth_db_query("
+		CREATE TABLE categorytoentry (
+		entryId INT UNSIGNED NOT NULL,
+		catId INT UNSIGNED NOT NULL,
+		UNIQUE(entryId,catId),
+		INDEX(entryId),
+		INDEX(catId),
+		FOREIGN KEY(entryId) REFERENCES entry(id) ON DELETE CASCADE,
+		FOREIGN KEY(catId) REFERENCES category(id) ON DELETE CASCADE
 		)TYPE=InnoDB");
 }
 

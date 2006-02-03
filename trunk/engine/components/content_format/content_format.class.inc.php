@@ -15,26 +15,34 @@
 * PURPOSE ARE DISCLAIMED.SEE YOUR CHOOSEN LICENSE FOR MORE DETAILS.
 */
 
+/**
+* @ingroup Hooks
+* In this hook you must implement a method to apply a content format to a content. As secondary hook id you specify the
+* name of the content format you would manage.
+* @param arg[0] The content to witch apply the content format.
+* @return The eleborated content or FALSE on failure.
+*/
+define('MONO_HOOK_CONTENT_FORMAT_APPLY','mono_hook_content_format_apply');
+
+/**
+*
+*/
 class xContentFormat
 {
 	var $name;
-	var $stripped_html;
-	var $php_source;
-	var $new_line_to_line_break;
-	var $bbcode;
+	var $description;
+	var $last_error = '';
 	
-	function xContentFormat($name,$stripped_html,$php_source,$new_line_to_line_break)
+	function xContentFormat($name,$description)
 	{
 		$this->name = $name;
-		$this->stripped_html = $stripped_html;
-		$this->php_source = $php_source;
-		$this->new_line_to_line_break = $new_line_to_line_break;
+		$this->description = $description;
 	}
 	
 	function insert()
 	{
-		xanth_db_query("INSERT INTO content_format(name,stripped_html,php_source,new_line_to_line_break) VALUES ('%s',%d,%d,%d)",
-			$this->name,$this->stripped_html,$this->php_source,$this->new_line_to_line_break);
+		xanth_db_query("INSERT INTO content_format(name,description) VALUES ('%s','%s')",
+			$this->name,$this->description);
 	}
 	
 	function delete()
@@ -44,8 +52,8 @@ class xContentFormat
 	
 	function update()
 	{
-		xanth_db_query("UPDATE content_format SET stripped_html = %d,php_source = %d,new_line_to_line_break =%d WHERE name = '%s'",
-			$this->stripped_html,$this->php_source,$this->new_line_to_line_break,$this->name);
+		xanth_db_query("UPDATE content_format SET description = '%s' WHERE name = '%s'",
+			$this->description,$this->name);
 	}
 	
 	function find_all()
@@ -54,7 +62,7 @@ class xContentFormat
 		$result = xanth_db_query("SELECT * FROM content_format");
 		while($row = xanth_db_fetch_object($result))
 		{
-			$formats[] = new xContentFormat($row->name,$row->stripped_html,$row->php_source,$row->new_line_to_line_break);
+			$formats[] = new xContentFormat($row->name,$row->description);
 		}
 		
 		return $formats;
@@ -68,7 +76,7 @@ class xContentFormat
 		$result = xanth_db_query("SELECT * FROM content_format WHERE name = '%s'",$name);
 		if($row = xanth_db_fetch_object($result))
 		{
-			$format = new xContentFormat($row->name,$row->stripped_html,$row->php_source,$row->new_line_to_line_break);
+			$format = new xContentFormat($row->name,$row->description);
 			return $format;
 		}
 		
@@ -78,30 +86,21 @@ class xContentFormat
 	/**
 	*
 	*/
+	function get_last_error()
+	{
+		return $this->last_error;
+	}
+	
+	/**
+	* @return The eleborated content or FALSE on failure. Check if the last error is empty to see if effectively there was an error.
+	*/
 	function apply_to($content)
 	{
-		if($this->php_source)
-		{
-			ob_start();
-			eval($content);
-			return ob_get_clean();
-		}
-		elseif($this->stripped_html)
-		{
-			$cont = strip_tags($content,'<strong>','<ul>','<li>','<br>');
-			
-			if($this->new_line_to_line_break)
-				$cont = nl2br($cont);
-			
-			return $cont;
-		}
-		else //full html
-		{
-			if($this->new_line_to_line_break)
-				$cont = nl2br($content);
-			
-			return $cont;
-		}
+		$this->last_error = '';
+		$error = '';
+		$result = xanth_invoke_mono_hook('MONO_HOOK_CONTENT_FORMAT_APPLY',$this->name,array($content,&$error));
+		$this->last_error = $error;
+		return $result;
 	}
 }
 

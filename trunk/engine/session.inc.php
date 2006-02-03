@@ -46,12 +46,11 @@ function on_session_write($key, $val)
 	$result = xanth_db_query("SELECT * FROM sessions WHERE session_id ='%s'",$key);
 	if(!xanth_db_fetch_array($result))
 	{
-		print_r('asdasd');
 		xanth_db_query("INSERT INTO sessions(session_id,session_data,session_timestamp) VALUES('%s','%s',NOW())",$key,$val);
 	}
 	else
 	{
-		xanth_db_query("UPDATE sessions SET session_id = '%s',session_data = '%s',session_timestamp = NOW()",$key,$val);
+		xanth_db_query("UPDATE sessions SET session_data = '%s',session_timestamp = NOW() WHERE session_id = '%s'",$val,$key);
 	}
 	
 	return '';

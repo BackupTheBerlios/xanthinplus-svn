@@ -17,7 +17,7 @@
 
 
 /**
-* \ingroup Events
+* @ingroup Hooks
 * You can use a secondary hook id to refer to a specific box.
 * Must return the content of the box.
 */
@@ -81,7 +81,7 @@ class xBox
 		}
 		else
 		{
-			$result = xanth_db_query("SELECT * FROM box,boxtoarea WHERE box.boxName = boxtoarea.boxName AND boxtoarea.area = '%s'",$area);
+			$result = xanth_db_query("SELECT * FROM box,boxtoarea WHERE box.id = boxtoarea.boxId AND boxtoarea.area = '%s'",$area);
 		}
 		
 		while($row = xanth_db_fetch_array($result))

@@ -15,36 +15,35 @@
 * PURPOSE ARE DISCLAIMED.SEE YOUR CHOOSEN LICENSE FOR MORE DETAILS.
 */
 
-function xanth_db_install_weight_content()
+function xanth_db_install_weight_role()
 {
-	//depend from content format module
-	return 100;
+	//no dependencies
+	return 0;
 }
 
-function xanth_db_install_content()
+function xanth_db_install_role()
 {
-	//entry type
+
+	//Roles
 	xanth_db_query("
-		CREATE TABLE entryType (
+		CREATE TABLE role (
+		id INT UNSIGNED AUTO_INCREMENT NOT NULL,
 		name VARCHAR(32) NOT NULL,
-		PRIMARY KEY (name)
+		description VARCHAR(255) NOT NULL,
+		PRIMARY KEY(id)
 		)TYPE=InnoDB");
+	$role = new xRole(0,'Administrator','Administrator');$role->insert();
+	$role = new xRole(0,'Authenticated','Authenticated user');$role->insert();
+	$role = new xRole(0,'Anonymous','Anonymous visitor');$role->insert();
 	
-	//entry
+	//Access rules
 	xanth_db_query("
-		CREATE TABLE entry (
-		id INT UNSIGNED NOT NULL AUTO_INCREMENT,
-		title VARCHAR(255) NOT NULL,
-		type VARCHAR(64) NOT NULL,
-		author VARCHAR(64) NOT NULL,
-		content TEXT NOT NULL,
-		content_format VARCHAR(64) NOT NULL,
-		creation_time TIMESTAMP NOT NULL,
-		PRIMARY KEY  (id),
-		INDEX(type),
-		INDEX(content_format),
-		FOREIGN KEY(type) REFERENCES entryType(name) ON DELETE RESTRICT
-		FOREIGN KEY(content_format) REFERENCES content_format(name) ON DELETE RESTRICT
+		CREATE TABLE role_access_rule (
+		roleId INT UNSIGNED NOT NULL,
+		access_rule VARCHAR(64) NOT NULL,
+		UNIQUE(roleId,access_rule),
+		INDEX(roleId),
+		FOREIGN KEY (roleId) REFERENCES role(id) ON DELETE CASCADE
 		)TYPE=InnoDB");
 }
 

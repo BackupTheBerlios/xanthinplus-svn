@@ -38,10 +38,13 @@ function xanth_install_db()
 {
 	//install core db
 	require_once('./engine/install.inc.php');
+	
+	xanth_db_start_transaction();
+	
 	xanth_db_install_core();
 	
 	$weighted_components = array();
-	foreach(xanth_component_list_existing() as $component)
+	foreach(xComponent::find_existing() as $component)
 	{
 		include_once($component->path . '/install.inc.php');
 		$weight_func = 'xanth_db_install_weight_' . $component->name;
@@ -57,7 +60,7 @@ function xanth_install_db()
 	
 	
 	$weighted_modules = array();
-	foreach(xanth_module_list_existing() as $module)
+	foreach(xModule::find_existing() as $module)
 	{
 		include_once($module->path . '/install.inc.php');
 		$weight_func = 'xanth_db_install_weight_' . $module->name;
@@ -70,6 +73,8 @@ function xanth_install_db()
 		$inst_func = 'xanth_db_install_' . $module[1]->name;
 		$inst_func();
 	}
+	
+	xanth_db_commit();
 }
 
 xanth_db_connect(xanth_conf_get('db_host',''),xanth_conf_get('db_name',''),xanth_conf_get('db_user',''),xanth_conf_get('db_pass',''),xanth_conf_get('db_port',''));

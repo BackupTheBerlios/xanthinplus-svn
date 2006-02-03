@@ -17,7 +17,7 @@
 
 
 /**
-* @ingroup Events
+* @ingroup Hooks
 * This event is emitted on page creation, you can catch it when implementing your template, and printing your desired page template.\n
 * Must return the templated page.
 * Additional arguments are:\n
@@ -28,7 +28,7 @@ define('MONO_HOOK_PAGE_TEMPLATE','mono_hook_page_template');
 
 
 /**
-* @ingroup Events
+* @ingroup Hooks
 * This event is emitted on a content entry creation, you can catch it when implementing your template, and printing you desired content entry structure. \n
 * Must return the templated entry.
 * Additional arguments are:\n
@@ -37,7 +37,7 @@ define('MONO_HOOK_PAGE_TEMPLATE','mono_hook_page_template');
 define('MONO_HOOK_ENTRY_TEMPLATE','mono_hook_entry_template');
 
 /**
-* @ingroup Events
+* @ingroup Hooks
 * An event for asking the structure that a box must have.\n
 * Must return the templated box.
 * Additional arguments are:\n
@@ -47,7 +47,7 @@ define('MONO_HOOK_ENTRY_TEMPLATE','mono_hook_entry_template');
 define('MONO_HOOK_BOX_TEMPLATE','mono_hook_box_template');
 
 /**
-* @ingroup Events
+* @ingroup Hooks
 * An event for asking the structure that an area must have.This is a special event , you must append to it the name of the area.
 * You can refer to a specific area by using a secondary hook id.
 * Must return the templated box.
@@ -60,7 +60,7 @@ define('MONO_HOOK_AREA_TEMPLATE','mono_hook_area_template');
 
 
 /**
-* @ingroup Events
+* @ingroup Hooks
 * An event for asking the structure that an area must have.This is a special event , you must append to it the name of the area.\n
 * Returns an array containing the areas.
 */

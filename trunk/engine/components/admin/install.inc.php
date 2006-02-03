@@ -17,10 +17,11 @@
 
 function xanth_db_install_weight_admin()
 {
-	return 100;
+	//no deps
+	return 0;
 }
 
-function xanth_db_install_cadmin()
+function xanth_db_install_admin()
 {
 }
 

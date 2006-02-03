@@ -4,27 +4,27 @@
 *
 * Copyright (C) 2006  Mario Casciaro <xshadow [at] email (dot) it>
 *
-* Licensed under: 
+* Licensed under:
 *   - Apache License, Version 2.0 or
 *   - GNU General Public License (GPL)
 * You should have received at least one copy of them along with this program.
 *
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
-* AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, 
-* THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR 
+* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+* AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+* THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
 * PURPOSE ARE DISCLAIMED.SEE YOUR CHOOSEN LICENSE FOR MORE DETAILS.
 */
 
-function xanth_db_install_weight_frontpage()
+require_once('engine/components/box/box.class.inc.php');
+
+/*
+*
+*/
+function xanth_init_component_box()
 {
-	//no dependency
-	return 0;
+	
 }
 
-function xanth_db_install_frontpage()
-{
-
-}
 
 
 ?>
