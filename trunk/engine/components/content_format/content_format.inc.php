@@ -27,11 +27,10 @@ function xanth_content_format_apply_bbcode($hook_primary_id,$hook_secondary_id,$
 	//$arguments[1] a reference to error string
 	
 	$bbparser = new xBBCodeParser($arguments[0]);
-	
-	$result = $bbparser->parse();
+	$bbparser->parse();
 	$arguments[1] = $bbparser->last_error;
 	
-	return $result;
+	return $bbparser->htmltext;
 }
 
 /*

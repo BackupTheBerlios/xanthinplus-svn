@@ -50,6 +50,11 @@ function xanth_init()
 	xanth_invoke_mono_hook(MONO_HOOK_PAGE_CREATE,NULL);
 	
 	//print log
+	echo '<br />';
+	echo '<br />';
+	echo '<br />';
+	echo '<br />';
+	echo '<br />';
 	foreach(xanth_get_screen_log() as $entry)
 	{
 		echo '<br />' . $entry->level . ' ' . $entry->component . ' ' . $entry->message . ' ' . $entry->filename . '@' . $entry->line;

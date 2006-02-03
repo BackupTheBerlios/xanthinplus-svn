@@ -31,8 +31,23 @@ function xanth_page_page_creation($hook_primary_id,$hook_secondary_id)
 
 	if(empty($content))
 	{
-		$content = "<strong>Page not found</strong>";
+		$content = "<b>Page not found</b>";
 	}
+	
+	$logs = '';
+	$log_entries = xanth_get_screen_log();
+	//write log messages
+	if(!empty($log_entries))
+	{
+		$logs .= '<table border="1" width="90%"><tr><td><ul>';
+		foreach($log_entries as $entry)
+		{
+			$logs .= '<li>' . $entry->level . ' ' . $entry->component . ' ' . htmlspecialchars($entry->message) . ' ' . $entry->filename . '@' . $entry->line . '</li>';
+		}
+		$logs .= '</ul></td></tr></table>' . "\n";
+	}
+	
+	$content = $logs . $content;
 	
 	//retrieve areas
 	$areas = xanth_invoke_mono_hook(MONO_HOOK_TEMPLATE_AREAS_LIST,NULL);

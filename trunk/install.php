@@ -79,6 +79,8 @@ function xanth_install_db()
 
 xanth_db_connect(xanth_conf_get('db_host',''),xanth_conf_get('db_name',''),xanth_conf_get('db_user',''),xanth_conf_get('db_pass',''),xanth_conf_get('db_port',''));
 error_reporting(E_ALL);
+xComponent::init_all();
+xModule::init_all();
 xanth_install_db();
 
 //print log

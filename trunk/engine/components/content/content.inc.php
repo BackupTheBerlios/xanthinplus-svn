@@ -23,6 +23,14 @@ require_once('engine/components/content/entry.class.inc.php');
 function xanth_content_content_create($hook_primary_id,$hook_secondary_id,$arguments)
 {
 	$selected_entry = xEntry::get($arguments[0]);
+	$content_format = new xContentFormat($selected_entry->content_format,'');
+	$selected_entry->content = $content_format->apply_to($selected_entry->content);
+	
+	if(!empty($content_format->last_error))
+	{
+		xanth_log(LOG_LEVEL_USER_MESSAGE,$content_format->last_error);
+	}
+	
 	if($selected_entry == NULL)
 	{
 		xanth_log(LOG_LEVEL_ERROR,'Content not found','content');
@@ -39,7 +47,20 @@ function xanth_content_content_create($hook_primary_id,$hook_secondary_id,$argum
 function xanth_content_admin_content_create($hook_primary_id,$hook_secondary_id,$arguments)
 {
 	$form = new xForm('?p=admin/content/create');
-	$form->elements[] = new xFormTextField('content_title','Title:','','',new xInputValidatorTextNoTags(64,TRUE));
+	$form->elements[] = new xFormElementTextField('content_title','Title','','',new xInputValidatorTextNoTags(256,TRUE));
+	$form->elements[] = new xFormElementTextArea('content_body','Body','','',new xInputValidatorText(256,TRUE));
+	
+	
+	$content_formats = xContentFormat::find_all();
+	$content_formats_radio_group = new xFormRadioGroup(array(),'Content format');
+	
+	foreach($content_formats as $content_format)
+	{
+		$content_formats_radio_group->elements[] = new xFormElementRadio('content_format',$content_format->name,
+			$content_format->description,$content_format->name,FALSE,
+			new xInputValidatorText(64,TRUE));
+	}
+	$form->elements[] = $content_formats_radio_group;
 	$form->elements[] = new xFormSubmit('submit','create');
 	
 	$ret = $form->validate_input();
@@ -47,11 +68,18 @@ function xanth_content_admin_content_create($hook_primary_id,$hook_secondary_id,
 	{
 		if(empty($ret->errors))
 		{
-			return 'You sent the form without errors';
+			$entry = new xEntry(NULL,$ret->valid_data['content_title'],NULL,NULL,$ret->valid_data['content_body'],
+				$ret->valid_data['content_format']);
+			$entry->insert();
+			return 'Entry created, <a href="?p=content/'.$entry->id.'">view it</a>';
 		}
 		else
 		{
-			return 'You sent the form with errors';
+			foreach($ret->errors as $error)
+			{
+				xanth_log(LOG_LEVEL_USER_MESSAGE,$error);
+			}
+			return $form->render();
 		}
 	}
 	else

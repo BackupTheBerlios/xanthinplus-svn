@@ -98,7 +98,7 @@ class xContentFormat
 	{
 		$this->last_error = '';
 		$error = '';
-		$result = xanth_invoke_mono_hook('MONO_HOOK_CONTENT_FORMAT_APPLY',$this->name,array($content,&$error));
+		$result = xanth_invoke_mono_hook(MONO_HOOK_CONTENT_FORMAT_APPLY,$this->name,array($content,&$error));
 		$this->last_error = $error;
 		return $result;
 	}

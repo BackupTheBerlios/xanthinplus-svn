@@ -29,7 +29,7 @@ class xEntry
 	var $categories;
 	
 	function xEntry($id = NULL,$title = NULL,$type = NULL,$author = NULL,$content = NULL,
-		$content_format = NULL,$categories = NULL,$creation_time = NULL)
+		$content_format = NULL,$categories = array(),$creation_time = NULL)
 	{
 		$this->id = $id;
 		$this->title = $title;

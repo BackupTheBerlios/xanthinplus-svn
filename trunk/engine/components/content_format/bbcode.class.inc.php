@@ -54,7 +54,7 @@ class xBBCodeParser
 	{
 		$this->bbtext = $bbtext;
 		$this->htmltext = '';
-		$this->txt_len = strlen($bbtext);
+		$this->txt_len = 0;
 		$this->curr_pos = 0;
 		$tag_stack = array();
 		$this->last_tag_content = '';
@@ -514,13 +514,14 @@ class xBBCodeParser
 		//do some pre-processing
 		$this->bbtext = htmlspecialchars($this->bbtext);
 		$this->bbtext = nl2br($this->bbtext);
+		$this->txt_len = strlen($this->bbtext);
 		
 		$res = $this->_parse();
 		if($res == XBB_RET_ERROR)
 		{
-			$this->last_error = "BBCode parsing error: ".$this->last_error. ",while parsing &quot;".
-				htmlspecialchars(substr($this->bbtext,$this->curr_pos,30))." &quot";
-			$this->htmltext = '';
+			$this->last_error = "BBCode parsing error: ".$this->last_error. ",while parsing \"".
+				htmlspecialchars(substr($this->bbtext,$this->curr_pos,30))." \"";
+			$this->htmltext = 'Text not available due to parsing error, plese edit and fix them';
 			return FALSE;
 		}
 		return TRUE;

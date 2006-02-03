@@ -34,7 +34,7 @@ function xanth_db_install_content()
 	xanth_db_query("
 		CREATE TABLE entry (
 		id INT UNSIGNED NOT NULL AUTO_INCREMENT,
-		title VARCHAR(255) NOT NULL,
+		title VARCHAR(256) NOT NULL,
 		type VARCHAR(64) NOT NULL,
 		author VARCHAR(64) NOT NULL,
 		content TEXT NOT NULL,
@@ -43,9 +43,10 @@ function xanth_db_install_content()
 		PRIMARY KEY  (id),
 		INDEX(type),
 		INDEX(content_format),
-		FOREIGN KEY(type) REFERENCES entryType(name) ON DELETE RESTRICT
 		FOREIGN KEY(content_format) REFERENCES content_format(name) ON DELETE RESTRICT
 		)TYPE=InnoDB");
+		
+		//FOREIGN KEY(type) REFERENCES entryType(name) ON DELETE RESTRICT
 }
 
 

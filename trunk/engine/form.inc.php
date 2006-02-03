@@ -37,21 +37,16 @@ class xInputValidator
 		$this->last_error = '';
 		
 		//if the variable is not defined
-		if(!isset($_POST[$element->name]))
+		if(empty($_POST[$element->name]))
 		{
 			//if the field is mandatory
 			if($this->mandatory)
 			{
-				$element->invalid = TRUE;
 				$this->last_error = 'Field '.$element->label.' is mandatory';
 				return NULL;
 			}
-			
 			return '';
 		}
-		
-		
-		$element->value = htmlspecialchars($_POST[$element->name]);
 		
 		return $_POST[$element->name];
 	}
@@ -76,7 +71,7 @@ class xInputValidatorText extends xInputValidator
 	function validate($element)
 	{
 		$input = xInputValidator::validate($element);
-		if($input == NULL)
+		if($input === NULL)
 		{
 			return NULL;
 		}
@@ -108,7 +103,7 @@ class xInputValidatorTextNoTags extends xInputValidatorText
 	function validate($element)
 	{
 		$input = xInputValidatorText::validate($element);
-		if($input == NULL)
+		if($input === NULL)
 		{
 			return NULL;
 		}
@@ -139,7 +134,7 @@ class xInputValidatorTextRegex extends xInputValidatorText
 	function validate($element)
 	{
 		$input = xInputValidatorText::validate($element);
-		if($input == NULL)
+		if($input === NULL)
 		{
 			return NULL;
 		}
@@ -209,7 +204,7 @@ class xInputValidatorTextUsermame extends xInputValidatorText
 	function validate($element)
 	{
 		$input = xInputValidatorText::validate($element);
-		if($input == NULL)
+		if($input === NULL)
 		{
 			return NULL;
 		}
@@ -241,7 +236,7 @@ class xInputValidatorInteger extends xInputValidator
 	function validate($element)
 	{
 		$input = xInputValidator::validate($element);
-		if($input == NULL)
+		if($input === NULL)
 		{
 			return NULL;
 		}
@@ -287,12 +282,27 @@ class xFormElement
 		}
 	}
 	
+	function get_posted_value()
+	{
+		if(isset($_POST[$this->name]))
+		{
+			return $_POST[$this->name];
+		}
+		
+		return '';
+	}
+	
 	/**
 	 *
 	*/
 	function validate()
 	{
-		return $this->validator->validate($this);
+		$ret = $this->validator->validate($this);
+		if($ret === NULL)
+		{
+			$this->invalid = TRUE;
+		}
+		return $ret;
 	}
 	
 	/**
@@ -306,12 +316,19 @@ class xFormElement
 /**
 *
 */
-class xFormTextField extends xFormElement
+class xFormElementTextField extends xFormElement
 {
-	function xFormTextField($name,$label,$description,$value,$validator)
+	function xFormElementTextField($name,$label,$description,$value,$validator)
 	{
 		xFormElement::xFormElement($name,$label,$description,$value,$validator);
 	}
+	
+	function validate()
+	{
+		$this->value = htmlspecialchars($this->get_posted_value());
+		return xFormElement::validate();
+	}
+	
 	
 	function render()
 	{
@@ -332,11 +349,17 @@ class xFormTextField extends xFormElement
 /**
 *
 */
-class xFormTextArea extends xFormElement
+class xFormElementTextArea extends xFormElement
 {
-	function xFormTextArea($name,$label,$description,$value,$validator)
+	function xFormElementTextArea($name,$label,$description,$value,$validator)
 	{
 		xFormElement::xFormElement($name,$label,$description,$value,$validator);
+	}
+	
+	function validate()
+	{
+		$this->value = htmlspecialchars($this->get_posted_value());
+		return xFormElement::validate();
 	}
 	
 	function render()
@@ -353,14 +376,44 @@ class xFormTextArea extends xFormElement
 /**
 *
 */
-class xFormComboBox extends xFormElement
+class xFormElementRadio extends xFormElement
 {
-	var $values;
+	var $checked;
 	
-	function xFormTextField($name,$label,$description,$values,$value,$validator)
+	function xFormElementRadio($name,$label,$description,$value,$checked,$validator)
 	{
 		xFormElement::xFormElement($name,$label,$description,$value,$validator);
-		$this->values = $values;
+		$this->checked = $checked;
+	}
+	
+	function validate()
+	{
+		if($this->get_posted_value() === $this->value)
+		{
+			$this->checked = TRUE;
+		}
+		else
+		{
+			$this->checked = FALSE;
+		}
+		
+		return xFormElement::validate();
+	}
+		
+		
+	function render()
+	{
+		$output = '<div class="form-element" '.$this->invalid.'>'. "\n";
+		$output .= '<label for="id-'.$this->name.'">'.$this->label.':</label>' . "\n";
+		$output .= '<input name="' . $this->name .'" '; 
+		$output .= ' id="id-' . $this->name . '" value="'.$this->value.'"';
+		if(!empty($this->checked))
+		{	
+			$output .= ' checked="checked" ';
+		}
+		$output .= ' type="radio">'."\n";
+		$output .= '</div>'. "\n";
+		return $output;
 	}
 };
 
@@ -391,10 +444,15 @@ class xFormGroup
 	var $elements;
 	var $label;
 	
-	function xFormGroup($elements,$label = NULL)
+	function xFormGroup($elements = array(),$label = NULL)
 	{
 		$this->label = $label;
 		$this->elements = $elements;
+	}
+	
+	function validate()
+	{
+		
 	}
 	
 	function render()
@@ -404,10 +462,12 @@ class xFormGroup
 		
 		foreach($this->elements as $element)
 		{
-			$output .= $element->render;
+			$output .= $element->render();
 		}
 		
-		$output .= "<\fieldset> \n";
+		$output .= "</fieldset> \n";
+		
+		return $output;
 	}
 };
 
@@ -419,6 +479,56 @@ class xValidationData
 	var $valid_data = array();
 	var $errors = array();
 }
+
+
+
+/**
+*
+*/
+class xFormRadioGroup extends xFormGroup
+{
+	function xFormRadioGroup($elements = array(),$label = NULL)
+	{
+		xFormGroup::xFormGroup($elements,$label);
+	}
+	
+	function validate()
+	{
+		$data = new xValidationData();
+		
+		//see if the value correspond to one of the radios
+		$in_array_elem = NULL;
+		foreach($this->elements as $element)
+		{
+			if($element->value === $element->get_posted_value())
+			{
+				$in_array_elem = $element;
+				break;
+			}
+		}
+		
+		if($in_array_elem === NULL)
+		{
+			$data->errors[] = 'You have selected an invalid option for input '.$this->label;
+		}
+		else
+		{
+			$in_array_elem->checked = TRUE;
+			$ret = $in_array_elem->validate();
+			if($ret === NULL)
+			{
+				$data->errors[] = $$in_array_elem->validator->last_error;
+			}
+			else
+			{
+				$data->valid_data[$in_array_elem->name] = $ret;
+			}
+		}
+		
+		return $data;
+	}
+};
+
 
 /**
 *
@@ -477,13 +587,22 @@ class xForm
 		foreach($this->elements as $element)
 		{
 			$ret = $element->validate();
-			if($ret === NULL)
+			
+			if(xanth_instanceof($element,'xFormGroup')) //is a group
 			{
-				$data->errors[] = $element->validator->last_error;
+				$data->errors = array_merge($ret->errors,$data->errors);
+				$data->valid_data = array_merge($ret->valid_data,$data->valid_data);
 			}
-			else
+			else //simple form element
 			{
-				$data->valid_data = $ret;
+				if($ret === NULL)
+				{
+					$data->errors[] = $element->validator->last_error;
+				}
+				else
+				{
+					$data->valid_data[$element->name] = $ret;
+				}
 			}
 		}
 		
