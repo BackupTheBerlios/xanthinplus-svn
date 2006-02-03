@@ -36,15 +36,26 @@ function xanth_content_content_create($hook_primary_id,$hook_secondary_id,$argum
 */
 function xanth_content_admin_content_create($hook_primary_id,$hook_secondary_id,$arguments)
 {
-	$form_elements = array();
-	$form_groups = array();
+	$form = new xForm('?p=admin/content/create');
+	$form->elements[] = new xFormTextField('content_title','Title:','','',new xInputValidatorTextNoTags(64,TRUE));
+	$form->elements[] = new xFormSubmit('submit','create');
 	
-	$form_elements[] = new xFormTextField('content_title','Title:','','');
-	$form_elements[] = new xFormSubmit('submit','Create');
-	$form_groups[] = new xFormGroup($form_elements,'');
-	$form = new xForm('?p=admin/content/create',$form_groups);
-	
-	return $form->render();
+	$ret = $form->validate_input();
+	if(isset($ret->valid_data['submit']))
+	{
+		if(empty($ret->errors))
+		{
+			return 'You sent the form without errors';
+		}
+		else
+		{
+			return 'You sent the form with errors';
+		}
+	}
+	else
+	{
+		return $form->render();
+	}
 }
 
 

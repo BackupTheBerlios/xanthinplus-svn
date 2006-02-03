@@ -32,13 +32,14 @@ function xanth_admin_index($hook_primary_id,$hook_secondary_id,$arguments)
 */
 function xanth_admin_content_format($hook_primary_id,$hook_secondary_id,$arguments)
 {
+	$form = new xForm('?p=admin/content_format/add');
+	
 	$form_elements = array();
-	$form_groups = array();
 	
 	$form_elements[] = new xFormTextField('content_title','Title:','','');
 	$form_elements[] = new xFormSubmit('submit','Create');
 	$form_groups[] = new xFormGroup($form_elements,'');
-	$form = new xForm('?p=admin/content/create',$form_groups);
+	
 	
 	return $form->render();
 }

@@ -510,11 +510,17 @@ class xBBCodeParser
 	function parse()
 	{
 		$this->error = '';
+		
+		//do some pre-processing
+		$this->bbtext = htmlspecialchars($this->bbtext);
+		$this->bbtext = nl2br($this->bbtext);
+		
 		$res = $this->_parse();
 		if($res == XBB_RET_ERROR)
 		{
 			$this->last_error = "BBCode parsing error: ".$this->last_error. ",while parsing &quot;".
 				htmlspecialchars(substr($this->bbtext,$this->curr_pos,30))." &quot";
+			$this->htmltext = '';
 			return FALSE;
 		}
 		return TRUE;

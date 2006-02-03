@@ -156,7 +156,7 @@ function xanth_list_files($path)
 */
 function xanth_valid_email($email)
 {
-   if(eregi("^[a-zA-Z0-9]+[_a-zA-Z0-9-]*(\.[_a-z0-9-]+)*@[a-z??????0-9]+(-[a-z??????0-9]+)*(\.[a-z??????0-9-]+)*(\.[a-z]{2,4})$", $email))
+   if(preg_match("#^([a-z0-9&\-_.]+?@[\w\-]+\.([\w\-\.]+\.)?[\w]+)$#i", $email))
    {
        return TRUE;
    }

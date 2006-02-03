@@ -15,26 +15,24 @@
 * PURPOSE ARE DISCLAIMED.SEE YOUR CHOOSEN LICENSE FOR MORE DETAILS.
 */
 
-define('FORM_DATA_TYPE_TEXT_NO_TAGS','form_data_type_text_no_tags');
-define('FORM_DATA_TYPE_TEXT_WITH_TAGS','form_data_type_text_with_tags');
-define('FORM_DATA_TYPE_INTEGER','form_data_type_integer');
 
 /**
 *
 */
-class xFormValidator
+class xInputValidator
 {
 	var $mandatory;
+	var $last_error;
 	
-	function xFormValidator($mandatory)
+	function xInputValidator($mandatory)
 	{
-		$this->namdatory = $mandatory;
+		$this->mandatory = $mandatory;
 	}
 	
 	/**
-	 *
+	 * Validates the element by filtering the input and returns the input or NULL otherwise
 	 */
-	function get_input_validate($element)
+	function validate($element)
 	{
 		//if the variable is not defined
 		if(!isset($_POST[$element->name]))
@@ -43,65 +41,214 @@ class xFormValidator
 			if($this->mandatory)
 			{
 				$element->invalid = TRUE;
-				$element->value = 'Field '.$this->groups[i]->elements[j]->name.' is mandatory';
+				$this->last_error = 'Field '.$this->groups[i]->elements[j]->name.' is mandatory';
+				return NULL;
 			}
-			else
-			{
-				$outdata->valid_data[$this->groups[i]->elements[j]->name] = '';
-			}
+			
+			return '';
 		}
+		
+		return $_POST[$element->name];
 	}
 }
 
 /**
 *
 */
-class xFormValidatorText extends xFormValidator
+class xInputValidatorText extends xInputValidator
 {
 	var $maxlength;
 	
-	function xFormValidatorText($maxlength,$mandatory)
+	function xInputValidatorText($maxlength,$mandatory)
 	{
-		xFormValidator::xFormValidator($mandatory);
+		xInputValidator::xInputValidator($mandatory);
 		$this->maxlength = $maxlength;
 	}
 	
-}
-
-
-/**
-*
-*/
-class xFormValidatorTextNoTags extends xFormValidatorText
-{
-	function xFormValidatorText($maxlength,$mandatory)
+	/**
+	 * Validates the element by filtering the input and returns true on success.
+	 */
+	function validate($element)
 	{
-		xFormValidatorText::xFormValidatorText($maxlength,$mandatory);
+		$input = xInputValidator::validate($element);
+		if($input == NULL)
+		{
+			return NULL;
+		}
+		
+		if($this->maxlength > 0 && strlen($input) > $this->maxlength)
+		{
+			$this->last_error = 'Field '.$this->name.' contains too much characters (max is '.$this->maxlength.')';
+			return NULL;
+		}
+
+		return $input;
 	}
 }
 
+
 /**
 *
 */
-class xFormValidatorTextRegex extends xFormValidatorText
+class xInputValidatorTextNoTags extends xInputValidatorText
+{
+	function xInputValidatorText($maxlength,$mandatory)
+	{
+		xInputValidatorText::xInputValidatorText($maxlength,$mandatory);
+	}
+	
+	/**
+	  * Validates the element by filtering the input and returns true on success.
+	 */
+	function validate($element)
+	{
+		$input = xInputValidatorText::validate($element);
+		if($input == NULL)
+		{
+			return NULL;
+		}
+
+		$input = htmlspecialchars($input);
+		
+		return $input;
+	}
+}
+
+
+/**
+*
+*/
+class xInputValidatorTextRegex extends xInputValidatorText
 {
 	var $regex;
 	
-	function xFormValidatorTextRegex($regex,$maxlength,$mandatory)
+	function xInputValidatorTextRegex($regex,$maxlength,$mandatory)
 	{
-		xFormValidatorText::xFormValidatorText($maxlength,$mandatory);
+		xInputValidatorText::xInputValidatorText($maxlength,$mandatory);
 		$this->regex = regex;
 	}
+	
+	/**
+	  * Validates the element by filtering the input and returns true on success.
+	 */
+	function validate($element)
+	{
+		$input = xInputValidatorText::validate($element);
+		if($input == NULL)
+		{
+			return NULL;
+		}
+		
+		if(!preg_match($this->regex,$input))
+		{
+			$this->last_error = 'Field '.$this->name.' does not contain a valid input';
+			return NULL;
+		}
+		
+		return $input;
+	}
 }
+
 
 /**
 *
 */
-class xFormValidatorInteger extends xFormValidator
+class xInputValidatorTextEmail extends xInputValidatorText
 {
-	function xFormValidatorInteger($min_val,$max_val,$mandatory)
+	var $regex;
+	
+	function xInputValidatorTextEmail($mandatory)
 	{
-		xFormValidator::xFormValidator($mandatory);
+		xInputValidatorText::xInputValidatorText('',0,$mandatory);
+		$this->regex = regex;
+	}
+	
+	/**
+	  * Validates the element by filtering the input and returns true on success.
+	 */
+	function validate($element)
+	{
+		$input = xInputValidatorText::validate($element);
+		if($input == NULL)
+		{
+			return NULL;
+		}
+		
+		if(!xanth_valid_email($input))
+		{
+			$this->last_error = 'Field '.$this->name.' does not contain a valid email address';
+			return NULL;
+		}
+		
+		return $input;
+	}
+}
+
+
+/**
+*
+*/
+class xInputValidatorTextUsermame extends xInputValidatorText
+{
+	var $regex;
+	
+	function xInputValidatorTextUsermame($mandatory)
+	{
+		xInputValidatorText::xInputValidatorText($maxlength,$mandatory);
+		$this->regex = regex;
+	}
+	
+	/**
+	  * Validates the element by filtering the input and returns true on success.
+	 */
+	function validate($element)
+	{
+		$input = xInputValidatorText::validate($element);
+		if($input == NULL)
+		{
+			return NULL;
+		}
+		
+		if(!preg_match('#^[A-Z][A-Z0-9_-]{2,'.$this->maxlenght.'}$#i',$input))
+		{
+			$this->last_error = 'Field '.$this->name.' does not contain a valid username';
+			return NULL;
+		}
+		
+		return $input;
+	}
+}
+
+
+/**
+*
+*/
+class xInputValidatorInteger extends xInputValidator
+{
+	function xInputValidatorInteger($min_val,$max_val,$mandatory)
+	{
+		xInputValidator::xInputValidator($mandatory);
+	}
+	
+		/**
+	  * Validates the element by filtering the input and returns true on success.
+	 */
+	function validate($element)
+	{
+		$input = xInputValidator::validate($element);
+		if($input == NULL)
+		{
+			return NULL;
+		}
+		
+		if(!is_numeric($input))
+		{
+			$this->last_error = 'Field '.$this->name.' must contain a valid number';
+			return NULL;
+		}
+		
+		
+		return (int)$input;
 	}
 }
 
@@ -116,15 +263,38 @@ class xFormElement
 	var $value;
 	var $validator;
 	var $invalid = FALSE;
+	var $enabled = TRUE;
 	
 	function xFormElement($name,$label,$description,$value,$validator)
 	{
 		$this->name = $name;
 		$this->label = $label;
 		$this->description = $description;
-		$this->validator = $validator;
 		$this->value = $value;
+		
+		if(empty($validator))
+		{
+			$this->validator = new xInputValidator(FALSE);
+		}
+		else
+		{
+			$this->validator = $validator;
+		}
 	}
+	
+	/**
+	 *
+	*/
+	function validate()
+	{
+		return $this->validator->validate($this);
+	}
+	
+	/**
+	 *
+	*/
+	function render()
+	{}
 };
 
 
@@ -140,9 +310,12 @@ class xFormTextField extends xFormElement
 	
 	function render()
 	{
-		$output = '<input maxlength="' . $this->validator->maxlength . '" ';
+		$output = '<div class="form-element" '.$this->invalid.'>'. "\n";
+		$output .= '<label for="id-'.$this->name.'">'.$this->label.'</label>' . "\n";
+		$output .= '<input maxlength="' . $this->validator->maxlength . '" ';
 		$output .= ' name="' . $this->name .'" '; 
 		$output .= ' id="id-' . $this->name . '" value="'.$this->value.'" type="text">'."\n";
+		$output .= '</div>'. "\n";
 		return $output;
 	}
 };
@@ -159,8 +332,11 @@ class xFormTextArea extends xFormElement
 	
 	function render()
 	{
-		$output = '<textarea name="' . $this->name .'" '; 
+		$output = '<div class="form-element" '.$this->invalid.'>'. "\n";
+		$output .= '<label for="id-'.$this->name.'">'.$this->label.'</label>' . "\n";
+		$output .= '<textarea name="' . $this->name .'" '; 
 		$output .= ' id="id-' . $this->name . '">'. $this->value . '</textarea>'."\n";
+		$output .= '</div>'. "\n";
 		return $output;
 	}
 };
@@ -186,12 +362,14 @@ class xFormSubmit extends xFormElement
 {
 	function xFormSubmit($name,$value)
 	{
-		$this->xFormElement($name,NULL,NULL,$value,NULL);
+		$this->xFormElement($name,NULL,NULL,$value,new xInputValidator(TRUE));
 	}
 	
 	function render()
 	{
-		$output = '<input name="' . $this->name .'" value="'.$this->value.'" type="submit">'."\n";
+		$output = '<div class="form-element">'. "\n";
+		$output .= '<input name="' . $this->name .'" value="'.$this->value.'" type="submit">'."\n";
+		$output .= '</div>'. "\n";
 		return $output;
 	}
 };
@@ -212,9 +390,26 @@ class xFormGroup
 	
 	function render()
 	{
+		$output = "<fieldset> \n";
+		$output .= "<legend>" . $this->label . "</legend> \n";
 		
+		foreach($this->elements as $element)
+		{
+			$output .= $element->render;
+		}
+		
+		$output .= "<\fieldset> \n";
 	}
 };
+
+/**
+*
+*/
+class xValidationData
+{
+	var $valid_data = array();
+	var $errors = array();
+}
 
 /**
 *
@@ -224,10 +419,10 @@ class xForm
 	var $elements;
 	var $action;
 	
-	function xForm($action,$groups)
+	function xForm($action,$elements = array())
 	{
 		$this->action = $action;
-		$this->groups = $groups;
+		$this->elements = $elements;
 	}
 	
 	/**
@@ -235,120 +430,55 @@ class xForm
 	*/
 	function render()
 	{
+		//set a token against Cross-Site Request Forgeries attacks
+		$token = md5(uniqid(rand(), TRUE));
+		$_SESSION['form_token'] = $token;
+		$_SESSION['form_token_time'] = time();
 		$output = "<form action=\"". $this->action . "\" method=\"post\"> \n";
-
-		foreach($this->groups as $group)
-		{
-			if(!empty($group->label))
-			{
-				$output .= "<fieldset> \n";
-				$output .= "<legend>" . $group->label . "</legend> \n";
-			}
-			
-			foreach($group->elements as $element)
-			{
-				if($element->invalid)
-					$invalid = 'invalid';
-				else
-					$invalid = '';
-					
-				$output .= '<div class="form-element" '.$invalid.'>'. "\n";
-				
-				if(!empty($element->label))
-				{
-					$output .= '<label for="id-'.$element->name.'">'.$element->label.'</label>' . "\n";
-				}
-				
-				$output .= $element->render();
-				
-				$output .= '</div>'. "\n";
-			}
-			
-			if(!empty($group->label))
-			{
-				$output .= "<\fieldset> \n";
-			}
-		}
-		$output .= "</form> \n";
+		$output .= "<input type=\"hidden\" name=\"form_token\" value=\"$token\" />";
 		
+		foreach($this->elements as $element)
+		{
+			$output .= $element->render();
+		}
+		
+		$output .= "</form> \n";
 		return $output;
 	}
 	
 	
 	/**
-	 *
+	 * Return an xValidationData object
 	 */
-	function xanth_form_validate_data()
+	function validate_input()
 	{
-		$outdata = new xFormData(array(),array());
-
-		for($i = 0;$i < count($this->groups);$i++)
+		$data = new xValidationData();
+		//first validate the token
+		if(!(isset($_SESSION['form_token']) && isset($_POST['form_token']) && $_POST['form_token'] == $_SESSION['form_token']))
 		{
-			for($j = 0;$j < count($this->groups[i]->elements); $j++)
-			{	
-				//if the variable is not defined
-				if(!isset($_POST[$this->groups[i]->elements[j]->name]))
-				{
-					//if the field is mandatory
-					if($this->groups[i]->elements[j]->mandatory)
-					{
-						$this->groups[i]->elements[j]->invalid = TRUE;
-						$outdata->invalid_data[$form->groups[i]->elements[j]->name] = 
-							'Field '.$this->groups[i]->elements[j]->name.' is mandatory';
-					}
-					else
-					{
-						$outdata->valid_data[$this->groups[i]->elements[j]->name] = '';
-					}
-				}
-				else //variable is defined
-				{
-					$elem_value = $_POST[$this->groups[i]->elements[j]->name];
-					//if no validator defined
-					if(empty($validator))
-					{
-						$outdata[$this->groups[i]->elements[j]->name] = $elem_value;
-					}
-					else
-					{
-						switch($this->groups[i]->elements[j]->validator->data_type)
-						{
-						case FORM_DATA_TYPE_TEXT_NO_TAGS:
-							$elem_value = strip_tags($elem_value);
-						case FORM_DATA_TYPE_TEXT_WITH_TAGS:
-							if(!empty($this->groups[i]->elements[j]->validator->maxlength) && 
-								strlen($elem_value) > $this->groups[i]->elements[j]->validator->maxlength)
-							{
-								$this->groups[i]->elements[j]->invalid = TRUE;
-								$outdata->invalid_data[$form->groups[i]->elements[j]->name] = 
-									'Field '.$this->groups[i]->elements[j]->name.' contains too much characters (max is '
-									.$this->groups[i]->elements[j]->validator->maxlength.')';
-							}
-							else
-							{
-								$outdata->valid_data[$this->groups[i]->elements[j]->name] = $elem_value;
-							}
-							break;
-						case FORM_DATA_TYPE_INTEGER:
-							if(!is_numeric($elem_value))
-							{
-								$this->groups[i]->elements[j]->invalid = TRUE;
-								$outdata->invalid_data[$form->groups[i]->elements[j]->name] = 
-									'Field '.$this->groups[i]->elements[j]->name.' must be an integer value';
-							}
-							else
-							{
-								$outdata->valid_data[$this->groups[i]->elements[j]->name] = (int) $elem_value;
-							}
-							break;
-						default:
-						}
-					} //else validator defined
-				} //else variable defined
-			}//for elements
-		} //for groups
+			return $data;
+		}
 		
-		return $outdata;
+		$token_age = time() - $_SESSION['form_token_time'];
+		if($token_age > 300)
+		{
+			return $data;
+		}	
+		
+		foreach($this->elements as $element)
+		{
+			$ret = $element->validate();
+			if($ret === NULL)
+			{
+				$data->errors[] = $element->validator->last_error;
+			}
+			else
+			{
+				$data->valid_data = $ret;
+			}
+		}
+		
+		return $data;
 	}
 	
 	

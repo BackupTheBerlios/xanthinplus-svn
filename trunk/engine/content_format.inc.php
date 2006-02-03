@@ -21,6 +21,7 @@ class xContentFormat
 	var $stripped_html;
 	var $php_source;
 	var $new_line_to_line_break;
+	var $bbcode;
 	
 	function xContentFormat($name,$stripped_html,$php_source,$new_line_to_line_break)
 	{
@@ -59,6 +60,20 @@ class xContentFormat
 		return $formats;
 	}
 	
+	/**
+	* Return a new xContentFormat object or NULL
+	*/
+	function load($name)
+	{
+		$result = xanth_db_query("SELECT * FROM content_format WHERE name = '%s'",$name);
+		if($row = xanth_db_fetch_object($result))
+		{
+			$format = new xContentFormat($row->name,$row->stripped_html,$row->php_source,$row->new_line_to_line_break);
+			return $format;
+		}
+		
+		return NULL;
+	}
 	
 	/**
 	*
