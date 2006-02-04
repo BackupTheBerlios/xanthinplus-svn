@@ -27,23 +27,22 @@ function xanth_db_install_role()
 	//Roles
 	xanth_db_query("
 		CREATE TABLE role (
-		id INT UNSIGNED AUTO_INCREMENT NOT NULL,
 		name VARCHAR(32) NOT NULL,
 		description VARCHAR(255) NOT NULL,
-		PRIMARY KEY(id)
+		PRIMARY KEY(name)
 		)TYPE=InnoDB");
-	$role = new xRole(0,'Administrator','Administrator');$role->insert();
-	$role = new xRole(0,'Authenticated','Authenticated user');$role->insert();
-	$role = new xRole(0,'Anonymous','Anonymous visitor');$role->insert();
+	$role = new xRole('administrator','Administrator');$role->insert();
+	$role = new xRole('authenticated','Authenticated user');$role->insert();
+	$role = new xRole('anonymous','Anonymous visitor');$role->insert();
 	
 	//Access rules
 	xanth_db_query("
 		CREATE TABLE role_access_rule (
-		roleId INT UNSIGNED NOT NULL,
+		roleName VARCHAR(32) NOT NULL,
 		access_rule VARCHAR(64) NOT NULL,
 		UNIQUE(roleId,access_rule),
 		INDEX(roleId),
-		FOREIGN KEY (roleId) REFERENCES role(id) ON DELETE CASCADE
+		FOREIGN KEY (roleName) REFERENCES role(name) ON DELETE CASCADE
 		)TYPE=InnoDB");
 }
 

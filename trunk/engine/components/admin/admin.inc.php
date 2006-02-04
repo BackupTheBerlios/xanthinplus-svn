@@ -52,6 +52,7 @@ function xanth_init_component_admin()
 {
 	xanth_register_mono_hook(MONO_HOOK_MAIN_ENTRY_CREATE, 'admin','xanth_admin_index');
 	xanth_register_mono_hook(MONO_HOOK_MAIN_ENTRY_CREATE, 'admin/content_format','xanth_admin_content_format');
+	//xanth_register_mono_hook(MONO_HOOK_MAIN_ENTRY_CREATE, MONO_HOOK_CREATE_BOX_CONTENT,
 }
 
 

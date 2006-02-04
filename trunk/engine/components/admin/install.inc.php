@@ -17,12 +17,14 @@
 
 function xanth_db_install_weight_admin()
 {
-	//no deps
-	return 0;
+	//depend on box
+	return 200;
 }
+
 
 function xanth_db_install_admin()
 {
+	//$box = new xBox('admin_menu','Admin',);
 }
 
 

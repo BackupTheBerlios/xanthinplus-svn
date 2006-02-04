@@ -83,24 +83,7 @@ class xUser
 		
 		return $user;
 	}
-	
-	/**
-	*
-	*/
-	function authenticate($password)
-	{
-		$result = xanth_db_query("SELECT password FROM user WHERE username = '%s'",$this->username);
-		if($row = db_fetch_array($result))
-		{
-			if(xUser::password_hash($password) == $row['password'])
-			{
-				return TRUE;
-			}
-		}
-		return FALSE;
-	}
-	
-	
+
 	/**
 	*
 	*/
@@ -120,15 +103,125 @@ class xUser
 	/**
 	*
 	*/
-	function find_roles_id()
+	function find_role_names()
 	{
 		$roles = array();
 		$result = xanth_db_query("SELECT * FROM user_to_role WHERE username = '%s'",$this->username);
 		while($row = xanth_db_fetch_array($result))
 		{
-			$roles[] = $row['roleId'];
+			$roles[] = $row['roleName'];
 		}
 		return $roles;
+	}
+	
+	/**
+	*
+	*/
+	function have_role($role_name)
+	{
+		return in_array($role_name,find_role_names());
+	}
+	
+	
+	
+	/**
+	*
+	*/
+	function login($password,$remember)
+	{
+		$result = xanth_db_query("SELECT password FROM user WHERE username = '%s'",$this->username);
+		if($row = db_fetch_object($result))
+		{
+			if(xUser::password_hash($password) === $row->password)
+			{
+				//destroy old data
+				$this->logout();
+				
+				//set the session and the cookie if necessary
+				$this->_set_session(); 
+				if($remember)
+				{
+					$this->_update_persistent_login();
+				}
+				
+				return TRUE;
+			}
+		}
+		$this->logout();
+		return FALSE;
+	}
+	
+	/**
+	*
+	*/
+	function check_persistent_login() 
+	{
+		list($username, $cookie_token) = @unserialize($_COOKIE('xanth_login'));
+		if(!empty($username) && !empty($cookie_token))
+		{
+			$result = xanth_db_query("SELECT cookie_token FROM user WHERE username = '%s'",$this->username);
+			if($row = xanth_db_fetch_object($result)) 
+			{
+				if($row->cookie_token === $cookie_token)
+				{
+					//ok regenerate token for additional security
+					_update_persistent_login();
+					return TRUE;
+				}
+			}
+		}
+		return FALSE;
+	}
+	
+	/**
+	*
+	*/
+	function check_session() 
+	{
+		if(isset($_SESSION['xuser_logged']) && $_SESSION['xuser_secure_hash'] && $_SESSION['xuser_username'])
+		{
+			if($_SESSION['xuser_logged'] && 
+				md5($_SERVER['HTTP_USER_AGENT'] . ':' . $_SERVER['REMOTE_ADDR']) === $_SESSION['xuser_secure_hash'])
+			{
+				return TRUE;
+			}
+		}
+		
+		$this->logout();
+		return FALSE;
+	} 
+	
+	function logout()
+	{
+		//unset cookie
+		setcookie('xanth_login', '', time() - 1000);
+		
+		//unset session
+		session_destroy();
+	}
+	
+	/**
+	*
+	*/
+	function _set_session() 
+	{
+		session_regenerate_id();
+		$_SESSION['xuser_username'] = $this->username;
+		$_SESSION['xuser_secure_hash'] = md5($_SERVER['HTTP_USER_AGENT'] . ':' . $_SERVER['REMOTE_ADDR']) ;
+		$_SESSION['xuser_logged'] = true;
+	}
+	
+	/**
+	*
+	*/
+	function _update_persistent_login() 
+	{
+		//generate a new login_token
+		$cookie_token = md5(uniqid(rand(),true);
+		xanth_db_query("UPDATE user SET cookie_token = '%s' WHERE username = '%s'",$cookie_token,$this->username);
+		
+		$cookie = serialize(array($_SESSION['xuser_username'], $cookie_token));
+		setcookie('xanth_login', $cookie, time() + 31104000);
 	}
 }
 

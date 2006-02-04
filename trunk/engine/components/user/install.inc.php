@@ -30,6 +30,7 @@ function xanth_db_install_user()
 		username VARCHAR(32) NOT NULL,
 		password VARCHAR(64) NOT NULL,
 		email VARCHAR(128) NOT NULL,
+		cookie_token VARCHAR(64),
 		PRIMARY KEY (username),
 		UNIQUE(email)
 		)TYPE=InnoDB");

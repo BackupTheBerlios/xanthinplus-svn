@@ -163,5 +163,4 @@ function xanth_valid_email($email)
    return FALSE;
 }
 
-
 ?>

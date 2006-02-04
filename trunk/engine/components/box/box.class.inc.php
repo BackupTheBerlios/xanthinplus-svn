@@ -26,15 +26,15 @@ define('MONO_HOOK_CREATE_BOX_CONTENT','mono_hook_create_box_content');
 
 class xBox
 {
-	var $id;
+	var $name;
 	var $title;
 	var $user_defined;
 	var $content;
 	var $content_format;
 	
-	function xBox($id,$title,$content,$content_format,$user_defined)
+	function xBox($name,$title,$content,$content_format,$user_defined)
 	{
-		$this->id = $id;
+		$this->name = $name;
 		$this->title = $title;
 		$this->content_format = $content_format;
 		$this->user_defined = $user_defined;
@@ -46,8 +46,8 @@ class xBox
 	*/
 	function insert()
 	{
-		xanth_db_query("INSERT INTO box(id,title,content,content_format_name,is_user_defined) VALUES(%d,'%s','%s','%s',%d)",
-			$this->id,$this->title,$this->content,$this->content_format,$this->user_defined);
+		xanth_db_query("INSERT INTO box(name,title,content,content_format_name,is_user_defined) VALUES(%d,'%s','%s','%s',%d)",
+			$this->name,$this->title,$this->content,$this->content_format,$this->user_defined);
 	}
 	
 	
@@ -56,8 +56,8 @@ class xBox
 	*/
 	function update()
 	{
-		xanth_db_query("UPDATE box SET content = '%s',content_format_name = '%s',title = '%s' WHERE id = '%s'",
-			$this->content,$this->content_format,$this->title,$this->id);
+		xanth_db_query("UPDATE box SET content = '%s',content_format_name = '%s',title = '%s' WHERE name = '%s'",
+			$this->content,$this->content_format,$this->title,$this->name);
 	}
 	
 	
@@ -66,7 +66,7 @@ class xBox
 	*/
 	function delete()
 	{
-		xanth_db_query("DELETE FROM box WHERE id = '%s'",$this->id);
+		xanth_db_query("DELETE FROM box WHERE name = '%s'",$this->name);
 	}
 	
 	/**
@@ -81,16 +81,16 @@ class xBox
 		}
 		else
 		{
-			$result = xanth_db_query("SELECT * FROM box,boxtoarea WHERE box.id = boxtoarea.boxId AND boxtoarea.area = '%s'",$area);
+			$result = xanth_db_query("SELECT * FROM box,boxtoarea WHERE box.name = boxtoarea.boxName AND boxtoarea.area = '%s'",$area);
 		}
 		
 		while($row = xanth_db_fetch_array($result))
 		{
-			$current_box = new xBox($row['id'],$row['title'],$row['content'],$row['content_format_name'],$row['is_user_defined']);
+			$current_box = new xBox($row['name'],$row['title'],$row['content'],$row['content_format_name'],$row['is_user_defined']);
 			if($current_box->get_user_defined())
 			{
 				//retrieve built-in box content
-				$content = xanth_invoke_mono_hook(MONO_HOOK_CREATE_BOX_CONTENT,$current_box->id);
+				$content = xanth_invoke_mono_hook(MONO_HOOK_CREATE_BOX_CONTENT,$current_box->name);
 			}
 			else
 			{

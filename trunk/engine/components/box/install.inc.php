@@ -26,14 +26,14 @@ function xanth_db_install_box()
 	//box
 	xanth_db_query("
 		CREATE TABLE box (
-		id INT UNSIGNED AUTO_INCREMENT NOT NULL,
+		name VARCHAR(64) NOT NULL,
 		title VARCHAR(255),
 		content TEXT,
 		content_format VARCHAR(64) NOT NULL,
 		is_user_defined TINYINT NOT NULL,
-		PRIMARY KEY(id),
-		FOREIGN KEY(content_format) REFERENCES content_format(name),
-		INDEX(content_format)
+		PRIMARY KEY(name),
+		INDEX(content_format),
+		FOREIGN KEY(content_format) REFERENCES content_format(name)
 		)TYPE=InnoDB");
 		
 	//create builtint box
@@ -43,12 +43,13 @@ function xanth_db_install_box()
 	//box to area mapping
 	xanth_db_query("
 		CREATE TABLE boxtoarea (
-		boxId INT UNSIGNED NOT NULL,
+		boxName VARCHAR(64) NOT NULL,
 		area VARCHAR(255) NOT NULL,
 		UNIQUE (boxId,area),
-		FOREIGN KEY(boxId) REFERENCES box(id) ON DELETE CASCADE,
-		INDEX(boxId)
+		INDEX(boxId),
+		FOREIGN KEY(boxName) REFERENCES box(name) ON DELETE CASCADE
 		)TYPE=InnoDB");
+		
 }
 
 

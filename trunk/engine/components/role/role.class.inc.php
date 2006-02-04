@@ -18,13 +18,11 @@
 
 class xRole
 {
-	var $id;
 	var $name;
 	var $description;
 	
-	function xRole($id,$name,$description)
+	function xRole($name,$description)
 	{
-		$this->id = $id;
 		$this->name = $name;
 		$this->description = $description;
 	}
@@ -35,7 +33,6 @@ class xRole
 	function insert()
 	{
 		xanth_db_query("INSERT INTO role(name,description) VALUES ('%s','%s')",$this->name,$this->description);
-		$this->id = xanth_db_get_last_id();
 	}
 	
 	/**
@@ -43,7 +40,7 @@ class xRole
 	*/
 	function delete()
 	{
-		xanth_db_query("DELETE FROM role WHERE id = %d",$this->id);
+		xanth_db_query("DELETE FROM role WHERE name = '%s'",$this->name);
 	}
 	
 	/**
@@ -51,7 +48,7 @@ class xRole
 	*/
 	function update()
 	{
-		xanth_db_query("UPDATE role SET name = '%s',description = '%s' WHERE id = %d)",$this->name,$this->description,$this->id);
+		xanth_db_query("UPDATE role SET description = '%s' WHERE name = '%s')",$this->description,$this->name);
 	}
 	
 	/**
@@ -63,7 +60,7 @@ class xRole
 		$result = xanth_db_query("SELECT * FROM roles");
 		while($row = xanth_db_fetch_object($result))
 		{
-			$roles[] = new xRole($row->id,$row->name,$row->description);
+			$roles[] = new xRole($row->name,$row->description);
 		}
 		return $roles;
 	}
@@ -73,7 +70,7 @@ class xRole
 	*/
 	function associate_access_rule($access_rule)
 	{
-		xanth_db_query("INSERT INTO role_access_rule(roleId,access_rule) VALUES (%d,'%s')",$this->id,$access_rule);
+		xanth_db_query("INSERT INTO role_access_rule(roleName,access_rule) VALUES ('%s','%s')",$this->name,$access_rule);
 	}
 	
 	/**
@@ -81,7 +78,7 @@ class xRole
 	*/
 	function dissociate_access_rule($access_rule)
 	{
-		xanth_db_query("DELETE FROM role_access_rule WHERE roleId = %d AND access_rule = '%s'",$this->id,$access_rule);
+		xanth_db_query("DELETE FROM role_access_rule WHERE roleId = '%s' AND access_rule = '%s'",$this->name,$access_rule);
 	}
 	
 	/**
@@ -90,7 +87,7 @@ class xRole
 	function list_access_rules()
 	{
 		$rules = array();
-		$result = xanth_db_query("SELECT * FROM role_access_rule WHERE roleId = %d",$this->id);
+		$result = xanth_db_query("SELECT * FROM role_access_rule WHERE roleName = '%s' ",$this->name);
 		while($row = xanth_db_fetch_object($result))
 		{
 			$rules[] = $row['access_rule'];
@@ -104,7 +101,7 @@ class xRole
 	 */
 	function has_access_rule($access_rule)
 	{
-		$result = xanth_db_query("SELECT * FROM role_access_rule WHERE roleId = %d AND access_rule = '%s'",$this->id,$access_rule);
+		$result = xanth_db_query("SELECT * FROM role_access_rule WHERE roleName = '%s' AND access_rule = '%s'",$this->name,$access_rule);
 		if(xanth_db_fetch_object($result))
 		{
 			return TRUE;

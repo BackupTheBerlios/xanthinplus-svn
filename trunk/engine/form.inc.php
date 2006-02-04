@@ -349,6 +349,39 @@ class xFormElementTextField extends xFormElement
 /**
 *
 */
+class xFormElementPassword extends xFormElement
+{
+	function xFormElementPassword($name,$label,$description,$validator)
+	{
+		xFormElement::xFormElement($name,$label,$description,'',$validator);
+	}
+	
+	function validate()
+	{
+		return xFormElement::validate();
+	}
+	
+	
+	function render()
+	{
+		$output = '<div class="form-element" '.$this->invalid.'>'. "\n";
+		$output .= '<label for="id-'.$this->name.'">'.$this->label.':</label>' . "\n";
+		$output .= '<input';
+		if(isset($this->validator->maxlength))
+		{
+			$output .= ' maxlength="' . $this->validator->maxlength . '" ';
+		}
+		$output .= ' name="' . $this->name .'" '; 
+		$output .= ' id="id-' . $this->name . '" value="'.$this->value.'" type="password">'."\n";
+		$output .= '</div>'. "\n";
+		
+		return $output;
+	}
+};
+
+/**
+*
+*/
 class xFormElementTextArea extends xFormElement
 {
 	function xFormElementTextArea($name,$label,$description,$value,$validator)
