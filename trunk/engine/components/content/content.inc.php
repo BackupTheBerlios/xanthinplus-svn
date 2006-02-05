@@ -23,6 +23,11 @@ require_once('engine/components/content/entry.class.inc.php');
 function xanth_content_content_create($hook_primary_id,$hook_secondary_id,$arguments)
 {
 	$selected_entry = xEntry::get($arguments[0]);
+	if($selected_entry === NULL)
+	{
+		return NULL;
+	}
+	
 	$content_format = new xContentFormat($selected_entry->content_format,'');
 	$selected_entry->content = $content_format->apply_to($selected_entry->content);
 	
@@ -96,6 +101,12 @@ function xanth_content_admin_content_create($hook_primary_id,$hook_secondary_id,
 }
 
 
+function xanth_content_admin_menu_add_link($hook_primary_id,$hook_secondary_id,$arguments)
+{
+	return 'admin/content/create';
+}
+
+
 /*
 *
 */
@@ -103,6 +114,7 @@ function xanth_init_component_content()
 {
 	xanth_register_mono_hook(MONO_HOOK_MAIN_ENTRY_CREATE, 'content','xanth_content_content_create');
 	xanth_register_mono_hook(MONO_HOOK_MAIN_ENTRY_CREATE, 'admin/content/create','xanth_content_admin_content_create');
+	xanth_register_multi_hook(MULTI_HOOK_ADMIN_MENU_ADD_PATH,NULL,'xanth_content_admin_menu_add_link');
 }
 
 

@@ -27,6 +27,24 @@ function xanth_admin_index($hook_primary_id,$hook_secondary_id,$arguments)
 	return $output;
 }
 
+/**
+*
+*/
+function xanth_admin_create_admin_box()
+{
+	$paths = xanth_invoke_multi_hook(MULTI_HOOK_ADMIN_MENU_ADD_PATH,NULL);
+	$output = '';
+	
+	$output .= '<ul>';
+	foreach($paths as $path)
+	{
+		$output .= '<li><a href="?p='.$path.'">'.$path.'</a></li>';
+	}
+	$output .= '</ul>';
+	
+	return $output;
+}
+
 /*
 *
 */
@@ -52,7 +70,7 @@ function xanth_init_component_admin()
 {
 	xanth_register_mono_hook(MONO_HOOK_MAIN_ENTRY_CREATE, 'admin','xanth_admin_index');
 	xanth_register_mono_hook(MONO_HOOK_MAIN_ENTRY_CREATE, 'admin/content_format','xanth_admin_content_format');
-	//xanth_register_mono_hook(MONO_HOOK_MAIN_ENTRY_CREATE, MONO_HOOK_CREATE_BOX_CONTENT,
+	xanth_register_mono_hook(MONO_HOOK_CREATE_BOX_CONTENT,'admin_menu','xanth_admin_create_admin_box');
 }
 
 

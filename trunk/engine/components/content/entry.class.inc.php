@@ -49,7 +49,6 @@ class xEntry
 	{
 		xanth_db_start_transaction();
 		$this->creation_time = time();
-		print_r($this->creation_time);
 		xanth_db_query("INSERT INTO entry (title,type,author,content,content_format,creation_time) VALUES('%s','%s','%s','%s','%s','%s')",
 			$this->title,$this->type,$this->author,$this->content,$this->content_format,xanth_db_encode_timestamp($this->creation_time));
 		

@@ -31,7 +31,7 @@ function xanth_user_user_login($hook_primary_id,$hook_secondary_id,$arguments)
 	{
 		if(empty($ret->errors))
 		{
-			$user = new xUser($ret->valid_data['username']);
+			$user = new xUser('',$ret->valid_data['username']);
 			if($user->login($ret->valid_data['password'],TRUE))
 			{
 				return 'Logged in';

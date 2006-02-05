@@ -15,18 +15,19 @@
 * PURPOSE ARE DISCLAIMED.SEE YOUR CHOOSEN LICENSE FOR MORE DETAILS.
 */
 
-function xanth_db_install_weight_admin()
+function xanth_db_install_weight_settings()
 {
-	//depend on box
-	return 200;
+	//no dependencies
+	return 0;
 }
 
-
-function xanth_db_install_admin()
+function xanth_db_install_settings()
 {
-	$box = new xBox('admin_menu','Admin',NULL,'Full Html',FALSE);
-	$box->insert();
-	$box->assign_to_area('left sidebar');
+	//settings
+	xanth_db_query("
+		CREATE TABLE settings (
+		site_name VARCHAR(256) NOT NULL
+		)TYPE=InnoDB");
 }
 
 

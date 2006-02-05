@@ -28,27 +28,30 @@ function xanth_db_install_user()
 	//Users
 	xanth_db_query("
 		CREATE TABLE user (
+		id INT UNSIGNED AUTO_INCREMENT NOT NULL,
 		username VARCHAR(32) NOT NULL,
 		password VARCHAR(64) NOT NULL,
 		email VARCHAR(128) NOT NULL,
 		cookie_token VARCHAR(64),
-		PRIMARY KEY (username),
+		PRIMARY KEY (id),
+		UNIQUE(username),
+		INDEX(username),
 		UNIQUE(email)
 		)TYPE=InnoDB");
 		
 	//User to role
 	xanth_db_query("
 		CREATE TABLE user_to_role (
-		username VARCHAR(32) NOT NULL,
+		userid INT UNSIGNED NOT NULL,
 		roleName VARCHAR(32) NOT NULL,
-		UNIQUE(username,roleName),
-		INDEX(username),
+		UNIQUE(userid,roleName),
+		INDEX(userid),
 		INDEX(roleName),
-		FOREIGN KEY (username) REFERENCES user(username) ON DELETE CASCADE,
+		FOREIGN KEY (userid) REFERENCES user(id) ON DELETE CASCADE,
 		FOREIGN KEY (roleName) REFERENCES role(name) ON DELETE CASCADE
 		)TYPE=InnoDB");
 		
-	$user = new xUser('admin','root@localhost.com');
+	$user = new xUser('','admin','root@localhost.com');
 	$user->insert('pass');
 	$user->add_in_role('administrator');
 	

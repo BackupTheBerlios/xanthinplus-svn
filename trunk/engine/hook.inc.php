@@ -15,6 +15,15 @@
 * PURPOSE ARE DISCLAIMED.SEE YOUR CHOOSEN LICENSE FOR MORE DETAILS.
 */
 
+
+function xanth_get_mono_hooks()
+{
+	global $xanth_mono_hooks;
+	
+	return $xanth_mono_hooks;
+}
+
+
 /**
 *
 */

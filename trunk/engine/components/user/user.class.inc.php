@@ -18,12 +18,14 @@
 
 class xUser
 {
+	var $id;
 	var $username;
 	var $email;
 	//no password for security reasons
 	
-	function xUser($username,$email = NULL)
+	function xUser($id,$username,$email = NULL)
 	{
+		$this->id = $id;
 		$this->username = $username;
 		$this->email = $email;
 	}
@@ -35,6 +37,7 @@ class xUser
 	{
 		xanth_db_query("INSERT INTO user (username,password,email) VALUES ('%s','%s','%s')",
 			$this->username,xUser::password_hash($password),$this->email);
+		$this->id = xanth_db_get_last_id();
 	}
 	
 	/**
@@ -78,7 +81,7 @@ class xUser
 		$result = xanth_db_query("SELECT * FROM user");
 		while($row = xanth_db_fetch_array($result))
 		{
-			$users[] = new xUser($row['username'],$row['email']);
+			$users[] = new xUser($row['id'],$row['username'],$row['email']);
 		}
 		
 		return $user;
@@ -89,7 +92,7 @@ class xUser
 	*/
 	function add_in_role($role_name)
 	{
-		xanth_db_query("INSERT INTO user_to_role(username,roleName) VALUES ('%s','%s')",$this->username,$role_name);
+		xanth_db_query("INSERT INTO user_to_role(userid,roleName) VALUES (%d,'%s')",$this->id,$role_name);
 	}
 	
 	/**
@@ -97,7 +100,7 @@ class xUser
 	*/
 	function del_from_role()
 	{
-		xanth_db_query("DELETE FROM user_to_role WHERE username = '%s' AND roleName = '%s'",$this->username,$role_name);
+		xanth_db_query("DELETE FROM user_to_role WHERE userid = %d AND roleName = '%s'",$this->id,$role_name);
 	}
 	
 	/**
@@ -106,7 +109,7 @@ class xUser
 	function find_role_names()
 	{
 		$roles = array();
-		$result = xanth_db_query("SELECT * FROM user_to_role WHERE username = '%s'",$this->username);
+		$result = xanth_db_query("SELECT * FROM user_to_role WHERE userid = %d",$this->id);
 		while($row = xanth_db_fetch_array($result))
 		{
 			$roles[] = $row['roleName'];
@@ -128,11 +131,11 @@ class xUser
 	 */
 	function check_current_user_access($access_rule)
 	{
-		$username = xUser::get_current_username();
-		if($username !== NULL)
+		$userid = xUser::get_current_userid();
+		if($userid !== NULL)
 		{
 			//if user has admin role bypass check
-			$result = xanth_db_query("SELECT * FROM  user_to_role WHERE username = '%s' AND roleName = '%s'",$username,'administrator');
+			$result = xanth_db_query("SELECT * FROM  user_to_role WHERE userid = %d AND roleName = '%s'",$userid,'administrator');
 			if($row = xanth_db_fetch_array($result))
 			{
 				return TRUE;
@@ -140,8 +143,8 @@ class xUser
 			
 			//select other roles
 			$result = xanth_db_query("SELECT role_access_rule.access_rule FROM user_to_role,role_access_rule WHERE 
-				user_to_role.username = '%s' AND (role_access_rule.roleName = user_to_role.roleName OR role_access_rule.roleName = '%s') 
-				AND	role_access_rule.access_rule = '%s'",$username,'authenticated',$access_rule);
+				user_to_role.userid = %d AND (role_access_rule.roleName = user_to_role.roleName OR role_access_rule.roleName = '%s') 
+				AND	role_access_rule.access_rule = '%s'",$userid,'authenticated',$access_rule);
 		}
 		else //anonymous user
 		{
@@ -163,7 +166,7 @@ class xUser
 	*/
 	function login($password,$remember)
 	{
-		$result = xanth_db_query("SELECT password FROM user WHERE username = '%s'",$this->username);
+		$result = xanth_db_query("SELECT password,id FROM user WHERE username = '%s'",$this->username);
 		if($row = xanth_db_fetch_object($result))
 		{
 			if(xUser::password_hash($password) === $row->password)
@@ -172,7 +175,7 @@ class xUser
 				$this->destroy_persistent_login();
 				
 				//set the session and the cookie if necessary
-				$this->_set_session($this->username);
+				$this->_set_session($this->username,$row->id);
 				if($remember)
 				{
 					$this->_update_persistent_login($this->username);
@@ -195,7 +198,7 @@ class xUser
 			list($username, $cookie_token) = @unserialize($_COOKIE['xanth_login']);
 			if(!empty($username) && !empty($cookie_token))
 			{
-				$result = xanth_db_query("SELECT cookie_token FROM user WHERE username = '%s'",$username);
+				$result = xanth_db_query("SELECT cookie_token,id FROM user WHERE username = '%s'",$username);
 				if($row = xanth_db_fetch_object($result)) 
 				{
 					if($row->cookie_token === $cookie_token)
@@ -204,7 +207,7 @@ class xUser
 						xUser::_update_persistent_login($username);
 						
 						//set new session
-						xUser::_set_session($username);
+						xUser::_set_session($username,$row->id);
 						
 						return TRUE;
 					}
@@ -219,7 +222,7 @@ class xUser
 	*/
 	function check_session() 
 	{
-		if(isset($_SESSION['xuser_logged']) && $_SESSION['xuser_secure_hash'] && $_SESSION['xuser_username'])
+		if(isset($_SESSION['xuser_logged']) && $_SESSION['xuser_secure_hash'] && $_SESSION['xuser_username'] && $_SESSION['xuser_userid'])
 		{
 			if($_SESSION['xuser_logged'] && 
 				md5($_SERVER['HTTP_USER_AGENT'] . ':' . $_SERVER['REMOTE_ADDR']) === $_SESSION['xuser_secure_hash'])
@@ -247,6 +250,19 @@ class xUser
 		}
 		
 		return FALSE;
+	}
+	
+	/**
+	* Return the current user id or NULL on failure
+	*/
+	function get_current_userid()
+	{
+		if(isset($_SESSION['xuser_logged']) && $_SESSION['xuser_secure_hash'] && $_SESSION['xuser_username'] && $_SESSION['xuser_userid'])
+		{
+			return $_SESSION['xuser_userid'];
+		}
+		
+		return NULL;
 	}
 	
 	/**
@@ -290,10 +306,11 @@ class xUser
 	/**
 	*
 	*/
-	function _set_session($username) 
+	function _set_session($username,$userid) 
 	{
 		session_regenerate_id();
 		$_SESSION['xuser_username'] = $username;
+		$_SESSION['xuser_userid'] = $userid;
 		$_SESSION['xuser_secure_hash'] = md5($_SERVER['HTTP_USER_AGENT'] . ':' . $_SERVER['REMOTE_ADDR']) ;
 		$_SESSION['xuser_logged'] = true;
 	}

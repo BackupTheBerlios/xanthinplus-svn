@@ -15,19 +15,14 @@
 * PURPOSE ARE DISCLAIMED.SEE YOUR CHOOSEN LICENSE FOR MORE DETAILS.
 */
 
-function xanth_db_install_weight_admin()
-{
-	//depend on box
-	return 200;
-}
 
 
-function xanth_db_install_admin()
-{
-	$box = new xBox('admin_menu','Admin',NULL,'Full Html',FALSE);
-	$box->insert();
-	$box->assign_to_area('left sidebar');
-}
+/**
+* @ingroup Hooks
+* Add a link to the admin menu
+* Must return the path that must be added.
+*/
+define('MULTI_HOOK_ADMIN_MENU_ADD_PATH','multi_hook_admin_menu_add_path');
 
 
 ?>
