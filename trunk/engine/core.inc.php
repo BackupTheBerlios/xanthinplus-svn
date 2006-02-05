@@ -26,6 +26,12 @@
 */
 define('MONO_HOOK_PAGE_CREATE','mono_hook_page_create');
 
+/**
+* @ingroup Hooks
+* An event triggered on page creation.Usually you never need to handle this event, it exists only for use in cms core.\n
+* No return needed.
+*/
+define('MULTI_HOOK_PAGE_CREATE_EVT','multi_hook_page_create_evt');
 
 /**
 * @ingroup Hooks

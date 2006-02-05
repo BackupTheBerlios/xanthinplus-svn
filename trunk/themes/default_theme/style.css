@@ -1,0 +1,22 @@
+
+
+#page-table
+{
+	width: 100%;
+}
+
+#content 
+{
+	background-color: #fff;
+	width: 80%;
+}
+
+
+#left-sidebar
+{
+	background-color: #ddd;
+	width: 20%;
+	/* padding in px not ex because IE messes up 100% width tables otherwise */
+	padding: 10px;
+	vertical-align: top;
+}

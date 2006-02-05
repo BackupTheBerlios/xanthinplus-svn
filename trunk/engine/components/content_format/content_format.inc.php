@@ -41,9 +41,7 @@ function xanth_content_format_apply_php($hook_primary_id,$hook_secondary_id,$arg
 	//$arguments[0] the content
 	//$arguments[1] a reference to error string
 	
-	ob_start();
-	eval($arguments[0]);
-	$result = ob_get_clean();
+	return eval($arguments[0]);
 	
 	return $result;
 }

@@ -40,8 +40,8 @@ function xanth_db_install_role()
 		CREATE TABLE role_access_rule (
 		roleName VARCHAR(32) NOT NULL,
 		access_rule VARCHAR(64) NOT NULL,
-		UNIQUE(roleId,access_rule),
-		INDEX(roleId),
+		UNIQUE(roleName,access_rule),
+		INDEX(roleName),
 		FOREIGN KEY (roleName) REFERENCES role(name) ON DELETE CASCADE
 		)TYPE=InnoDB");
 }

@@ -45,8 +45,8 @@ function xanth_db_install_box()
 		CREATE TABLE boxtoarea (
 		boxName VARCHAR(64) NOT NULL,
 		area VARCHAR(255) NOT NULL,
-		UNIQUE (boxId,area),
-		INDEX(boxId),
+		UNIQUE (boxName,area),
+		INDEX(boxName),
 		FOREIGN KEY(boxName) REFERENCES box(name) ON DELETE CASCADE
 		)TYPE=InnoDB");
 		

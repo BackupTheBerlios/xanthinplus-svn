@@ -204,6 +204,26 @@ function xanth_db_get_last_id()
 /**
 *
 */
+function xanth_db_decode_timestamp($db_timestamp)
+{
+	preg_match('/(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})/',$db_timestamp,$pieces);
+	$unix_timestamp = mktime($pieces[4], $pieces[5], $pieces[6],$pieces[2], $pieces[3], $pieces[1]);
+	return($unix_timestamp);
+}
+
+
+/**
+*
+*/
+function xanth_db_encode_timestamp($timestamp)
+{
+	return date('Y-m-d H-i-s',$timestamp);
+}
+
+
+/**
+*
+*/
 function xanth_db_log($level,$component,$message,$filename,$line)
 {
 	//manual check to prevent deadlocks

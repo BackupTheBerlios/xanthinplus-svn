@@ -22,7 +22,7 @@ class xUser
 	var $email;
 	//no password for security reasons
 	
-	function xUser($username,$email)
+	function xUser($username,$email = NULL)
 	{
 		$this->username = $username;
 		$this->email = $email;
@@ -33,7 +33,7 @@ class xUser
 	*/
 	function insert($password)
 	{
-		xanth_db_query("INSET INTO user (username,password,email) VALUES ('%s','%s','%s')",
+		xanth_db_query("INSERT INTO user (username,password,email) VALUES ('%s','%s','%s')",
 			$this->username,xUser::password_hash($password),$this->email);
 	}
 	
@@ -87,9 +87,9 @@ class xUser
 	/**
 	*
 	*/
-	function add_in_role($role_id)
+	function add_in_role($role_name)
 	{
-		xanth_db_query("INSET INTO user_to_role(username,roleId) VALUES ('%s',%d)",$this->username,$role_id);
+		xanth_db_query("INSERT INTO user_to_role(username,roleName) VALUES ('%s','%s')",$this->username,$role_name);
 	}
 	
 	/**
@@ -97,7 +97,7 @@ class xUser
 	*/
 	function del_from_role()
 	{
-		xanth_db_query("DELETE FROM user_to_role WHERE username = '%s' AND roleId = %d",$this->username,$role_id);
+		xanth_db_query("DELETE FROM user_to_role WHERE username = '%s' AND roleName = '%s'",$this->username,$role_name);
 	}
 	
 	/**
@@ -123,25 +123,59 @@ class xUser
 	}
 	
 	
+	/**
+	 *
+	 */
+	function check_current_user_access($access_rule)
+	{
+		$username = xUser::get_current_username();
+		if($username !== NULL)
+		{
+			//if user has admin role bypass check
+			$result = xanth_db_query("SELECT * FROM  user_to_role WHERE username = '%s' AND roleName = '%s'",$username,'administrator');
+			if($row = xanth_db_fetch_array($result))
+			{
+				return TRUE;
+			}
+			
+			//select other roles
+			$result = xanth_db_query("SELECT role_access_rule.access_rule FROM user_to_role,role_access_rule WHERE 
+				user_to_role.username = '%s' AND (role_access_rule.roleName = user_to_role.roleName OR role_access_rule.roleName = '%s') 
+				AND	role_access_rule.access_rule = '%s'",$username,'authenticated',$access_rule);
+		}
+		else //anonymous user
+		{
+			$result = xanth_db_query("SELECT role_access_rule.access_rule FROM role_access_rule WHERE 
+				role_access_rule.roleName = '%s' AND role_access_rule.access_rule = '%s'",'anonymous',$access_rule);
+		}
+		
+		if($row = xanth_db_fetch_array($result))
+		{
+			return TRUE;
+		}
+		
+		return FALSE;
+	}
 	
+		
 	/**
 	*
 	*/
 	function login($password,$remember)
 	{
 		$result = xanth_db_query("SELECT password FROM user WHERE username = '%s'",$this->username);
-		if($row = db_fetch_object($result))
+		if($row = xanth_db_fetch_object($result))
 		{
 			if(xUser::password_hash($password) === $row->password)
 			{
-				//destroy old data
-				$this->logout();
+				//destroy old persistent data
+				$this->destroy_persistent_login();
 				
 				//set the session and the cookie if necessary
-				$this->_set_session(); 
+				$this->_set_session($this->username);
 				if($remember)
 				{
-					$this->_update_persistent_login();
+					$this->_update_persistent_login($this->username);
 				}
 				
 				return TRUE;
@@ -150,23 +184,30 @@ class xUser
 		$this->logout();
 		return FALSE;
 	}
-	
+
 	/**
 	*
 	*/
 	function check_persistent_login() 
 	{
-		list($username, $cookie_token) = @unserialize($_COOKIE('xanth_login'));
-		if(!empty($username) && !empty($cookie_token))
+		if(isset($_COOKIE['xanth_login']))
 		{
-			$result = xanth_db_query("SELECT cookie_token FROM user WHERE username = '%s'",$this->username);
-			if($row = xanth_db_fetch_object($result)) 
+			list($username, $cookie_token) = @unserialize($_COOKIE['xanth_login']);
+			if(!empty($username) && !empty($cookie_token))
 			{
-				if($row->cookie_token === $cookie_token)
+				$result = xanth_db_query("SELECT cookie_token FROM user WHERE username = '%s'",$username);
+				if($row = xanth_db_fetch_object($result)) 
 				{
-					//ok regenerate token for additional security
-					_update_persistent_login();
-					return TRUE;
+					if($row->cookie_token === $cookie_token)
+					{
+						//ok regenerate token for additional security
+						xUser::_update_persistent_login($username);
+						
+						//set new session
+						xUser::_set_session($username);
+						
+						return TRUE;
+					}
 				}
 			}
 		}
@@ -187,15 +228,61 @@ class xUser
 			}
 		}
 		
-		$this->logout();
 		return FALSE;
 	} 
 	
-	function logout()
+	/**
+	*
+	*/
+	function check_user()
 	{
-		//unset cookie
-		setcookie('xanth_login', '', time() - 1000);
+		if(xUser::check_session())
+		{
+			return TRUE;
+		}
 		
+		if(xUser::check_persistent_login())
+		{
+			return TRUE;
+		}
+		
+		return FALSE;
+	}
+	
+	/**
+	* Return the current user name or NULL on failure
+	*/
+	function get_current_username()
+	{
+		if(isset($_SESSION['xuser_logged']) && $_SESSION['xuser_secure_hash'] && $_SESSION['xuser_username'])
+		{
+			return $_SESSION['xuser_username'];
+		}
+		
+		return NULL;
+	}
+	
+	
+	function destroy_persistent_login()
+	{
+		//unset persistent login cookie
+		if(isset($_COOKIE['xanth_login']))
+		{
+			setcookie('xanth_login', '', time() - 42000);
+		}
+	}
+	
+	
+	function logout()
+	{	
+		xUser::destroy_persistent_login();
+		
+		//destroy session itself, not just data
+		if(isset($_COOKIE[session_name()]))
+		{
+		    setcookie(session_name(), '', time() - 42000);
+		}
+
 		//unset session
 		session_destroy();
 	}
@@ -203,10 +290,10 @@ class xUser
 	/**
 	*
 	*/
-	function _set_session() 
+	function _set_session($username) 
 	{
 		session_regenerate_id();
-		$_SESSION['xuser_username'] = $this->username;
+		$_SESSION['xuser_username'] = $username;
 		$_SESSION['xuser_secure_hash'] = md5($_SERVER['HTTP_USER_AGENT'] . ':' . $_SERVER['REMOTE_ADDR']) ;
 		$_SESSION['xuser_logged'] = true;
 	}
@@ -214,13 +301,13 @@ class xUser
 	/**
 	*
 	*/
-	function _update_persistent_login() 
+	function _update_persistent_login($username) 
 	{
 		//generate a new login_token
-		$cookie_token = md5(uniqid(rand(),true);
-		xanth_db_query("UPDATE user SET cookie_token = '%s' WHERE username = '%s'",$cookie_token,$this->username);
+		$cookie_token = md5(uniqid(rand(),true));
+		xanth_db_query("UPDATE user SET cookie_token = '%s' WHERE username = '%s'",$cookie_token,$username);
 		
-		$cookie = serialize(array($_SESSION['xuser_username'], $cookie_token));
+		$cookie = serialize(array($username, $cookie_token));
 		setcookie('xanth_login', $cookie, time() + 31104000);
 	}
 }

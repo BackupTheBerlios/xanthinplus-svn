@@ -97,16 +97,6 @@ function xanth_db_query($query)
 	return $result;
 }
 
-/**
-*
-*/
-function xanth_db_decode_timestamp($db_timestamp)
-{
-	preg_match('/(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})/',$db_timestamp,$pieces);
-	$unix_timestamp = mktime($pieces[4], $pieces[5], $pieces[6],$pieces[2], $pieces[3], $pieces[1]);
-	return($unix_timestamp);
-}
-
 
 /**
 *

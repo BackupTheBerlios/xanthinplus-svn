@@ -437,7 +437,6 @@ class xFormElementRadio extends xFormElement
 	function render()
 	{
 		$output = '<div class="form-element" '.$this->invalid.'>'. "\n";
-		$output .= '<label for="id-'.$this->name.'">'.$this->label.':</label>' . "\n";
 		$output .= '<input name="' . $this->name .'" '; 
 		$output .= ' id="id-' . $this->name . '" value="'.$this->value.'"';
 		if(!empty($this->checked))
@@ -445,6 +444,7 @@ class xFormElementRadio extends xFormElement
 			$output .= ' checked="checked" ';
 		}
 		$output .= ' type="radio">'."\n";
+		$output .= '<label for="id-'.$this->name.'">'.$this->label.'</label>' . "\n";
 		$output .= '</div>'. "\n";
 		return $output;
 	}

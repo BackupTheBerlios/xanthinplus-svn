@@ -22,9 +22,13 @@ function default_page_template($hook_primary_id,$hook_secondary_id,$arguments)
 	$output = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\n";
 	$output .= "<html>\n";
 	$output .= "<head>\n";
+	$output .= "<style type=\"text/css\" media=\"all\">@import \"themes/default_theme/style.css\";</style>";
 	$output .= "</head>";
 	$output .= "<body>\n";
-	$output .= $areas['custom area'];
+	$output .= '<table id="page-table"><tr>' . "\n";
+	$output .= '<td id="left-sidebar">'. $areas['left sidebar'] . '</td>';
+	$output .= '<td id="content">'. $areas['content'] .'</td>';
+	$output .= "</tr></table>\n";
 	$output .= " </body>\n";
 	$output .= "</html>\n";
 	
@@ -45,29 +49,38 @@ function default_box_template($hook_primary_id,$hook_secondary_id,$arguments)
 {
 	list($title,$body) = $arguments;
 	
-	return "<strong>$title</strong> <br> $body";
+	return "<div class=\"title\">$title</div><div class=\"body\">$body</div>";
 }
 
 
-function default_custom_area_template($hook_primary_id,$hook_secondary_id,$arguments)
+function default_left_sidebar_area_template($hook_primary_id,$hook_secondary_id,$arguments)
 {
 	list($boxes,$content) = $arguments;
 	
 	$output = '';
 	foreach($boxes as $box)
 	{
-		$output .= "$box <br>";
+		$output .= "<div class=\"box\">$box</div>";
 	}
-
-	$output .= "$content <br>";
 	
 	return $output;
 }
 
 
+function default_content_area_template($hook_primary_id,$hook_secondary_id,$arguments)
+{
+	list($boxes,$content) = $arguments;
+
+	$output = "$content";
+	
+	return $output;
+}
+
+
+
 function xanth_custom_theme_areas($hook_primary_id,$hook_secondary_id,$arguments)
 {
-	return array('custom area');
+	return array('left sidebar','content');
 }
 
 
@@ -76,8 +89,10 @@ function xanth_theme_init_default()
 	xanth_register_mono_hook(MONO_HOOK_PAGE_TEMPLATE,NULL,'default_page_template');
 	xanth_register_mono_hook(MONO_HOOK_ENTRY_TEMPLATE,NULL,'default_content_entry_template');
 	xanth_register_mono_hook(MONO_HOOK_BOX_TEMPLATE,NULL,'default_box_template');
-	xanth_register_mono_hook(MONO_HOOK_AREA_TEMPLATE,'custom area','default_custom_area_template');
 	xanth_register_mono_hook(MONO_HOOK_TEMPLATE_AREAS_LIST,NULL,'xanth_custom_theme_areas');
+	
+	xanth_register_mono_hook(MONO_HOOK_AREA_TEMPLATE,'left sidebar','default_left_sidebar_area_template');
+	xanth_register_mono_hook(MONO_HOOK_AREA_TEMPLATE,'content','default_content_area_template');
 }
 
 

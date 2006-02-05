@@ -52,12 +52,29 @@ class xComponent
 		return $components;
 	}
 
+	/**
+	* Include modulename/constants.inc.php if exists
+	*/
+	function init_all_constants()
+	{
+		foreach(xComponent::find_existing() as $component)
+		{
+			$const_file = $component->path . 'constants.inc.php';
+			if(is_file($const_file))
+			{
+				include_once($const_file);
+			}
+		}
+	}
 
 	/**
 	 * Include enabled components and call xanth_init_component_[componentname] for every ones.
 	 */
 	function init_all()
 	{
+		//first init constants
+		xComponent::init_all_constants();
+		
 		foreach(xComponent::find_existing() as $component)
 		{
 			include_once($component->path . $component->name . '.inc.php');

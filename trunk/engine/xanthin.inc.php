@@ -39,6 +39,8 @@ require_once('engine/element.inc.php');
 */
 function xanth_init()
 {
+	ob_start();
+	
 	set_error_handler('xanth_php_error_handler');
 	xanth_db_connect(xanth_conf_get('db_host',''),xanth_conf_get('db_name',''),xanth_conf_get('db_user',''),xanth_conf_get('db_pass',''),xanth_conf_get('db_port',''));
 	session_set_save_handler("on_session_start","on_session_end","on_session_read","on_session_write","on_session_destroy","on_session_gc");
@@ -47,6 +49,7 @@ function xanth_init()
 	xModule::init_all();
 	xTheme::find_default()->init();
 	
+	xanth_invoke_multi_hook(MULTI_HOOK_PAGE_CREATE_EVT,NULL);
 	xanth_invoke_mono_hook(MONO_HOOK_PAGE_CREATE,NULL);
 	
 	//print log
@@ -59,6 +62,10 @@ function xanth_init()
 	{
 		echo '<br />' . $entry->level . ' ' . $entry->component . ' ' . $entry->message . ' ' . $entry->filename . '@' . $entry->line;
 	}
+	
+	session_write_close();
+	
+	echo ob_get_clean();
 }
 
 

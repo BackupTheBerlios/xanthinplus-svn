@@ -29,7 +29,7 @@ function xanth_page_page_creation($hook_primary_id,$hook_secondary_id)
 	
 	$content = xanth_invoke_mono_hook(MONO_HOOK_MAIN_ENTRY_CREATE,$path->base_path,array($path->resource_id));
 
-	if(empty($content))
+	if($content === NULL)
 	{
 		$content = "<b>Page not found</b>";
 	}
@@ -61,7 +61,7 @@ function xanth_page_page_creation($hook_primary_id,$hook_secondary_id)
 		foreach($boxes as $box)
 		{
 			//retrieve boxes
-			$boxes_ready_to_print[] = xanth_invoke_mono_hook(MONO_HOOK_BOX_TEMPLATE,NULL,array($box->name,$box->content));
+			$boxes_ready_to_print[] = xanth_invoke_mono_hook(MONO_HOOK_BOX_TEMPLATE,NULL,array($box->title,$box->content));
 		}
 		//retrieve an area
 		$areas_ready_to_print[$area] = xanth_invoke_mono_hook(MONO_HOOK_AREA_TEMPLATE,$area,array($boxes_ready_to_print,$content));

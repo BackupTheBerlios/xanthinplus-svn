@@ -18,8 +18,9 @@
 function xanth_db_install_weight_user()
 {
 	//depend from role module
+	//depend from box module
 	
-	return 100;
+	return 200;
 }
 
 function xanth_db_install_user()
@@ -39,13 +40,22 @@ function xanth_db_install_user()
 	xanth_db_query("
 		CREATE TABLE user_to_role (
 		username VARCHAR(32) NOT NULL,
-		roleId INT UNSIGNED NOT NULL,
-		UNIQUE(username,roleId),
+		roleName VARCHAR(32) NOT NULL,
+		UNIQUE(username,roleName),
 		INDEX(username),
-		INDEX(roleId),
+		INDEX(roleName),
 		FOREIGN KEY (username) REFERENCES user(username) ON DELETE CASCADE,
-		FOREIGN KEY (roleId) REFERENCES role(id) ON DELETE CASCADE
+		FOREIGN KEY (roleName) REFERENCES role(name) ON DELETE CASCADE
 		)TYPE=InnoDB");
+		
+	$user = new xUser('admin','root@localhost.com');
+	$user->insert('pass');
+	$user->add_in_role('administrator');
+	
+	//create a box for login
+	$login_box = new xBox('login_box','Login',NULL,'Full Html',0);
+	$login_box->insert();
+	$login_box->assign_to_area('left sidebar');
 }
 
 

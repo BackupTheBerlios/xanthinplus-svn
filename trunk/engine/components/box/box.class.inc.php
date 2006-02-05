@@ -16,13 +16,6 @@
 */
 
 
-/**
-* @ingroup Hooks
-* You can use a secondary hook id to refer to a specific box.
-* Must return the content of the box.
-*/
-define('MONO_HOOK_CREATE_BOX_CONTENT','mono_hook_create_box_content');
-
 
 class xBox
 {
@@ -46,7 +39,7 @@ class xBox
 	*/
 	function insert()
 	{
-		xanth_db_query("INSERT INTO box(name,title,content,content_format_name,is_user_defined) VALUES(%d,'%s','%s','%s',%d)",
+		xanth_db_query("INSERT INTO box(name,title,content,content_format,is_user_defined) VALUES('%s','%s','%s','%s',%d)",
 			$this->name,$this->title,$this->content,$this->content_format,$this->user_defined);
 	}
 	
@@ -56,7 +49,7 @@ class xBox
 	*/
 	function update()
 	{
-		xanth_db_query("UPDATE box SET content = '%s',content_format_name = '%s',title = '%s' WHERE name = '%s'",
+		xanth_db_query("UPDATE box SET content = '%s',content_format = '%s',title = '%s' WHERE name = '%s'",
 			$this->content,$this->content_format,$this->title,$this->name);
 	}
 	
@@ -67,6 +60,16 @@ class xBox
 	function delete()
 	{
 		xanth_db_query("DELETE FROM box WHERE name = '%s'",$this->name);
+	}
+	
+	
+	function assign_to_area($area_name)
+	{
+		//delete previous assignments
+		xanth_db_query("DELETE FROM boxtoarea WHERE boxName = '%s'",$this->name);
+		
+		//new assignation
+		xanth_db_query("INSERT INTO boxtoarea(boxName,area) VALUES ('%s','%s')",$this->name,$area_name);
 	}
 	
 	/**
@@ -86,15 +89,16 @@ class xBox
 		
 		while($row = xanth_db_fetch_array($result))
 		{
-			$current_box = new xBox($row['name'],$row['title'],$row['content'],$row['content_format_name'],$row['is_user_defined']);
-			if($current_box->get_user_defined())
+			$current_box = new xBox($row['name'],$row['title'],$row['content'],$row['content_format'],$row['is_user_defined']);
+			if(!($current_box->user_defined))
 			{
 				//retrieve built-in box content
-				$content = xanth_invoke_mono_hook(MONO_HOOK_CREATE_BOX_CONTENT,$current_box->name);
+				$current_box->content = xanth_invoke_mono_hook(MONO_HOOK_CREATE_BOX_CONTENT,$current_box->name);
 			}
 			else
 			{
-				$current_box->content = xanth_apply_content_format($current_box->content,$row['content_format']);
+				$content_format = new xContentFormat($row['content_format'],'');
+				$current_box->content = $content_format->apply_to($current_box->content);
 			}
 			$boxes[] = $current_box;
 		}

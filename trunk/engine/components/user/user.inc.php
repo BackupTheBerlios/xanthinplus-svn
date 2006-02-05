@@ -15,14 +15,15 @@
 * PURPOSE ARE DISCLAIMED.SEE YOUR CHOOSEN LICENSE FOR MORE DETAILS.
 */
 
+
 require_once('engine/components/user/user.class.inc.php');
 
 
 function xanth_user_user_login($hook_primary_id,$hook_secondary_id,$arguments)
 {
-	$form = new xForm('?p=user/admin');
+	$form = new xForm('?p=user/login');
 	$form->elements[] = new xFormElementTextField('username','Username','','',new xInputValidatorText(256,TRUE));
-	$form->elements[] = new xFormElementTextArea('password','Password','','',new xInputValidatorText(256,TRUE));
+	$form->elements[] = new xFormElementPassword('password','Password','','',new xInputValidatorText(256,TRUE));
 	$form->elements[] = new xFormSubmit('submit','login');
 	
 	$ret = $form->validate_input();
@@ -30,7 +31,11 @@ function xanth_user_user_login($hook_primary_id,$hook_secondary_id,$arguments)
 	{
 		if(empty($ret->errors))
 		{
-			return 'Logged';
+			$user = new xUser($ret->valid_data['username']);
+			if($user->login($ret->valid_data['password'],TRUE))
+			{
+				return 'Logged in';
+			}
 		}
 		else
 		{
@@ -38,13 +43,34 @@ function xanth_user_user_login($hook_primary_id,$hook_secondary_id,$arguments)
 			{
 				xanth_log(LOG_LEVEL_USER_MESSAGE,$error);
 			}
-			return $form->render();
 		}
 	}
-	else
+
+	return $form->render();
+}
+
+
+function xanth_user_login_box($hook_primary_id,$hook_secondary_id,$arguments)
+{
+	$username = xUser::get_current_username();
+	if(!empty($username))
 	{
-		return $form->render();
+		return "Logged as user $username<br /><a href=\"?p=user/logout\">Logout</a>";
 	}
+	
+	return "User not logged in<br /><a href=\"?p=user/login\">Login</a>";
+}
+
+
+function xanth_user_user_logout($hook_primary_id,$hook_secondary_id,$arguments)
+{
+	xUser::logout();
+	return "Logged out";
+}
+
+function xanth_user_on_page_creation($hook_primary_id,$hook_secondary_id,$arguments)
+{
+	xUser::check_user();
 }
 
 
@@ -54,6 +80,11 @@ function xanth_user_user_login($hook_primary_id,$hook_secondary_id,$arguments)
 function xanth_init_component_user()
 {
 	xanth_register_mono_hook(MONO_HOOK_MAIN_ENTRY_CREATE, 'user/login','xanth_user_user_login');
+	xanth_register_mono_hook(MONO_HOOK_MAIN_ENTRY_CREATE, 'user/logout','xanth_user_user_logout');
+	
+	xanth_register_mono_hook(MONO_HOOK_CREATE_BOX_CONTENT,'login_box','xanth_user_login_box');
+	
+	xanth_register_multi_hook(MULTI_HOOK_PAGE_CREATE_EVT,'','xanth_user_on_page_creation');
 }
 
 

@@ -46,6 +46,12 @@ function xanth_content_content_create($hook_primary_id,$hook_secondary_id,$argum
 */
 function xanth_content_admin_content_create($hook_primary_id,$hook_secondary_id,$arguments)
 {
+	if(!xUser::check_current_user_access('create content'))
+	{
+		xanth_log(LOG_LEVEL_ERROR,"Access denied");
+		return FALSE;
+	}
+	
 	$form = new xForm('?p=admin/content/create');
 	$form->elements[] = new xFormElementTextField('content_title','Title','','',new xInputValidatorTextNoTags(256,TRUE));
 	$form->elements[] = new xFormElementTextArea('content_body','Body','','',new xInputValidatorText(256,TRUE));
@@ -68,7 +74,8 @@ function xanth_content_admin_content_create($hook_primary_id,$hook_secondary_id,
 	{
 		if(empty($ret->errors))
 		{
-			$entry = new xEntry(NULL,$ret->valid_data['content_title'],NULL,NULL,$ret->valid_data['content_body'],
+			$author = xUser::get_current_username() !== NULL ? xUser::get_current_username() : 'anonymous';
+			$entry = new xEntry(NULL,$ret->valid_data['content_title'],NULL,$author,$ret->valid_data['content_body'],
 				$ret->valid_data['content_format']);
 			$entry->insert();
 			return 'Entry created, <a href="?p=content/'.$entry->id.'">view it</a>';
