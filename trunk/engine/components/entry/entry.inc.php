@@ -15,17 +15,21 @@
 * PURPOSE ARE DISCLAIMED.SEE YOUR CHOOSEN LICENSE FOR MORE DETAILS.
 */
 
-require_once('engine/components/content/entry.class.inc.php');
+require_once('engine/components/entry/entry.class.inc.php');
 
 /*
 *
 */
-function xanth_content_view_content($hook_primary_id,$hook_secondary_id,$arguments)
+function xanth_entry_view_entry($hook_primary_id,$hook_secondary_id,$arguments)
 {
 	$selected_entry = xEntry::get($arguments[0]);
 	if($selected_entry === NULL)
 	{
 		return NULL;
+	}
+	elseif($selected_entry->published == FALSE && !xUser::check_current_user_access('dummy access'))
+	{
+		return xSpecialPage::access_denied();
 	}
 	
 	$content_format = new xContentFormat($selected_entry->content_format,'');
@@ -42,26 +46,28 @@ function xanth_content_view_content($hook_primary_id,$hook_secondary_id,$argumen
 	}
 	else
 	{
-		return new xPageContent($selected_entry->title,xanth_invoke_mono_hook(MONO_HOOK_ENTRY_TEMPLATE,NULL,array($selected_entry)));
+		return new xPageContent($selected_entry->title,
+			xanth_invoke_mono_hook(MONO_HOOK_ENTRY_TEMPLATE,NULL,array($selected_entry)),$selected_entry->description,
+			$selected_entry->keywords);
 	}
 }
 
 /*
 *
 */
-function xanth_content_admin_content_create($hook_primary_id,$hook_secondary_id,$arguments)
+function xanth_entry_admin_entry_create($hook_primary_id,$hook_secondary_id,$arguments)
 {
 	if(!xUser::check_current_user_access('create content'))
 	{
-		xanth_log(LOG_LEVEL_ERROR,"Access denied");
-		return new xPageContent("Access denied",'');
+		return xSpecialPage::access_denied();
 	}
 	
-	$form = new xForm('?p=admin/content/create');
+	//create form
+	$form = new xForm('?p=admin/entry/create');
 	$form->elements[] = new xFormElementTextField('content_title','Title','','',new xInputValidatorTextNoTags(256,TRUE));
 	$form->elements[] = new xFormElementTextArea('content_body','Body','','',new xInputValidatorText(256,TRUE));
 	
-	
+	//content formats
 	$content_formats = xContentFormat::find_all();
 	$content_formats_radio_group = new xFormRadioGroup(array(),'Content format');
 	
@@ -72,7 +78,21 @@ function xanth_content_admin_content_create($hook_primary_id,$hook_secondary_id,
 			new xInputValidatorText(64,TRUE));
 	}
 	$form->elements[] = $content_formats_radio_group;
-	$form->elements[] = new xFormSubmit('submit','create');
+	
+	//parameters
+	$parameters = new xFormGroup(array(),'Parameters');
+	$parameters->elements[] = new xFormElementCheckbox('param_published','Published','','1',TRUE,
+		new xInputValidatorInteger(FALSE));
+	$form->elements[] = $parameters;
+	
+	//metadata
+	$metadata = new xFormGroup(array(),'Metadata');
+	$metadata->elements[] = new xFormElementTextField('meta_description','Description','','',new xInputValidatorTextNoTags(512,FALSE));
+	$metadata->elements[] = new xFormElementTextField('meta_keywords','Keywords','','',new xInputValidatorTextNoTags(128,FALSE));
+	$form->elements[] = $metadata;
+	
+	//submit buttom
+	$form->elements[] = new xFormSubmit('submit','Create');
 	
 	$ret = $form->validate_input();
 	if(isset($ret->valid_data['submit']))
@@ -81,9 +101,12 @@ function xanth_content_admin_content_create($hook_primary_id,$hook_secondary_id,
 		{
 			$author = xUser::get_current_username() !== NULL ? xUser::get_current_username() : 'anonymous';
 			$entry = new xEntry(NULL,$ret->valid_data['content_title'],NULL,$author,$ret->valid_data['content_body'],
-				$ret->valid_data['content_format']);
+				$ret->valid_data['content_format'],$ret->valid_data['param_published'],$ret->valid_data['meta_description'],
+				$ret->valid_data['meta_keywords']);
 			$entry->insert();
-			return new xPageContent('Entry created','Entry created, <a href="?p=content/'.$entry->id.'">view it</a>');
+			
+			
+			return new xPageContent('Entry created','Entry created, <a href="?p=entry/'.$entry->id.'">view it</a>');
 		}
 		else
 		{
@@ -98,20 +121,20 @@ function xanth_content_admin_content_create($hook_primary_id,$hook_secondary_id,
 }
 
 
-function xanth_content_admin_menu_add_link($hook_primary_id,$hook_secondary_id,$arguments)
+function xanth_entry_admin_menu_add_link($hook_primary_id,$hook_secondary_id,$arguments)
 {
-	return 'admin/content/create';
+	return 'admin/entry/create';
 }
 
 
 /*
 *
 */
-function xanth_init_component_content()
+function xanth_init_component_entry()
 {
-	xanth_register_mono_hook(MONO_HOOK_PAGE_CONTENT_CREATE, 'content','xanth_content_view_content');
-	xanth_register_mono_hook(MONO_HOOK_PAGE_CONTENT_CREATE, 'admin/content/create','xanth_content_admin_content_create');
-	xanth_register_multi_hook(MULTI_HOOK_ADMIN_MENU_ADD_PATH,NULL,'xanth_content_admin_menu_add_link');
+	xanth_register_mono_hook(MONO_HOOK_PAGE_CONTENT_CREATE, 'entry','xanth_entry_view_entry');
+	xanth_register_mono_hook(MONO_HOOK_PAGE_CONTENT_CREATE, 'admin/entry/create','xanth_entry_admin_entry_create');
+	xanth_register_multi_hook(MULTI_HOOK_ADMIN_MENU_ADD_PATH,NULL,'xanth_entry_admin_menu_add_link');
 }
 
 

@@ -22,6 +22,7 @@
 * Must return the templated page.
 * @param $arguments[0] : A mapped array containing the content of every area.
 * @param $arguments[1] : The title of the page
+* @param $arguments[2] : page metadata as mapped array
 */
 define('MONO_HOOK_PAGE_TEMPLATE','mono_hook_page_template');
 

@@ -75,6 +75,10 @@ class xInputValidatorText extends xInputValidator
 		{
 			return NULL;
 		}
+		elseif(empty($input))
+		{
+			return '';
+		}
 		
 		if($this->maxlength > 0 && strlen($input) > $this->maxlength)
 		{
@@ -138,6 +142,10 @@ class xInputValidatorTextRegex extends xInputValidatorText
 		{
 			return NULL;
 		}
+		elseif(empty($input))
+		{
+			return '';
+		}
 		
 		if(!preg_match($this->regex,$input))
 		{
@@ -172,6 +180,10 @@ class xInputValidatorTextEmail extends xInputValidatorText
 		if($input === NULL)
 		{
 			return NULL;
+		}
+		elseif(empty($input))
+		{
+			return '';
 		}
 		
 		if(!xanth_valid_email($input))
@@ -208,6 +220,10 @@ class xInputValidatorTextUsermame extends xInputValidatorText
 		{
 			return NULL;
 		}
+		elseif(empty($input))
+		{
+			return '';
+		}
 		
 		if(!preg_match('#^[A-Z][A-Z0-9_-]{2,'.$this->maxlenght.'}$#i',$input))
 		{
@@ -239,6 +255,10 @@ class xInputValidatorInteger extends xInputValidator
 		if($input === NULL)
 		{
 			return NULL;
+		}
+		elseif(empty($input))
+		{
+			return '';
 		}
 		
 		if(!is_numeric($input))
@@ -333,13 +353,23 @@ class xFormElementTextField extends xFormElement
 	function render()
 	{
 		$output = '<div class="form-element" '.$this->invalid.'>'. "\n";
-		$output .= '<label for="id-'.$this->name.'">'.$this->label.':</label>' . "\n";
+		$output .= '<label for="id-'.$this->name.'">'.$this->label;
+		if($this->validator->mandatory)
+		{
+			$output .= '<b>*</b>';
+		}
+		$output .= '</label>' . "\n";
 		$output .= '<input';
-		if(isset($this->validator->maxlength))
+		if(!empty($this->validator->maxlength))
 		{
 			$output .= ' maxlength="' . $this->validator->maxlength . '" ';
 		}
-		$output .= ' name="' . $this->name .'" '; 
+		$output .= ' class="form-textfield';
+		if($this->invalid)
+		{
+			$output .= ' form-element-invalid';
+		}
+		$output .= '" name="' . $this->name .'" '; 
 		$output .= ' id="id-' . $this->name . '" value="'.$this->value.'" type="text">'."\n";
 		$output .= '</div>'. "\n";
 		return $output;
@@ -365,13 +395,23 @@ class xFormElementPassword extends xFormElement
 	function render()
 	{
 		$output = '<div class="form-element" '.$this->invalid.'>'. "\n";
-		$output .= '<label for="id-'.$this->name.'">'.$this->label.':</label>' . "\n";
+		$output .= '<label for="id-'.$this->name.'">'.$this->label;
+		if($this->validator->mandatory)
+		{
+			$output .= '<b>*</b>';
+		}
+		$output .= '</label>' . "\n";
 		$output .= '<input';
 		if(isset($this->validator->maxlength))
 		{
 			$output .= ' maxlength="' . $this->validator->maxlength . '" ';
 		}
-		$output .= ' name="' . $this->name .'" '; 
+		$output .= ' class="form-password';
+		if($this->invalid)
+		{
+			$output .= ' form-element-invalid';
+		}
+		$output .= '" name="' . $this->name .'" '; 
 		$output .= ' id="id-' . $this->name . '" value="'.$this->value.'" type="password">'."\n";
 		$output .= '</div>'. "\n";
 		
@@ -398,13 +438,79 @@ class xFormElementTextArea extends xFormElement
 	function render()
 	{
 		$output = '<div class="form-element" '.$this->invalid.'>'. "\n";
-		$output .= '<label for="id-'.$this->name.'">'.$this->label.':</label>' . "\n";
-		$output .= '<textarea name="' . $this->name .'" '; 
+		$output .= '<label for="id-'.$this->name.'">'.$this->label;
+		if($this->validator->mandatory)
+		{
+			$output .= '<b>*</b>';
+		}
+		$output .= '</label>' . "\n";
+		$output .= '<textarea class="form-textarea';
+		if($this->invalid)
+		{
+			$output .= ' form-element-invalid';
+		}
+		$output .= '" name="' . $this->name .'" '; 
+		if(!empty($this->validator->maxlength))
+		{
+			$output .= ' maxlength="' . $this->validator->maxlength . '" ';
+		}
 		$output .= ' id="id-' . $this->name . '">'. $this->value . '</textarea>'."\n";
 		$output .= '</div>'. "\n";
 		return $output;
 	}
 };
+
+
+/**
+*
+*/
+class xFormElementCheckbox extends xFormElement
+{
+	var $checked;
+	
+	function xFormElementCheckbox($name,$label,$description,$value,$checked,$validator)
+	{
+		xFormElement::xFormElement($name,$label,$description,$value,$validator);
+		$this->checked = $checked;
+	}
+	
+	function validate()
+	{
+		if($this->get_posted_value() === $this->value)
+		{
+			$this->checked = TRUE;
+		}
+		else
+		{
+			$this->checked = FALSE;
+		}
+		
+		return xFormElement::validate();
+	}
+	
+	function render()
+	{
+		$output = '<div class="form-element" '.$this->invalid.'>'. "\n";
+		$output .= '<label for="id-'.$this->name.'">'.$this->label;
+		$output .= '</label>' . "\n";
+		$output .= '<input';
+		$output .= ' class="form-checkbox';
+		if($this->invalid)
+		{
+			$output .= ' form-element-invalid';
+		}
+		$output .= '" name="' . $this->name .'" ';
+		if(!empty($this->checked))
+		{	
+			$output .= ' checked="checked" ';
+		}
+		$output .= ' id="id-' . $this->name . '" value="'.$this->value.'" type="checkbox">'."\n";
+		$output .= '</div>'. "\n";
+		
+		return $output;
+	}
+};
+
 
 /**
 *
@@ -437,14 +543,14 @@ class xFormElementRadio extends xFormElement
 	function render()
 	{
 		$output = '<div class="form-element" '.$this->invalid.'>'. "\n";
-		$output .= '<input name="' . $this->name .'" '; 
+		$output .= '<input class="form-radio" name="' . $this->name .'" '; 
 		$output .= ' id="id-' . $this->name . '" value="'.$this->value.'"';
 		if(!empty($this->checked))
 		{	
 			$output .= ' checked="checked" ';
 		}
 		$output .= ' type="radio">'."\n";
-		$output .= '<label for="id-'.$this->name.'">'.$this->label.'</label>' . "\n";
+		$output .= '<label class="radio-label" for="id-'.$this->name.'">'.$this->label.'</label>' . "\n";
 		$output .= '</div>'. "\n";
 		return $output;
 	}
@@ -463,7 +569,7 @@ class xFormSubmit extends xFormElement
 	function render()
 	{
 		$output = '<div class="form-element">'. "\n";
-		$output .= '<input name="' . $this->name .'" value="'.$this->value.'" type="submit">'."\n";
+		$output .= '<input class="form-submit" name="' . $this->name .'" value="'.$this->value.'" type="submit">'."\n";
 		$output .= '</div>'. "\n";
 		return $output;
 	}
@@ -485,12 +591,26 @@ class xFormGroup
 	
 	function validate()
 	{
+		$data = new xValidationData();
 		
+		foreach($this->elements as $element)
+		{
+			$ret = $element->validate();
+			if($ret === NULL)
+			{
+				$data->errors[] = $element->validator->last_error;
+			}
+			else
+			{
+				$data->valid_data[$element->name] = $ret;
+			}
+		}
+		return $data;
 	}
 	
 	function render()
 	{
-		$output = "<fieldset> \n";
+		$output = "<fieldset class=\"form-fieldset\"> \n";
 		$output .= "<legend>" . $this->label . "</legend> \n";
 		
 		foreach($this->elements as $element)
@@ -550,7 +670,7 @@ class xFormRadioGroup extends xFormGroup
 			$ret = $in_array_elem->validate();
 			if($ret === NULL)
 			{
-				$data->errors[] = $$in_array_elem->validator->last_error;
+				$data->errors[] = $in_array_elem->validator->last_error;
 			}
 			else
 			{

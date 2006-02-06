@@ -15,13 +15,13 @@
 * PURPOSE ARE DISCLAIMED.SEE YOUR CHOOSEN LICENSE FOR MORE DETAILS.
 */
 
-function xanth_db_install_weight_content()
+function xanth_db_install_weight_entry()
 {
 	//depend from content format module
 	return 100;
 }
 
-function xanth_db_install_content()
+function xanth_db_install_entry()
 {
 	//entry type
 	xanth_db_query("
@@ -39,6 +39,9 @@ function xanth_db_install_content()
 		author VARCHAR(64) NOT NULL,
 		content TEXT NOT NULL,
 		content_format VARCHAR(64) NOT NULL,
+		published TINYINT NOT NULL,
+		description VARCHAR(512) NOT NULL,
+		keywords VARCHAR(128) NOT NULL,
 		creation_time TIMESTAMP NOT NULL,
 		PRIMARY KEY  (id),
 		INDEX(type),

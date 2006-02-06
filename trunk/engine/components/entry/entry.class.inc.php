@@ -27,9 +27,13 @@ class xEntry
 	var $content;
 	var $content_format;
 	var $categories;
+	var $published;
+	var $description;
+	var $keywords;
 	
 	function xEntry($id = NULL,$title = NULL,$type = NULL,$author = NULL,$content = NULL,
-		$content_format = NULL,$categories = array(),$creation_time = NULL)
+		$content_format = NULL,$published = NULL,$description = NULL,$keywords = NULL,
+		$categories = array(),$creation_time = NULL)
 	{
 		$this->id = $id;
 		$this->title = $title;
@@ -39,6 +43,9 @@ class xEntry
 		$this->content = $content;
 		$this->content_format = $content_format;
 		$this->categories = $categories;
+		$this->published = $published;
+		$this->description = $description;
+		$this->keywords = $keywords;
 	}
 	
 	
@@ -49,8 +56,10 @@ class xEntry
 	{
 		xanth_db_start_transaction();
 		$this->creation_time = time();
-		xanth_db_query("INSERT INTO entry (title,type,author,content,content_format,creation_time) VALUES('%s','%s','%s','%s','%s','%s')",
-			$this->title,$this->type,$this->author,$this->content,$this->content_format,xanth_db_encode_timestamp($this->creation_time));
+		xanth_db_query("INSERT INTO entry (title,type,author,content,content_format,published,description,keywords,creation_time)
+			VALUES('%s','%s','%s','%s','%s',%d,'%s','%s','%s')",
+			$this->title,$this->type,$this->author,$this->content,$this->content_format,$this->published,
+			$this->description,$this->keywords,xanth_db_encode_timestamp($this->creation_time));
 		
 		$this->id = xanth_db_get_last_id();
 		
@@ -81,8 +90,10 @@ class xEntry
 	{
 		xanth_db_start_transaction();
 		
-		xanth_db_query("UPDATE entry SET title = '%s',type = '%s',author = '%s',content = '%s',content_format = '%s' WHERE id = %d",
-			$this->id,$this->title,$this->type,$this->author,$this->content,$this->content_format);
+		xanth_db_query("UPDATE entry SET title = '%s',type = '%s',author = '%s',content = '%s',content_format = '%s', 
+			published = %d ,description = '%s' ,keywords = '%s' WHERE id = %d",
+			$this->id,$this->title,$this->type,$this->author,$this->content,$this->content_format,$this->published,
+			$this->description,$this->keywords);
 		
 		xanth_db_query("DELETE FROM categorytoentry WHERE entryId = '%d'",$this->id);
 
@@ -109,7 +120,8 @@ class xEntry
 		if($row = xanth_db_fetch_object($result))
 		{
 			$entry = new xEntry($row->id,$row->title,$row->type,$row->author,$row->content,
-				$row->content_format,array(),xanth_db_decode_timestamp($row->creation_time));
+				$row->content_format,$row->published,$row->description,$row->keywords,array(),
+				xanth_db_decode_timestamp($row->creation_time));
 			
 			$result = xanth_db_query("SELECT * FROM categorytoentry WHERE entryId = %d",$entry_id);
 			$categories = array();
@@ -138,7 +150,8 @@ class xEntry
 		for($i = 0;$row = xanth_db_fetch_object($result);$i++)
 		{
 			$entries[$i] = new xEntry($row->id,$row->title,$row->type,$row->author,$row->content,
-				$row->content_format,array(),xanth_db_decode_timestamp($row->creation_time));
+				$row->content_format,$row->published,$row->description,$row->keywords,
+				array(),xanth_db_decode_timestamp($row->creation_time));
 			
 			$result = xanth_db_query("SELECT * FROM categorytoentry WHERE entryId = %d",$row->id);
 			$categories = array();

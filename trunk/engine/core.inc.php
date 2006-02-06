@@ -49,14 +49,33 @@ class xPageContent
 {
 	var $title;
 	var $body;
+	var $description;
+	var $keywords;
 	
-	function xPageContent($title,$body)
+	function xPageContent($title,$body,$description = NULL,$keywords = NULL)
 	{
 		$this->title = $title;
 		$this->body = $body;
+		$this->description = $description;
+		$this->keywords = $keywords;
 	}
 }
 
+/**
+*
+*/
+class xSpecialPage
+{
+
+	/**
+	*
+	*/
+	function access_denied()
+	{
+		xanth_log(LOG_LEVEL_ERROR,"Access denied");
+		return new xPageContent("Access denied",'');
+	}
+}
 
 /**
 *
@@ -111,6 +130,5 @@ function xanth_get_xanthpath()
 	
 	return xanth_xanthpath_parse($p);
 }
-
 
 ?>

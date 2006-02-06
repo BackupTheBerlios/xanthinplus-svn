@@ -35,8 +35,8 @@ class xUser
 	*/
 	function insert($password)
 	{
-		xanth_db_query("INSERT INTO user (username,password,email) VALUES ('%s','%s','%s')",
-			$this->username,xUser::password_hash($password),$this->email);
+		xanth_db_query("INSERT INTO user (username,password,email,cookie_token) VALUES ('%s','%s','%s','%s')",
+			$this->username,xUser::password_hash($password),$this->email,md5(uniqid(rand(),true)));
 		$this->id = xanth_db_get_last_id();
 	}
 	

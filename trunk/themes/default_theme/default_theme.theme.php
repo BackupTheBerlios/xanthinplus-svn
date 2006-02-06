@@ -17,13 +17,15 @@
 
 function default_page_template($hook_primary_id,$hook_secondary_id,$arguments)
 {
-	list($areas,$title) = $arguments;
+	list($areas,$title,$metadata) = $arguments;
 	
 	$output = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\n";
 	$output .= "<html>\n";
 	$output .= "<head>\n";
-	$output .= "<title>$title</title>";
-	$output .= "<style type=\"text/css\" media=\"all\">@import \"themes/default_theme/style.css\";</style>";
+	$output .= "<title>$title</title>". "\n";
+	$output .= '<meta name="keywords" content="'.$metadata['keywords'].'" />' . "\n";
+	$output .= '<meta name="description" content="'.$metadata['description'].'" />'. "\n";
+	$output .= "<style type=\"text/css\" media=\"all\">@import \"themes/default_theme/style.css\";</style>" . "\n";
 	$output .= "</head>";
 	$output .= "<body>\n";
 	$output .= '<table id="page-table"><tr>' . "\n";

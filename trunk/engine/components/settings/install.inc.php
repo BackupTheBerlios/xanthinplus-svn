@@ -26,10 +26,12 @@ function xanth_db_install_settings()
 	//settings
 	xanth_db_query("
 		CREATE TABLE settings (
-		site_name VARCHAR(256) NOT NULL
+		site_name VARCHAR(256) NOT NULL,
+		site_description VARCHAR(512) NOT NULL,
+		site_keywords VARCHAR(128) NOT NULL
 		)TYPE=InnoDB");
 	
-	xanth_db_query("INSERT INTO settings (site_name) VALUES ('')");
+	xanth_db_query("INSERT INTO settings (site_name,site_description,site_keywords) VALUES ('','','')");
 }
 
 

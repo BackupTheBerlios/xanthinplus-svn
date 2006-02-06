@@ -25,12 +25,13 @@ function xanth_settings_manage_settings($hook_primary_id,$hook_secondary_id,$arg
 {
 	if(!xUser::check_current_user_access('manage settings'))
 	{
-		xanth_log(LOG_LEVEL_ERROR,"Access denied");
-		return new xPageContent("Access denied",'');
+		return xSpecialPage::access_denied();
 	}
 	
 	$form = new xForm('?p=admin/settings');
 	$form->elements[] = new xFormElementTextField('site_name','Site name','',xSettings::get('site_name'),new xInputValidatorTextNoTags(256,FALSE));
+	$form->elements[] = new xFormElementTextField('site_description','Site description','',xSettings::get('site_description'),new xInputValidatorTextNoTags(512,FALSE));
+	$form->elements[] = new xFormElementTextField('site_keywords','Site keywords','',xSettings::get('site_keywords'),new xInputValidatorTextNoTags(128,FALSE));
 	$form->elements[] = new xFormSubmit('submit','submit');
 	
 	$ret = $form->validate_input();
@@ -39,6 +40,8 @@ function xanth_settings_manage_settings($hook_primary_id,$hook_secondary_id,$arg
 		if(empty($ret->errors))
 		{
 			xSettings::set('site_name',$ret->valid_data['site_name']);
+			xSettings::set('site_description',$ret->valid_data['site_description']);
+			xSettings::set('site_keywords',$ret->valid_data['site_keywords']);
 			xSettings::save();
 			return new xPageContent('Manage settings','Settings updated');
 		}

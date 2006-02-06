@@ -67,9 +67,29 @@ function xanth_page_page_creation($hook_primary_id,$hook_secondary_id)
 		$areas_ready_to_print[$area] = xanth_invoke_mono_hook(MONO_HOOK_AREA_TEMPLATE,$area,array($boxes_ready_to_print,$page_content->body));
 	}
 
+	//construct metadata array
+	$metadata = array();
+	if(empty($page_content->description))
+	{
+		$metadata['description'] = xSettings::get('site_description');
+	}
+	else
+	{
+		$metadata['description'] = $page_content->description;
+	}
+	
+	if(empty($page_content->keywords))
+	{
+		$metadata['keywords'] = xSettings::get('site_keywords');
+	}
+	else
+	{
+		$metadata['keywords'] = $page_content->keywords;
+	}
+	
 	//retrieve the full page
 	$page_ready_to_print = xanth_invoke_mono_hook(MONO_HOOK_PAGE_TEMPLATE,NULL,
-		array($areas_ready_to_print,xSettings::get('site_name').' &brvbar; '.$page_content->title));
+		array($areas_ready_to_print,xSettings::get('site_name').' &brvbar; '.$page_content->title,$metadata));
 
 	echo $page_ready_to_print;
 }
