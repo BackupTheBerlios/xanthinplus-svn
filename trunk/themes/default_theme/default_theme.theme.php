@@ -17,11 +17,12 @@
 
 function default_page_template($hook_primary_id,$hook_secondary_id,$arguments)
 {
-	list($areas) = $arguments;
+	list($areas,$title) = $arguments;
 	
 	$output = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\n";
 	$output .= "<html>\n";
 	$output .= "<head>\n";
+	$output .= "<title>$title</title>";
 	$output .= "<style type=\"text/css\" media=\"all\">@import \"themes/default_theme/style.css\";</style>";
 	$output .= "</head>";
 	$output .= "<body>\n";

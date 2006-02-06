@@ -20,9 +20,8 @@
 * @ingroup Hooks
 * This event is emitted on page creation, you can catch it when implementing your template, and printing your desired page template.\n
 * Must return the templated page.
-* Additional arguments are:\n
-* 1) $areas : A mapped array containing the content of every area.
-* 2) $elements: a mapped array containing a set of generic elements that you can include in your page (eg. counters,page title,metatags,navigation links)
+* @param $arguments[0] : A mapped array containing the content of every area.
+* @param $arguments[1] : The title of the page
 */
 define('MONO_HOOK_PAGE_TEMPLATE','mono_hook_page_template');
 

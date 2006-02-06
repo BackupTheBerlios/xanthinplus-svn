@@ -35,8 +35,8 @@ class xSettings
 			$val_array[] = $sett_value;
 		}
 		//remove last ','
-		$query = substr_replace($query,'',strlen($query) - 1,0);
-		
+		$query = substr_replace($query,'',strlen($query) - 1,1);
+
 		xanth_db_query($query,$val_array);
 	}
 	
@@ -49,6 +49,21 @@ class xSettings
 		
 		$result = xanth_db_query("SELECT * FROM settings");
 		$xanth_settings = xanth_db_fetch_array($result);
+	}
+	
+	function get($name)
+	{
+		global $xanth_settings;
+		
+		return $xanth_settings[$name];
+	}
+	
+	
+	function set($name,$value)
+	{
+		global $xanth_settings;
+		
+		$xanth_settings[$name] = $value;
 	}
 }
 

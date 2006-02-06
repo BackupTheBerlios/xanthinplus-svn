@@ -15,22 +15,20 @@
 * PURPOSE ARE DISCLAIMED.SEE YOUR CHOOSEN LICENSE FOR MORE DETAILS.
 */
 
-function xanth_db_install_weight_settings()
+/*
+* Handle index creation.
+*/
+function xanth_frontpage_content_creation($hook_primary_id,$hook_secondary_id,$arguments)
 {
-	//no dependencies
-	return 0;
+	return new xPageContent('Homepage',"this is the frontpage");
 }
 
-function xanth_db_install_settings()
+
+function xanth_init_component_frontpage()
 {
-	//settings
-	xanth_db_query("
-		CREATE TABLE settings (
-		site_name VARCHAR(256) NOT NULL
-		)TYPE=InnoDB");
-	
-	xanth_db_query("INSERT INTO settings (site_name) VALUES ('')");
+	xanth_register_mono_hook(MONO_HOOK_PAGE_CONTENT_CREATE,NULL,'xanth_frontpage_content_creation');
 }
+
 
 
 ?>
