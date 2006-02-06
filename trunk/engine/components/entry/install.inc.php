@@ -17,7 +17,7 @@
 
 function xanth_db_install_weight_entry()
 {
-	//depend from content format module
+	//depend from content format module and category
 	return 100;
 }
 
@@ -47,6 +47,18 @@ function xanth_db_install_entry()
 		INDEX(type),
 		INDEX(content_format),
 		FOREIGN KEY(content_format) REFERENCES content_format(name) ON DELETE RESTRICT
+		)TYPE=InnoDB");
+		
+	//category to entry
+	xanth_db_query("
+		CREATE TABLE categorytoentry (
+		entryId INT UNSIGNED NOT NULL,
+		catId INT UNSIGNED NOT NULL,
+		UNIQUE(entryId,catId),
+		INDEX(entryId),
+		INDEX(catId),
+		FOREIGN KEY(entryId) REFERENCES entry(id) ON DELETE CASCADE,
+		FOREIGN KEY(catId) REFERENCES category(id) ON DELETE CASCADE
 		)TYPE=InnoDB");
 		
 		//FOREIGN KEY(type) REFERENCES entryType(name) ON DELETE RESTRICT

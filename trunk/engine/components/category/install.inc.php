@@ -17,8 +17,8 @@
 
 function xanth_db_install_weight_category()
 {
-	//depends on content module
-	return 200;
+	//no deps
+	return 0;
 }
 
 function xanth_db_install_category()
@@ -30,22 +30,10 @@ function xanth_db_install_category()
 		title VARCHAR(255) NOT NULL,
 		description TEXT NOT NULL,
 		display_mode VARCHAR(32) NOT NULL,
-		parent INT UNSIGNED,
+		parent_id INT UNSIGNED,
 		PRIMARY KEY (id),
-		INDEX(parent),
-		FOREIGN KEY(parent) REFERENCES category(id) ON DELETE CASCADE
-		)TYPE=InnoDB");
-		
-	//category to entry
-	xanth_db_query("
-		CREATE TABLE categorytoentry (
-		entryId INT UNSIGNED NOT NULL,
-		catId INT UNSIGNED NOT NULL,
-		UNIQUE(entryId,catId),
-		INDEX(entryId),
-		INDEX(catId),
-		FOREIGN KEY(entryId) REFERENCES entry(id) ON DELETE CASCADE,
-		FOREIGN KEY(catId) REFERENCES category(id) ON DELETE CASCADE
+		INDEX(parent_id),
+		FOREIGN KEY(parent_id) REFERENCES category(id) ON DELETE CASCADE
 		)TYPE=InnoDB");
 }
 

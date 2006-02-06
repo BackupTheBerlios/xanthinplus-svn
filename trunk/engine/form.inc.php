@@ -491,8 +491,6 @@ class xFormElementCheckbox extends xFormElement
 	function render()
 	{
 		$output = '<div class="form-element" '.$this->invalid.'>'. "\n";
-		$output .= '<label for="id-'.$this->name.'">'.$this->label;
-		$output .= '</label>' . "\n";
 		$output .= '<input';
 		$output .= ' class="form-checkbox';
 		if($this->invalid)
@@ -505,7 +503,84 @@ class xFormElementCheckbox extends xFormElement
 			$output .= ' checked="checked" ';
 		}
 		$output .= ' id="id-' . $this->name . '" value="'.$this->value.'" type="checkbox">'."\n";
+		$output .= '<label class="checkbox-label" for="id-'.$this->name.'">'.$this->label;
+		$output .= '</label>' . "\n";
 		$output .= '</div>'. "\n";
+		
+		return $output;
+	}
+};
+
+
+/**
+*
+*/
+class xFormElementOptions extends xFormElement
+{
+	var $multi_select;
+	var $options;
+	
+	function xFormElementOptions($name,$label,$description,$value,$options,$multi_select,$validator)
+	{
+		xFormElement::xFormElement($name,$label,$description,$value,$validator);
+		$this->options = $options;
+		$this->multi_select = $multi_select;
+	}
+	
+	function validate()
+	{
+		//see if the value correspond to one of the options value
+		$in_array_elem = NULL;
+		foreach($this->options as $opt_name => $opt_val)
+		{
+			if($opt_val === $this->get_posted_value())
+			{
+				$in_array_elem = $opt_val;
+				break;
+			}
+		}
+		
+		if($in_array_elem === NULL)
+		{
+			$this->validator->last_error = 'You have selected an invalid option for input '.$this->label;
+		}
+		else
+		{
+			$this->value = htmlspecialchars($this->get_posted_value());
+			return xFormElement::validate();
+		}
+		
+		return NULL;
+	}
+	
+	function render()
+	{
+		$output = '<div class="form-element" '.$this->invalid.'>'. "\n";
+		$output .= '<label for="id-'.$this->name.'">'.$this->label;
+		$output .= '</label>' . "\n";
+		$output .= '<select class="form-options';
+		if($this->invalid)
+		{
+			$output .= ' form-element-invalid';
+		}
+		$output .= '" name="' . $this->name .'" ';
+		if($this->multi_select)
+		{
+			$output .= 'multiple="multiple" size=5';
+		}
+		$output .= ' id="id-' . $this->name . '" value="'.$this->value.'">'."\n";
+		
+		//extract options 
+		foreach($this->options as $opt_name => $opt_val)
+		{
+			$output .= '<option value="'.$opt_val.'"';
+			if($this->value === $opt_val)
+			{
+				$output .= ' selected="selected"';
+			}
+			$output .= '>'.$opt_name.'</option>'."\n";
+		}
+		$output .= '</select></div>'. "\n";
 		
 		return $output;
 	}

@@ -46,6 +46,19 @@
 	font-weight: normal;
 }
 
+.form-element .radio-label
+{
+	display: inline;
+	font-weight: normal;
+}
+
+.form-element .checkbox-label
+{
+	display: inline;
+	font-weight: normal;
+}
+
+
 .form-element .form-textfield
 {
 	width: 90%;

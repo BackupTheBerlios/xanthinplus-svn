@@ -19,12 +19,19 @@ class xCategory
 {
 	var $id;
 	var $title;
+	var $description;
+	var $display_mode;
 	var $parent_id;
 	
-	function xCategory($id,$title,$parent_id = NULL)
+	/**
+	*
+	*/
+	function xCategory($id,$title,$description,$display_mode,$parent_id = NULL)
 	{
 		$this->id = $id;
 		$this->title = $title;
+		$this->description = $description;
+		$this->display_mode = $display_mode;
 		$this->parent_id = $parent_id;
 	}
 	
@@ -33,15 +40,17 @@ class xCategory
 	*/
 	function insert()
 	{
-		if($this->parent_id == NULL)
+		if($this->parent_id === NULL || $this->parent_id == 0)
 		{
-			xanth_db_query("INSERT INTO category (title) VALUES ('%s')",$this->title);
+			xanth_db_query("INSERT INTO category (title,description,display_mode) VALUES ('%s','%s','%s')",
+				$this->title,$this->description,$this->display_mode);
 		}
 		else
 		{
-			xanth_db_query("INSERT INTO category (title,parentId) VALUES ('%s','%d')",
-				$this->title,$this->parent_id);
+			xanth_db_query("INSERT INTO category (title,parent_id,description,display_mode) VALUES ('%s',%d,'%s','%s')",
+				$this->title,$this->parent_id,$this->description,$this->display_mode);
 		}
+		$this->id = xanth_db_get_last_id();
 	}
 
 	/**
@@ -57,11 +66,11 @@ class xCategory
 	*/
 	function find_root()
 	{
-		$result = xanth_db_query("SELECT * FROM category WHERE parentId = NULL");
+		$result = xanth_db_query("SELECT * FROM category WHERE parentId IS NUL");
 		$categories = array();
 		while($row = xanth_db_fetch_object($result))
 		{
-			$categories[] = new xCategory($row->id,$row->title);
+			$categories[] = new xCategory($row->id,$row->title,$row->description,$row->display_mode);
 		}
 		
 		return $categories;
@@ -76,7 +85,7 @@ class xCategory
 		$categories = array();
 		while($row = xanth_db_fetch_object($result))
 		{
-			$categories[] = new xCategory($row->id,$row->title,$row->parentId);
+			$categories[] = new xCategory($row->id,$row->title,$row->description,$row->display_mode,$row->parentId);
 		}
 		
 		return $categories;
@@ -92,7 +101,7 @@ class xCategory
 		$categories = array();
 		while($row = xanth_db_fetch_object($result))
 		{
-			$categories[] = new xCategory($row->id,$row->title,$row->parentId);
+			$categories[] = new xCategory($row->id,$row->title,$row->description,$row->display_mode,$row->parent_id);
 		}
 		
 		return $categories;
