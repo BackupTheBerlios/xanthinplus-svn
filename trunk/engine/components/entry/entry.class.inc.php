@@ -123,11 +123,11 @@ class xEntry
 				$row->content_format,$row->published,$row->description,$row->keywords,array(),
 				xanth_db_decode_timestamp($row->creation_time));
 			
-			$result = xanth_db_query("SELECT * FROM categorytoentry WHERE entryId = %d",$entry_id);
+			$result = xanth_db_query("SELECT * FROM categorytoentry,category WHERE entryId = %d AND category.id = catId",$entry_id);
 			$categories = array();
 			while($row = xanth_db_fetch_object($result))
 			{
-				$categories[] = new xCategory($row->id,$row->title,$row->parentId);
+				$categories[] = new xCategory($row->id,$row->title,$row->parent_id);
 			}
 			$entry->categories = $categories;
 		}
@@ -153,11 +153,11 @@ class xEntry
 				$row->content_format,$row->published,$row->description,$row->keywords,
 				array(),xanth_db_decode_timestamp($row->creation_time));
 			
-			$result = xanth_db_query("SELECT * FROM categorytoentry WHERE entryId = %d",$row->id);
+			$result = xanth_db_query("SELECT * FROM categorytoentry,category WHERE entryId = %d AND category.id = catId",$row->id);
 			$categories = array();
 			while($row = xanth_db_fetch_object($result))
 			{
-				$categories[] = new xCategory($row->id,$row->title,$row->parentId);
+				$categories[] = new xCategory($row->id,$row->title,$row->parent_id);
 			}
 			$entry[$i]->categories = $categories;
 		}

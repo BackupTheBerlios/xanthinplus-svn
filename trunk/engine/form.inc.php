@@ -21,34 +21,14 @@
 */
 class xInputValidator
 {
-	var $mandatory;
 	var $last_error = '';
 	
-	function xInputValidator($mandatory)
-	{
-		$this->mandatory = $mandatory;
-	}
+	function xInputValidator()
+	{}
 	
-	/**
-	 * Validates the element by filtering the input and returns the input or NULL otherwise
-	 */
-	function validate($element)
+	function validate($input)
 	{
-		$this->last_error = '';
-		
-		//if the variable is not defined
-		if(empty($_POST[$element->name]))
-		{
-			//if the field is mandatory
-			if($this->mandatory)
-			{
-				$this->last_error = 'Field '.$element->label.' is mandatory';
-				return NULL;
-			}
-			return '';
-		}
-		
-		return $_POST[$element->name];
+		return $input;
 	}
 }
 
@@ -59,23 +39,18 @@ class xInputValidatorText extends xInputValidator
 {
 	var $maxlength;
 	
-	function xInputValidatorText($maxlength,$mandatory)
+	function xInputValidatorText($maxlength)
 	{
-		xInputValidator::xInputValidator($mandatory);
+		xInputValidator::xInputValidator();
 		$this->maxlength = $maxlength;
 	}
 	
 	/**
 	 * Validates the element by filtering the input and returns true on success.
 	 */
-	function validate($element)
+	function validate($input)
 	{
-		$input = xInputValidator::validate($element);
-		if($input === NULL)
-		{
-			return NULL;
-		}
-		elseif(empty($input))
+		if(empty($input))
 		{
 			return '';
 		}
@@ -96,20 +71,20 @@ class xInputValidatorText extends xInputValidator
 */
 class xInputValidatorTextNoTags extends xInputValidatorText
 {
-	function xInputValidatorText($maxlength,$mandatory)
+	function xInputValidatorText($maxlength)
 	{
-		xInputValidatorText::xInputValidatorText($maxlength,$mandatory);
+		xInputValidatorText::xInputValidatorText($maxlength);
 	}
 	
 	/**
 	  * Validates the element by filtering the input and returns true on success.
 	 */
-	function validate($element)
+	function validate($input)
 	{
-		$input = xInputValidatorText::validate($element);
-		if($input === NULL)
+		$input = xInputValidatorText::validate($input);
+		if(empty($input))
 		{
-			return NULL;
+			return '';
 		}
 
 		$input = htmlspecialchars($input);
@@ -126,9 +101,9 @@ class xInputValidatorTextRegex extends xInputValidatorText
 {
 	var $regex;
 	
-	function xInputValidatorTextRegex($regex,$maxlength,$mandatory)
+	function xInputValidatorTextRegex($regex,$maxlength)
 	{
-		xInputValidatorText::xInputValidatorText($maxlength,$mandatory);
+		xInputValidatorText::xInputValidatorText($maxlength);
 		$this->regex = regex;
 	}
 	
@@ -138,11 +113,7 @@ class xInputValidatorTextRegex extends xInputValidatorText
 	function validate($element)
 	{
 		$input = xInputValidatorText::validate($element);
-		if($input === NULL)
-		{
-			return NULL;
-		}
-		elseif(empty($input))
+		if(empty($input))
 		{
 			return '';
 		}
@@ -165,9 +136,9 @@ class xInputValidatorTextEmail extends xInputValidatorText
 {
 	var $regex;
 	
-	function xInputValidatorTextEmail($mandatory)
+	function xInputValidatorTextEmail()
 	{
-		xInputValidatorText::xInputValidatorText('',0,$mandatory);
+		xInputValidatorText::xInputValidatorText('',0);
 		$this->regex = regex;
 	}
 	
@@ -177,11 +148,7 @@ class xInputValidatorTextEmail extends xInputValidatorText
 	function validate($element)
 	{
 		$input = xInputValidatorText::validate($element);
-		if($input === NULL)
-		{
-			return NULL;
-		}
-		elseif(empty($input))
+		if(empty($input))
 		{
 			return '';
 		}
@@ -204,9 +171,9 @@ class xInputValidatorTextUsermame extends xInputValidatorText
 {
 	var $regex;
 	
-	function xInputValidatorTextUsermame($mandatory)
+	function xInputValidatorTextUsermame()
 	{
-		xInputValidatorText::xInputValidatorText($maxlength,$mandatory);
+		xInputValidatorText::xInputValidatorText($maxlength);
 		$this->regex = regex;
 	}
 	
@@ -216,11 +183,7 @@ class xInputValidatorTextUsermame extends xInputValidatorText
 	function validate($element)
 	{
 		$input = xInputValidatorText::validate($element);
-		if($input === NULL)
-		{
-			return NULL;
-		}
-		elseif(empty($input))
+		if(empty($input))
 		{
 			return '';
 		}
@@ -241,22 +204,17 @@ class xInputValidatorTextUsermame extends xInputValidatorText
 */
 class xInputValidatorInteger extends xInputValidator
 {	
-	function xInputValidatorInteger($mandatory)
+	function xInputValidatorInteger()
 	{
-		xInputValidator::xInputValidator($mandatory);
+		xInputValidator::xInputValidator();
 	}
 	
-		/**
+	/**
 	  * Validates the element by filtering the input and returns true on success.
 	 */
-	function validate($element)
+	function validate($input)
 	{
-		$input = xInputValidator::validate($element);
-		if($input === NULL)
-		{
-			return NULL;
-		}
-		elseif(empty($input))
+		if(empty($input))
 		{
 			return '';
 		}
@@ -282,19 +240,22 @@ class xFormElement
 	var $description;
 	var $value;
 	var $validator;
+	var $mandatory;
 	var $invalid = FALSE;
 	var $enabled = TRUE;
+	var $last_error = '';
 	
-	function xFormElement($name,$label,$description,$value,$validator)
+	function xFormElement($name,$label,$description,$value,$mandatory,$validator)
 	{
 		$this->name = $name;
 		$this->label = $label;
 		$this->description = $description;
 		$this->value = $value;
+		$this->mandatory = $mandatory;
 		
 		if(empty($validator))
 		{
-			$this->validator = new xInputValidator(FALSE);
+			$this->validator = new xInputValidatorText(0);
 		}
 		else
 		{
@@ -317,11 +278,26 @@ class xFormElement
 	*/
 	function validate()
 	{
-		$ret = $this->validator->validate($this);
+		$posted_value = $this->get_posted_value();
+		if(empty($posted_value))
+		{
+			if($this->mandatory)
+			{
+				$this->last_error = 'Field '.$this->label.' is mandatory';
+				$this->invalid = TRUE;
+				return NULL;
+			}
+			return '';
+		}
+		
+		$ret = $this->validator->validate($posted_value);
+		
 		if($ret === NULL)
 		{
 			$this->invalid = TRUE;
+			$this->last_error = $this->validator->last_error;
 		}
+
 		return $ret;
 	}
 	
@@ -338,9 +314,9 @@ class xFormElement
 */
 class xFormElementTextField extends xFormElement
 {
-	function xFormElementTextField($name,$label,$description,$value,$validator)
+	function xFormElementTextField($name,$label,$description,$value,$mandatory,$validator)
 	{
-		xFormElement::xFormElement($name,$label,$description,$value,$validator);
+		xFormElement::xFormElement($name,$label,$description,$value,$mandatory,$validator);
 	}
 	
 	function validate()
@@ -354,7 +330,7 @@ class xFormElementTextField extends xFormElement
 	{
 		$output = '<div class="form-element" '.$this->invalid.'>'. "\n";
 		$output .= '<label for="id-'.$this->name.'">'.$this->label;
-		if($this->validator->mandatory)
+		if($this->mandatory)
 		{
 			$output .= '<b>*</b>';
 		}
@@ -381,9 +357,9 @@ class xFormElementTextField extends xFormElement
 */
 class xFormElementPassword extends xFormElement
 {
-	function xFormElementPassword($name,$label,$description,$validator)
+	function xFormElementPassword($name,$label,$description,$mandatory,$validator)
 	{
-		xFormElement::xFormElement($name,$label,$description,'',$validator);
+		xFormElement::xFormElement($name,$label,$description,'',$mandatory,$validator);
 	}
 	
 	function validate()
@@ -396,7 +372,7 @@ class xFormElementPassword extends xFormElement
 	{
 		$output = '<div class="form-element" '.$this->invalid.'>'. "\n";
 		$output .= '<label for="id-'.$this->name.'">'.$this->label;
-		if($this->validator->mandatory)
+		if($this->mandatory)
 		{
 			$output .= '<b>*</b>';
 		}
@@ -424,9 +400,9 @@ class xFormElementPassword extends xFormElement
 */
 class xFormElementTextArea extends xFormElement
 {
-	function xFormElementTextArea($name,$label,$description,$value,$validator)
+	function xFormElementTextArea($name,$label,$description,$value,$mandatory,$validator)
 	{
-		xFormElement::xFormElement($name,$label,$description,$value,$validator);
+		xFormElement::xFormElement($name,$label,$description,$value,$mandatory,$validator);
 	}
 	
 	function validate()
@@ -439,7 +415,7 @@ class xFormElementTextArea extends xFormElement
 	{
 		$output = '<div class="form-element" '.$this->invalid.'>'. "\n";
 		$output .= '<label for="id-'.$this->name.'">'.$this->label;
-		if($this->validator->mandatory)
+		if($this->mandatory)
 		{
 			$output .= '<b>*</b>';
 		}
@@ -468,9 +444,9 @@ class xFormElementCheckbox extends xFormElement
 {
 	var $checked;
 	
-	function xFormElementCheckbox($name,$label,$description,$value,$checked,$validator)
+	function xFormElementCheckbox($name,$label,$description,$value,$checked,$mandatory,$validator)
 	{
-		xFormElement::xFormElement($name,$label,$description,$value,$validator);
+		xFormElement::xFormElement($name,$label,$description,$value,$mandatory,$validator);
 		$this->checked = $checked;
 	}
 	
@@ -520,39 +496,104 @@ class xFormElementOptions extends xFormElement
 	var $multi_select;
 	var $options;
 	
-	function xFormElementOptions($name,$label,$description,$value,$options,$multi_select,$validator)
+	function xFormElementOptions($name,$label,$description,$value,$options,$multi_select,$mandatory,$validator)
 	{
-		xFormElement::xFormElement($name,$label,$description,$value,$validator);
+		xFormElement::xFormElement($name,$label,$description,$value,$mandatory,$validator);
 		$this->options = $options;
 		$this->multi_select = $multi_select;
 	}
 	
+	/**
+	*
+	*/
 	function validate()
 	{
-		//see if the value correspond to one of the options value
-		$in_array_elem = NULL;
-		foreach($this->options as $opt_name => $opt_val)
+		//check for mandatory
+		$posted_value = $this->get_posted_value();
+		if(empty($posted_value))
 		{
-			if($opt_val === $this->get_posted_value())
+			if($this->mandatory)
 			{
-				$in_array_elem = $opt_val;
-				break;
+				$this->last_error = 'Field'.$this->label.'is mandatory';
+				return NULL;
 			}
+			return '';
 		}
 		
-		if($in_array_elem === NULL)
+		$elements_posted = array();
+		//array or sigle value
+		if(is_array($posted_value))
 		{
-			$this->validator->last_error = 'You have selected an invalid option for input '.$this->label;
+			if(!$this->multi_select)
+			{
+				$this->last_error = 'Cannot select multiple values for field '.$this->label;
+				return NULL;
+			}
+			else
+			{
+				$elements_posted = $posted_value;
+			}
 		}
 		else
 		{
-			$this->value = htmlspecialchars($this->get_posted_value());
-			return xFormElement::validate();
+			$elements_posted = array($posted_value);
+		}
+		
+		//check if all values corresponds to at least an option
+		$elements_posted_checked = array();
+		foreach($elements_posted as $element_posted)
+		{
+			foreach($this->options as $opt_name => $opt_val)
+			{
+				if($opt_val === $element_posted)
+				{
+					$elements_posted_checked[] = $opt_val;
+					break;
+				}
+			}
+		}
+		
+		//now check
+		if(count($elements_posted_checked) != count($elements_posted))
+		{
+			$this->last_error = 'You have selected an invalid option for input '.$this->label;
+		}
+		else
+		{
+			//save values as array and validate input
+			$this->value = array();
+			$ret = array();
+			foreach($elements_posted_checked as $element)
+			{
+				$this->value[] = htmlspecialchars($element);
+				
+				$r = $this->validator->validate($element);
+				if($r === NULL)
+				{
+					$this->invalid = TRUE;
+					$this->last_error = $this->validator->last_error;
+					return NULL;
+				}
+				$ret[] = $r;
+			}
+			
+			//return array
+			if($this->multi_select)
+			{
+				return $ret;
+			}
+			else //return as single value
+			{
+				return reset($ret);
+			}
 		}
 		
 		return NULL;
 	}
 	
+	/**
+	*
+	*/
 	function render()
 	{
 		$output = '<div class="form-element" '.$this->invalid.'>'. "\n";
@@ -563,21 +604,34 @@ class xFormElementOptions extends xFormElement
 		{
 			$output .= ' form-element-invalid';
 		}
-		$output .= '" name="' . $this->name .'" ';
+		
+		$name = $this->name;
 		if($this->multi_select)
 		{
+			$name = $this->name.'[]';
 			$output .= 'multiple="multiple" size=5';
 		}
-		$output .= ' id="id-' . $this->name . '" value="'.$this->value.'">'."\n";
+		$output .= '" name="' . $name .'" ';
+		$output .= ' id="id-' . $this->name . '">'."\n";
 		
 		//extract options 
 		foreach($this->options as $opt_name => $opt_val)
 		{
 			$output .= '<option value="'.$opt_val.'"';
-			if($this->value === $opt_val)
+			
+			//check if is selected
+			if(is_array($this->value))
+			{
+				if(in_array($opt_val, $this->value))
+				{
+					$output .= ' selected="selected"';
+				}
+			}
+			elseif($this->value === $opt_val)
 			{
 				$output .= ' selected="selected"';
 			}
+			
 			$output .= '>'.$opt_name.'</option>'."\n";
 		}
 		$output .= '</select></div>'. "\n";
@@ -594,9 +648,9 @@ class xFormElementRadio extends xFormElement
 {
 	var $checked;
 	
-	function xFormElementRadio($name,$label,$description,$value,$checked,$validator)
+	function xFormElementRadio($name,$label,$description,$value,$checked,$mandatory,$validator)
 	{
-		xFormElement::xFormElement($name,$label,$description,$value,$validator);
+		xFormElement::xFormElement($name,$label,$description,$value,$mandatory,$validator);
 		$this->checked = $checked;
 	}
 	
@@ -638,7 +692,7 @@ class xFormSubmit extends xFormElement
 {
 	function xFormSubmit($name,$value)
 	{
-		$this->xFormElement($name,NULL,NULL,$value,new xInputValidator(TRUE));
+		$this->xFormElement($name,NULL,NULL,$value,TRUE,new xInputValidator());
 	}
 	
 	function render()
@@ -673,7 +727,7 @@ class xFormGroup
 			$ret = $element->validate();
 			if($ret === NULL)
 			{
-				$data->errors[] = $element->validator->last_error;
+				$data->errors[] = $element->last_error;
 			}
 			else
 			{
@@ -745,7 +799,7 @@ class xFormRadioGroup extends xFormGroup
 			$ret = $in_array_elem->validate();
 			if($ret === NULL)
 			{
-				$data->errors[] = $in_array_elem->validator->last_error;
+				$data->errors[] = $in_array_elem->last_error;
 			}
 			else
 			{
@@ -825,7 +879,7 @@ class xForm
 			{
 				if($ret === NULL)
 				{
-					$data->errors[] = $element->validator->last_error;
+					$data->errors[] = $element->last_error;
 				}
 				else
 				{

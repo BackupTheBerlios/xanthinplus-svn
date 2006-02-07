@@ -26,7 +26,7 @@ class xCategory
 	/**
 	*
 	*/
-	function xCategory($id,$title,$description,$display_mode,$parent_id = NULL)
+	function xCategory($id,$title = NULL,$description = NULL,$display_mode = NULL,$parent_id = NULL)
 	{
 		$this->id = $id;
 		$this->title = $title;

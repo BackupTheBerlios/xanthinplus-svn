@@ -22,8 +22,8 @@ require_once('engine/components/user/user.class.inc.php');
 function xanth_user_user_login($hook_primary_id,$hook_secondary_id,$arguments)
 {
 	$form = new xForm('?p=user/login');
-	$form->elements[] = new xFormElementTextField('username','Username','','',new xInputValidatorText(256,TRUE));
-	$form->elements[] = new xFormElementPassword('password','Password','','',new xInputValidatorText(256,TRUE));
+	$form->elements[] = new xFormElementTextField('username','Username','','',TRUE,new xInputValidatorText(256));
+	$form->elements[] = new xFormElementPassword('password','Password','',TRUE,new xInputValidatorText(256));
 	$form->elements[] = new xFormSubmit('submit','login');
 	
 	$ret = $form->validate_input();

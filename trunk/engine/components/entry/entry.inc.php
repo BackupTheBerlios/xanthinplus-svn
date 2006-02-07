@@ -64,8 +64,8 @@ function xanth_entry_admin_entry_create($hook_primary_id,$hook_secondary_id,$arg
 	
 	//create form
 	$form = new xForm('?p=admin/entry/create');
-	$form->elements[] = new xFormElementTextField('content_title','Title','','',new xInputValidatorTextNoTags(256,TRUE));
-	$form->elements[] = new xFormElementTextArea('content_body','Body','','',new xInputValidatorText(256,TRUE));
+	$form->elements[] = new xFormElementTextField('content_title','Title','','',TRUE,new xInputValidatorTextNoTags(256));
+	$form->elements[] = new xFormElementTextArea('content_body','Body','','',TRUE,new xInputValidatorText(256));
 	
 	//content formats
 	$content_formats = xContentFormat::find_all();
@@ -74,21 +74,31 @@ function xanth_entry_admin_entry_create($hook_primary_id,$hook_secondary_id,$arg
 	foreach($content_formats as $content_format)
 	{
 		$content_formats_radio_group->elements[] = new xFormElementRadio('content_format',$content_format->name,
-			$content_format->description,$content_format->name,FALSE,
-			new xInputValidatorText(64,TRUE));
+			$content_format->description,$content_format->name,FALSE,TRUE,
+			new xInputValidatorText(64));
 	}
+	$content_formats_radio_group->elements[0]->checked = TRUE;
 	$form->elements[] = $content_formats_radio_group;
+	
+	//categories
+	$categories = xCategory::find_all();
+	$options = array();
+	foreach($categories as $category)
+	{
+		$options[$category->title] = $category->id;
+	}
+	$form->elements[] = new xFormElementOptions('entry_categories','Categories','','',$options,TRUE,FALSE,new xInputValidatorInteger());
 	
 	//parameters
 	$parameters = new xFormGroup(array(),'Parameters');
-	$parameters->elements[] = new xFormElementCheckbox('param_published','Published','','1',TRUE,
-		new xInputValidatorInteger(FALSE));
+	$parameters->elements[] = new xFormElementCheckbox('param_published','Published','','1',TRUE,FALSE,
+		new xInputValidatorInteger());
 	$form->elements[] = $parameters;
 	
 	//metadata
 	$metadata = new xFormGroup(array(),'Metadata');
-	$metadata->elements[] = new xFormElementTextField('meta_description','Description','','',new xInputValidatorTextNoTags(512,FALSE));
-	$metadata->elements[] = new xFormElementTextField('meta_keywords','Keywords','','',new xInputValidatorTextNoTags(128,FALSE));
+	$metadata->elements[] = new xFormElementTextField('meta_description','Description','','',FALSE,new xInputValidatorTextNoTags(512));
+	$metadata->elements[] = new xFormElementTextField('meta_keywords','Keywords','','',FALSE,new xInputValidatorTextNoTags(128));
 	$form->elements[] = $metadata;
 	
 	//submit buttom
@@ -100,9 +110,17 @@ function xanth_entry_admin_entry_create($hook_primary_id,$hook_secondary_id,$arg
 		if(empty($ret->errors))
 		{
 			$author = xUser::get_current_username() !== NULL ? xUser::get_current_username() : 'anonymous';
+			//translate categories
+			$cat_ids = $ret->valid_data['entry_categories'];
+			$categories = array();
+			foreach($cat_ids as $cat_id)
+			{
+				$categories[] = new xCategory($cat_id);
+			}
+			
 			$entry = new xEntry(NULL,$ret->valid_data['content_title'],NULL,$author,$ret->valid_data['content_body'],
 				$ret->valid_data['content_format'],$ret->valid_data['param_published'],$ret->valid_data['meta_description'],
-				$ret->valid_data['meta_keywords']);
+				$ret->valid_data['meta_keywords'],$categories);
 			$entry->insert();
 			
 			

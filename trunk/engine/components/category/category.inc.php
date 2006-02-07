@@ -28,8 +28,8 @@ function xanth_category_admin_category_create($hook_primary_id,$hook_secondary_i
 	
 	//create form
 	$form = new xForm('?p=admin/category/create');
-	$form->elements[] = new xFormElementTextField('cat_title','Title','','',new xInputValidatorTextNoTags(256,TRUE));
-	$form->elements[] = new xFormElementTextArea('cat_description','Description','','',new xInputValidatorText(-1,TRUE));
+	$form->elements[] = new xFormElementTextField('cat_title','Title','','',TRUE,new xInputValidatorTextNoTags(256));
+	$form->elements[] = new xFormElementTextArea('cat_description','Description','','',TRUE,new xInputValidatorText(-1));
 	
 	//parent category
 	$categories = xCategory::find_all();
@@ -39,7 +39,7 @@ function xanth_category_admin_category_create($hook_primary_id,$hook_secondary_i
 	{
 		$options[$category->title] = $category->id;
 	}
-	$form->elements[] = new xFormElementOptions('parent_category','Parent category','','',$options,FALSE,new xInputValidatorInteger(FALSE));
+	$form->elements[] = new xFormElementOptions('parent_category','Parent category','','',$options,FALSE,FALSE,new xInputValidatorInteger());
 	
 	//display mode
 	$display_modes = xanth_invoke_multi_hook(MULTI_HOOK_LIST_CATEGORY_DISPLAY_MODES,NULL);
@@ -48,7 +48,7 @@ function xanth_category_admin_category_create($hook_primary_id,$hook_secondary_i
 	foreach($display_modes as $display_mode)
 	{
 		$display_modes_radio_group->elements[] = new xFormElementRadio('display_mode',$display_mode['name'],
-			$display_mode['description'],$display_mode['name'],FALSE,new xInputValidatorText(64,TRUE));
+			$display_mode['description'],$display_mode['name'],FALSE,TRUE,new xInputValidatorText(64));
 	}
 	$form->elements[] = $display_modes_radio_group;
 	
