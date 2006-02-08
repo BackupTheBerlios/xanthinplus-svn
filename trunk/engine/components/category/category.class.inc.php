@@ -20,18 +20,18 @@ class xCategory
 	var $id;
 	var $title;
 	var $description;
-	var $display_mode;
+	var $view_mode_id;
 	var $parent_id;
 	
 	/**
 	*
 	*/
-	function xCategory($id,$title = NULL,$description = NULL,$display_mode = NULL,$parent_id = NULL)
+	function xCategory($id,$title = NULL,$description = NULL,$view_mode_id = 0,$parent_id = NULL)
 	{
 		$this->id = $id;
 		$this->title = $title;
 		$this->description = $description;
-		$this->display_mode = $display_mode;
+		$this->view_mode_id = $view_mode_id;
 		$this->parent_id = $parent_id;
 	}
 	
@@ -40,15 +40,20 @@ class xCategory
 	*/
 	function insert()
 	{
+		if(empty($this->view_mode_id))
+		{
+			$this->view_mode_id = get_default_for_element('category');
+		}
+		
 		if($this->parent_id === NULL || $this->parent_id == 0)
 		{
-			xanth_db_query("INSERT INTO category (title,description,display_mode) VALUES ('%s','%s','%s')",
-				$this->title,$this->description,$this->display_mode);
+			xanth_db_query("INSERT INTO category (title,description,view_mode_id) VALUES ('%s','%s',%d)",
+				$this->title,$this->description,$this->view_mode_id);
 		}
 		else
 		{
-			xanth_db_query("INSERT INTO category (title,parent_id,description,display_mode) VALUES ('%s',%d,'%s','%s')",
-				$this->title,$this->parent_id,$this->description,$this->display_mode);
+			xanth_db_query("INSERT INTO category (title,parent_id,description,view_mode_id) VALUES ('%s',%d,'%s',%d)",
+				$this->title,$this->parent_id,$this->description,$this->view_mode_id);
 		}
 		$this->id = xanth_db_get_last_id();
 	}
@@ -70,7 +75,7 @@ class xCategory
 		$categories = array();
 		while($row = xanth_db_fetch_object($result))
 		{
-			$categories[] = new xCategory($row->id,$row->title,$row->description,$row->display_mode);
+			$categories[] = new xCategory($row->id,$row->title,$row->description,$row->view_mode_id);
 		}
 		
 		return $categories;
@@ -85,7 +90,7 @@ class xCategory
 		$categories = array();
 		while($row = xanth_db_fetch_object($result))
 		{
-			$categories[] = new xCategory($row->id,$row->title,$row->description,$row->display_mode,$row->parentId);
+			$categories[] = new xCategory($row->id,$row->title,$row->description,$row->view_mode_id,$row->parentId);
 		}
 		
 		return $categories;
@@ -101,12 +106,11 @@ class xCategory
 		$categories = array();
 		while($row = xanth_db_fetch_object($result))
 		{
-			$categories[] = new xCategory($row->id,$row->title,$row->description,$row->display_mode,$row->parent_id);
+			$categories[] = new xCategory($row->id,$row->title,$row->description,$row->view_mode_id,$row->parent_id);
 		}
 		
 		return $categories;
 	}
-
 }
 
 

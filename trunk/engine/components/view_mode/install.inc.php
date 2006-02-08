@@ -15,43 +15,35 @@
 * PURPOSE ARE DISCLAIMED.SEE YOUR CHOOSEN LICENSE FOR MORE DETAILS.
 */
 
-/**
-* @file Installation procedures for core
-*/
-
-function xanth_db_install_core()
+function xanth_db_install_weight_view_mode()
 {
-	//log
-	xanth_db_query("
-		CREATE TABLE xanth_log (
-		level MEDIUMINT NOT NULL,
-		component VARCHAR(32) NOT NULL,
-		message TEXT NOT NULL,
-		filename  VARCHAR(255) NOT NULL,
-		line MEDIUMINT NOT NULL,
-		timestamp TIMESTAMP
-		)TYPE=InnoDB");
-		
-	//sessions
-	xanth_db_query("
-		CREATE TABLE sessions (
-		session_id VARCHAR(32) NOT NULL,
-		session_data TEXT NOT NULL,
-		session_timestamp TIMESTAMP NOT NULL,
-		PRIMARY KEY  (session_id)
-		)TYPE=InnoDB");
-		
-	//Modules
-	xanth_db_query("
-		CREATE TABLE modules (
-		name VARCHAR(32) NOT NULL,
-		path VARCHAR(255) NOT NULL,
-		enabled TINYINT NOT NULL,
-		PRIMARY KEY  (name)
-		)TYPE=InnoDB");
+	//no dependencies
+	return 0;
 }
 
-
+function xanth_db_install_view_mode()
+{
+	//visual element
+	xanth_db_query("
+		CREATE TABLE visual_element (
+		name VARCHAR(32) NOT NULL,
+		PRIMARY KEY (name)
+		)TYPE=InnoDB");
+	
+	//display mode
+	xanth_db_query("
+		CREATE TABLE view_mode (
+		id INT UNSIGNED AUTO_INCREMENT,
+		name VARCHAR(32) NOT NULL,
+		relative_visual_element VARCHAR(32) NOT NULL,
+		default_for_element TINYINT UNSIGNED NOT NULL,
+		display_procedure TEXT NOT NULL,
+		PRIMARY KEY (id),
+		UNIQUE(relative_visual_element,default_for_element),
+		INDEX(relative_visual_element),
+		FOREIGN KEY (relative_visual_element) REFERENCES visual_element(name) ON DELETE CASCADE
+		)TYPE=InnoDB");
+}
 
 
 ?>

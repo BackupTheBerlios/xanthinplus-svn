@@ -15,25 +15,49 @@
 * PURPOSE ARE DISCLAIMED.SEE YOUR CHOOSEN LICENSE FOR MORE DETAILS.
 */
 
-function xanth_db_install_weight_settings()
-{
-	//no dependencies
-	return 0;
-}
 
-function xanth_db_install_settings()
+/**
+*
+*/
+class xThemeArea
 {
-	//settings
-	xanth_db_query("
-		CREATE TABLE settings (
-		site_name VARCHAR(256) NOT NULL,
-		site_description VARCHAR(512) NOT NULL,
-		site_keywords VARCHAR(128) NOT NULL,
-		site_theme VARCHAR(32) NOT NULL
-		)TYPE=InnoDB");
+	var $name;
 	
-	xanth_db_query("INSERT INTO settings (site_name,site_description,site_keywords,site_theme) VALUES ('','','','')");
+	function xThemeArea($name)
+	{
+		$this->name = $name;
+	}
+	
+	/**
+	*
+	*/
+	function insert()
+	{
+		xanth_db_query("INSERT INTO theme_area(name) VALUES ('%s')",$this->name);
+	}
+	
+	/**
+	*
+	*/
+	
+	function delete()
+	{
+		xanth_db_query("DELETE FROM theme_area WHERE name = '%s'",$this->name);
+	}
+	
+	/**
+	*
+	*/
+	function find_all()
+	{
+		$elems = array();
+		$result = xanth_db_query("SELECT * FROM theme_area");
+		while($row = xanth_db_fetch_object($result))
+		{
+			$elems[] = new xThemeArea($row->name);
+		}
+		return $elems;
+	}
 }
-
 
 ?>

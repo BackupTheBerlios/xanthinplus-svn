@@ -336,7 +336,7 @@ class xFormElementTextField extends xFormElement
 		}
 		$output .= '</label>' . "\n";
 		$output .= '<input';
-		if(!empty($this->validator->maxlength))
+		if($this->validator->maxlength > 0 )
 		{
 			$output .= ' maxlength="' . $this->validator->maxlength . '" ';
 		}
@@ -346,7 +346,7 @@ class xFormElementTextField extends xFormElement
 			$output .= ' form-element-invalid';
 		}
 		$output .= '" name="' . $this->name .'" '; 
-		$output .= ' id="id-' . $this->name . '" value="'.$this->value.'" type="text">'."\n";
+		$output .= ' id="id-' . $this->name . '" value="'.$this->value.'" type="text"/>'."\n";
 		$output .= '</div>'. "\n";
 		return $output;
 	}
@@ -378,7 +378,7 @@ class xFormElementPassword extends xFormElement
 		}
 		$output .= '</label>' . "\n";
 		$output .= '<input';
-		if(isset($this->validator->maxlength))
+		if($this->validator->maxlength > 0 )
 		{
 			$output .= ' maxlength="' . $this->validator->maxlength . '" ';
 		}
@@ -388,7 +388,7 @@ class xFormElementPassword extends xFormElement
 			$output .= ' form-element-invalid';
 		}
 		$output .= '" name="' . $this->name .'" '; 
-		$output .= ' id="id-' . $this->name . '" value="'.$this->value.'" type="password">'."\n";
+		$output .= ' id="id-' . $this->name . '" value="'.$this->value.'" type="password"/>'."\n";
 		$output .= '</div>'. "\n";
 		
 		return $output;
@@ -426,11 +426,11 @@ class xFormElementTextArea extends xFormElement
 			$output .= ' form-element-invalid';
 		}
 		$output .= '" name="' . $this->name .'" '; 
-		if(!empty($this->validator->maxlength))
+		if($this->validator->maxlength > 0 )
 		{
 			$output .= ' maxlength="' . $this->validator->maxlength . '" ';
 		}
-		$output .= ' id="id-' . $this->name . '">'. $this->value . '</textarea>'."\n";
+		$output .= ' id="id-' . $this->name . '" rows="8" cols="50">'. $this->value . '</textarea>'."\n";
 		$output .= '</div>'. "\n";
 		return $output;
 	}
@@ -478,7 +478,7 @@ class xFormElementCheckbox extends xFormElement
 		{	
 			$output .= ' checked="checked" ';
 		}
-		$output .= ' id="id-' . $this->name . '" value="'.$this->value.'" type="checkbox">'."\n";
+		$output .= ' id="id-' . $this->name . '" value="'.$this->value.'" type="checkbox"/>'."\n";
 		$output .= '<label class="checkbox-label" for="id-'.$this->name.'">'.$this->label;
 		$output .= '</label>' . "\n";
 		$output .= '</div>'. "\n";
@@ -678,7 +678,7 @@ class xFormElementRadio extends xFormElement
 		{	
 			$output .= ' checked="checked" ';
 		}
-		$output .= ' type="radio">'."\n";
+		$output .= ' type="radio"/>'."\n";
 		$output .= '<label class="radio-label" for="id-'.$this->name.'">'.$this->label.'</label>' . "\n";
 		$output .= '</div>'. "\n";
 		return $output;
@@ -698,7 +698,7 @@ class xFormSubmit extends xFormElement
 	function render()
 	{
 		$output = '<div class="form-element">'. "\n";
-		$output .= '<input class="form-submit" name="' . $this->name .'" value="'.$this->value.'" type="submit">'."\n";
+		$output .= '<input class="form-submit" name="' . $this->name .'" value="'.$this->value.'" type="submit"/>'."\n";
 		$output .= '</div>'. "\n";
 		return $output;
 	}

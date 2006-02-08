@@ -44,12 +44,24 @@ function xanth_db_install_box()
 	xanth_db_query("
 		CREATE TABLE boxtoarea (
 		boxName VARCHAR(64) NOT NULL,
-		area VARCHAR(255) NOT NULL,
+		area VARCHAR(32) NOT NULL,
 		UNIQUE (boxName,area),
 		INDEX(boxName),
 		FOREIGN KEY(boxName) REFERENCES box(name) ON DELETE CASCADE
 		)TYPE=InnoDB");
-		
+	
+	
+	//install a new visual element
+	$element = new xVisualElement('box');
+	$element->insert();
+	
+	//...and the default view mode
+	$proc = '
+		return \'<strong>\' . $box->title .\'</strong> <br />\' . $box->content;
+	';
+	
+	$view = new xViewMode(0,'Default box view','box',TRUE,$proc);
+	$view->insert();
 }
 
 

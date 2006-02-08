@@ -17,9 +17,8 @@
 
 require_once('engine/components/entry/entry.class.inc.php');
 
-/*
-*
-*/
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
 function xanth_entry_view_entry($hook_primary_id,$hook_secondary_id,$arguments)
 {
 	$selected_entry = xEntry::get($arguments[0]);
@@ -46,15 +45,16 @@ function xanth_entry_view_entry($hook_primary_id,$hook_secondary_id,$arguments)
 	}
 	else
 	{
-		return new xPageContent($selected_entry->title,
-			xanth_invoke_mono_hook(MONO_HOOK_ENTRY_TEMPLATE,NULL,array($selected_entry)),$selected_entry->description,
+		$theme = xTheme::get_default();
+		$entry = $selected_entry;
+		$entry_ready_to_print = eval($theme->get_view_mode_procedure('entry'));
+		return new xPageContent($selected_entry->title,$entry_ready_to_print,$selected_entry->description,
 			$selected_entry->keywords);
 	}
 }
 
-/*
-*
-*/
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
 function xanth_entry_admin_entry_create($hook_primary_id,$hook_secondary_id,$arguments)
 {
 	if(!xUser::check_current_user_access('create content'))
@@ -109,13 +109,17 @@ function xanth_entry_admin_entry_create($hook_primary_id,$hook_secondary_id,$arg
 	{
 		if(empty($ret->errors))
 		{
+			//no error,lets create the entry
 			$author = xUser::get_current_username() !== NULL ? xUser::get_current_username() : 'anonymous';
 			//translate categories
 			$cat_ids = $ret->valid_data['entry_categories'];
 			$categories = array();
-			foreach($cat_ids as $cat_id)
+			if(!empty($cat_ids))
 			{
-				$categories[] = new xCategory($cat_id);
+				foreach($cat_ids as $cat_id)
+				{
+					$categories[] = new xCategory($cat_id);
+				}
 			}
 			
 			$entry = new xEntry(NULL,$ret->valid_data['content_title'],NULL,$author,$ret->valid_data['content_body'],
@@ -124,7 +128,7 @@ function xanth_entry_admin_entry_create($hook_primary_id,$hook_secondary_id,$arg
 			$entry->insert();
 			
 			
-			return new xPageContent('Entry created','Entry created, <a href="?p=entry/'.$entry->id.'">view it</a>');
+			return new xPageContent('Entry created','Entry created, <a href="?p=entry//'.$entry->id.'">view it</a>');
 		}
 		else
 		{
@@ -138,21 +142,52 @@ function xanth_entry_admin_entry_create($hook_primary_id,$hook_secondary_id,$arg
 	return new xPageContent('Create entry',$form->render());
 }
 
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+function xanth_entry_admin_entry($hook_primary_id,$hook_secondary_id,$arguments)
+{
+	$entries = xEntry::find_all();
+	
+	$output = "<table>\n";
+	$output .= "<tr><th>Id</th><th>Title</th><th>Edit</th><th>Delete</th></tr>\n";
+	foreach($entries as $entry)
+	{
+		$output .= "<tr><td>".$entry->id."</td><td>".$entry->title."</td><td>Edit</td><td>Delete</td></tr>";
+	}
+	$output .= "<table>\n";
+	
+	return new xPageContent('Admin entries',$output);
+}
+
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+function xanth_entry_admin_entry_type_create($hook_primary_id,$hook_secondary_id,$arguments)
+{
+	
+}
+
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
 function xanth_entry_admin_menu_add_link($hook_primary_id,$hook_secondary_id,$arguments)
 {
 	return 'admin/entry/create';
 }
+function xanth_entry_admin_menu_add_link2($hook_primary_id,$hook_secondary_id,$arguments)
+{
+	return 'admin/entry';
+}
 
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
-/*
-*
-*/
 function xanth_init_component_entry()
 {
 	xanth_register_mono_hook(MONO_HOOK_PAGE_CONTENT_CREATE, 'entry','xanth_entry_view_entry');
 	xanth_register_mono_hook(MONO_HOOK_PAGE_CONTENT_CREATE, 'admin/entry/create','xanth_entry_admin_entry_create');
+	xanth_register_mono_hook(MONO_HOOK_PAGE_CONTENT_CREATE, 'admin/entry','xanth_entry_admin_entry');
+	xanth_register_mono_hook(MONO_HOOK_PAGE_CONTENT_CREATE, 'admin/entry_type/create','xanth_entry_admin_entry_type_create');
+	
 	xanth_register_multi_hook(MULTI_HOOK_ADMIN_MENU_ADD_PATH,NULL,'xanth_entry_admin_menu_add_link');
+	xanth_register_multi_hook(MULTI_HOOK_ADMIN_MENU_ADD_PATH,NULL,'xanth_entry_admin_menu_add_link2');
 }
 
 

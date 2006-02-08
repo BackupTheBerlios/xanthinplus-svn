@@ -24,7 +24,6 @@ require_once('engine/hook.inc.php');
 require_once('engine/component.inc.php');
 require_once('engine/module.inc.php');
 require_once('engine/form.inc.php');
-require_once('engine/theme.inc.php');
 require_once('engine/session.inc.php');
 require_once('engine/core.inc.php');
 require_once('engine/element.inc.php');
@@ -47,7 +46,7 @@ function xanth_init()
 	session_start();
 	xComponent::init_all();
 	xModule::init_all();
-	xTheme::find_default()->init();
+	//xTheme::find_default()->init();
 	
 	xanth_invoke_multi_hook(MULTI_HOOK_PAGE_CREATE_EVT,NULL);
 	xanth_invoke_mono_hook(MONO_HOOK_PAGE_CREATE,NULL);

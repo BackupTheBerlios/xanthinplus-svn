@@ -15,19 +15,20 @@
 * PURPOSE ARE DISCLAIMED.SEE YOUR CHOOSEN LICENSE FOR MORE DETAILS.
 */
 
-/**
-* @ingroup Hooks
-* You can use a secondary hook id to refer to a specific category display mode.
-* @returns the result of apply category display mode
-*/
-define('MONO_HOOK_APPLY_CATEGORY_DISPLAY_MODE','mono_hook_apply_category_display_mode');
+require_once('engine/components/view_mode/viewmode.class.inc.php');
+require_once('engine/components/view_mode/visualelement.class.inc.php');
+
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
 
-/**
-* @ingroup Hooks
-* @returns a mapped array containing the display mode name and a brief description of it.
-*/
-define('MULTI_HOOK_LIST_CATEGORY_DISPLAY_MODES','multi_hook_list_category_display_modes');
+
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+function xanth_init_component_view_mode()
+{
+
+}
+
 
 
 ?>

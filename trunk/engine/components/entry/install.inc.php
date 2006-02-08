@@ -23,19 +23,22 @@ function xanth_db_install_weight_entry()
 
 function xanth_db_install_entry()
 {
+
 	//entry type
 	xanth_db_query("
-		CREATE TABLE entryType (
+		CREATE TABLE entry_type (
 		name VARCHAR(32) NOT NULL,
+		display_mode VARCHAR(32) NOT NULL,
 		PRIMARY KEY (name)
 		)TYPE=InnoDB");
+	
 	
 	//entry
 	xanth_db_query("
 		CREATE TABLE entry (
 		id INT UNSIGNED NOT NULL AUTO_INCREMENT,
 		title VARCHAR(256) NOT NULL,
-		type VARCHAR(64) NOT NULL,
+		type VARCHAR(32) NOT NULL,
 		author VARCHAR(64) NOT NULL,
 		content TEXT NOT NULL,
 		content_format VARCHAR(64) NOT NULL,
@@ -43,7 +46,7 @@ function xanth_db_install_entry()
 		description VARCHAR(512) NOT NULL,
 		keywords VARCHAR(128) NOT NULL,
 		creation_time TIMESTAMP NOT NULL,
-		PRIMARY KEY  (id),
+		PRIMARY KEY (id),
 		INDEX(type),
 		INDEX(content_format),
 		FOREIGN KEY(content_format) REFERENCES content_format(name) ON DELETE RESTRICT
@@ -61,7 +64,18 @@ function xanth_db_install_entry()
 		FOREIGN KEY(catId) REFERENCES category(id) ON DELETE CASCADE
 		)TYPE=InnoDB");
 		
-		//FOREIGN KEY(type) REFERENCES entryType(name) ON DELETE RESTRICT
+	
+	//install a new visual element
+	$element = new xVisualElement('entry');
+	$element->insert();
+	
+	//...and the default view mode
+	$proc = '
+		return \'<div class="title">\'.$entry->title.\'</div><div class="body">\'.$entry->content.\'</div>\';
+	';
+	
+	$view = new xViewMode(0,'Default entry view','entry',TRUE,$proc);
+	$view->insert();
 }
 
 

@@ -90,45 +90,47 @@ class xXanthPath
 		$this->resource_id = $resource_id;
 		$this->base_path = $base_path;
 	}
+	
+	
+	/**
+	 * Return a valid xCmsPath object on success, false on parsing error.
+	 */
+	function get_current()
+	{
+			if(isset($_GET['p']))
+			{
+				$p = $_GET['p'];
+			}
+			else
+			{
+				return new xXanthPath();
+			}
+			
+			return xXanthPath::_parse($p);
+	}
+
+
+	/**
+	*Return NULL if fails to parse, otherwise a xXanthPath object
+	*/
+	function _parse($path) 
+	{
+	    if (!preg_match('#^(([A-Z_]+)?(/[A-Z_]+)*)(//([A-Z0-9_-]+))?$#i', $path,$pieces))
+		{
+	        return NULL;
+	    }
+		else 
+		{
+			$path = new xXanthPath();
+			$path->base_path = $pieces[1];
+			if(isSet($pieces[5]))
+			{
+				$path->resource_id = $pieces[5];
+			}
+			return $path;
+	    }
+	}
 };
 
-/**
-*Return NULL if fails to parse, otherwise a xanthPth object
-*/
-function xanth_xanthpath_parse($path) 
-{
-    if (!preg_match('/^(([A-Z_]+)?(\/[A-Z_]+)*)(\/(\d+))?$/i', $path,$pieces))
-	{
-        return NULL;
-    }
-	else 
-	{
-		$path = new xXanthPath();
-		$path->base_path = $pieces[1];
-		if(isSet($pieces[5]))
-		{
-			$path->resource_id = $pieces[5];
-		}
-		return $path;
-    }
-}
-
-
-/**
- * Return a valid xCmsPath object on success, false on parsing error.
- */
-function xanth_get_xanthpath()
-{
-	if(isset($_GET['p']))
-	{
-		$p = $_GET['p'];
-	}
-	else
-	{
-		return new xXanthPath();
-	}
-	
-	return xanth_xanthpath_parse($p);
-}
 
 ?>

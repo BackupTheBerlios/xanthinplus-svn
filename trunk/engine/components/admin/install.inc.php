@@ -26,7 +26,7 @@ function xanth_db_install_admin()
 {
 	$box = new xBox('admin_menu','Admin',NULL,'Full Html',FALSE);
 	$box->insert();
-	$box->assign_to_area('left sidebar');
+	$box->assign_to_area('sidebar left');
 }
 
 

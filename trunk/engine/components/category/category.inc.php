@@ -41,17 +41,6 @@ function xanth_category_admin_category_create($hook_primary_id,$hook_secondary_i
 	}
 	$form->elements[] = new xFormElementOptions('parent_category','Parent category','','',$options,FALSE,FALSE,new xInputValidatorInteger());
 	
-	//display mode
-	$display_modes = xanth_invoke_multi_hook(MULTI_HOOK_LIST_CATEGORY_DISPLAY_MODES,NULL);
-	$display_modes_radio_group = new xFormRadioGroup(array(),'Display mode');
-
-	foreach($display_modes as $display_mode)
-	{
-		$display_modes_radio_group->elements[] = new xFormElementRadio('display_mode',$display_mode['name'],
-			$display_mode['description'],$display_mode['name'],FALSE,TRUE,new xInputValidatorText(64));
-	}
-	$form->elements[] = $display_modes_radio_group;
-	
 	//submit buttom
 	$form->elements[] = new xFormSubmit('submit','Create');
 	
@@ -61,7 +50,7 @@ function xanth_category_admin_category_create($hook_primary_id,$hook_secondary_i
 		if(empty($ret->errors))
 		{
 			$cat = new xCategory(NULL,$ret->valid_data['cat_title'],$ret->valid_data['cat_description'],
-				$ret->valid_data['display_mode'],$ret->valid_data['parent_category']);
+				0,$ret->valid_data['parent_category']);
 			$cat->insert();
 			
 			
@@ -85,22 +74,12 @@ function xanth_category_admin_menu_add_link($hook_primary_id,$hook_secondary_id,
 	return 'admin/category/create';
 }
 
-function xanth_category_list_display_mode_simple_list($hook_primary_id,$hook_secondary_id,$arguments)
-{
-	return array(
-		'name' => 'Simple List', 
-		'description' => 'Display a simple list of all entries in current category'
-		);
-}
-
 /*
 *
 */
 function xanth_init_component_category()
 {
 	xanth_register_mono_hook(MONO_HOOK_PAGE_CONTENT_CREATE, 'admin/category/create','xanth_category_admin_category_create');
-	
-	xanth_register_multi_hook(MULTI_HOOK_LIST_CATEGORY_DISPLAY_MODES,NULL,'xanth_category_list_display_mode_simple_list');
 	
 	xanth_register_multi_hook(MULTI_HOOK_ADMIN_MENU_ADD_PATH,NULL,'xanth_category_admin_menu_add_link');
 }

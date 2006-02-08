@@ -16,7 +16,78 @@
 */
 
 
+/**
+*
+*/
+class xEntryType
+{
+	var $name;
+	var $display_mode;
+	
+	function xEntryType($name,$display_mode)
+	{
+		$this->name = $name;
+		$this->display_mode = $display_mode;
+	}
+	
+	/**
+	*
+	*/
+	function insert()
+	{
+		xanth_db_query("INSERT INTO entry_type (name,display_mode) VALUES ('%s','%s')",$this->name,$this->display_mode);
+	}
+	
+	/**
+	*
+	*/
+	function delete()
+	{
+		xanth_db_query("DELETE FROM entry_type WHERE name = '%s'",$this->name);
+	}
+	
+	/**
+	*
+	*/
+	function update()
+	{
+		xanth_db_query("UPDATE entry_type SET display_mode = '%s' WHERE name = '%s'",$this->display_mode,$this-name);
+	}
+	
+	/**
+	*
+	*/
+	function find_all()
+	{
+		$types = array();
+		$result = xanth_db_query("SELECT * FROM entry_type");
+		while($row = xanth_db_fetch_object($result))
+		{
+			$types[] = new xEntryType($row->name,$row->display_mode);
+		}
+		
+		return $types;
+	}
+	
+	/**
+	*
+	*/
+	function get($name)
+	{
+		$result = xanth_db_query("SELECT * FROM entry_type WHERE name = '%s'",$name);
+		if($row = xanth_db_fetch_object($result))
+		{
+			return new xEntryType($row->name,$row->display_mode);
+		}
+		
+		return NULL;
+	}
+}
 
+
+/**
+*
+*/
 class xEntry
 {
 	var $id;
