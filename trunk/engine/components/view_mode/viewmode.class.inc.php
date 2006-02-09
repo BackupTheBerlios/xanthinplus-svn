@@ -70,7 +70,21 @@ class xViewMode
 	function find_by_element($visual_element)
 	{
 		$modes = array();
-		$result = xanth_db_query("SELECT * FROM view_mode WHERE relative_visual_element = '%s'",$this->relative_visual_element);
+		$result = xanth_db_query("SELECT * FROM view_mode WHERE relative_visual_element = '%s'",$visual_element);
+		while($row = xanth_db_fetch_object($result))
+		{
+			$modes[] = new xViewMode($row->id,$row->name,$row->relative_visual_element,$row->default_for_element,$row->display_procedure);
+		}
+		return $modes;
+	}
+	
+	/**
+	*
+	*/
+	function find_all()
+	{
+		$modes = array();
+		$result = xanth_db_query("SELECT * FROM view_mode");
 		while($row = xanth_db_fetch_object($result))
 		{
 			$modes[] = new xViewMode($row->id,$row->name,$row->relative_visual_element,$row->default_for_element,$row->display_procedure);
@@ -86,10 +100,10 @@ class xViewMode
 	{
 		$modes = array();
 		$result = xanth_db_query("SELECT * FROM view_mode WHERE relative_visual_element = '%s' AND default_for_element = %d",
-			$this->relative_visual_element,TRUE);
+			$visual_element,TRUE);
 		if($row = xanth_db_fetch_object($result))
 		{
-			return = new xViewMode($row->id,$row->name,$row->relative_visual_element,$row->default_for_element,$row->display_procedure);
+			return new xViewMode($row->id,$row->name,$row->relative_visual_element,$row->default_for_element,$row->display_procedure);
 		}
 		return NULL;
 	}

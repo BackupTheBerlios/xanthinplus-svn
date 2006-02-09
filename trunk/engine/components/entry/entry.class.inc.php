@@ -22,12 +22,12 @@
 class xEntryType
 {
 	var $name;
-	var $display_mode;
+	var $view_mode_id;
 	
-	function xEntryType($name,$display_mode)
+	function xEntryType($name,$view_mode_id)
 	{
 		$this->name = $name;
-		$this->display_mode = $display_mode;
+		$this->view_mode_id = $view_mode_id;
 	}
 	
 	/**
@@ -35,7 +35,14 @@ class xEntryType
 	*/
 	function insert()
 	{
-		xanth_db_query("INSERT INTO entry_type (name,display_mode) VALUES ('%s','%s')",$this->name,$this->display_mode);
+		if(empty($this->view_mode_id))
+		{
+			xanth_db_query("INSERT INTO entry_type (name) VALUES ('%s')",$this->name);
+		}
+		else
+		{
+			xanth_db_query("INSERT INTO entry_type (name,view_mode_id) VALUES ('%s',%d)",$this->name,$this->view_mode_id);
+		}
 	}
 	
 	/**
@@ -51,7 +58,7 @@ class xEntryType
 	*/
 	function update()
 	{
-		xanth_db_query("UPDATE entry_type SET display_mode = '%s' WHERE name = '%s'",$this->display_mode,$this-name);
+		xanth_db_query("UPDATE entry_type SET view_mode_id = %d WHERE name = '%s'",$this->view_mode_id,$this-name);
 	}
 	
 	/**
@@ -63,7 +70,7 @@ class xEntryType
 		$result = xanth_db_query("SELECT * FROM entry_type");
 		while($row = xanth_db_fetch_object($result))
 		{
-			$types[] = new xEntryType($row->name,$row->display_mode);
+			$types[] = new xEntryType($row->name,$row->view_mode_id);
 		}
 		
 		return $types;
@@ -77,7 +84,7 @@ class xEntryType
 		$result = xanth_db_query("SELECT * FROM entry_type WHERE name = '%s'",$name);
 		if($row = xanth_db_fetch_object($result))
 		{
-			return new xEntryType($row->name,$row->display_mode);
+			return new xEntryType($row->name,$row->view_mode_id);
 		}
 		
 		return NULL;

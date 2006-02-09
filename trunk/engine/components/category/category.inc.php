@@ -41,6 +41,16 @@ function xanth_category_admin_category_create($hook_primary_id,$hook_secondary_i
 	}
 	$form->elements[] = new xFormElementOptions('parent_category','Parent category','','',$options,FALSE,FALSE,new xInputValidatorInteger());
 	
+	//view modes
+	$modes = xViewMode::find_by_element('category');
+	$options = array();
+	$options['[theme default]'] = '0';
+	foreach($modes as $mode)
+	{
+		$options[$mode->name] = $mode->id;
+	}
+	$form->elements[] = new xFormElementOptions('category_view_mode','View mode','','',$options,FALSE,FALSE,new xInputValidatorInteger());
+	
 	//submit buttom
 	$form->elements[] = new xFormSubmit('submit','Create');
 	
@@ -50,7 +60,7 @@ function xanth_category_admin_category_create($hook_primary_id,$hook_secondary_i
 		if(empty($ret->errors))
 		{
 			$cat = new xCategory(NULL,$ret->valid_data['cat_title'],$ret->valid_data['cat_description'],
-				0,$ret->valid_data['parent_category']);
+				$ret->valid_data['category_view_mode'],$ret->valid_data['parent_category']);
 			$cat->insert();
 			
 			

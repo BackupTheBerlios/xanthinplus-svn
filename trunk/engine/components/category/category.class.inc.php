@@ -40,21 +40,24 @@ class xCategory
 	*/
 	function insert()
 	{
-		if(empty($this->view_mode_id))
+		$field_names = "title,description";
+		$field_values = "'%s','%s'";
+		$values = array($this->title,$this->description);
+		
+		if(!empty($this->view_mode_id))
 		{
-			$this->view_mode_id = get_default_for_element('category');
+			$field_names .= ",view_mode_id";
+			$field_values .= ",'%d'";
+			$values[] = $this->view_mode_id;
+		}
+		if(!empty($this->parent_id))
+		{
+			$field_names .= ",parent_id";
+			$field_values .= ",'%d'";
+			$values[] = $this->parent_id;
 		}
 		
-		if($this->parent_id === NULL || $this->parent_id == 0)
-		{
-			xanth_db_query("INSERT INTO category (title,description,view_mode_id) VALUES ('%s','%s',%d)",
-				$this->title,$this->description,$this->view_mode_id);
-		}
-		else
-		{
-			xanth_db_query("INSERT INTO category (title,parent_id,description,view_mode_id) VALUES ('%s',%d,'%s',%d)",
-				$this->title,$this->parent_id,$this->description,$this->view_mode_id);
-		}
+		xanth_db_query("INSERT INTO category ($field_names) VALUES ($field_values)",$values);
 		$this->id = xanth_db_get_last_id();
 	}
 
@@ -71,7 +74,7 @@ class xCategory
 	*/
 	function find_root()
 	{
-		$result = xanth_db_query("SELECT * FROM category WHERE parentId IS NUL");
+		$result = xanth_db_query("SELECT * FROM category WHERE parent_id IS NUL");
 		$categories = array();
 		while($row = xanth_db_fetch_object($result))
 		{
@@ -86,7 +89,7 @@ class xCategory
 	*/
 	function find_childs()
 	{
-		$result = xanth_db_query("SELECT * FROM category WHERE parentId = '%d'",$this->parent_id);
+		$result = xanth_db_query("SELECT * FROM category WHERE parent_id = %d",$this->parent_id);
 		$categories = array();
 		while($row = xanth_db_fetch_object($result))
 		{

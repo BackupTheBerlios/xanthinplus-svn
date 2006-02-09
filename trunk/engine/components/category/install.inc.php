@@ -17,8 +17,8 @@
 
 function xanth_db_install_weight_category()
 {
-	//no deps
-	return 0;
+	//depends on view mode
+	return 100;
 }
 
 function xanth_db_install_category()
@@ -29,10 +29,11 @@ function xanth_db_install_category()
 		id INT UNSIGNED NOT NULL AUTO_INCREMENT,
 		title VARCHAR(255) NOT NULL,
 		description TEXT NOT NULL,
-		view_mode_id INT UNSIGNED NOT NULL,
+		view_mode_id INT UNSIGNED,
 		parent_id INT UNSIGNED,
 		PRIMARY KEY (id),
 		INDEX(parent_id),
+		INDEX(view_mode_id),
 		FOREIGN KEY(parent_id) REFERENCES category(id) ON DELETE CASCADE,
 		FOREIGN KEY(view_mode_id) REFERENCES view_mode(id) ON DELETE RESTRICT
 		)TYPE=InnoDB");

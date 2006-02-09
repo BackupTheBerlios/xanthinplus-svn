@@ -17,8 +17,8 @@
 
 function xanth_db_install_weight_entry()
 {
-	//depend from content format module and category
-	return 100;
+	//depend from content format module,category,view mode
+	return 200;
 }
 
 function xanth_db_install_entry()
@@ -28,8 +28,10 @@ function xanth_db_install_entry()
 	xanth_db_query("
 		CREATE TABLE entry_type (
 		name VARCHAR(32) NOT NULL,
-		display_mode VARCHAR(32) NOT NULL,
-		PRIMARY KEY (name)
+		view_mode_id INT UNSIGNED,
+		PRIMARY KEY (name),
+		INDEX(view_mode_id),
+		FOREIGN KEY (view_mode_id) REFERENCES view_mode(id)
 		)TYPE=InnoDB");
 	
 	
@@ -49,7 +51,8 @@ function xanth_db_install_entry()
 		PRIMARY KEY (id),
 		INDEX(type),
 		INDEX(content_format),
-		FOREIGN KEY(content_format) REFERENCES content_format(name) ON DELETE RESTRICT
+		FOREIGN KEY(content_format) REFERENCES content_format(name) ON DELETE RESTRICT,
+		FOREIGN KEY(type) REFERENCES entry_type(name) ON DELETE RESTRICT
 		)TYPE=InnoDB");
 		
 	//category to entry

@@ -41,7 +41,7 @@ class xTheme
 		
 		xanth_db_query("INSERT INTO theme(name) VALUES ('%s')",$this->name);
 		
-		foreach($themed_elements as $element => $view)
+		foreach($this->themed_elements as $element => $view)
 		{
 			xanth_db_query("INSERT INTO theme_to_elements(theme_name,visual_element,view_mode) VALUES ('%s','%s','%s')",
 				$this->name,$element,$view);

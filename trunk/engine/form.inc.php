@@ -52,7 +52,7 @@ class xInputValidatorText extends xInputValidator
 	{
 		if(empty($input))
 		{
-			return '';
+			return $input;
 		}
 		
 		if($this->maxlength > 0 && strlen($input) > $this->maxlength)
@@ -84,7 +84,7 @@ class xInputValidatorTextNoTags extends xInputValidatorText
 		$input = xInputValidatorText::validate($input);
 		if(empty($input))
 		{
-			return '';
+			return $input;
 		}
 
 		$input = htmlspecialchars($input);
@@ -115,7 +115,7 @@ class xInputValidatorTextRegex extends xInputValidatorText
 		$input = xInputValidatorText::validate($element);
 		if(empty($input))
 		{
-			return '';
+			return $input;
 		}
 		
 		if(!preg_match($this->regex,$input))
@@ -150,7 +150,7 @@ class xInputValidatorTextEmail extends xInputValidatorText
 		$input = xInputValidatorText::validate($element);
 		if(empty($input))
 		{
-			return '';
+			return $input;
 		}
 		
 		if(!xanth_valid_email($input))
@@ -185,7 +185,7 @@ class xInputValidatorTextUsermame extends xInputValidatorText
 		$input = xInputValidatorText::validate($element);
 		if(empty($input))
 		{
-			return '';
+			return $input;
 		}
 		
 		if(!preg_match('#^[A-Z][A-Z0-9_-]{2,'.$this->maxlenght.'}$#i',$input))
@@ -216,7 +216,7 @@ class xInputValidatorInteger extends xInputValidator
 	{
 		if(empty($input))
 		{
-			return '';
+			return $input;
 		}
 		
 		if(!is_numeric($input))
@@ -279,7 +279,7 @@ class xFormElement
 	function validate()
 	{
 		$posted_value = $this->get_posted_value();
-		if(empty($posted_value))
+		if($posted_value === '')
 		{
 			if($this->mandatory)
 			{
@@ -510,11 +510,11 @@ class xFormElementOptions extends xFormElement
 	{
 		//check for mandatory
 		$posted_value = $this->get_posted_value();
-		if(empty($posted_value))
+		if($posted_value === '')
 		{
 			if($this->mandatory)
 			{
-				$this->last_error = 'Field'.$this->label.'is mandatory';
+				$this->last_error = 'Field '.$this->label.' is mandatory';
 				return NULL;
 			}
 			return '';
