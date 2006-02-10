@@ -35,6 +35,8 @@ function xanth_settings_manage_settings($hook_primary_id,$hook_secondary_id,$arg
 		FALSE,new xInputValidatorTextNoTags(512));
 	$form->elements[] = new xFormElementTextField('site_keywords','Site keywords','',xSettings::get('site_keywords'),
 		FALSE,new xInputValidatorTextNoTags(128));
+	$form->elements[] = new xFormElementTextField('site_theme','Site theme','',xSettings::get('site_theme'),
+		FALSE,new xInputValidatorTextNoTags(128));
 	$form->elements[] = new xFormSubmit('submit','submit');
 	
 	$ret = $form->validate_input();
@@ -45,6 +47,7 @@ function xanth_settings_manage_settings($hook_primary_id,$hook_secondary_id,$arg
 			xSettings::set('site_name',$ret->valid_data['site_name']);
 			xSettings::set('site_description',$ret->valid_data['site_description']);
 			xSettings::set('site_keywords',$ret->valid_data['site_keywords']);
+			xSettings::set('site_theme',$ret->valid_data['site_theme']);
 			xSettings::save();
 			return new xPageContent('Manage settings','Settings updated');
 		}

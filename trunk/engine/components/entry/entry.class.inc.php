@@ -91,6 +91,7 @@ class xEntryType
 	}
 }
 
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
 /**
 *
@@ -231,9 +232,9 @@ class xEntry
 				$row->content_format,$row->published,$row->description,$row->keywords,
 				array(),xanth_db_decode_timestamp($row->creation_time));
 			
-			$result = xanth_db_query("SELECT * FROM categorytoentry,category WHERE entryId = %d AND category.id = catId",$row->id);
+			$result2 = xanth_db_query("SELECT * FROM categorytoentry,category WHERE entryId = %d AND category.id = catId",$row->id);
 			$categories = array();
-			while($row = xanth_db_fetch_object($result))
+			while($row = xanth_db_fetch_object($result2))
 			{
 				$categories[] = new xCategory($row->id,$row->title,$row->parent_id);
 			}
@@ -243,6 +244,27 @@ class xEntry
 		xanth_db_commit();
 		
 		return $entries;
+	}
+	
+	/**
+	*
+	*/
+	function render()
+	{
+		//retrieve view mode
+		$type = xEntryType::get($this->type);
+		if($type->view_mode_id === NULL)
+		{
+			//apply theme default
+			$theme = xTheme::get_default();
+			return eval($theme->get_view_mode_procedure('entry'));
+		}
+		else
+		{
+			//apply specified view mode
+			$view_mode = xViewMode::get($type->view_mode_id);
+			return eval($view_mode->display_procedure);
+		}
 	}
 }
 

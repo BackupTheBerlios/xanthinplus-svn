@@ -44,10 +44,8 @@ function xanth_entry_view_entry($hook_primary_id,$hook_secondary_id,$arguments)
 		xanth_log(LOG_LEVEL_ERROR,'Content not found','content');
 	}
 	else
-	{
-		$theme = xTheme::get_default();
-		$entry = $selected_entry;
-		$entry_ready_to_print = eval($theme->get_view_mode_procedure('entry'));
+	{	
+		$entry_ready_to_print = $selected_entry->render();
 		return new xPageContent($selected_entry->title,$entry_ready_to_print,$selected_entry->description,
 			$selected_entry->keywords);
 	}
@@ -72,7 +70,7 @@ function xanth_entry_admin_entry_create($hook_primary_id,$hook_secondary_id,$arg
 	{
 		$options[$type->name] = $type->name;
 	}
-	$form->elements[] = new xFormElementOptions('entry_type','Select type','','',$options,FALSE,TRUE,new xInputValidatorTextNoTags(32));
+	$form->elements[] = new xFormElementOptions('entry_type','Select type','','',$options,FALSE,TRUE,new xInputValidatorTextNameId(32));
 	
 	//title
 	$form->elements[] = new xFormElementTextField('content_title','Title','','',TRUE,new xInputValidatorTextNoTags(256));
@@ -187,7 +185,7 @@ function xanth_entry_admin_entry_type_add($hook_primary_id,$hook_secondary_id,$a
 	
 	//create form
 	$form = new xForm('?p=admin/entry_type/add');
-	$form->elements[] = new xFormElementTextField('entry_type_name','Name','','',TRUE,new xInputValidatorTextNoTags(32));
+	$form->elements[] = new xFormElementTextField('entry_type_name','Name','','',TRUE,new xInputValidatorTextNameId(32));
 	
 	//view modes
 	$modes = xViewMode::find_by_element('entry');

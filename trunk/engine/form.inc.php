@@ -57,7 +57,7 @@ class xInputValidatorText extends xInputValidator
 		
 		if($this->maxlength > 0 && strlen($input) > $this->maxlength)
 		{
-			$this->last_error = 'Field '.$element->label.' contains too much characters (max is '.$this->maxlength.')';
+			$this->last_error = 'Field contains too much characters (max is '.$this->maxlength.')';
 			return NULL;
 		}
 
@@ -88,7 +88,6 @@ class xInputValidatorTextNoTags extends xInputValidatorText
 		}
 
 		$input = htmlspecialchars($input);
-		
 		return $input;
 	}
 }
@@ -110,9 +109,9 @@ class xInputValidatorTextRegex extends xInputValidatorText
 	/**
 	  * Validates the element by filtering the input and returns true on success.
 	 */
-	function validate($element)
+	function validate($input)
 	{
-		$input = xInputValidatorText::validate($element);
+		$input = xInputValidatorText::validate($input);
 		if(empty($input))
 		{
 			return $input;
@@ -120,7 +119,7 @@ class xInputValidatorTextRegex extends xInputValidatorText
 		
 		if(!preg_match($this->regex,$input))
 		{
-			$this->last_error = 'Field '.$element->label.' does not contain a valid input';
+			$this->last_error = 'Field does not contain a valid input';
 			return NULL;
 		}
 		
@@ -134,20 +133,17 @@ class xInputValidatorTextRegex extends xInputValidatorText
 */
 class xInputValidatorTextEmail extends xInputValidatorText
 {
-	var $regex;
-	
 	function xInputValidatorTextEmail()
 	{
 		xInputValidatorText::xInputValidatorText('',0);
-		$this->regex = regex;
 	}
 	
 	/**
 	  * Validates the element by filtering the input and returns true on success.
 	 */
-	function validate($element)
+	function validate($input)
 	{
-		$input = xInputValidatorText::validate($element);
+		$input = xInputValidatorText::validate($input);
 		if(empty($input))
 		{
 			return $input;
@@ -155,7 +151,7 @@ class xInputValidatorTextEmail extends xInputValidatorText
 		
 		if(!xanth_valid_email($input))
 		{
-			$this->last_error = 'Field '.$element->label.' does not contain a valid email address';
+			$this->last_error = 'Field does not contain a valid email address';
 			return NULL;
 		}
 		
@@ -167,30 +163,27 @@ class xInputValidatorTextEmail extends xInputValidatorText
 /**
 *
 */
-class xInputValidatorTextUsermame extends xInputValidatorText
+class xInputValidatorTextNameId extends xInputValidatorText
 {
-	var $regex;
-	
-	function xInputValidatorTextUsermame()
+	function xInputValidatorTextNameId($maxlength)
 	{
 		xInputValidatorText::xInputValidatorText($maxlength);
-		$this->regex = regex;
 	}
 	
 	/**
 	  * Validates the element by filtering the input and returns true on success.
 	 */
-	function validate($element)
+	function validate($input)
 	{
-		$input = xInputValidatorText::validate($element);
+		$input = xInputValidatorText::validate($input);
 		if(empty($input))
 		{
 			return $input;
 		}
 		
-		if(!preg_match('#^[A-Z][A-Z0-9_-]{2,'.$this->maxlenght.'}$#i',$input))
+		if(!preg_match('#^[A-Z][A-Z0-9_-]{2,'.$this->maxlength.'}$#i',$input))
 		{
-			$this->last_error = 'Field '.$element->label.' does not contain a valid username';
+			$this->last_error = 'Field does not contain a valid name';
 			return NULL;
 		}
 		
@@ -273,6 +266,16 @@ class xFormElement
 		return '';
 	}
 	
+	function get_posted_value_by_name($name)
+	{
+		if(isset($_POST[$name]))
+		{
+			return $_POST[$name];
+		}
+		
+		return '';
+	}
+	
 	/**
 	 *
 	*/
@@ -295,7 +298,7 @@ class xFormElement
 		if($ret === NULL)
 		{
 			$this->invalid = TRUE;
-			$this->last_error = $this->validator->last_error;
+			$this->last_error = $this->label . ': ' .$this->validator->last_error;
 		}
 
 		return $ret;
@@ -436,6 +439,81 @@ class xFormElementTextArea extends xFormElement
 	}
 };
 
+/**
+*
+*/
+class xFormElementHidden extends xFormElement
+{
+	var $multiple;
+	
+	function xFormElementHidden($name,$label,$value,$multiple,$validator)
+	{
+		xFormElement::xFormElement($name,$label,NULL,$value,TRUE,$validator);
+		$this->multiple = $multiple;
+	}
+	
+	function validate()
+	{
+		//check for mandatory
+		$posted_value = $this->get_posted_value();
+		if($posted_value === '')
+		{
+			if($this->mandatory)
+			{
+				$this->last_error = 'Field '. $this->label.' is mandatory';
+				return NULL;
+			}
+			return '';
+		}
+		
+		//array or sigle value
+		if(is_array($posted_value))
+		{
+			$ret = array();
+			foreach($posted_value as $element)
+			{
+				$r = $this->validator->validate($element);
+				if($r === NULL)
+				{
+					$this->invalid = TRUE;
+					$this->last_error = $this->label . ': ' .$this->validator->last_error;
+					return NULL;
+				}
+				$ret[] = $r;
+			}
+			return $ret;
+		}
+		else
+		{
+			$ret = $this->validator->validate($posted_value);
+		
+			if($ret === NULL)
+			{
+				$this->invalid = TRUE;
+				$this->last_error = $this->label . ': ' .$this->validator->last_error;
+			}
+
+			return $ret;
+		}
+		
+		return NULL;
+	}
+	
+	function render()
+	{
+		$output = '<div class="form-element" '.$this->invalid.'>'. "\n";
+		$output .= '<input class="form-hidden';
+		$output .= '" name="' . $this->name;
+		if($this->multiple)
+		{
+			$output .= '[]';
+		}
+		$output .= '" value="'.$this->value.'" '; 
+		$output .= ' id="id-' . $this->name . '" type="hidden" />'."\n";
+		$output .= '</div>'. "\n";
+		return $output;
+	}
+};
 
 /**
 *
@@ -571,7 +649,7 @@ class xFormElementOptions extends xFormElement
 				if($r === NULL)
 				{
 					$this->invalid = TRUE;
-					$this->last_error = $this->validator->last_error;
+					$this->last_error = $this->label . ': ' .$this->validator->last_error;
 					return NULL;
 				}
 				$ret[] = $r;

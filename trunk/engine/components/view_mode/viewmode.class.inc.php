@@ -92,7 +92,21 @@ class xViewMode
 		return $modes;
 	}
 	
+	/**
+	*
+	*/
+	function get($view_mode_id)
+	{
+		$modes = array();
+		$result = xanth_db_query("SELECT * FROM view_mode WHERE id = %d",$view_mode_id);
+		if($row = xanth_db_fetch_object($result))
+		{
+			return new xViewMode($row->id,$row->name,$row->relative_visual_element,$row->default_for_element,$row->display_procedure);
+		}
 		
+		return NULL;
+	}
+	
 	/**
 	*
 	*/

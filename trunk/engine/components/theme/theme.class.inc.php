@@ -50,10 +50,26 @@ class xTheme
 		xanth_db_commit();
 	}
 	
+	function update()
+	{
+		xanth_db_start_transaction();
+		
+		//delete old visual elements
+		xanth_db_query("DELETE FROM theme_to_elements WHERE theme_name = '%s'",$this->name);
+		
+		//now reinsert
+		foreach($this->themed_elements as $element => $view)
+		{
+			xanth_db_query("INSERT INTO theme_to_elements(theme_name,visual_element,view_mode) VALUES ('%s','%s','%s')",
+				$this->name,$element,$view);
+		}
+		
+		xanth_db_commit();
+	}
+	
 	/**
 	*
 	*/
-	
 	function delete()
 	{
 		xanth_db_query("DELETE FROM theme WHERE name = '%s'",$this->name);
@@ -100,9 +116,7 @@ class xTheme
 	{
 		if(isset($this->themed_elements[$element]))
 		{
-			return $this->themed_elements[$element];
 			$result = xanth_db_query("SELECT * FROM view_mode WHERE id = %d",$this->themed_elements[$element]);
-	
 			if($row = xanth_db_fetch_object($result))
 			{
 				return $row->display_procedure;

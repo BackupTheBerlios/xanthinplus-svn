@@ -74,7 +74,7 @@ function xanth_db_install_entry()
 	
 	//...and the default view mode
 	$proc = '
-		return \'<div class="title">\'.$entry->title.\'</div><div class="body">\'.$entry->content.\'</div>\';
+		return \'<div class="title">\'.$this->title.\'</div><div class="body">\'.$this->content.\'</div>\';
 	';
 	
 	$view = new xViewMode(0,'Default entry view','entry',TRUE,$proc);
