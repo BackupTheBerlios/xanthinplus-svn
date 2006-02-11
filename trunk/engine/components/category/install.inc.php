@@ -23,6 +23,16 @@ function xanth_db_install_weight_category()
 
 function xanth_db_install_category()
 {
+	//entry type
+	xanth_db_query("
+		CREATE TABLE entry_type (
+		name VARCHAR(32) NOT NULL,
+		view_mode_id INT UNSIGNED,
+		PRIMARY KEY (name),
+		INDEX(view_mode_id),
+		FOREIGN KEY (view_mode_id) REFERENCES view_mode(id) ON DELETE SET NULL
+		)TYPE=InnoDB");
+		
 	//category
 	xanth_db_query("
 		CREATE TABLE category (
@@ -32,10 +42,23 @@ function xanth_db_install_category()
 		view_mode_id INT UNSIGNED,
 		parent_id INT UNSIGNED,
 		PRIMARY KEY (id),
+		UNIQUE(title),
 		INDEX(parent_id),
 		INDEX(view_mode_id),
 		FOREIGN KEY(parent_id) REFERENCES category(id) ON DELETE CASCADE,
-		FOREIGN KEY(view_mode_id) REFERENCES view_mode(id) ON DELETE RESTRICT
+		FOREIGN KEY(view_mode_id) REFERENCES view_mode(id) ON DELETE SET NULL
+		)TYPE=InnoDB");
+		
+	//category to entry type
+	xanth_db_query("
+		CREATE TABLE category_to_entry_type (
+		cat_id INT UNSIGNED NOT NULL,
+		entry_type VARCHAR(32) NOT NULL,
+		UNIQUE(cat_id,entry_type),
+		INDEX(cat_id),
+		INDEX(entry_type),
+		FOREIGN KEY(cat_id) REFERENCES category(id) ON DELETE CASCADE,
+		FOREIGN KEY(entry_type) REFERENCES entry_type(name) ON DELETE CASCADE
 		)TYPE=InnoDB");
 }
 

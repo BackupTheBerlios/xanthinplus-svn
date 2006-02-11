@@ -22,19 +22,7 @@ function xanth_db_install_weight_entry()
 }
 
 function xanth_db_install_entry()
-{
-
-	//entry type
-	xanth_db_query("
-		CREATE TABLE entry_type (
-		name VARCHAR(32) NOT NULL,
-		view_mode_id INT UNSIGNED,
-		PRIMARY KEY (name),
-		INDEX(view_mode_id),
-		FOREIGN KEY (view_mode_id) REFERENCES view_mode(id)
-		)TYPE=InnoDB");
-	
-	
+{	
 	//entry
 	xanth_db_query("
 		CREATE TABLE entry (
