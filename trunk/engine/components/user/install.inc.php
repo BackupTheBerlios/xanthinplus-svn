@@ -56,9 +56,8 @@ function xanth_db_install_user()
 	$user->add_in_role('administrator');
 	
 	//create a box for login
-	$login_box = new xBox('login_box','Login',NULL,'Full Html',0);
+	$login_box = new xBox('login_box','Login',NULL,'Full Html',0,'sidebar left');
 	$login_box->insert();
-	$login_box->assign_to_area('sidebar left');
 }
 
 

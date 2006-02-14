@@ -169,7 +169,7 @@ function xanth_entry_admin_entry($hook_primary_id,$hook_secondary_id,$arguments)
 	{
 		$output .= "<tr><td>".$entry->id."</td><td>".$entry->title."</td><td>Edit</td><td>Delete</td></tr>";
 	}
-	$output .= "<table>\n";
+	$output .= "</table>\n";
 	
 	return new xPageContent('Admin entries',$output);
 }

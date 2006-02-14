@@ -40,10 +40,11 @@ function xanth_db_install_page()
 		 \'</head>\'."\n".
 		 \'<body>\'."\n".
 		 \'<table id="page-table"><tr>\' . "\n".
-		 \'<td id="left-sidebar">\'. $page_areas[\'sidebar left\'] . \'</td>\'.
-		 \'<td id="content">\'. $page_areas[\'content\'] .\'</td>\'.
+		 \'<td id="left-sidebar">\'. $page_areas[\'sidebar left\'] . \'</td>\'."\n".
+		 \'<td id="content-area">\'. $page_areas[\'content\'] . \'</td>\'."\n".		 
 		 \'</tr></table>\'."\n".
-		 \' </body>\'."\n".
+		 \'<div id="footer">\'. $page_areas[\'footer\'] .\'</div>\'."\n".
+		 \'</body>\'."\n".
 		 \'</html>\'."\n";
 		return $output;
 	';

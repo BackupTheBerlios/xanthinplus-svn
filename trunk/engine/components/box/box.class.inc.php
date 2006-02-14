@@ -24,14 +24,16 @@ class xBox
 	var $user_defined;
 	var $content;
 	var $content_format;
+	var $area;
 	
-	function xBox($name,$title,$content,$content_format,$user_defined)
+	function xBox($name,$title,$content,$content_format,$user_defined,$area = NULL)
 	{
 		$this->name = $name;
 		$this->title = $title;
 		$this->content_format = $content_format;
 		$this->user_defined = $user_defined;
 		$this->content = $content;
+		$this->area = $area;
 	}
 	
 	/**
@@ -39,8 +41,18 @@ class xBox
 	*/
 	function insert()
 	{
-		xanth_db_query("INSERT INTO box(name,title,content,content_format,is_user_defined) VALUES('%s','%s','%s','%s',%d)",
-			$this->name,$this->title,$this->content,$this->content_format,$this->user_defined);
+		$field_names = "name,title,is_user_defined,content,content_format";
+		$field_values = "'%s','%s',%d,'%s','%s'";
+		$values = array($this->name,$this->title,$this->user_defined,$this->content,$this->content_format);
+		
+		if(!empty($this->area))
+		{
+			$field_names .= ',area';
+			$field_values .= ",'%s'";
+			$values[] = $this->area;
+		}
+		
+		xanth_db_query("INSERT INTO box($field_names) VALUES($field_values)",$values);
 	}
 	
 	
@@ -49,8 +61,17 @@ class xBox
 	*/
 	function update()
 	{
-		xanth_db_query("UPDATE box SET content = '%s',content_format = '%s',title = '%s' WHERE name = '%s'",
-			$this->content,$this->content_format,$this->title,$this->name);
+		$fields = "content_format = '%s',title = '%s',content = '%s'";
+		$values = array($this->content_format,$this->title,$this->content);
+		
+		if(!empty($this->area))
+		{
+			$fields .= ",area = '%s'";
+			$values[] = $this->area;
+		}
+		
+		$values[] = $this->name;
+		xanth_db_query("UPDATE box SET $fields WHERE name = '%s'",$values);
 	}
 	
 	
@@ -62,14 +83,12 @@ class xBox
 		xanth_db_query("DELETE FROM box WHERE name = '%s'",$this->name);
 	}
 	
-	
-	function assign_to_area($area_name)
+	/**
+	*
+	*/
+	function find_all()
 	{
-		//delete previous assignments
-		xanth_db_query("DELETE FROM boxtoarea WHERE boxName = '%s'",$this->name);
-		
-		//new assignation
-		xanth_db_query("INSERT INTO boxtoarea(boxName,area) VALUES ('%s','%s')",$this->name,$area_name);
+		return xBox::find();
 	}
 	
 	/**
@@ -84,12 +103,12 @@ class xBox
 		}
 		else
 		{
-			$result = xanth_db_query("SELECT * FROM box,boxtoarea WHERE box.name = boxtoarea.boxName AND boxtoarea.area = '%s'",$area);
+			$result = xanth_db_query("SELECT * FROM box WHERE area = '%s'",$area);
 		}
 		
 		while($row = xanth_db_fetch_array($result))
 		{
-			$current_box = new xBox($row['name'],$row['title'],$row['content'],$row['content_format'],$row['is_user_defined']);
+			$current_box = new xBox($row['name'],$row['title'],$row['content'],$row['content_format'],$row['is_user_defined'],$row['area']);
 			if(!($current_box->user_defined))
 			{
 				//retrieve built-in box content

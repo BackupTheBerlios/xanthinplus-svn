@@ -52,6 +52,32 @@ function _xanth_db_query_callback($match, $init = FALSE)
 	}
 }
 
+/**
+*
+*/
+function _xanth_db_query_increment_count() 
+{
+	global $db_query_count;
+	$db_query_count++;
+}
+
+/**
+*
+*/
+function xanth_db_query_reset_count() 
+{
+	global $db_query_count;
+	$db_query_count = 0;
+}
+
+/**
+*
+*/
+function xanth_db_query_get_count() 
+{
+	global $db_query_count;
+	return $db_query_count;
+}
 
 /**
  * Runs a basic query in the active database.
@@ -73,6 +99,7 @@ function _xanth_db_query_callback($match, $init = FALSE)
 function xanth_db_query($query) 
 {
 	global $transaction_is_started;
+	_xanth_db_query_increment_count();
 	$args = func_get_args();
 	array_shift($args);
 	if(isset($args[0]) and is_array($args[0])) // 'All arguments in one array' syntax

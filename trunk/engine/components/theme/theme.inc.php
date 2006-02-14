@@ -36,7 +36,7 @@ function xanth_theme_admin_theme($hook_primary_id,$hook_secondary_id,$arguments)
 		$output .= "<tr><td>".$theme->name.'</td><td><a href="?p=admin/theme/edit//'.$theme->name.
 			'">Edit</a></td><td>Delete</td></tr>';
 	}
-	$output .= "<table>\n";
+	$output .= "</table>\n";
 	
 	return new xPageContent('Admin themes',$output);
 }

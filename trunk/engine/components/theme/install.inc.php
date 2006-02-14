@@ -55,6 +55,8 @@ function xanth_db_install_theme()
 	$area->insert();
 	$area = new xThemeArea('content');
 	$area->insert();
+	$area = new xThemeArea('footer');
+	$area->insert();
 }
 
 

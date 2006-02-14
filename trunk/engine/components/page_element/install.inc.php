@@ -15,17 +15,15 @@
 * PURPOSE ARE DISCLAIMED.SEE YOUR CHOOSEN LICENSE FOR MORE DETAILS.
 */
 
-function xanth_db_install_weight_admin()
+function xanth_db_install_weight_page_element()
 {
-	//depend on box
-	return 200;
+	//no dependencies
+	return 0;
 }
 
-
-function xanth_db_install_admin()
+function xanth_db_install_page_element()
 {
-	$box = new xBox('admin_menu','Admin',NULL,'Full Html',FALSE,'sidebar left');
-	$box->insert();
+
 }
 
 

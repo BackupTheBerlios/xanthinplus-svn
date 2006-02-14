@@ -15,18 +15,27 @@
 * PURPOSE ARE DISCLAIMED.SEE YOUR CHOOSEN LICENSE FOR MORE DETAILS.
 */
 
-function xanth_db_install_weight_admin()
+/**
+*
+*/
+class xPageElement
 {
-	//depend on box
-	return 200;
+	/**
+	*
+	*/
+	function get_db_query_count()
+	{
+		return xanth_db_query_get_count();
+	}
+
+	/**
+	*
+	*/
+	function get_execution_time()
+	{
+		global $start_time;
+		return '' . gettimeofday(TRUE) - $start_time;
+	}
 }
-
-
-function xanth_db_install_admin()
-{
-	$box = new xBox('admin_menu','Admin',NULL,'Full Html',FALSE,'sidebar left');
-	$box->insert();
-}
-
 
 ?>

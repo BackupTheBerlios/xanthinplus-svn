@@ -36,7 +36,7 @@ function xanth_view_mode_admin_view_mode($hook_primary_id,$hook_secondary_id,$ar
 		$output .= "<tr><td>".$mode->id."</td><td>".$mode->name."</td><td>".$mode->relative_visual_element."</td>
 		<td>".$mode->default_for_element."</td><td>Edit</td><td>Delete</td></tr>";
 	}
-	$output .= "<table>\n";
+	$output .= "</table>\n";
 	
 	return new xPageContent('Admin View Modes',$output);
 

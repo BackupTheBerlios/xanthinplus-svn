@@ -17,7 +17,7 @@
 
 function xanth_db_install_weight_box()
 {
-	//depends from content_format module
+	//depends from content_format, view mode
 	return 100;
 }
 
@@ -30,24 +30,11 @@ function xanth_db_install_box()
 		title VARCHAR(255),
 		content TEXT,
 		content_format VARCHAR(64) NOT NULL,
+		area VARCHAR(32),
 		is_user_defined TINYINT NOT NULL,
 		PRIMARY KEY(name),
 		INDEX(content_format),
 		FOREIGN KEY(content_format) REFERENCES content_format(name)
-		)TYPE=InnoDB");
-		
-	//create builtint box
-	//xanth_create_box(new xBox(''));
-	
-	
-	//box to area mapping
-	xanth_db_query("
-		CREATE TABLE boxtoarea (
-		boxName VARCHAR(64) NOT NULL,
-		area VARCHAR(32) NOT NULL,
-		UNIQUE (boxName,area),
-		INDEX(boxName),
-		FOREIGN KEY(boxName) REFERENCES box(name) ON DELETE CASCADE
 		)TYPE=InnoDB");
 	
 	
@@ -62,6 +49,18 @@ function xanth_db_install_box()
 	
 	$view = new xViewMode(0,'Default box view','box',TRUE,$proc);
 	$view->insert();
+	
+	//another view mode for box
+	$proc = '
+		return $box->content;
+	';
+	
+	$view = new xViewMode(0,'Box view without title','box',FALSE,$proc);
+	$view->insert();
+	
+	//install some predefined box
+	$box = new xBox('default_footer_box','Footer',NULL,'Full Html',FALSE,'footer');
+	$box->insert();
 }
 
 
