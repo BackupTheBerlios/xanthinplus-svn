@@ -84,8 +84,8 @@ function xanth_page_page_creation($hook_primary_id,$hook_secondary_id)
 			$boxes_ready_to_print[] = eval($theme->get_view_mode_procedure('box'));
 		}
 		
-		//Generate area view (not useing view mode)
-		$page_areas[$area->name] = xanth_page_generate_area($area->name,$boxes_ready_to_print,$page_content->body);
+		//Generate area view (not using view mode)
+		$page_areas[$area->name] = $area->render($boxes_ready_to_print,$page_content->body);
 	}
 
 	//construct metadata array

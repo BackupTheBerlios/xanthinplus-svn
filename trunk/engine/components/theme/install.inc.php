@@ -47,13 +47,40 @@ function xanth_db_install_theme()
 	xanth_db_query("
 		CREATE TABLE theme_area (
 		name VARCHAR(32) NOT NULL,
-		PRIMARY KEY (name)
+		view_mode INT UNSIGNED,
+		PRIMARY KEY (name),
+		INDEX(view_mode),
+		FOREIGN KEY (view_mode) REFERENCES view_mode(id) ON DELETE SET NULL
 		)TYPE=InnoDB");
 	
-	//theme areas
+	//register new visual element
+	$element = new xVisualElement('area');
+	$element->insert();
+	
+	//...and the default view mode
+	$proc = '
+		$output = \'\';
+		foreach($boxes as $box)
+		{
+			$output .= "<div class=\"box\">$box</div>";
+		}
+		return $output;
+	';
+	$view = new xViewMode(0,'Default area view','area',TRUE,$proc);
+	$view->insert();
+	
+	//content area view mode
+	$proc = '
+		return $page_content;
+	';
+	$content_view = new xViewMode(0,'Content area view','area',FALSE,$proc);
+	$content_view->insert();
+	
+	
+	//default theme areas
 	$area = new xThemeArea('sidebar left');
 	$area->insert();
-	$area = new xThemeArea('content');
+	$area = new xThemeArea('content',$content_view->id);
 	$area->insert();
 	$area = new xThemeArea('footer');
 	$area->insert();
