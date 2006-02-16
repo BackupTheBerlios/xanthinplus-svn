@@ -21,7 +21,7 @@ require_once('engine/components/box/box.class.inc.php');
 
 function xanth_box_admin_box($hook_primary_id,$hook_secondary_id,$arguments)
 {
-	if(!xUser::check_current_user_access('manage boxes'))
+	if(!xUser::check_current_user_access('manage box'))
 	{
 		return xSpecialPage::access_denied();
 	}

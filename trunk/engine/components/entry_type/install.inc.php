@@ -15,37 +15,25 @@
 * PURPOSE ARE DISCLAIMED.SEE YOUR CHOOSEN LICENSE FOR MORE DETAILS.
 */
 
-function xanth_db_install_weight_view_mode()
+function xanth_db_install_weight_entry_type()
 {
 	//depends on role
 	return 100;
 }
 
-function xanth_db_install_view_mode()
+function xanth_db_install_entry_type()
 {
-	//visual element
+	//entry type
 	xanth_db_query("
-		CREATE TABLE visual_element (
+		CREATE TABLE entry_type (
 		name VARCHAR(32) NOT NULL,
-		PRIMARY KEY (name)
+		view_mode_id INT UNSIGNED,
+		PRIMARY KEY (name),
+		INDEX(view_mode_id),
+		FOREIGN KEY (view_mode_id) REFERENCES view_mode(id) ON DELETE SET NULL
 		)TYPE=InnoDB");
-	
-	//display mode
-	xanth_db_query("
-		CREATE TABLE view_mode (
-		id INT UNSIGNED AUTO_INCREMENT,
-		name VARCHAR(32) NOT NULL,
-		relative_visual_element VARCHAR(32) NOT NULL,
-		default_for_element TINYINT UNSIGNED NOT NULL,
-		display_procedure TEXT NOT NULL,
-		PRIMARY KEY (id),
-		UNIQUE(relative_visual_element,default_for_element),
-		INDEX(relative_visual_element),
-		FOREIGN KEY (relative_visual_element) REFERENCES visual_element(name) ON DELETE CASCADE
-		)TYPE=InnoDB");
-	
-	//access rule
-	$access = new xAccessRule('manage view_mode','View Mode');
+		
+	$access = new xAccessRule('manage entry type','Entry Type');
 	$access->insert();
 }
 

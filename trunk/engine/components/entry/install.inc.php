@@ -61,12 +61,20 @@ function xanth_db_install_entry()
 	$element->insert();
 	
 	//...and the default view mode
-	$proc = '
-		return \'<div class="title">\'.$this->title.\'</div><div class="body">\'.$this->content.\'</div>\';
-	';
+$proc = '
+return \'<div class="title">\'.$this->title.\'</div><div class="body">\'.$this->content.\'</div>\';
+';
 	
 	$view = new xViewMode(0,'Default entry view','entry',TRUE,$proc);
 	$view->insert();
+	
+	//install some access rule
+	$access = new xAccessRule('view entry','Entry');
+	$access->insert();
+	$access = new xAccessRule('create entry','Entry');
+	$access->insert();
+	$access = new xAccessRule('edit entry','Entry');
+	$access->insert();
 }
 
 

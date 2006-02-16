@@ -29,25 +29,26 @@ function xanth_db_install_page()
 	$element->insert();
 	
 	//...and the default view mode
-	$proc = '
-		$output = \'<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">\'."\n".
-		 \'<html>\'."\n".
-		 \'<head>\'."\n".
-		 \'<title>\'.$page_title.\'</title>\'."\n".
-		 \'<meta name="keywords" content="\'.$page_metadata[\'keywords\'].\'" />\' . "\n".
-		 \'<meta name="description" content="\'.$page_metadata[\'description\'].\'" />\'. "\n".
-		 \'<style type="text/css" media="all">@import "themes/default_theme/style.css";</style>\' . "\n".
-		 \'</head>\'."\n".
-		 \'<body>\'."\n".
-		 \'<table id="page-table"><tr>\' . "\n".
-		 \'<td id="left-sidebar">\'. $page_areas[\'sidebar left\'] . \'</td>\'."\n".
-		 \'<td id="content-area">\'. $page_areas[\'content\'] . \'</td>\'."\n".		 
-		 \'</tr></table>\'."\n".
-		 \'<div id="footer">\'. $page_areas[\'footer\'] .\'</div>\'."\n".
-		 \'</body>\'."\n".
-		 \'</html>\'."\n";
-		return $output;
-	';
+$proc = '
+$output = 
+	\'<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+	<html>
+	<head>
+	<title>\'.$page_title.\'</title>
+	<meta name="keywords" content="\'.$page_metadata[\'keywords\'].\'" />
+	<meta name="description" content="\'.$page_metadata[\'description\'].\'" />
+	<style type="text/css" media="all">@import "themes/default_theme/style.css";</style>
+	</head>
+	<body>
+	<table id="page-table"><tr>
+	<td id="left-sidebar">\'. $page_areas[\'sidebar left\'] . \'</td>
+	<td id="content-area">\'. $page_areas[\'content\'] . \'</td>	 
+	</tr></table>
+	<div id="footer">\'. $page_areas[\'footer\'] .\'</div>
+	</body>
+	</html>\';
+return $output;
+';
 	
 	$view = new xViewMode(0,'Default page view','page',TRUE,$proc);
 	$view->insert();

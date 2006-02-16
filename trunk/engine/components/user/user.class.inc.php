@@ -131,6 +131,15 @@ class xUser
 	 */
 	function check_current_user_access($access_rule)
 	{
+		if(xanth_conf_get('debug',FALSE)) //in debug mode check if access rule is effectively present
+		{
+			if(!xAccessRule::exists($access_rule))
+			{
+				xanth_log(LOG_LEVEL_DEBUG,'Access rule "'.$access_rule.'" does not exists','User');
+			}
+		}
+		
+		
 		$userid = xUser::get_current_userid();
 		if($userid !== NULL)
 		{
@@ -156,6 +165,7 @@ class xUser
 		{
 			return TRUE;
 		}
+		
 		
 		return FALSE;
 	}

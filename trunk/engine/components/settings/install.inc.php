@@ -17,8 +17,8 @@
 
 function xanth_db_install_weight_settings()
 {
-	//no dependencies
-	return 0;
+	//depends on role
+	return 100;
 }
 
 function xanth_db_install_settings()
@@ -33,6 +33,9 @@ function xanth_db_install_settings()
 		)TYPE=InnoDB");
 	
 	xanth_db_query("INSERT INTO settings (site_name,site_description,site_keywords,site_theme) VALUES ('','','','')");
+	
+	$access = new xAccessRule('manage settings','Settings');
+	$access->insert();
 }
 
 

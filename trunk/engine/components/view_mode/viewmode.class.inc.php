@@ -61,7 +61,8 @@ class xViewMode
 	*/
 	function update()
 	{
-		xanth_db_query("UPDATE view_mode SET name = '%s',display_procedure = '%s'",$this->name,$this->display_procedure);
+		xanth_db_query("UPDATE view_mode SET name = '%s',display_procedure = '%s' WHERE id = %d",
+			$this->name,$this->display_procedure,$this->id);
 	}
 	
 	/**

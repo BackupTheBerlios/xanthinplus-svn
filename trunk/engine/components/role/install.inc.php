@@ -35,14 +35,23 @@ function xanth_db_install_role()
 	$role = new xRole('authenticated','Authenticated user');$role->insert();
 	$role = new xRole('anonymous','Anonymous visitor');$role->insert();
 	
-	//Access rules
+	//access rules
+	xanth_db_query("
+		CREATE TABLE access_rule (
+		name VARCHAR(32) NOT NULL,
+		rule_group VARCHAR(64) NOT NULL,
+		PRIMARY KEY(name)
+		)TYPE=InnoDB");
+	
+	//role to access rules
 	xanth_db_query("
 		CREATE TABLE role_access_rule (
 		roleName VARCHAR(32) NOT NULL,
-		access_rule VARCHAR(64) NOT NULL,
+		access_rule VARCHAR(32) NOT NULL,
 		UNIQUE(roleName,access_rule),
 		INDEX(roleName),
-		FOREIGN KEY (roleName) REFERENCES role(name) ON DELETE CASCADE
+		FOREIGN KEY (roleName) REFERENCES role(name) ON DELETE CASCADE,
+		FOREIGN KEY (access_rule) REFERENCES access_rule(name) ON DELETE CASCADE
 		)TYPE=InnoDB");
 }
 

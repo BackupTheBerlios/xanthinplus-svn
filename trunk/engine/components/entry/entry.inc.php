@@ -26,7 +26,7 @@ function xanth_entry_view_entry($hook_primary_id,$hook_secondary_id,$arguments)
 	{
 		return NULL;
 	}
-	elseif($selected_entry->published == FALSE && !xUser::check_current_user_access('dummy access'))
+	elseif($selected_entry->published == FALSE && !xUser::check_current_user_access('view entry'))
 	{
 		return xSpecialPage::access_denied();
 	}
@@ -156,7 +156,7 @@ function xanth_entry_admin_entry_create($hook_primary_id,$hook_secondary_id,$arg
 
 function xanth_entry_admin_entry($hook_primary_id,$hook_secondary_id,$arguments)
 {
-	if(!xUser::check_current_user_access('manage entries'))
+	if(!xUser::check_current_user_access('edit entry'))
 	{
 		return xSpecialPage::access_denied();
 	}

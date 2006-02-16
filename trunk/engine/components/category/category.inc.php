@@ -21,7 +21,7 @@ require_once('engine/components/category/category.class.inc.php');
 
 function xanth_category_admin_category_create($hook_primary_id,$hook_secondary_id,$arguments)
 {
-	if(!xUser::check_current_user_access('create category'))
+	if(!xUser::check_current_user_access('manage category'))
 	{
 		return xSpecialPage::access_denied();
 	}
@@ -88,60 +88,11 @@ function xanth_category_admin_category_create($hook_primary_id,$hook_secondary_i
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
-function xanth_category_admin_entry_type_add($hook_primary_id,$hook_secondary_id,$arguments)
-{
-	if(!xUser::check_current_user_access('add entry type'))
-	{
-		return xSpecialPage::access_denied();
-	}
-	
-	//create form
-	$form = new xForm('?p=admin/entry_type/add');
-	$form->elements[] = new xFormElementTextField('entry_type_name','Name','','',TRUE,new xInputValidatorTextNameId(32));
-	
-	//view modes
-	$modes = xViewMode::find_by_element('entry');
-	$options = array();
-	$options['[theme default]'] = '0';
-	foreach($modes as $mode)
-	{
-		$options[$mode->name] = $mode->id;
-	}
-	$form->elements[] = new xFormElementOptions('entry_type_view_mode','View mode','','',$options,FALSE,FALSE,new xInputValidatorInteger());
-	
-	//submit buttom
-	$form->elements[] = new xFormSubmit('submit','Add');
-	
-	$ret = $form->validate_input();
-	if(isset($ret->valid_data['submit']))
-	{
-		if(empty($ret->errors))
-		{
-			$entry_type = new xEntryType($ret->valid_data['entry_type_name'],$ret->valid_data['entry_type_view_mode']);
-			$entry_type->insert();
-			
-			return new xPageContent('Entry type created','Entry type created');
-		}
-		else
-		{
-			foreach($ret->errors as $error)
-			{
-				xanth_log(LOG_LEVEL_USER_MESSAGE,$error);
-			}
-		}
-	}
-
-	return new xPageContent('Create entry',$form->render());
-}
-
 function xanth_category_admin_menu_add_link($hook_primary_id,$hook_secondary_id,$arguments)
 {
 	return 'admin/category/create';
 }
-function xanth_category_admin_menu_add_link2($hook_primary_id,$hook_secondary_id,$arguments)
-{
-	return 'admin/entry_type/add';
-}
+
 
 /*
 *
@@ -149,10 +100,8 @@ function xanth_category_admin_menu_add_link2($hook_primary_id,$hook_secondary_id
 function xanth_init_component_category()
 {
 	xanth_register_mono_hook(MONO_HOOK_PAGE_CONTENT_CREATE, 'admin/category/create','xanth_category_admin_category_create');
-	xanth_register_mono_hook(MONO_HOOK_PAGE_CONTENT_CREATE, 'admin/entry_type/add','xanth_category_admin_entry_type_add');
 	
 	xanth_register_multi_hook(MULTI_HOOK_ADMIN_MENU_ADD_PATH,NULL,'xanth_category_admin_menu_add_link');
-	xanth_register_multi_hook(MULTI_HOOK_ADMIN_MENU_ADD_PATH,NULL,'xanth_category_admin_menu_add_link2');
 }
 
 

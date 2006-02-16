@@ -22,7 +22,7 @@ require_once('engine/components/view_mode/visualelement.class.inc.php');
 
 function xanth_view_mode_admin_view_mode($hook_primary_id,$hook_secondary_id,$arguments)
 {
-	if(!xUser::check_current_user_access('manage view_modes'))
+	if(!xUser::check_current_user_access('manage view_mode'))
 	{
 		return xSpecialPage::access_denied();
 	}
@@ -34,7 +34,8 @@ function xanth_view_mode_admin_view_mode($hook_primary_id,$hook_secondary_id,$ar
 	foreach($modes as $mode)
 	{
 		$output .= "<tr><td>".$mode->id."</td><td>".$mode->name."</td><td>".$mode->relative_visual_element."</td>
-		<td>".$mode->default_for_element."</td><td>Edit</td><td>Delete</td></tr>";
+		<td>".$mode->default_for_element.'</td><td><a href="?p=admin/view_mode/edit//'.$mode->id.'">Edit</a></td>
+		<td>Delete</td></tr>';
 	}
 	$output .= "</table>\n";
 	
@@ -46,7 +47,7 @@ function xanth_view_mode_admin_view_mode($hook_primary_id,$hook_secondary_id,$ar
 
 function xanth_view_mode_admin_view_mode_add($hook_primary_id,$hook_secondary_id,$arguments)
 {
-	if(!xUser::check_current_user_access('add view_mode'))
+	if(!xUser::check_current_user_access('manage view_mode'))
 	{
 		return xSpecialPage::access_denied();
 	}
@@ -91,6 +92,59 @@ function xanth_view_mode_admin_view_mode_add($hook_primary_id,$hook_secondary_id
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
+function xanth_view_mode_admin_view_mode_edit($hook_primary_id,$hook_secondary_id,$arguments)
+{
+	if(!xUser::check_current_user_access('manage view_mode'))
+	{
+		return xSpecialPage::access_denied();
+	}
+	
+	if(empty($arguments[0]))
+	{
+		new xPageContent('Edit View Mode','Wich view mode should edit?');
+	}
+	
+	$form = new xForm('?p=admin/view_mode/edit//'.$arguments[0]);
+	$view_mode = xViewMode::get($arguments[0]);
+	$form->elements[] = new  xFormElementHidden('view_mode_id','View Mode',$arguments[0],FALSE,new xInputValidatorInteger());
+	
+	$form->elements[] = new xFormElementTextField('view_mode_name','Name','',$view_mode->name,FALSE,new xInputValidatorTextNoTags(32));
+	
+	//view elements option
+	$velems = xVisualElement::find_all();
+	$voptions = array();
+	foreach($velems as $velem)
+	{
+		$voptions[$velem->name] = $velem->name;
+	}
+	$form->elements[] = new xFormElementTextArea('view_mode_procedure','Procedure','',$view_mode->display_procedure,FALSE,new xInputValidatorText(NULL));
+	$form->elements[] = new xFormSubmit('submit','submit');
+		
+	$ret = $form->validate_input();
+	if(isset($ret->valid_data['submit']))
+	{
+		if(empty($ret->errors))
+		{
+			$view_mode->name = $ret->valid_data['view_mode_name'];
+			$view_mode->display_procedure = $ret->valid_data['view_mode_procedure'];
+			$view_mode->update();
+			
+			return new xPageContent('Edit View Mode','View mode modified');
+		}
+		else
+		{
+			foreach($ret->errors as $error)
+			{
+				xanth_log(LOG_LEVEL_USER_MESSAGE,$error);
+			}
+		}
+	}
+
+	return new xPageContent('Edit View Mode',$form->render());
+}
+
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
 function xanth_view_mode_admin_menu_add_link($hook_primary_id,$hook_secondary_id,$arguments)
 {
 	return 'admin/view_mode';
@@ -106,6 +160,7 @@ function xanth_init_component_view_mode()
 {
 	xanth_register_mono_hook(MONO_HOOK_PAGE_CONTENT_CREATE, 'admin/view_mode','xanth_view_mode_admin_view_mode');
 	xanth_register_mono_hook(MONO_HOOK_PAGE_CONTENT_CREATE, 'admin/view_mode/add','xanth_view_mode_admin_view_mode_add');
+	xanth_register_mono_hook(MONO_HOOK_PAGE_CONTENT_CREATE, 'admin/view_mode/edit','xanth_view_mode_admin_view_mode_edit');
 	
 	xanth_register_multi_hook(MULTI_HOOK_ADMIN_MENU_ADD_PATH,NULL,'xanth_view_mode_admin_menu_add_link');
 	xanth_register_multi_hook(MULTI_HOOK_ADMIN_MENU_ADD_PATH,NULL,'xanth_view_mode_admin_menu_add_link2');

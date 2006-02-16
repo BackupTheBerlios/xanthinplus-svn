@@ -17,7 +17,7 @@
 
 function xanth_db_install_weight_box()
 {
-	//depends from content_format, view mode
+	//depends from content_format, view mode,role
 	return 100;
 }
 
@@ -43,17 +43,17 @@ function xanth_db_install_box()
 	$element->insert();
 	
 	//...and the default view mode
-	$proc = '
-		return \'<strong>\' . $box->title .\'</strong> <br />\' . $box->content;
-	';
+$proc = '
+return \'<strong>\' . $box->title .\'</strong> <br />\' . $box->content;
+';
 	
 	$view = new xViewMode(0,'Default box view','box',TRUE,$proc);
 	$view->insert();
 	
 	//another view mode for box
-	$proc = '
-		return $box->content;
-	';
+$proc = '
+return $box->content;
+';
 	
 	$view = new xViewMode(0,'Box view without title','box',FALSE,$proc);
 	$view->insert();
@@ -61,6 +61,10 @@ function xanth_db_install_box()
 	//install some predefined box
 	$box = new xBox('default_footer_box','Footer',NULL,'Full Html',FALSE,'footer');
 	$box->insert();
+	
+	//install some access rule
+	$access = new xAccessRule('manage box','Box');
+	$access->insert();
 }
 
 

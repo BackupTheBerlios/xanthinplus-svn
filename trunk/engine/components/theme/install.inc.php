@@ -58,14 +58,14 @@ function xanth_db_install_theme()
 	$element->insert();
 	
 	//...and the default view mode
-	$proc = '
-		$output = \'\';
-		foreach($boxes as $box)
-		{
-			$output .= "<div class=\"box\">$box</div>";
-		}
-		return $output;
-	';
+$proc = '
+$output = \'\';
+foreach($boxes as $box)
+{
+	$output .= "<div class=\"box\">$box</div>";
+}
+return $output;
+';
 	$view = new xViewMode(0,'Default area view','area',TRUE,$proc);
 	$view->insert();
 	
@@ -84,6 +84,10 @@ function xanth_db_install_theme()
 	$area->insert();
 	$area = new xThemeArea('footer');
 	$area->insert();
+	
+	//access rule
+	$access = new xAccessRule('manage theme','Theme');
+	$access->insert();
 }
 
 

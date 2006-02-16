@@ -22,7 +22,7 @@ require_once('engine/components/theme/themearea.class.inc.php');
 
 function xanth_theme_admin_theme($hook_primary_id,$hook_secondary_id,$arguments)
 {
-	if(!xUser::check_current_user_access('manage themes'))
+	if(!xUser::check_current_user_access('manage theme'))
 	{
 		return xSpecialPage::access_denied();
 	}
@@ -30,10 +30,12 @@ function xanth_theme_admin_theme($hook_primary_id,$hook_secondary_id,$arguments)
 	$themes = xTheme::find_all();
 	
 	$output = "<table>\n";
-	$output .= "<tr><th>Name</th><th>Edit</th><th>Delete</th></tr>\n";
+	$output .= "<tr><th>Name</th><th>Set default</th><th>Edit</th><th>Delete</th></tr>\n";
 	foreach($themes as $theme)
 	{
-		$output .= "<tr><td>".$theme->name.'</td><td><a href="?p=admin/theme/edit//'.$theme->name.
+		$output .= "<tr><td>".$theme->name.'</td><td><a href="?p=admin/theme/set_default//'.$theme->name.
+			'">Set Default</a></td>'.
+			'<td><a href="?p=admin/theme/edit//'.$theme->name.
 			'">Edit</a></td><td>Delete</td></tr>';
 	}
 	$output .= "</table>\n";
@@ -43,9 +45,31 @@ function xanth_theme_admin_theme($hook_primary_id,$hook_secondary_id,$arguments)
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
+function xanth_theme_admin_theme_set_default($hook_primary_id,$hook_secondary_id,$arguments)
+{
+	if(!xUser::check_current_user_access('manage theme'))
+	{
+		return xSpecialPage::access_denied();
+	}
+	
+	if(!isset($arguments[0]))
+	{
+		return xSpecialPage::access_denied();
+	}
+	else
+	{
+		xSettings::set('site_theme',$arguments[0]);
+		xSettings::save();
+		
+		return  new xPageContent('Set default themes','Theme '.$arguments[0].' was set as default');
+	}
+}
+
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
 function xanth_theme_admin_theme_add($hook_primary_id,$hook_secondary_id,$arguments)
 {
-	if(!xUser::check_current_user_access('add theme'))
+	if(!xUser::check_current_user_access('manage theme'))
 	{
 		return xSpecialPage::access_denied();
 	}
@@ -81,7 +105,7 @@ function xanth_theme_admin_theme_add($hook_primary_id,$hook_secondary_id,$argume
 
 function xanth_theme_admin_theme_edit($hook_primary_id,$hook_secondary_id,$arguments)
 {
-	if(!xUser::check_current_user_access('edit theme'))
+	if(!xUser::check_current_user_access('manage theme'))
 	{
 		return xSpecialPage::access_denied();
 	}
@@ -95,21 +119,31 @@ function xanth_theme_admin_theme_edit($hook_primary_id,$hook_secondary_id,$argum
 	$form->elements[] = new  xFormElementHidden('theme_name','Theme Name',$arguments[0],FALSE,new xInputValidatorTextNameId(32));
 	
 	//iterate every registered visual element
+	$edit_theme = xTheme::get($arguments[0]);
 	$visual_elements = xVisualElement::find_all();
 	foreach($visual_elements as $visual_element)
 	{
 		//now iterate every registered view mode
 		$view_modes = xViewMode::find_by_element($visual_element->name);
 		$options = array();
+		$default = '';
 		foreach($view_modes as $view_mode)
 		{
 			$options[$view_mode->name] = $view_mode->id;
+			if(isset($edit_theme->themed_elements[$visual_element->name]))
+			{
+				$default = $edit_theme->themed_elements[$visual_element->name];
+			}
+			elseif($view_mode->default_for_element)
+			{
+				$default = $view_mode->id;
+			}
 		}
 		
 		$form->elements[] = new  xFormElementHidden('visual_elements',
 			'Visual elements',$visual_element->name,TRUE,new xInputValidatorTextNameId(32));
 		$form->elements[] = new xFormElementOptions('view_mode_'.$visual_element->name,
-			'View Mode for v.e. '.$visual_element->name,'','',$options,FALSE,FALSE,new xInputValidatorInteger());
+			'View Mode for v.e. '.$visual_element->name,'',$default,$options,FALSE,FALSE,new xInputValidatorInteger());
 	}
 	
 	$form->elements[] = new xFormSubmit('submit','submit');
@@ -144,6 +178,37 @@ function xanth_theme_admin_theme_edit($hook_primary_id,$hook_secondary_id,$argum
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
+function xanth_theme_admin_theme_area($hook_primary_id,$hook_secondary_id,$arguments)
+{
+	if(!xUser::check_current_user_access('manage theme'))
+	{
+		return xSpecialPage::access_denied();
+	}
+	
+	$areas = xThemeArea::find_all();
+	
+	$output = "<table>\n";
+	$output .= "<tr><th>Name</th><th>View Mode</th><th>Edit</th><th>Delete</th></tr>\n";
+	foreach($areas as $area)
+	{
+		$v = xViewMode::get($area->view_mode);
+		if($v === NULL)
+		{
+			$vname = 'Theme Default';
+		}
+		else
+		{
+			$vname = $v->name;
+		}
+		$output .= "<tr><td>".$area->name.'</td><td>'.$vname.'</td><td>Edit</td><td>Delete</td></tr>';
+	}
+	$output .= "</table>\n";
+	
+	return new xPageContent('Admin area',$output);
+}
+
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
 function xanth_theme_admin_menu_add_link($hook_primary_id,$hook_secondary_id,$arguments)
 {
 	return 'admin/theme';
@@ -151,6 +216,10 @@ function xanth_theme_admin_menu_add_link($hook_primary_id,$hook_secondary_id,$ar
 function xanth_theme_admin_menu_add_link2($hook_primary_id,$hook_secondary_id,$arguments)
 {
 	return 'admin/theme/add';
+}
+function xanth_theme_admin_menu_add_link3($hook_primary_id,$hook_secondary_id,$arguments)
+{
+	return 'admin/theme/area';
 }
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -160,9 +229,12 @@ function xanth_init_component_theme()
 	xanth_register_mono_hook(MONO_HOOK_PAGE_CONTENT_CREATE, 'admin/theme','xanth_theme_admin_theme');
 	xanth_register_mono_hook(MONO_HOOK_PAGE_CONTENT_CREATE, 'admin/theme/add','xanth_theme_admin_theme_add');
 	xanth_register_mono_hook(MONO_HOOK_PAGE_CONTENT_CREATE, 'admin/theme/edit','xanth_theme_admin_theme_edit');
+	xanth_register_mono_hook(MONO_HOOK_PAGE_CONTENT_CREATE, 'admin/theme/area','xanth_theme_admin_theme_area');
+	xanth_register_mono_hook(MONO_HOOK_PAGE_CONTENT_CREATE, 'admin/theme/set_default','xanth_theme_admin_theme_set_default');
 	
 	xanth_register_multi_hook(MULTI_HOOK_ADMIN_MENU_ADD_PATH,NULL,'xanth_theme_admin_menu_add_link');
 	xanth_register_multi_hook(MULTI_HOOK_ADMIN_MENU_ADD_PATH,NULL,'xanth_theme_admin_menu_add_link2');
+	xanth_register_multi_hook(MULTI_HOOK_ADMIN_MENU_ADD_PATH,NULL,'xanth_theme_admin_menu_add_link3');
 }
 
 

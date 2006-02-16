@@ -16,6 +16,7 @@
 */
 
 require_once('engine/components/role/role.class.inc.php');
+require_once('engine/components/role/accessrule.class.inc.php');
 
 /*
 *

@@ -17,22 +17,12 @@
 
 function xanth_db_install_weight_category()
 {
-	//depends on view mode
+	//depends on view mode,entry_type
 	return 100;
 }
 
 function xanth_db_install_category()
 {
-	//entry type
-	xanth_db_query("
-		CREATE TABLE entry_type (
-		name VARCHAR(32) NOT NULL,
-		view_mode_id INT UNSIGNED,
-		PRIMARY KEY (name),
-		INDEX(view_mode_id),
-		FOREIGN KEY (view_mode_id) REFERENCES view_mode(id) ON DELETE SET NULL
-		)TYPE=InnoDB");
-		
 	//category
 	xanth_db_query("
 		CREATE TABLE category (
@@ -60,6 +50,10 @@ function xanth_db_install_category()
 		FOREIGN KEY(cat_id) REFERENCES category(id) ON DELETE CASCADE,
 		FOREIGN KEY(entry_type) REFERENCES entry_type(name) ON DELETE CASCADE
 		)TYPE=InnoDB");
+		
+	//install some access rule
+	$access = new xAccessRule('manage category','Category');
+	$access->insert();
 }
 
 
