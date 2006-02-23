@@ -41,13 +41,6 @@ function xanth_box_admin_box($hook_primary_id,$hook_secondary_id,$arguments)
 }
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-
-function xanth_box_create_default_footer_box($hook_primary_id,$hook_secondary_id,$arguments)
-{
-	return 'Page crated with '. xPageElement::get_db_query_count() .' queries in '.xPageElement::get_execution_time().' seconds';
-}
-
-//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 function xanth_box_admin_menu_add_link($hook_primary_id,$hook_secondary_id,$arguments)
 {
 	return 'admin/box';
@@ -60,8 +53,6 @@ function xanth_box_admin_menu_add_link($hook_primary_id,$hook_secondary_id,$argu
 function xanth_init_component_box()
 {
 	xanth_register_mono_hook(MONO_HOOK_PAGE_CONTENT_CREATE, 'admin/box','xanth_box_admin_box');
-
-	xanth_register_mono_hook(MONO_HOOK_CREATE_BOX_CONTENT,'default_footer_box','xanth_box_create_default_footer_box');
 	
 	xanth_register_multi_hook(MULTI_HOOK_ADMIN_MENU_ADD_PATH,NULL,'xanth_box_admin_menu_add_link');
 }

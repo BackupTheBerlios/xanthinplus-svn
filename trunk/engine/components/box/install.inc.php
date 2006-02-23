@@ -44,7 +44,7 @@ function xanth_db_install_box()
 	
 	//...and the default view mode
 $proc = '
-return \'<strong>\' . $box->title .\'</strong> <br />\' . $box->content;
+return \'<strong>\' . $this->title .\'</strong> <br />\' . $this->content;
 ';
 	
 	$view = new xViewMode(0,'Default box view','box',TRUE,$proc);
@@ -52,15 +52,11 @@ return \'<strong>\' . $box->title .\'</strong> <br />\' . $box->content;
 	
 	//another view mode for box
 $proc = '
-return $box->content;
+return $this->content;
 ';
 	
 	$view = new xViewMode(0,'Box view without title','box',FALSE,$proc);
 	$view->insert();
-	
-	//install some predefined box
-	$box = new xBox('default_footer_box','Footer',NULL,'Full Html',FALSE,'footer');
-	$box->insert();
 	
 	//install some access rule
 	$access = new xAccessRule('manage box','Box');

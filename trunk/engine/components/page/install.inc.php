@@ -34,17 +34,17 @@ $output =
 	\'<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 	<html>
 	<head>
-	<title>\'.$page_title.\'</title>
-	<meta name="keywords" content="\'.$page_metadata[\'keywords\'].\'" />
-	<meta name="description" content="\'.$page_metadata[\'description\'].\'" />
+	<title>\'.$this->header[\'title\'].\'</title>
+	<meta name="keywords" content="\'.$this->header[\'keywords\'].\'" />
+	<meta name="description" content="\'.$this->header[\'description\'].\'" />
 	<style type="text/css" media="all">@import "themes/default_theme/style.css";</style>
 	</head>
 	<body>
 	<table id="page-table"><tr>
-	<td id="left-sidebar">\'. $page_areas[\'sidebar left\'] . \'</td>
-	<td id="content-area">\'. $page_areas[\'content\'] . \'</td>	 
+	<td id="left-sidebar">\'. $this->areas[\'sidebar left\'] . \'</td>
+	<td id="content-area">\'. $this->areas[\'content\'] . \'</td>	 
 	</tr></table>
-	<div id="footer">\'. $page_areas[\'footer\'] .\'</div>
+	<div id="footer">\'. $this->areas[\'footer\'] .\'</div>
 	</body>
 	</html>\';
 return $output;

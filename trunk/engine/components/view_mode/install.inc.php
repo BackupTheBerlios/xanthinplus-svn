@@ -39,7 +39,6 @@ function xanth_db_install_view_mode()
 		default_for_element TINYINT UNSIGNED NOT NULL,
 		display_procedure TEXT NOT NULL,
 		PRIMARY KEY (id),
-		UNIQUE(relative_visual_element,default_for_element),
 		INDEX(relative_visual_element),
 		FOREIGN KEY (relative_visual_element) REFERENCES visual_element(name) ON DELETE CASCADE
 		)TYPE=InnoDB");

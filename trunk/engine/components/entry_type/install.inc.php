@@ -35,6 +35,10 @@ function xanth_db_install_entry_type()
 		
 	$access = new xAccessRule('manage entry type','Entry Type');
 	$access->insert();
+
+	//some default tipes
+	$type = new xEntryType('StaticEntry');
+	$type->insert();
 }
 
 

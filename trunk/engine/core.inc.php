@@ -43,6 +43,23 @@ define('MULTI_HOOK_PAGE_CREATE_EVT','multi_hook_page_create_evt');
 define('MONO_HOOK_PAGE_CONTENT_CREATE','mono_hook_page_content_create');
 
 /**
+* @ingroup Hooks
+* Ask to other modules to add a new form element to a form. The page in wich the form reside will be passed as first argument.
+* @param $arguments[0]  the complete xanth path in witch the entire form reside.
+* @returns an array or sigle of xFormElement
+*/
+define('MULTI_HOOK_PAGE_CREATE_FORM','multi_hook_page_create_form');
+
+/**
+* @ingroup Hooks
+* Ask to other modules to process the input from a form.
+* @param $arguments[0]  the complete xanth path in witch the entire form reside.
+* @returns an array or sigle of xFormElement
+*/
+define('MULTI_HOOK_PAGE_FORM_PROCESS','multi_hook_page_form_process');
+
+
+/**
 *
 */
 class xPageContent

@@ -124,6 +124,14 @@ class xBox
 		return $boxes;
 	}
 	
+	/**
+	*
+	*/
+	function render()
+	{
+		$theme = xTheme::get_default();
+		return eval($theme->get_view_mode_procedure('box'));
+	}
 };
 
 

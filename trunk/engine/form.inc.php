@@ -71,7 +71,7 @@ class xInputValidatorText extends xInputValidator
 */
 class xInputValidatorTextNoTags extends xInputValidatorText
 {
-	function xInputValidatorText($maxlength)
+	function xInputValidatorTextNoTags($maxlength)
 	{
 		xInputValidatorText::xInputValidatorText($maxlength);
 	}

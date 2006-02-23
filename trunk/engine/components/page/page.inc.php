@@ -15,32 +15,13 @@
 * PURPOSE ARE DISCLAIMED.SEE YOUR CHOOSEN LICENSE FOR MORE DETAILS.
 */
 
-
-function xanth_page_generate_area($area_name,$boxes,$page_content)
-{
-	if($area_name == 'content')
-	{
-		$output = $page_content;
-	}
-	else
-	{
-		$output = '';
-		foreach($boxes as $box)
-		{
-			$output .= "<div class=\"box\">$box</div>";
-		}
-	}
-	
-	return $output;
-}
+require_once('engine/components/page/page.class.inc.php');
 
 /*
 * Handle page creation.
 */
 function xanth_page_page_creation($hook_primary_id,$hook_secondary_id)
 {
-	$theme = xTheme::get_default();
-	
 	//retrieve path
 	$path = xXanthPath::get_current();
 	if($path == NULL)
@@ -48,71 +29,9 @@ function xanth_page_page_creation($hook_primary_id,$hook_secondary_id)
 		xanth_log(LOG_LEVEL_ERROR,'Invalid xanth path','page',__FUNCTION__);
 	}
 	
-	//retrieve content
-	$page_content = xanth_invoke_mono_hook(MONO_HOOK_PAGE_CONTENT_CREATE,$path->base_path,array($path->resource_id));
-	if($page_content === NULL)
-	{
-		$page_content = new xPageContent('Page not found',"<b>Page not found</b>");
-	}
+	$page = new xPage($path);
 	
-	$logs = '';
-	$log_entries = xanth_get_screen_log();
-	//display log messages
-	if(!empty($log_entries))
-	{
-		$logs .= '<table border="1" width="90%"><tr><td><ul>';
-		foreach($log_entries as $entry)
-		{
-			$logs .= '<li>' . $entry->level . ' ' . $entry->component . ' ' . htmlspecialchars($entry->message) . ' ' . $entry->filename . '@' . $entry->line . '</li>';
-		}
-		$logs .= '</ul></td></tr></table>' . "\n";
-	}
-	$page_content->body = $logs . $page_content->body;
-	
-	//retrieve areas
-	$areas = xThemeArea::find_all();
-	$page_areas = array();
-
-	//retrieve innermost elements
-	foreach($areas as $area)
-	{
-		$boxes = xBox::find($area->name);
-		$boxes_ready_to_print = array();
-		foreach($boxes as $box)
-		{
-			//retrieve box view
-			$boxes_ready_to_print[] = eval($theme->get_view_mode_procedure('box'));
-		}
-		
-		//Generate area view (not using view mode)
-		$page_areas[$area->name] = $area->render($boxes_ready_to_print,$page_content->body);
-	}
-
-	//construct metadata array
-	$page_metadata = array();
-	if(empty($page_content->description))
-	{
-		$page_metadata['description'] = xSettings::get('site_description');
-	}
-	else
-	{
-		$page_metadata['description'] = $page_content->description;
-	}
-	
-	if(empty($page_content->keywords))
-	{
-		$page_metadata['keywords'] = xSettings::get('site_keywords');
-	}
-	else
-	{
-		$page_metadata['keywords'] = $page_content->keywords;
-	}
-	
-	//retrieve the full page
-	$page_title = $page_content->title;
-	$page_ready_to_print = eval($theme->get_view_mode_procedure('page'));
-	
-	echo $page_ready_to_print;
+	echo $page->render();
 }
 
 

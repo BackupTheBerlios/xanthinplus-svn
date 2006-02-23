@@ -24,7 +24,7 @@ class xEntryType
 	var $name;
 	var $view_mode_id;
 	
-	function xEntryType($name,$view_mode_id)
+	function xEntryType($name,$view_mode_id = NULL)
 	{
 		$this->name = $name;
 		$this->view_mode_id = $view_mode_id;

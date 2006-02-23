@@ -76,13 +76,20 @@ return $output;
 	$content_view = new xViewMode(0,'Content area view','area',FALSE,$proc);
 	$content_view->insert();
 	
+	//footer area view mode
+	$proc = '
+		return \'Page created with \'. xPageElement::get_db_query_count() .\' queries in \'.xPageElement::get_execution_time().\' seconds\';
+	';
+	$foot_view = new xViewMode(0,'Footer area view','area',FALSE,$proc);
+	$foot_view->insert();
+	
 	
 	//default theme areas
 	$area = new xThemeArea('sidebar left');
 	$area->insert();
 	$area = new xThemeArea('content',$content_view->id);
 	$area->insert();
-	$area = new xThemeArea('footer');
+	$area = new xThemeArea('footer',$foot_view->id);
 	$area->insert();
 	
 	//access rule
