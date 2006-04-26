@@ -15,6 +15,15 @@
 * PURPOSE ARE DISCLAIMED.SEE YOUR CHOOSEN LICENSE FOR MORE DETAILS.
 */
 
+/**
+* Contains helper function for use in xanth_hook_* functions
+*/
+class xHookHelper
+{
+	
+
+
+};
 
 function xanth_get_mono_hooks()
 {

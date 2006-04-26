@@ -158,12 +158,12 @@ class xLog
 		
 		if($level > LOG_LEVEL_FATAL_ERROR && $level < LOG_LEVEL_DEBUG && $level != LOG_LEVEL_USER_MESSAGE)
 		{
-			xDB::log($log_entry);
+			xDB::getDB()->log($log_entry);
 		}
 		
 		if($level == LOG_LEVEL_DEBUG && xanth_conf_get('debug', false))
 		{
-			xDB::log($log_entry);
+			xDB::getDB()->log($log_entry);
 		}
 	}
 };

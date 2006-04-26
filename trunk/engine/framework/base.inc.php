@@ -15,6 +15,42 @@
 * PURPOSE ARE DISCLAIMED.SEE YOUR CHOOSEN LICENSE FOR MORE DETAILS.
 */
 
+
+/**
+* Permits interaction with globally defined configuration variables.
+*/
+class xConf
+{
+	/**
+	 * Return a configuration variable.
+	 *
+	 * @param $name (string) The name of the variable to return.
+	 * @param $default (mixed) The default value to use if this variable has never been set.
+	 * @return  (mixed) The value of the variable.
+	 * @static
+	 */
+	function get($name, $default) 
+	{
+		global $g_xanth_conf;
+		return isset($g_xanth_conf[$name]) ? $g_xanth_conf[$name] : $default;
+	}
+
+	/**
+	 * Set a  configuration variable.
+	 *
+	 * @param $name (string)The name of the variable to set.
+	 * @param $value  (mixed) The value to set.
+	 * @static
+	 */
+	function set($name, $value)
+	{
+		global $g_xanth_conf;
+		$g_xanth_conf[$name] = $value;
+	}
+	
+};
+
+
 /**
 *
 */
@@ -30,65 +66,6 @@ function xanth_instanceof($object,$class_name)
 	}
 }
 
-
-/**
- * Return a configuration variable.
- *
- * @param $name  The name of the variable to return.
- * @param $default  The default value to use if this variable has never been set.
- * @return  The value of the variable.
- */
-function xanth_conf_get($name, $default) 
-{
-	global $xanth_conf;
-	return isset($xanth_conf[$name]) ? $xanth_conf[$name] : $default;
-}
-
-/**
- * Set a  configuration variable.
- *
- * @param $name  The name of the variable to set.
- * @param $value  The value to set.
- */
-function xanth_conf_set($name, $value)
-{
-	global $xanth_conf;
-	$xanth_conf[$name] = $value;
-}
-
-/**
- * Return a global variable.
- *
- * @param $name  The name of the variable to return.
- * @param $default  The default value to use if this variable has never been set.
- * @return  The value of the variable.
- */
-function xanth_global_var_get($name, $default) 
-{
-	global $xanth_global_var;
-	return isset($xanth_global_var[$name]) ? $xanth_global_var[$name] : $default;
-}
-
-/**
- * Set a  global variable.
- *
- * @param $name  The name of the variable to set.
- * @param $value  The value to set.
- */
-function xanth_global_var_set($name, $value)
-{
-	global $xanth_global_var;
-	$xanth_global_var[$name] = $value;
-}
-
-/**
- * Unset a  global variable.
- */
-function xanth_global_var_unset($name)
-{
-	global $xanth_global_var;
-	unset($xanth_global_var[$name]);
-}
 
 /**
 *
