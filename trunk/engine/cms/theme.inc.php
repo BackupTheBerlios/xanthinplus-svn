@@ -17,23 +17,44 @@
 
 
 /**
-* Tha base class for all page elements.
+* An object that contains methods for render xElement objects.
 */
-class xElement
+class xTheme
 {
-	function xElement()
+	function xTheme
+	{}
+	
+	/**
+	* Get current active theme.
+	*
+	* @return (xTheme)
+	* @static
+	*/
+	function getCurrent()
 	{
+		
 	}
 	
 	/**
-	* Render the page element using the object current view view. Override this in your implementation.
+	* Render the box element.
 	* 
-	* @return (string) XHTML code representing the renderized element.
+	* @param $box(xBoxElement) The element to render.
+	* @return (string) the renderized element.
 	*/
-	function render()
+	function renderBox($box)
 	{
-		//virtual method
-		assert(FALSE);
+	
+	}
+	
+	/**
+	* Render the page element.
+	* 
+	* @param $page(xPageElement) The element to render.
+	* @return (string) the renderized element.
+	*/
+	function renderPage($page)
+	{
+		
 	}
 };
 

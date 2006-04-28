@@ -408,7 +408,7 @@ class xDB
 	*
 	* @static
 	*/
-	function getDB()
+	function &getDB()
 	{
 		global $g_current_db;
 		return $g_current_db;

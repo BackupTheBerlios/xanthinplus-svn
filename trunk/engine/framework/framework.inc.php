@@ -16,4 +16,13 @@
 */
 
 
+require_once('engine/framework/base.inc.php');
+require_once('engine/framework/log.inc.php');
+require_once('engine/framework/session.inc.php');
+require_once('engine/framework/form.inc.php');
+require_once('engine/framework/element.inc.php');
+require_once('engine/framework/dbaccess/db.inc.php');
+require_once('engine/framework/dbaccess/mysql_db.inc.php');
+
+
 ?>

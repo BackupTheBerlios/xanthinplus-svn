@@ -15,27 +15,25 @@
 * PURPOSE ARE DISCLAIMED.SEE YOUR CHOOSEN LICENSE FOR MORE DETAILS.
 */
 
-
 /**
-* Tha base class for all page elements.
+* Represent the entire web page.
 */
-class xElement
+class xPage extends xElement
 {
-	function xElement()
+	var $m_areas;
+	
+	function xPage()
 	{
+		$this->xElement();
 	}
 	
 	/**
-	* Render the page element using the object current view view. Override this in your implementation.
-	* 
-	* @return (string) XHTML code representing the renderized element.
+	*
 	*/
 	function render()
 	{
-		//virtual method
-		assert(FALSE);
+		xTheme::getActive()->renderPage($this);
 	}
 };
-
 
 ?>

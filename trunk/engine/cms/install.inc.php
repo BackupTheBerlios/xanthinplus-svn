@@ -17,23 +17,42 @@
 
 
 /**
-* Tha base class for all page elements.
+* A module for installing the core cms database.
 */
-class xElement
+class xModuleInstallCMS extends xModule
 {
-	function xElement()
+	function xModuleInstallCMS
 	{
+		$this->xModule();
 	}
 	
 	/**
-	* Render the page element using the object current view view. Override this in your implementation.
-	* 
-	* @return (string) XHTML code representing the renderized element.
+	*
 	*/
-	function render()
+	function installDBMySql()
 	{
-		//virtual method
-		assert(FALSE);
+		xDB::getDB()->query("
+			CREATE TABLE xanth_log (
+			level MEDIUMINT NOT NULL,
+			message TEXT NOT NULL,
+			filename  VARCHAR(255) NOT NULL,
+			line MEDIUMINT NOT NULL,
+			timestamp TIMESTAMP
+			)TYPE=InnoDB"
+		);
+		
+		//sessions
+		xDB::getDB()->query("
+			CREATE TABLE sessions (
+			session_id VARCHAR(32) NOT NULL,
+			session_data TEXT NOT NULL,
+			session_timestamp TIMESTAMP NOT NULL,
+			PRIMARY KEY  (session_id)
+			)TYPE=InnoDB"
+		);
+		
+		
+		
 	}
 };
 
