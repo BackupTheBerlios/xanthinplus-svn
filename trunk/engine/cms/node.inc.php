@@ -17,26 +17,19 @@
 
 
 /**
-* Tha base class for all page elements.
+* Represent a node in the CMS. A node can be an article, a blog entry, a forum post.
 */
-class xElement
+class xNode extends xElement
 {
-	var $m_name;
-	
-	function xElement()
+	function xNode
 	{
-		$this->m_name = '';
+		$this->xElement();
 	}
 	
-	/**
-	* Render the page element using the object current view view.
-	* 
-	* @return (string) XHTML code representing the renderized element.
-	*/
+	// DOCS INHERITHED  ========================================================
 	function render()
 	{
-		//virtual method
-		assert(FALSE);
+		return xTheme::getActive()->renderNode($this);
 	}
 };
 

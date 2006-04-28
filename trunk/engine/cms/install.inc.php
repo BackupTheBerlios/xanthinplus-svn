@@ -31,6 +31,7 @@ class xModuleInstallCMS extends xModule
 	*/
 	function installDBMySql()
 	{
+		//log
 		xDB::getDB()->query("
 			CREATE TABLE xanth_log (
 			level MEDIUMINT NOT NULL,
@@ -51,7 +52,18 @@ class xModuleInstallCMS extends xModule
 			)TYPE=InnoDB"
 		);
 		
-		
+		//box TODO add foreign key to content format
+		xDB::getDB()->query("
+			CREATE TABLE box(
+			name VARCHAR(64) NOT NULL,
+			title VARCHAR(255),
+			content TEXT,
+			content_format VARCHAR(64) NOT NULL,
+			area VARCHAR(32),
+			is_dynamic TINYINT NOT NULL,
+			PRIMARY KEY(name)
+			)TYPE=InnoDB"
+		);
 		
 	}
 };

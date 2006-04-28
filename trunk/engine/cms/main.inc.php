@@ -59,6 +59,8 @@ function xanth_main()
 	session_start();
 	
 	//start execution
+	$page = new xPage();
+	$page->render();
 	
 	//print log
 	echo '<br />';

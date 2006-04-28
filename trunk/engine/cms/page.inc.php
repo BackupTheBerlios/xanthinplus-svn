@@ -21,18 +21,26 @@
 class xPage extends xElement
 {
 	var $m_areas;
+	var $m_title;
+	var $m_keywords;
+	var $m_description;
 	
 	function xPage()
 	{
 		$this->xElement();
+		$this->m_areas = array();
+		$this->m_title = '';
+		$this->m_keywords = '';
+		$this->m_description = '';
+		
+		//ask theme for areas
+		xTheme::getActive()->
 	}
 	
-	/**
-	*
-	*/
+	// DOCS INHERITHED  ========================================================
 	function render()
 	{
-		xTheme::getActive()->renderPage($this);
+		return xTheme::getActive()->renderPage($this);
 	}
 };
 

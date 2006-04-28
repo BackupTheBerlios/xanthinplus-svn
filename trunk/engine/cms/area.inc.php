@@ -17,26 +17,23 @@
 
 
 /**
-* Tha base class for all page elements.
+* An area in the page.
 */
-class xElement
+class xArea extends xElement
 {
-	var $m_name;
+	var $m_boxes;
+	var $m_content;
 	
-	function xElement()
+	
+	function xArea
 	{
-		$this->m_name = '';
+		$this->xElement();
 	}
 	
-	/**
-	* Render the page element using the object current view view.
-	* 
-	* @return (string) XHTML code representing the renderized element.
-	*/
+	// DOCS INHERITHED  ========================================================
 	function render()
 	{
-		//virtual method
-		assert(FALSE);
+		return xTheme::getActive()->renderArea($this);
 	}
 };
 

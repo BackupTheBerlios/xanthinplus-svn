@@ -17,25 +17,19 @@
 
 
 /**
-* Tha base class for all page elements.
+* Represent the main page content.
 */
-class xElement
+class xContent extends xElement
 {
-	var $m_name;
-	
-	function xElement()
+	function xContent
 	{
-		$this->m_name = '';
+		$this->xElement();
 	}
 	
-	/**
-	* Render the page element using the object current view view.
-	* 
-	* @return (string) XHTML code representing the renderized element.
-	*/
+	// DOCS INHERITHED  ========================================================
 	function render()
 	{
-		//virtual method
+		//must override
 		assert(FALSE);
 	}
 };
