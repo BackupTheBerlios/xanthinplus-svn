@@ -17,7 +17,7 @@
 
 
 /**
-* Represent the main page content.
+* Represent  a page content.
 */
 class xContent extends xElement
 {

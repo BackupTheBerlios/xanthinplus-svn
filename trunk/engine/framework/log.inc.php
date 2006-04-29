@@ -46,8 +46,7 @@ class xScreenLog
 {
 	/**
 	 * Enqueue a log entry for async display.
-	 * @param $log_entry (xLogEntry) the log entry
-	 * @return Nothing
+	 * @param xLogEntry $log_entry the log entry
 	 * @static
 	 */
 	function add($log_entry)
@@ -60,8 +59,8 @@ class xScreenLog
 
 	/**
 	 * Get screen log entries as an array of objects xLogEntry
-	 * @param $level  (int)  if not equal to -1, only log entries with this level will be returned.
-	 * @return (array(xLogEntry)) An array of requested log entries
+	 * @param int $level  if not equal to -1, only log entries with this level will be returned.
+	 * @return array(xLogEntry) An array of requested log entries
 	 * @static 
 	 */
 	function get($level = -1)
@@ -88,8 +87,7 @@ class xScreenLog
 
 	/**
 	 * Clears screen log queue.
-	 * @param $level  (int)  if not equal to -1,clears only log entries with this level.
-	 * @return Nothing
+	 * @param int $level if not equal to -1,clears only log entries with this level.
 	 * @static
 	 */
 	function clear($level = -1)
@@ -128,19 +126,19 @@ class xLog
 	define('LOG_LEVEL_DEBUG',128);
 
 	/**
-	* Function for logging messages and error. For every logging level a specific action will be taken. \n
-	* LOG_LEVEL_FATAL_ERROR: Application will die immediately and message will be displayed only on screen.\n
-	* LOG_LEVEL_ERROR: Application will stop execution, but a basic environment will be created for displaying message on screen,a log entry is added in db\n
-	* LOG_LEVEL_WARNING/LOG_LEVEL_NOTICE: Application will continue execution and a message is displayed on a region of screen,a log entry is added in db\n
-	* LOG_LEVEL_USER_MESSAGE: A message is displayed to the user\n
-	* LOG_LEVEL_AUDIT: Application will log a message only in database\n
-	* LOG_LEVEL_DEBUG: Print debug message only in database if $debug is defined in config\n
-	* @param $level (int) one of the predefined level constants
-	* @param $message (string) description og the log entry
-	* @param $filename (string) the filename where the log was generated (can use the __FILE__ keyword)
-	* @param $line (string) the line where the log was generated (can use the __LINE__ keyword)
+	* Function for logging messages and error. For every logging level a specific action will be taken.
+	* - LOG_LEVEL_FATAL_ERROR: Application will die immediately and message will be displayed only on screen.
+	* - LOG_LEVEL_ERROR: Application will stop execution, but a basic environment will be created for displaying message on screen,a log entry is added in db
+	* - LOG_LEVEL_WARNING/LOG_LEVEL_NOTICE: Application will continue execution and a message is displayed on a region of screen,a log entry is added in db
+	* - LOG_LEVEL_USER_MESSAGE: A message is displayed to the user
+	* - LOG_LEVEL_AUDIT: Application will log a message only in database
+	* - LOG_LEVEL_DEBUG: Print debug message only in database if $debug is defined in config
+	*
+	* @param int $level One of the predefined level constants
+	* @param string $message Description og the log entry
+	* @param string$filename The filename where the log was generated (can use the __FILE__ keyword)
+	* @param string $line The line where the log was generated (can use the __LINE__ keyword)
 	* @static
-	* @return Nothing
 	*/
 	function log($level,$message,$filename = '',$line = 0)
 	{

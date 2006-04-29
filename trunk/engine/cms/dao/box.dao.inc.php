@@ -16,32 +16,19 @@
 */
 
 
+
 /**
-* Represent a box in database.
+* Box Data Access Object
 */
 class xBoxDAO
 {
-	var $m_name;
-	var $m_title;
-	var $m_is_dynamic;
-	var $m_content;
-	var $m_content_format;
-	var $m_area;
-	
-	function xBox($name,$title,$content,$content_format,$is_dynamic,$area = NULL)
-	{
-		$this->m_name = $name;
-		$this->m_title = $title;
-		$this->m_content_format = $content_format;
-		$this->m_is_dynamic = $is_dynamic;
-		$this->content = $content;
-		$this->area = $area;
-	}
-	
 	/**
 	* Insert a new box.
+	*
+	* @param $boxdto (xBoxDTO) the data to insert
+	* @static 
 	*/
-	function insert()
+	function insert($boxdto)
 	{
 		$field_names = "name,title,is_dynamic,content,content_format";
 		$field_values = "'%s','%s',%d,'%s','%s'";

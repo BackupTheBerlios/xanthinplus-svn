@@ -24,9 +24,9 @@ class xConf
 	/**
 	 * Return a configuration variable.
 	 *
-	 * @param $name (string) The name of the variable to return.
-	 * @param $default (mixed) The default value to use if this variable has never been set.
-	 * @return  (mixed) The value of the variable.
+	 * @param string $name The name of the variable to return.
+	 * @param mixed $default The default value to use if this variable has never been set.
+	 * @return mixed The value of the variable.
 	 * @static
 	 */
 	function get($name, $default) 
@@ -38,8 +38,8 @@ class xConf
 	/**
 	 * Set a  configuration variable.
 	 *
-	 * @param $name (string)The name of the variable to set.
-	 * @param $value  (mixed) The value to set.
+	 * @param string $name The name of the variable to set.
+	 * @param mixed $value The value to set.
 	 * @static
 	 */
 	function set($name, $value)

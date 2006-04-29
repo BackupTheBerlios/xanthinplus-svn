@@ -31,7 +31,7 @@ class xElement
 	/**
 	* Render the page element using the object current view view.
 	* 
-	* @return (string) XHTML code representing the renderized element.
+	* @return string XHTML code representing the renderized element.
 	*/
 	function render()
 	{

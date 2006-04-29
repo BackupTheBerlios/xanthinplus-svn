@@ -17,31 +17,55 @@
 
 
 /**
-* An area in the page.
+* Box Data Transfer Object
 */
-class xArea extends xElement
+class xBoxDTO
 {
-	var $m_boxes;
+	/**
+	* @var string
+	* @access public
+	*/
+	var $m_name;
+	
+	/**
+	* @var string
+	* @access public
+	*/
+	var $m_title;
+	
+	/**
+	* if dynamic, content and content format will be ignored. Contents will be generated dymanically by some module.
+	*
+	* @var bool
+	* @access public
+	*/ 
+	var $m_is_dynamic;
+	
+	/**
+	* @var string
+	* @access public
+	*/
 	var $m_content;
 	
+	/**
+	* @var string
+	* @access public
+	*/
+	var $m_content_format;
 	
-	function xArea
-	{
-		$this->xElement();
-		
-		//retrieve boxes for area
-		$this->m_boxes = xBox::getBoxesForArea($this->m_name);
-		
-		//retrive content for area 
-		$this->m_content = xContent::getContentForArea($this->m_name);
-	}
-	
-	// DOCS INHERITHED  ========================================================
-	function render()
-	{
-		return xTheme::getActive()->renderArea($this);
-	}
+	/**
+	* if empty (NULL,FALSE,...) no area ssignation
+	*
+	* @var string
+	* @access public
+	*/
+	var $m_area;
 };
+
+
+
+
+
 
 
 ?>

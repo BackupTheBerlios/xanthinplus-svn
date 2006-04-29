@@ -16,6 +16,46 @@
 */
 
 
+/**
+* Represent  box visual element.
+*/
+class xBox extends xElement
+{
+	//! (xBoxDao)
+	var $m_boxdao;
+	
+	/**
+	* Contructor
+	*
+	* @param $boxdao (xBoxDao) 
+	*/
+	function xBox($boxdao = NULL)
+	{
+		$this->xElement();
+		$m_boxdao = $boxdao;
+	}
+	
+	// DOCS INHERITHED  ========================================================
+	function render()
+	{
+		//must override
+		assert(FALSE);
+	}
+	
+	
+	/**
+	*
+	*
+	* @static
+	*/
+	function getBoxesForArea($this->m_name)
+	{
+	
+	
+	}
+};
+
+
 
 
 ?>

@@ -21,10 +21,16 @@
 */
 class xDB
 {
-	//! @private
+	/**
+	* @var int
+	* @access protected
+	*/
 	var $m_query_count;
 	
-	//! @private
+	/**
+	* @var bool
+	* @access protected
+	*/
 	var $m_is_transaction_started;
 	
 	/**
@@ -37,14 +43,14 @@ class xDB
 	}
 	
 	/**
-	* Initialize a databse connection. Override this in your implementation.
+	* Initialize a databse connection.
 	*
-	* @param $host (string) databse hostname
-	* @param $db (string) database name
-	* @param $user (string) database username
-	* @param $pass (string) database password for username
-	* @param $port (string) database listening port (give blank for default)
-	* @return Nothing.
+	* @param string $host databse hostname
+	* @param string $db database name
+	* @param string $user database username
+	* @param string $pass database password for username
+	* @param string $port database listening port (give blank for default)
+	* @abstract
 	*/
 	function connect($host,$db,$user,$pass,$port = '')
 	{
@@ -53,10 +59,11 @@ class xDB
 	}
 	
 	/**
-	* Execute a raw query on current selected database. Override this in your implementation.
+	* Execute a raw query on current selected database.
 	*
-	* @param query (string) the query
-	* @private
+	* @param string $query The query
+	* @access protected
+	* @abstract
 	*/
 	function _query($query)
 	{
@@ -66,10 +73,11 @@ class xDB
 	
 	
 	/**
-	 * Fetch one result row from the previous query as an object.  Override this in your implementation.
+	 * Fetch one result row from the previous query as an object.
 	 *
-	 * @param $result (result resource) A database query result resource, as returned from xDB->query().
-	 * @return (object) An object representing the next row of the result. The attributes of this  object are the table fields selected by the query.
+	 * @param result_resource $result A database query result resource, as returned from xDB->query().
+	 * @return object An object representing the next row of the result. The attributes of this  object are the table fields selected by the query.
+	 * @abstract
 	 */
 	function fetchObject($result)
 	{
@@ -79,13 +87,14 @@ class xDB
 
 	
 	/**
-	 * Fetch one result row from the previous query as an array. Override this in your implementation.
+	 * Fetch one result row from the previous query as an array.
 	 *
-	 * @param $result (result resource) A database query result resource, as returned from xDB->query().
-	 * @return
+	 * @param result_resource $result A database query result resource, as returned from xDB->query().
+	 * @return array 
 	 *   An associative array representing the next row of the result. The keys of
 	 *   this object are the names of the table fields selected by the query, and
 	 *   the values are the field values for this result row.
+	 * @abstract
 	 */
 	function fetchArray($result) 
 	{
@@ -94,10 +103,11 @@ class xDB
 	}
 	
 	/**
-	 * Determine how many result rows were found by the preceding query. Override this in your implementation.
+	 * Determine how many result rows were found by the preceding query.
 	 *
-	 * @param $result (result resource) A database query result resource, as returned from xDB->query().
-	 * @return The number of result rows.
+	 * @param result_resource $result A database query result resource, as returned from xDB->query().
+	 * @return int The number of result rows.
+	 * @abstract
 	 */
 	function numRows($result) 
 	{
@@ -107,8 +117,10 @@ class xDB
 	
 	
 	/**
-	 * Returns the error number from the last xDB function, or 0 (zero) if no error occurred.  Override this in your implementation.
-	 * @return (int) the error code
+	 * Returns the error number from the last xDB function, or 0 (zero) if no error occurred.
+	 *
+	 * @return int The error code
+	 * @abstract
 	 */
 	function lastError() 
 	{
@@ -117,10 +129,11 @@ class xDB
 	}
 	
 	/**
-	 * Returns a properly formatted Binary Large OBject value.  Override this in your implementation.
+	 * Returns a properly formatted Binary Large OBject value.
 	 *
-	 * @param $data  Data to encode.
-	 * @return  Encoded data.
+	 * @param mixed $data  Data to encode.
+	 * @return string Encoded data.
+	 * @abstract
 	 */
 	function encodeBlob($data) 
 	{
@@ -129,10 +142,11 @@ class xDB
 	}
 
 	/**
-	 * Returns text from a Binary Large Object value. Override this in your implementation.
+	 * Returns text from a Binary Large Object value.
 	 *
-	 * @param $data  Data to decode.
-	 * @return Decoded data.
+	 * @param mixed $data Data to decode.
+	 * @return string Decoded data.
+	 * @abstract
 	 */
 	function decodeBlob($data) 
 	{
@@ -141,22 +155,23 @@ class xDB
 	}
 
 	/**
-	 * Prepare user input for use in a database query, preventing SQL injection attacks. Override this in your implementation.
+	 * Prepare user input for use in a database query, preventing SQL injection attacks. 
 	 *
-	 * @param  $text (string) the text to be escaped.
-	 * @return (string) Returns the escaped string, or FALSE on error. 
+	 * @param string $text the text to be escaped.
+	 * @return string Returns the escaped string, or FALSE on error. 
+	 * @abstract
 	 */
-	function escapeString($text) 
+	function escapeString($text)
 	{
 		//must override this function
 		assert(FALSE);
 	}
 	
 	/**
-	 * Lock a table.  Override this in your implementation.
+	 * Lock a table.
 	 * 
-	 * @param $table (string) the name of the table to be locked.
-	 * @return Nothing
+	 * @param string $table the name of the table to be locked.
+	 * @abstract
 	 */
 	function lockTable($table) 
 	{
@@ -165,9 +180,9 @@ class xDB
 	}
 
 	/**
-	 * Unlock all locked tables. Override this in your implementation.
+	 * Unlock all locked tables.
 	 *
-	 *  @return Nothing
+	 * @abstract
 	 */
 	function unlockTables()
 	{
@@ -176,10 +191,10 @@ class xDB
 	}
 
 	/**
-	* Starts a new transaction. This function is private, only for internal use. Override this in your implementation.
+	* Starts a new transaction. This function is private, only for internal use.
 	*
-	* @private
-	* @return nothing
+	* @access protected
+	* @abstract
 	*/
 	function _startTransaction()
 	{
@@ -188,10 +203,10 @@ class xDB
 	}
 
 	/**
-	* Executes a commit. This function is private, only for internal use. Override this in your implementation.
+	* Executes a commit. This function is private, only for internal use.
 	*
-	* @return nothing
-	* @private
+	* @access protected
+	* @abstract
 	*/
 	function _commit()
 	{
@@ -200,10 +215,10 @@ class xDB
 	}
 
 	/**
-	* Executes a rollback. This function is private, only for internal use. Override this in your implementation.
+	* Executes a rollback. This function is private, only for internal use.
 	*
-	* @return nothing
-	* @private
+	* @access protected
+	* @abstract
 	*/
 	function _rollback()
 	{
@@ -212,9 +227,10 @@ class xDB
 	}
 
 	/**
-	* Return last inserted id or NULL on error. Override this in your implementation.
+	* Return last inserted id or NULL on error.
 	*
-	* @return (int) the last inserted id or NULL on error.
+	* @return int The last inserted id or NULL on error.
+	* @abstract
 	*/
 	function getLastId()
 	{
@@ -223,10 +239,11 @@ class xDB
 	}
 
 	/**
-	* Decode a timestamp string as returned from db into a unix timestamp integer. Override this in your implementation.
+	* Decode a timestamp string as returned from db into a unix timestamp integer.
 	*
-	* @param $db_timestamp (string) timestamp string as returned from db
-	* @return (int) the decoded unix timestamp
+	* @param string $db_timestamp Timestamp string as returned from db
+	* @return int The decoded unix timestamp
+	* @abstract
 	*/
 	function decodeTimestamp($db_timestamp)
 	{
@@ -236,10 +253,11 @@ class xDB
 
 
 	/**
-	* Encode a unix timestamp into a string timestamp in the format accepted from the db. Override this in your implementation.
+	* Encode a unix timestamp into a string timestamp in the format accepted from the db.
 	*
-	* @param $timestamp (int) the unix timestamp to be encoded
-	* @return (string) the encoded timestamp in the format accepted from the db
+	* @param int $timestamp The unix timestamp to be encoded
+	* @return string The encoded timestamp in the format accepted from the db
+	* @abstract
 	*/
 	function encodeTimestamp($timestamp)
 	{
@@ -249,10 +267,11 @@ class xDB
 
 
 	/**
-	* Save a log message into db. This function should not rise any php error log so should not use other function from xanthin framework.  Override this in your implementation.
+	* Save a log message into db. This function should not rise any php error log so should not 
+	* use other function from xanthin framework.
 	*
-	* @param $logentry (xLogEntry)  The xLogEntry object to be logged.
-	* @return nothing
+	* @param xLogEntry $logentry The xLogEntry object to be logged.
+	* @abstract
 	*/
 	function log($logentry)
 	{
@@ -261,9 +280,9 @@ class xDB
 	}
 	
 	/**
-	 * Helper function for db_query(). Does not need to override this method in your implementation.
+	 * Helper function for db_query().
 	 *
-	 * @private
+	 * @access private
 	 * @static
 	 */
 	function _query_callback($match, $init = FALSE) 
@@ -291,9 +310,9 @@ class xDB
 	}
 	
 	/**
-	* Increment the actual query count,in the current script execution. Does not need to override this method in your implementation.
+	* Increment the actual query count,in the current script execution.
 	*
-	* @private
+	* @access protected
 	*/
 	function _queryIncrementCount() 
 	{
@@ -301,7 +320,7 @@ class xDB
 	}
 
 	/**
-	* Reset the actual query count,in the current script execution. Does not need to override this method in your implementation.
+	* Reset the actual query count,in the current script execution.
 	*/
 	function queryResetCount() 
 	{
@@ -309,7 +328,9 @@ class xDB
 	}
 
 	/**
-	* Get the current query count,in the current script execution. Does not need to override this method in your implementation.
+	* Get the current query count,in the current script execution.
+	*
+	* @return int
 	*/
 	function queryGetCount() 
 	{
@@ -325,11 +346,11 @@ class xDB
 	 *
 	 * Does not need to override this method in your implementation.
 	 *
-	 * @param $query (string) A string containing an SQL query.
-	 * @param ... A variable number of arguments which are substituted into the query
+	 * @param string $query A string containing an SQL query.
+	 * @param mixed ... A variable number of arguments which are substituted into the query
 	 *   using printf() syntax. Instead of a variable number of query arguments,
 	 *   you may also pass a single array containing the query arguments.
-	 * @return (result resource) A database query result resource, or FALSE if the query was not
+	 * @return result_resource A database query result resource, or FALSE if the query was not
 	 *   executed correctly.
 	 */
 	function query($query) 
@@ -362,9 +383,7 @@ class xDB
 
 
 	/**
-	* Starts a new transaction. Does not need to override this method in your implementation.
-	*
-	* @return Nothing.
+	* Starts a new transaction.
 	*/
 	function startTransaction()
 	{
@@ -376,9 +395,7 @@ class xDB
 	}
 
 	/**
-	* Executes a commit. Does not need to override this method in your implementation.
-	*
-	* @return Nothing.
+	* Executes a commit.
 	*/
 	function commit()
 	{
@@ -390,9 +407,7 @@ class xDB
 	}
 
 	/**
-	* Executes a rollback. Does not need to override this method in your implementation.
-	*
-	* @return Nothing.
+	* Executes a rollback.
 	*/
 	function rollback()
 	{
@@ -404,7 +419,7 @@ class xDB
 	}
 	
 	/**
-	* Returns the current global xDB object. Does not need to override this method in your implementation.
+	* Returns the current global xDB object.
 	*
 	* @static
 	*/
@@ -415,9 +430,9 @@ class xDB
 	}
 	
 	/**
-	* Sets the current global xDB object. Does not need to override this method in your implementation.
+	* Sets the current global xDB object.
 	*
-	* @param $db (xDB)
+	* @param xDB $dd
 	* @static
 	*/
 	function setDB($db)
