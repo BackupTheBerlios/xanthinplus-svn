@@ -28,11 +28,11 @@ function on_session_end()
 
 function on_session_read($key) 
 {
-	$result = xanth_db_query("SELECT session_data FROM sessions WHERE session_id ='%s'",$key);
+	$result = xDB::getDB()->query("SELECT session_data FROM sessions WHERE session_id ='%s'",$key);
 
 	if($result)
 	{
-		$row = xanth_db_fetch_array($result);
+		$row =  xDB::getDB()->fetchArray($result);
 		return($row['session_data']);
 	}
 	else
@@ -43,14 +43,14 @@ function on_session_read($key)
 
 function on_session_write($key, $val)
 {
-	$result = xanth_db_query("SELECT * FROM sessions WHERE session_id ='%s'",$key);
-	if(!xanth_db_fetch_array($result))
+	$result =  xDB::getDB()->query("SELECT * FROM sessions WHERE session_id ='%s'",$key);
+	if(! xDB::getDB()->fetchArray($result))
 	{
-		xanth_db_query("INSERT INTO sessions(session_id,session_data,session_timestamp) VALUES('%s','%s',NOW())",$key,$val);
+		 xDB::getDB()->query("INSERT INTO sessions(session_id,session_data,session_timestamp) VALUES('%s','%s',NOW())",$key,$val);
 	}
 	else
 	{
-		xanth_db_query("UPDATE sessions SET session_data = '%s',session_timestamp = NOW() WHERE session_id = '%s'",$val,$key);
+		 xDB::getDB()->query("UPDATE sessions SET session_data = '%s',session_timestamp = NOW() WHERE session_id = '%s'",$val,$key);
 	}
 	
 	return '';
@@ -58,13 +58,12 @@ function on_session_write($key, $val)
 
 function on_session_destroy($key) 
 {
-
-	xanth_db_query("DELETE FROM sessions WHERE session_id = '%s'",$key);
+	 xDB::getDB()->query("DELETE FROM sessions WHERE session_id = '%s'",$key);
 }
 
 function on_session_gc($max_lifetime) 
 {
-	xanth_db_query("DELETE FROM sessions WHERE UNIX_TIMESTAMP(session_timestamp) < UNIX_TIMESTAMP(%d)", time() - $max_lifetime);
+	 xDB::getDB()->query("DELETE FROM sessions WHERE UNIX_TIMESTAMP(session_timestamp) < UNIX_TIMESTAMP(%d)", time() - $max_lifetime);
 }
 
 

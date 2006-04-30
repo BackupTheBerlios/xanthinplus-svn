@@ -21,9 +21,35 @@
 */
 class xContent extends xElement
 {
-	function xContent
+	/**
+	* @var string
+	* @access public
+	*/
+	var $m_title;
+	
+	/**
+	* @var string
+	* @access public
+	*/
+	var $m_description;
+	
+	/**
+	* @var string
+	* @access public
+	*/
+	var $m_keywords;
+	
+	/**
+	* 
+	*
+	*/
+	function xContent($id,$title,$description,$keywords)
 	{
-		$this->xElement();
+		$this->xElement($id);
+		
+		$this->m_title = $title;
+		$this->m_description = $description;
+		$this->m_keywords = $keywords;
 	}
 	
 	// DOCS INHERITHED  ========================================================
@@ -31,6 +57,36 @@ class xContent extends xElement
 	{
 		//must override
 		assert(FALSE);
+	}
+
+	/**
+	 * Gets the content.
+	 *
+	 * @return xContent
+	 * @static
+	 */
+	function getContent()
+	{
+		$content = NULL;
+		
+		//extract the current path
+		$path = xXanthPath::getCurrent();
+		
+		//ask modules for a valid content for the current path.
+		$modules = xModule::getModules();
+		foreach($modules as $module)
+		{
+			if(method_exists($module,'getContent'))
+			{
+				$content = $module->getContent($path);
+				if($content != NULL)
+				{
+					return $content;
+				}
+			}
+		}
+		
+		return $content;
 	}
 };
 

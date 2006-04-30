@@ -280,36 +280,6 @@ class xDB
 	}
 	
 	/**
-	 * Helper function for db_query().
-	 *
-	 * @access private
-	 * @static
-	 */
-	function _query_callback($match, $init = FALSE) 
-	{
-		static $args = NULL;
-		if($init) 
-		{
-			$args = $match;
-			return;
-		}
-
-		switch($match[1]) 
-		{
-		case '%d': 
-			return (int) array_shift($args);
-		case '%s':
-			return $this->escapeString(array_shift($args));
-		case '%%':
-			return '%';
-		case '%f':
-			return (float) array_shift($args);
-		case '%b': // binary data
-			return $this->encodeBlob(array_shift($args));
-		}
-	}
-	
-	/**
 	* Increment the actual query count,in the current script execution.
 	*
 	* @access protected
@@ -355,30 +325,8 @@ class xDB
 	 */
 	function query($query) 
 	{
-		$this->_queryIncrementCount();
-		
-		$args = func_get_args();
-		array_shift($args);
-		if(isset($args[0]) and is_array($args[0])) // 'All arguments in one array' syntax
-		{ 
-			$args = $args[0];
-		}
-		
-		xDB::_query_callback($args, TRUE);
-		$query = preg_replace_callback('/(%d|%s|%%|%f|%b)/', 'xDB::_query_callback', $query);
-		$result = $this->_query($query);
-		
-		if($result == FALSE)
-		{
-			//rollback from transaction
-			if(! empty($this->m_is_transaction_started))
-			{
-				$this->_rollback();
-				$this->m_is_transaction_started = FALSE;
-			}
-		}
-
-		return $result;
+		//must override this function
+		assert(FALSE);
 	}
 
 
@@ -443,5 +391,5 @@ class xDB
 	
 };//end xDB
 
-
+	
 ?>

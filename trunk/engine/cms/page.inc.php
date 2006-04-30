@@ -20,27 +20,37 @@
 */
 class xPage extends xElement
 {
+	/**
+	* @var array(xArea)
+	* @access public
+	*/
 	var $m_areas;
-	var $m_title;
-	var $m_keywords;
-	var $m_description;
 	
+	/**
+	* @var xContent
+	* @access public
+	*/
+	var $m_content;
+	
+	/**
+	*
+	*/
 	function xPage()
 	{
-		$this->xElement();
-		$this->m_areas = array();
-		$this->m_title = '';
-		$this->m_keywords = '';
-		$this->m_description = '';
+		$this->xElement('');
 		
-		//ask theme for areas
-		xTheme::getActive()->
+		//ask for content
+		$this->m_content = xContent::getContent();
+		
+		//ask for areas
+		$this->m_areas = xArea::getAreas();
 	}
+	
 	
 	// DOCS INHERITHED  ========================================================
 	function render()
 	{
-		return xTheme::getActive()->renderPage($this);
+		return xTheme::getActive()->renderPage($this->m_id,$this->m_content,$this->m_areas);
 	}
 };
 

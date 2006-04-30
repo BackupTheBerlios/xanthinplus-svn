@@ -17,22 +17,63 @@
 
 
 /**
-* Represent  box visual element.
+* Represent box visual element. The box id is a string.
 */
 class xBox extends xElement
 {
-	//! (xBoxDao)
-	var $m_boxdao;
+	/**
+	* @var string
+	* @access public
+	*/
+	var $m_title;
+	
+	/**
+	* if dynamic, content and content format will be ignored. Contents will be generated dymanically by some module.
+	*
+	* @var bool
+	* @access public
+	*/ 
+	var $m_is_dynamic;
+	
+	/**
+	* @var string
+	* @access public
+	*/
+	var $m_content;
+	
+	/**
+	* @var string
+	* @access public
+	*/
+	var $m_content_format;
+	
+	/**
+	* if empty (NULL,FALSE,...) no area assignation
+	*
+	* @var string
+	* @access public
+	*/
+	var $m_area;
 	
 	/**
 	* Contructor
 	*
-	* @param $boxdao (xBoxDao) 
+	* @param string $id
+	* @param string $title
+	* @param bool $is_dynamic
+	* @param string $content
+	* @param string $content_format
+	* @param string $area
 	*/
-	function xBox($boxdao = NULL)
+	function xBox($id,$title,$is_dynamic,$content,$content_format,$area = NULL)
 	{
-		$this->xElement();
-		$m_boxdao = $boxdao;
+		$this->xElement($id);
+		
+		$this->m_title = $title;
+		$this->m_is_dynamic = $is_dynamic;
+		$this->m_content = $content;
+		$this->content_format = $content_format;
+		$this->m_area = $area;
 	}
 	
 	// DOCS INHERITHED  ========================================================
@@ -42,16 +83,25 @@ class xBox extends xElement
 		assert(FALSE);
 	}
 	
+	/**
+	* Insert a this box element into database.
+	*
+	* 
+	*/
+	function dbInsert()
+	{
+		xBoxDAO::insert($this);
+	}
 	
 	/**
 	*
 	*
 	* @static
 	*/
-	function getBoxesForArea($this->m_name)
+	function getBoxesForArea($name)
 	{
-	
-	
+		//return xBoxDAO::find($this->m_name);
+		return array();
 	}
 };
 

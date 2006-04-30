@@ -17,21 +17,55 @@
 
 
 /**
-* Represent a node in the CMS. A node can be an article, a blog entry, a forum post.
+* Represent  a page content.
 */
-class xNode extends xElement
+class xModuleHomepage extends xModule
 {
-	function xNode()
+	function xModuleHomepage()
 	{
-		$this->xElement('');
+		$this->xModule('Homepage','engine/cms/pages/');
 	}
 	
 	// DOCS INHERITHED  ========================================================
 	function render()
 	{
-		return xTheme::getActive()->renderNode($this);
+		//must override
+		assert(FALSE);
+	}
+
+	/**
+	 * @see xDummyModule::getContent()
+	 */
+	function getContent($path)
+	{
+		if($path->m_base_path == '')
+		{
+			return new xContentHomepage();
+		}
+		
+		return NULL;
+	}
+};
+
+/**
+*
+*/
+class xContentHomepage extends xContent
+{
+	
+	function xContentHomepage()
+	{
+		$this->xContent('Homepage','Home','description','keywords');
+	}
+
+	// DOCS INHERITHED  ========================================================
+	function render()
+	{
+		return 'Xanthin homepage test';
 	}
 };
 
 
+xModule::registerModule(new xModuleHomepage());
+	
 ?>

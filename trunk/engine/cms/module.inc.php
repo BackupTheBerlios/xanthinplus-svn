@@ -17,29 +17,43 @@
 
 
 /**
-* Tha base class for modules.
+* The base class for modules.
+* 
+* See xDummyModule for a list of methods you can implement to respond to various events/request.
 */
 class xModule
 {
-	function xModule()
-	{
-	}
+	/**
+	* @var string
+	* @access public
+	*/
+	var $m_name;
 	
 	/**
-	* This method should executes all sql queries needed to install a module in a mysql db.
+	* Relative path to the xanthine directory
 	*
-	* @return Nothing.
+	* @var string
+	* @access public
 	*/
-	function installDBMySql()
-	{}
+	var $m_path;
+	
+	/**
+	*
+	* @param string $name
+	* @param string $path Relative path to the xanthine directory
+	*/
+	function xModule($name,$path)
+	{
+		$this->m_name = $name;
+		$this->m_path = $path;
+	}
 	
 	//----------------STATIC FUNCTIONS----------------------------------------------
 	
 	/**
 	* Register a module.
 	*
-	* @param $module (xModule) the module to register.
-	* @return Nothing
+	* @param xModule $module The module to register.
 	* @static
 	*/
 	function registerModule($module)
@@ -57,7 +71,7 @@ class xModule
 	/**
 	* Retrieve all registered modules as an array.
 	*
-	* @return (array(xModule)) all registered modules.
+	* @return array(xModule) all registered modules.
 	* @static
 	*/
 	function getModules()
@@ -72,6 +86,38 @@ class xModule
 	}
 	
 };
+
+
+
+/**
+* A Dummy module that elecates all method you can implement in your module
+*/
+class xDummyModule extends xModule
+	{
+
+	function xDummyModule()
+	{
+		//cannot instantiate this class
+		assert(FALSE);
+	}
+
+	/**
+	* This method should executes all sql queries needed to install a module in a mysql db.
+	*/
+	function installDBMySql()
+	{}
+	
+	/**
+	* Returns a valid xContent for the passed path
+	*
+	* @param xXanthPath $path
+	* @return xContent A valid xContent object if your module is the responsable of the given path, NULL otherwise.
+	*/
+	function getContent($path)
+	{}
+};
+
+
 
 
 ?>

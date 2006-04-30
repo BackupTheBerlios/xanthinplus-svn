@@ -15,23 +15,20 @@
 * PURPOSE ARE DISCLAIMED.SEE YOUR CHOOSEN LICENSE FOR MORE DETAILS.
 */
 
+require_once('engine/cms/dao/dao.inc.php');
 
-/**
-* Represent a node in the CMS. A node can be an article, a blog entry, a forum post.
-*/
-class xNode extends xElement
-{
-	function xNode()
-	{
-		$this->xElement('');
-	}
-	
-	// DOCS INHERITHED  ========================================================
-	function render()
-	{
-		return xTheme::getActive()->renderNode($this);
-	}
-};
+require_once('engine/cms/module.inc.php');
+require_once('engine/cms/element.inc.php');
+require_once('engine/cms/area.inc.php');
+require_once('engine/cms/block.inc.php');
+require_once('engine/cms/box.inc.php');
+require_once('engine/cms/content.inc.php');
+require_once('engine/cms/install.inc.php');
+require_once('engine/cms/main.inc.php');
+require_once('engine/cms/node.inc.php');
+require_once('engine/cms/page.inc.php');
+require_once('engine/cms/theme.inc.php');
 
+require_once('engine/cms/pages/pages.inc.php');
 
 ?>

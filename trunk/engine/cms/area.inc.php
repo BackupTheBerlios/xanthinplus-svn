@@ -17,29 +17,47 @@
 
 
 /**
-* An area in the page.
+* An area in the page. Tha page id is a string.
 */
 class xArea extends xElement
 {
 	var $m_boxes;
-	var $m_content;
 	
-	
-	function xArea
+	/**
+	 * Contructor
+	 * 
+	 * @param string $name
+	 */
+	function xArea($id)
 	{
-		$this->xElement();
+		$this->xElement($id);
 		
 		//retrieve boxes for area
-		$this->m_boxes = xBox::getBoxesForArea($this->m_name);
+		$this->m_boxes = xBox::getBoxesForArea($this->m_id);
+	}
+	
+	/**
+	* Return an array of all page areas.
+	*
+	* @return array(xArea)
+	* @static
+	*/
+	function getAreas()
+	{
+		$area_strings = xTheme::getActive()->declareAreas();
+		$areas = array();
+		foreach($area_strings as $area_string)
+		{
+			$areas[] = new xArea($area_string);
+		}
 		
-		//retrive content for area 
-		$this->m_content = xContent::getContentForArea($this->m_name);
+		return $areas;
 	}
 	
 	// DOCS INHERITHED  ========================================================
 	function render()
 	{
-		return xTheme::getActive()->renderArea($this);
+		return xTheme::getActive()->renderArea($this->m_id,$this->m_boxes);
 	}
 };
 

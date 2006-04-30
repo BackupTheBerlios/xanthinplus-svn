@@ -21,19 +21,19 @@
 */
 class xTheme
 {
-	function xTheme
+	function xTheme()
 	{
 	}
 	
 	/**
 	* Get current active theme.
 	*
-	* @return (xTheme)
+	* @return xTheme
 	* @static
 	*/
-	function getCurrent()
+	function getActive()
 	{
-		
+		return new xTheme();
 	}
 	
 	/**
@@ -47,36 +47,62 @@ class xTheme
 	}
 	
 	/**
+	* Render the area element.
+	* 
+	* @param string $id
+	* @param array(xBox) $boxes
+	* @param xContent $content
+	* @return string the renderized element.
+	*/
+	function renderArea($id,$boxes)
+	{
+		$output = '';
+		
+		switch($id)
+		{
+		case 'leftArea':
+			foreach($boxes as $box)
+			{
+				$output .= $box->render();
+			}
+			break;
+			
+		default:
+			//area not declared
+			assert(FALSE);
+		}
+		
+		return $output;
+	}
+	
+	
+	/**
 	* Should return an array of strings representing the names of the areas in the page.
 	*
-	* @return (array(string)) Area names
+	* @return array(string) Area names
 	*/
 	function declareAreas()
 	{
-		return array('leftArea','centerArea');
+		return array('leftArea');
 	}
 	
 	/**
 	* Render the whole page.
 	* 
-	* @param $page(xPage) The page element to render.
-	* @return (string) the renderized element.
+	* @param string $id
+	* @param array(xArea) $areas
+	* @return string the renderized element.
 	*/
-	function renderPage($page)
+	function renderPage($id,$content,$areas)
 	{
 		//first render areas for later use
 		$left_area_out = '';
-		$center_area_out = '';
-		foreach($page->areas as $area)
+		foreach($areas as $area)
 		{
-			switch($area->m_name)
+			switch($area->m_id)
 			{
 			case 'leftArea':
 				$left_area_out .= $area->render();
-				break;
-				
-			case 'centerArea':
-				$center_area_out .= $area->render();
 				break;
 				
 			default:
@@ -88,15 +114,15 @@ class xTheme
 		$output = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">'."\n";
 		$output .= "<html>\n";
 		$output .= "<head>\n";
-		$output .= "<title>" . $page->m_title . "</title>". "\n";
-		$output .= '<meta name="keywords" content="' . $page->m_keywords . '" />' . "\n";
-		$output .= '<meta name="description" content="' . $page->m_description . '" />'. "\n";
+		$output .= "<title>" . $content->m_title . "</title>". "\n";
+		$output .= '<meta name="keywords" content="' . $content->m_keywords . '" />' . "\n";
+		$output .= '<meta name="description" content="' . $content->m_description . '" />'. "\n";
 		$output .= "<style type=\"text/css\" media=\"all\">@import \"themes/default_theme/style.css\";</style>" . "\n";
 		$output .= "</head>";
 		$output .= "<body>\n";
 		$output .= '<table id="page-table"><tr>' . "\n";
 		$output .= '<td id="left-sidebar">' . $left_area_out . '</td>';
-		$output .= '<td id="content">'. $center_area_out .'</td>';
+		$output .= '<td id="content">'. $content->render() .'</td>';
 		$output .= "</tr></table>\n";
 		$output .= " </body>\n";
 		$output .= "</html>\n";

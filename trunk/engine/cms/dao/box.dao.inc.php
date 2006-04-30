@@ -25,20 +25,20 @@ class xBoxDAO
 	/**
 	* Insert a new box.
 	*
-	* @param $boxdto (xBoxDTO) the data to insert
+	* @param xBox $box
 	* @static 
 	*/
-	function insert($boxdto)
+	function insert($box)
 	{
 		$field_names = "name,title,is_dynamic,content,content_format";
 		$field_values = "'%s','%s',%d,'%s','%s'";
-		$values = array($this->m_name,$this->m_title,$this->m_is_dynamic,$this->m_content,$this->m_content_format);
+		$values = array($box->m_id,$box->m_title,$box->m_is_dynamic,$box->m_content,$box->m_content_format);
 		
-		if(!empty($this->m_area))
+		if(!empty($box->m_area))
 		{
 			$field_names .= ',area';
 			$field_values .= ",'%s'";
-			$values[] = $this->m_area;
+			$values[] = $box->m_area;
 		}
 		
 		xDB::getDB()->query("INSERT INTO box($field_names) VALUES($field_values)",$values);
@@ -47,35 +47,41 @@ class xBoxDAO
 	
 	/**
 	* Update an existing box.
+	*
+	* @param xBox $box
+	* @static 
 	*/
-	function update()
+	function update($box)
 	{
 		$fields = "content_format = '%s',title = '%s',content = '%s'";
-		$values = array($this->m_content_format,$this->m_title,$this->m_content);
+		$values = array($box->m_content_format,$box->m_title,$box->m_content);
 		
-		if(!empty($this->m_area))
+		if(!empty($box->m_area))
 		{
 			$fields .= ",area = '%s'";
-			$values[] = $this->m_area;
+			$values[] = $box->m_area;
 		}
 		
-		$values[] = $this->m_name;
+		$values[] = $box->m_id;
 		xDB::getDB()->query("UPDATE box SET $fields WHERE name = '%s'",$values);
 	}
 	
 	
 	/**
 	* Delete an existing box. Based on key.
+	*
+	* @param xBox $box
+	* @static 
 	*/
-	function delete()
+	function delete($box)
 	{
-		xDB::getDB()->query("DELETE FROM box WHERE name = '%s'",$this->m_name);
+		xDB::getDB()->query("DELETE FROM box WHERE name = '%s'",$box->m_id);
 	}
 	
 	/**
 	 * Returns all registered boxes.
 	 * 
-	 * @return (array(xBoxDAO)) 
+	 * @return array(xBox)
 	 * @static
 	 */
 	function findAll()
@@ -84,8 +90,9 @@ class xBoxDAO
 	}
 	
 	/**
-	 * Returns all boxs in an area.
-	 * @return (array(xBoxDAO)) 
+	 * Returns all boxes in an area.
+	 * 
+	 * @return array(xBox)
 	 * @static
 	*/
 	function find($area = '')
@@ -102,7 +109,7 @@ class xBoxDAO
 		
 		while($row = xDB::getDB()->fetchArray($result))
 		{
-			$current_box = new xBoxDAO($row['name'],$row['title'],$row['content'],$row['content_format'],$row['is_dynamic'],$row['area']);
+			$current_box = new xBox($row['name'],$row['title'],$row['content'],$row['content_format'],$row['is_dynamic'],$row['area']);
 			$boxes[] = $current_box;
 		}
 		return $boxes;

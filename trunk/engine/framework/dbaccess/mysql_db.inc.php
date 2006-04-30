@@ -186,12 +186,74 @@ class xDBMysql extends xDB
 		$message = $this->escapeString($logentry->message);
 		$filename = $this->escapeString($logentry->filename);
 		
-		$result = $this->query("INSERT INTO xanth_log(level,message,filename,line,timestamp) VALUES($level,'$message','$filename',$line,NOW())");
+		$result = $this->query("INSERT INTO xanth_log(level,message,filename,line,timestamp) VALUES('" . 
+			$logentry->level . "','" . $logentry->message . "','" . $logentry->filename . "'," . 
+			$logentry->line . ",NOW())");
 		if(!$result)
 			exit('Logging failed:'. mysql_error());
 	}
 	
+	// DOCS INHERITHED  ========================================================
+	function query($query) 
+	{
+		$this->_queryIncrementCount();
+		
+		$args = func_get_args();
+		array_shift($args);
+		if(isset($args[0]) and is_array($args[0])) // 'All arguments in one array' syntax
+		{ 
+			$args = $args[0];
+		}
+		
+		x_mysql_query_callback($args, TRUE);
+		$query = preg_replace_callback('/(%d|%s|%%|%f|%b)/', 'x_mysql_query_callback', $query);
+		$result = $this->_query($query);
+		
+		if($result == FALSE)
+		{
+			//rollback from transaction
+			if(! empty($this->m_is_transaction_started))
+			{
+				$this->_rollback();
+				$this->m_is_transaction_started = FALSE;
+			}
+		}
+
+		return $result;
+	}
+	
 };//end xDBMysql
+
+
+/**
+ * Helper function for db_query().
+ *
+ * @access private
+ * @static
+ */
+function x_mysql_query_callback($match, $init = FALSE) 
+{
+	static $args = NULL;
+	if($init) 
+	{
+		$args = $match;
+		return;
+	}
+
+	switch($match[1]) 
+	{
+	case '%d': 
+		return (int) array_shift($args);
+	case '%s':
+		return xDBMysql::escapeString(array_shift($args));
+	case '%%':
+		return '%';
+	case '%f':
+		return (float) array_shift($args);
+	case '%b': // binary data
+		return xDBMysql::encodeBlob(array_shift($args));
+	}
+}
 
 
 ?>

@@ -21,9 +21,9 @@
 */
 class xModuleInstallCMS extends xModule
 {
-	function xModuleInstallCMS
+	function xModuleInstallCMS()
 	{
-		$this->xModule();
+		$this->xModule('InstallCMS','engine/cms/');
 	}
 	
 	/**

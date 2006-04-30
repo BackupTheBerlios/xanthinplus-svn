@@ -16,11 +16,6 @@
 */
 
 
-require_once('engine/framework/framework.inc.php');
-
-
-
-
 /**
 * @todo
 */
@@ -60,7 +55,7 @@ function xanth_main()
 	
 	//start execution
 	$page = new xPage();
-	$page->render();
+	echo $page->render();
 	
 	//print log
 	echo '<br />';

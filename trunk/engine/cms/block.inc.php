@@ -17,53 +17,25 @@
 
 
 /**
-* Box Data Transfer Object
+* Represent dynamically generated block of code.
 */
-class xBoxDTO
+class xBlock extends xElement
 {
 	/**
-	* @var string
-	* @access public
+	* Contructor
 	*/
-	var $m_name;
+	function xBlock()
+	{
+		$this->xElement();
+	}
 	
-	/**
-	* @var string
-	* @access public
-	*/
-	var $m_title;
-	
-	/**
-	* if dynamic, content and content format will be ignored. Contents will be generated dymanically by some module.
-	*
-	* @var bool
-	* @access public
-	*/ 
-	var $m_is_dynamic;
-	
-	/**
-	* @var string
-	* @access public
-	*/
-	var $m_content;
-	
-	/**
-	* @var string
-	* @access public
-	*/
-	var $m_content_format;
-	
-	/**
-	* if empty (NULL,FALSE,...) no area ssignation
-	*
-	* @var string
-	* @access public
-	*/
-	var $m_area;
+	// DOCS INHERITHED  ========================================================
+	function render()
+	{
+		//must override
+		assert(FALSE);
+	}
 };
-
-
-
 
 
 

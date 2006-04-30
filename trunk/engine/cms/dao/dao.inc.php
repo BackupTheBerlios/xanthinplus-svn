@@ -15,30 +15,6 @@
 * PURPOSE ARE DISCLAIMED.SEE YOUR CHOOSEN LICENSE FOR MORE DETAILS.
 */
 
-
-/**
-* Tha base class for all page elements.
-*/
-class xElement
-{
-	var $m_name;
-	
-	function xElement()
-	{
-		$this->m_name = '';
-	}
-	
-	/**
-	* Render the page element using the object current view view.
-	* 
-	* @return string XHTML code representing the renderized element.
-	*/
-	function render()
-	{
-		//virtual method
-		assert(FALSE);
-	}
-};
-
+require_once('engine/cms/dao/box.dao.inc.php');
 
 ?>

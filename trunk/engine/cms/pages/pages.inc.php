@@ -15,23 +15,6 @@
 * PURPOSE ARE DISCLAIMED.SEE YOUR CHOOSEN LICENSE FOR MORE DETAILS.
 */
 
-
-/**
-* Represent a node in the CMS. A node can be an article, a blog entry, a forum post.
-*/
-class xNode extends xElement
-{
-	function xNode()
-	{
-		$this->xElement('');
-	}
-	
-	// DOCS INHERITHED  ========================================================
-	function render()
-	{
-		return xTheme::getActive()->renderNode($this);
-	}
-};
-
+require_once('engine/cms/pages/homepage.inc.php');
 
 ?>

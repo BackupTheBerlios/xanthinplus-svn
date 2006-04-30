@@ -15,7 +15,11 @@
 * PURPOSE ARE DISCLAIMED.SEE YOUR CHOOSEN LICENSE FOR MORE DETAILS.
 */
 
-require_once('./engine/xanthin.inc.php');
-xanth_init();
+require_once('conf.inc.php');
+require_once('./engine/framework/framework.inc.php');
+require_once('./engine/cms/cms.inc.php');
+
+
+xanth_main();
 
 ?>

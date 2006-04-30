@@ -112,18 +112,19 @@ class xScreenLog
 };
 
 
+define('LOG_LEVEL_FATAL_ERROR',2);
+define('LOG_LEVEL_ERROR',4);
+define('LOG_LEVEL_WARNING',8);
+define('LOG_LEVEL_NOTICE',16);
+define('LOG_LEVEL_USER_MESSAGE',32);
+define('LOG_LEVEL_AUDIT',64);
+define('LOG_LEVEL_DEBUG',128);
+
 /**
 * The xLog class contains static functions for message and error logging.
 */
 class xLog
 {
-	define('LOG_LEVEL_FATAL_ERROR',2);
-	define('LOG_LEVEL_ERROR',4);
-	define('LOG_LEVEL_WARNING',8);
-	define('LOG_LEVEL_NOTICE',16);
-	define('LOG_LEVEL_USER_MESSAGE',32);
-	define('LOG_LEVEL_AUDIT',64);
-	define('LOG_LEVEL_DEBUG',128);
 
 	/**
 	* Function for logging messages and error. For every logging level a specific action will be taken.
