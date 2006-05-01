@@ -115,6 +115,15 @@ class xDummyModule extends xModule
 	*/
 	function getContent($path)
 	{}
+	
+	/**
+	* Returns the rendered content for a dynamic box
+	*
+	* @param string $id
+	* @return string The rendered content if your module is the responsable of the given id, NULL otherwise.
+	*/
+	function renderBoxContent($id)
+	{}
 };
 
 

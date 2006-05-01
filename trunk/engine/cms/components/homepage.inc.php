@@ -17,20 +17,13 @@
 
 
 /**
-* Represent  a page content.
+* The module responsible of homepage.
 */
 class xModuleHomepage extends xModule
 {
 	function xModuleHomepage()
 	{
 		$this->xModule('Homepage','engine/cms/pages/');
-	}
-	
-	// DOCS INHERITHED  ========================================================
-	function render()
-	{
-		//must override
-		assert(FALSE);
 	}
 
 	/**

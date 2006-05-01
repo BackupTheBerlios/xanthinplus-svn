@@ -17,17 +17,18 @@
 
 
 /**
-* A module for installing the core cms database.
+* An object for installing the core cms database.
 */
-class xModuleInstallCMS extends xModule
+class xInstallCMS
 {
 	function xModuleInstallCMS()
 	{
-		$this->xModule('InstallCMS','engine/cms/');
+		//not instantiable
+		assert(FASLE);
 	}
 	
 	/**
-	*
+	* Installs the cms in a Mysql db
 	*/
 	function installDBMySql()
 	{
@@ -42,6 +43,7 @@ class xModuleInstallCMS extends xModule
 			)TYPE=InnoDB"
 		);
 		
+		
 		//sessions
 		xDB::getDB()->query("
 			CREATE TABLE sessions (
@@ -51,6 +53,7 @@ class xModuleInstallCMS extends xModule
 			PRIMARY KEY  (session_id)
 			)TYPE=InnoDB"
 		);
+		
 		
 		//box TODO add foreign key to content format
 		xDB::getDB()->query("
@@ -64,9 +67,103 @@ class xModuleInstallCMS extends xModule
 			PRIMARY KEY(name)
 			)TYPE=InnoDB"
 		);
+		//create some default box
+		$box = new xBox('Login','Login',true,'','','leftArea');
+		$box->dbInsert();
 		
+		//Roles
+		xanth_db_query("
+			CREATE TABLE role (
+			name VARCHAR(32) NOT NULL,
+			description VARCHAR(255) NOT NULL,
+			PRIMARY KEY(name)
+			)TYPE=InnoDB"
+		);
+		$role = new xRole('administrator','Administrator');$role->dbInsert();
+		$role = new xRole('authenticated','Authenticated user');$role->dbInsert();
+		$role = new xRole('anonymous','Anonymous visitor');$role->dbInsert();
+		
+		//role to access rules
+		xanth_db_query("
+			CREATE TABLE role_access_rule (
+			roleName VARCHAR(32) NOT NULL,
+			access_rule VARCHAR(32) NOT NULL,
+			UNIQUE(roleName,access_rule),
+			INDEX(roleName),
+			FOREIGN KEY (roleName) REFERENCES role(name) ON DELETE CASCADE,
+			)TYPE=InnoDB"
+		);
+		
+		//Users
+		xanth_db_query("
+			CREATE TABLE user (
+			id INT UNSIGNED AUTO_INCREMENT NOT NULL,
+			username VARCHAR(32) NOT NULL,
+			password VARCHAR(64) NOT NULL,
+			email VARCHAR(128) NOT NULL,
+			cookie_token VARCHAR(64) NOT NULL,
+			PRIMARY KEY (id),
+			UNIQUE(username),
+			INDEX(username),
+			UNIQUE(email)
+			)TYPE=InnoDB");
+			
+		//User to role
+		xanth_db_query("
+			CREATE TABLE user_to_role (
+			userid INT UNSIGNED NOT NULL,
+			roleName VARCHAR(32) NOT NULL,
+			UNIQUE(userid,roleName),
+			INDEX(userid),
+			INDEX(roleName),
+			FOREIGN KEY (userid) REFERENCES user(id) ON DELETE CASCADE,
+			FOREIGN KEY (roleName) REFERENCES role(name) ON DELETE CASCADE
+			)TYPE=InnoDB");
+			
+		$user = new xUser('','admin','root@localhost.com');
+		$user->insert('pass');
+		$user->add_in_role('administrator');
+		
+		//create a box for login
+		$login_box = new xBox('login_box','Login',NULL,'Full Html',0,'sidebar left');
+		$login_box->insert();
 	}
 };
+
+
+/**
+*
+*/
+function xanth_install_main()
+{
+	//select DB
+	if(xConf::get('db_type','mysql') == 'mysql')
+	{
+		$db = new xDBMysql();
+		$db->connect(xConf::get('db_host',''),xConf::get('db_name',''),xConf::get('db_user',''),xConf::get('db_pass',''),xConf::get('db_port',''));
+		xDB::setDB($db);
+	}
+	else
+	{
+		exit('Unknown database type');
+	}
+	
+	//error handler
+	set_error_handler('xanth_php_error_handler');
+	
+	//install cms
+	xInstallCMS::installDBMySql();
+	
+	//print log
+	echo '<br />';
+	echo '<br />';
+	foreach(xScreenLog::get() as $entry)
+	{
+		echo '<br />' . $entry->level . ' ' . $entry->message . ' ' . $entry->filename . '@' . $entry->line;
+	}
+	
+	echo "Xanthin Successfully installed";
+}
 
 
 ?>

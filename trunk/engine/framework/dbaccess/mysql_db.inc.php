@@ -186,9 +186,8 @@ class xDBMysql extends xDB
 		$message = $this->escapeString($logentry->message);
 		$filename = $this->escapeString($logentry->filename);
 		
-		$result = $this->query("INSERT INTO xanth_log(level,message,filename,line,timestamp) VALUES('" . 
-			$logentry->level . "','" . $logentry->message . "','" . $logentry->filename . "'," . 
-			$logentry->line . ",NOW())");
+		$result = $this->query("INSERT INTO xanth_log(level,message,filename,line,timestamp) VALUES(%d,'%s','%s',%d,NOW())",
+			$logentry->level ,$logentry->message,$logentry->filename,$logentry->line);
 		if(!$result)
 			exit('Logging failed:'. mysql_error());
 	}

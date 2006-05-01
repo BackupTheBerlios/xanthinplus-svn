@@ -109,7 +109,7 @@ class xBoxDAO
 		
 		while($row = xDB::getDB()->fetchArray($result))
 		{
-			$current_box = new xBox($row['name'],$row['title'],$row['content'],$row['content_format'],$row['is_dynamic'],$row['area']);
+			$current_box = new xBox($row['name'],$row['title'],$row['is_dynamic'],$row['content'],$row['content_format'],$row['area']);
 			$boxes[] = $current_box;
 		}
 		return $boxes;

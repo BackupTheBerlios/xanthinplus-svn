@@ -39,11 +39,18 @@ class xTheme
 	/**
 	* Render the box element.
 	* 
-	* @param $box(xBoxElement) The element to render.
-	* @return (string) the renderized element.
+	* @param string $title
+	* @param string $content
+	* @return string the renderized element.
 	*/
-	function renderBox($box)
+	function renderBox($title,$content)
 	{
+		$output = 
+		'<div>' . $title . '</div>
+		<div>' . $content . '<div>
+		'
+		;
+		return $output;
 	}
 	
 	/**

@@ -29,6 +29,6 @@ require_once('engine/cms/node.inc.php');
 require_once('engine/cms/page.inc.php');
 require_once('engine/cms/theme.inc.php');
 
-require_once('engine/cms/pages/pages.inc.php');
+require_once('engine/cms/components/components.inc.php');
 
 ?>

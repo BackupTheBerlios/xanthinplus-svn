@@ -79,14 +79,31 @@ class xBox extends xElement
 	// DOCS INHERITHED  ========================================================
 	function render()
 	{
-		//must override
-		assert(FALSE);
+		if($this->m_is_dynamic)
+		{
+			$content = '';
+			$modules = xModule::getModules();
+			foreach($modules as $module)
+			{
+				if(method_exists($module,'renderBoxContent'))
+				{
+					$content = $module->renderBoxContent($this->m_id);
+					if($content != NULL)
+					{
+						return xTheme::getActive()->renderBox($this->m_title,$content);
+					}
+				}
+			}
+		}
+		else
+		{
+			//for now
+			assert(FALSE);
+		}
 	}
 	
 	/**
 	* Insert a this box element into database.
-	*
-	* 
 	*/
 	function dbInsert()
 	{
@@ -100,8 +117,7 @@ class xBox extends xElement
 	*/
 	function getBoxesForArea($name)
 	{
-		//return xBoxDAO::find($this->m_name);
-		return array();
+		return xBoxDAO::find($this->m_id);
 	}
 };
 

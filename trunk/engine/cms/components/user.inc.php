@@ -16,11 +16,31 @@
 */
 
 
-require_once('conf.inc.php');
-require_once('./engine/framework/framework.inc.php');
-require_once('./engine/cms/cms.inc.php');
+/**
+* Module responsible of user management
+*/
+class xModuleUser extends xModule
+{
+	function xModuleUser()
+	{
+		$this->xModule('User','engine/cms/components/');
+	}
 
-xanth_install_main();
+	/**
+	 * @see xDummyModule::renderBoxContent()
+	 */
+	function renderBoxContent($id)
+	{
+		if($id == 'Login')
+		{
+			return 'Test user';
+		}
+		
+		return NULL;
+	}
+};
 
 
+xModule::registerModule(new xModuleUser());
+	
 ?>
