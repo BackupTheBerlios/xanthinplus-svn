@@ -110,7 +110,7 @@ class xRoleDAO
 	 * @return bool
 	 * @static
 	 */
-	function roleHaveAccess($role,$access_rule)
+	function haveAccess($role,$access_rule)
 	{
 		$result = xDB::getDB()->query("SELECT * FROM role_access_rule WHERE roleName = '%s' AND access_rule = '%s'",
 			$role->m_name,$access_rule);
