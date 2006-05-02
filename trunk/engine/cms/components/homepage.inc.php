@@ -23,7 +23,7 @@ class xModuleHomepage extends xModule
 {
 	function xModuleHomepage()
 	{
-		$this->xModule('Homepage','engine/cms/pages/');
+		$this->xModule('Homepage','engine/cms/components/');
 	}
 
 	/**

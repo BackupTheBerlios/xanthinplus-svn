@@ -53,10 +53,12 @@ class xUser
 
 	/**
 	 * Insert this user in database
+	 *
+	 * @param string $password
 	 */
-	function dbInsert()
+	function dbInsert($password)
 	{
-		$this->m_id = xUserDAO::insert($this);
+		$this->m_id = xUserDAO::insert($this,$password);
 	}
 	
 	/**
@@ -69,10 +71,12 @@ class xUser
 	
 	/**
 	 * Update data of this user
+	 *
+	 * @param string $password
 	 */
-	function dbUpdate()
+	function dbUpdate($password)
 	{
-		 xUserDAO::update($this);
+		 xUserDAO::update($this,$password);
 	}
 	
 	
@@ -87,7 +91,7 @@ class xUser
 	 */
 	function login($username,$password,$remember)
 	{
-		$user = xUserDAO::checkLogin();
+		$user = xUserDAO::checkLogin($username,$password);
 		if($user != NULL)
 		{
 			//destroy old persistent data
@@ -99,7 +103,7 @@ class xUser
 			//...and the cookie if necessary
 			if($remember)
 			{
-				xUser::_updatePersistentLogin($this->username);
+				xUser::_updatePersistentLogin($username);
 			}
 			
 			return $user;
@@ -297,7 +301,7 @@ class xUser
 	 */
 	function removeFromRole($role)
 	{
-		xUserDAO::removeFromRole($this,$role)
+		xUserDAO::removeFromRole($this,$role);
 	}
 	
 	/**
@@ -316,8 +320,9 @@ class xUser
 				return TRUE;
 			}
 			
+			$role = new xRole('authenticated','');
 			//check for authenticated user
-			if(xRoleDAO::haveAccess(new xRole('authenticated',''),$access_rule))
+			if($role->haveAccess($access_rule))
 			{
 				return TRUE;
 			}
@@ -330,7 +335,8 @@ class xUser
 		}
 		else //anonymous user
 		{
-			if(xRoleDAO::haveAccess(new xRole('anonymous',''),$access_rule))
+			$role = new xRole('anonymous','');
+			if($role->haveAccess($access_rule))
 			{
 				return TRUE;
 			}

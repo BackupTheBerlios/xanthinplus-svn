@@ -68,10 +68,10 @@ class xXanthPath
 		else 
 		{
 			$path = new xXanthPath();
-			$path->base_path = $pieces[1];
+			$path->m_base_path = $pieces[1];
 			if(isSet($pieces[5]))
 			{
-				$path->resource_id = $pieces[5];
+				$path->m_resource_id = $pieces[5];
 			}
 			
 			return $path;

@@ -72,7 +72,7 @@ class xInstallCMS
 		$box->dbInsert();
 		
 		//Roles
-		xanth_db_query("
+		xDB::getDB()->query("
 			CREATE TABLE role (
 			name VARCHAR(32) NOT NULL,
 			description VARCHAR(255) NOT NULL,
@@ -84,18 +84,18 @@ class xInstallCMS
 		$role = new xRole('anonymous','Anonymous visitor');$role->dbInsert();
 		
 		//role to access rules
-		xanth_db_query("
+		xDB::getDB()->query("
 			CREATE TABLE role_access_rule (
 			roleName VARCHAR(32) NOT NULL,
 			access_rule VARCHAR(32) NOT NULL,
 			UNIQUE(roleName,access_rule),
 			INDEX(roleName),
-			FOREIGN KEY (roleName) REFERENCES role(name) ON DELETE CASCADE,
+			FOREIGN KEY (roleName) REFERENCES role(name) ON DELETE CASCADE
 			)TYPE=InnoDB"
 		);
 		
 		//Users
-		xanth_db_query("
+		xDB::getDB()->query("
 			CREATE TABLE user (
 			id INT UNSIGNED AUTO_INCREMENT NOT NULL,
 			username VARCHAR(32) NOT NULL,
@@ -109,7 +109,7 @@ class xInstallCMS
 			)TYPE=InnoDB");
 			
 		//User to role
-		xanth_db_query("
+		xDB::getDB()->query("
 			CREATE TABLE user_to_role (
 			userid INT UNSIGNED NOT NULL,
 			roleName VARCHAR(32) NOT NULL,
@@ -121,12 +121,8 @@ class xInstallCMS
 			)TYPE=InnoDB");
 			
 		$user = new xUser('','admin','root@localhost.com');
-		$user->insert('pass');
-		$user->add_in_role('administrator');
-		
-		//create a box for login
-		$login_box = new xBox('login_box','Login',NULL,'Full Html',0,'sidebar left');
-		$login_box->insert();
+		$user->dbInsert('pass');
+		$user->giveRole(new xRole('administrator',''));
 	}
 };
 

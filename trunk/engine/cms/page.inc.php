@@ -39,6 +39,16 @@ class xPage extends xElement
 	{
 		$this->xElement('');
 		
+		//broadcast onPageCreation event
+		$modules = xModule::getModules();
+		foreach($modules as $module)
+		{
+			if(method_exists($module,'onPageCreation'))
+			{
+				$module->onPageCreation();
+			}
+		}
+		
 		//ask for content
 		$this->m_content = xContent::getContent();
 		

@@ -16,5 +16,7 @@
 */
 
 require_once('engine/cms/dao/box.dao.inc.php');
+require_once('engine/cms/dao/role.dao.inc.php');
+require_once('engine/cms/dao/user.dao.inc.php');
 
 ?>

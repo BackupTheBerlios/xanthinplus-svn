@@ -40,9 +40,9 @@ class xContent extends xElement
 	var $m_keywords;
 	
 	/**
-	* 
-	*
-	*/
+	 * 
+	 *
+	 */
 	function xContent($id,$title,$description,$keywords)
 	{
 		$this->xElement($id);
@@ -79,16 +79,100 @@ class xContent extends xElement
 			if(method_exists($module,'getContent'))
 			{
 				$content = $module->getContent($path);
-				if($content != NULL)
+				if($content !== NULL)
 				{
 					return $content;
 				}
 			}
 		}
 		
+		if($content == NULL)
+		{
+			$content = new xContentSimple('',"Page not found",'The page you requested was not found','','');
+		}
+		
 		return $content;
 	}
 };
 
+
+
+/**
+ * Represent a simple page content that can contain only statically renderizable data.
+ */
+class xContentSimple extends xContent
+{
+	/**
+	 * @var string
+	 * @access public
+	 */
+	var $m_content;
+	
+	/**
+	* 
+	*
+	*/
+	function xContentSimple($id,$title,$content,$description,$keywords)
+	{
+		$this->xContent($id,$title,$description,$keywords);
+		
+		$this->m_content = $content;
+	}
+	
+	// DOCS INHERITHED  ========================================================
+	function render()
+	{
+		return $this->m_content;
+	}
+};
+
+
+/**
+ * Represent an error page.
+ */
+class xContentError extends xContent
+{
+	/**
+	 * @var string
+	 * @access public
+	 */
+	var $m_error;
+	
+	/**
+	 * 
+	 *
+	 */
+	function xContentError($id,$error)
+	{
+		$this->xContent($id,'Error','Error','');
+		
+		$this->m_error = $error;
+	}
+	
+	// DOCS INHERITHED  ========================================================
+	function render()
+	{
+		return '<b>There was an error while creating the page content: ' . $this->m_error . '</b>';
+	}
+};
+
+
+
+
+/**
+ * Represent a not authorized page.
+ */
+class xContentNotAuthorized extends xContentError
+{
+	
+	/**
+	 * 
+	 *
+	 */
+	function xContentNotAuthorized()
+	{
+		$this->xContentError($id,'You are not authorized to access this page');
+	}
+};
 
 ?>

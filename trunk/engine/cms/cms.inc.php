@@ -28,6 +28,8 @@ require_once('engine/cms/main.inc.php');
 require_once('engine/cms/node.inc.php');
 require_once('engine/cms/page.inc.php');
 require_once('engine/cms/theme.inc.php');
+require_once('engine/cms/role.inc.php');
+require_once('engine/cms/user.inc.php');
 
 require_once('engine/cms/components/components.inc.php');
 

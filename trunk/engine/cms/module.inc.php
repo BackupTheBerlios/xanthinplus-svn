@@ -117,6 +117,12 @@ class xDummyModule extends xModule
 	{}
 	
 	/**
+	* Called when the page creation occur. Use this method to do all the stuff befor a the page is created.
+	*/
+	function onPageCreation()
+	{}
+	
+	/**
 	* Returns the rendered content for a dynamic box
 	*
 	* @param string $id
