@@ -185,14 +185,14 @@ class xUser
 	 * @return xUser If the login was valid returns a xUser object created from login data, NULL otherwise.
 	 * @static
 	 */
-	function checkPersistentLogin() 
+	function checkPersistentLogin()
 	{
 		if(isset($_COOKIE[XANTH_LOGIN_COOKIE_NAME]))
 		{
 			list($username, $cookie_token) = @unserialize($_COOKIE[XANTH_LOGIN_COOKIE_NAME]);
 			if(!empty($username) && !empty($cookie_token))
 			{
-				$user = checkCookieToken($username,$cookie_token);
+				$user = xUserDAO::checkCookieToken($username,$cookie_token);
 				if($user != NULL) 
 				{
 					//ok regenerate token for additional security

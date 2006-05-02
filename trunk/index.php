@@ -16,9 +16,8 @@
 */
 
 require_once('conf.inc.php');
-require_once('./engine/framework/framework.inc.php');
-require_once('./engine/cms/cms.inc.php');
-
+require_once('engine/framework/framework.inc.php');
+require_once('engine/cms/cms.inc.php');
 
 xanth_main();
 

@@ -28,8 +28,7 @@ function xanth_include_modules()
 */
 function xanth_main()
 {
-	global $start_time; 
-	$start_time = gettimeofday(TRUE);
+	xExecutionTime::executionStarted();
 	
 	ob_start();
 	

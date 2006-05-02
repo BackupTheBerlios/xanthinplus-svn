@@ -20,7 +20,6 @@ require_once('engine/cms/dao/dao.inc.php');
 require_once('engine/cms/module.inc.php');
 require_once('engine/cms/element.inc.php');
 require_once('engine/cms/area.inc.php');
-require_once('engine/cms/block.inc.php');
 require_once('engine/cms/box.inc.php');
 require_once('engine/cms/content.inc.php');
 require_once('engine/cms/install.inc.php');
@@ -30,6 +29,7 @@ require_once('engine/cms/page.inc.php');
 require_once('engine/cms/theme.inc.php');
 require_once('engine/cms/role.inc.php');
 require_once('engine/cms/user.inc.php');
+require_once('engine/cms/utilities.inc.php');
 
 require_once('engine/cms/components/components.inc.php');
 

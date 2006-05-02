@@ -131,6 +131,7 @@ class xTheme
 		$output .= '<td id="left-sidebar">' . $left_area_out . '</td>';
 		$output .= '<td id="content">'. $content->render() .'</td>';
 		$output .= "</tr></table>\n";
+		$output .= '<div align="center"> Queries ' . xDB::getDB()->queryGetCount() . ', Execution time ' . xExecutionTime::render() . ' secs</div>';
 		$output .= " </body>\n";
 		$output .= "</html>\n";
 		

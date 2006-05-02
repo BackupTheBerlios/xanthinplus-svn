@@ -302,7 +302,7 @@ class xDB
 	*
 	* @return int
 	*/
-	function queryGetCount() 
+	function queryGetCount()
 	{
 		return $this->m_query_count;
 	}

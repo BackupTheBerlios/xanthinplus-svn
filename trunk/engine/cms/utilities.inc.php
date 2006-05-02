@@ -17,26 +17,47 @@
 
 
 /**
-* Represent dynamically generated block of code.
+* An element to count the exexution time of the script. Render it at the foot of your page.
 */
-class xBlock extends xElement
+class xExecutionTime extends xElement
 {
 	/**
 	* Contructor
 	*/
-	function xBlock()
+	function xExecutionTime()
 	{
-		$this->xElement();
+		$this->xElement('Execution Time');
 	}
 	
 	// DOCS INHERITHED  ========================================================
 	function render()
 	{
-		//must override
-		assert(FALSE);
+		global $g_execution_started;
+		return '' . xExecutionTime::_getmicrotime() - $g_execution_started;
+	}
+	
+	/**
+	 * Call this method when the execution of the script starts
+	 *
+	 * @static
+	 */
+	function executionStarted()
+	{
+		global $g_execution_started;
+		$g_execution_started = xExecutionTime::_getmicrotime();
+	}
+	
+	/**
+	 * Necessary for PHP4
+	 *
+	 * @access private
+	 */
+	function _getmicrotime()
+	{
+	   list($usec, $sec) = explode(' ', microtime());
+	   return ((float)$usec + (float)$sec);
 	}
 };
-
 
 
 

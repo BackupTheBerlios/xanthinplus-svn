@@ -100,7 +100,6 @@ class xModuleUser extends xModule
 	}
 };
 
-
 xModule::registerModule(new xModuleUser());
 	
 ?>
