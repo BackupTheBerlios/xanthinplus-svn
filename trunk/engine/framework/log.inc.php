@@ -15,46 +15,93 @@
 * PURPOSE ARE DISCLAIMED.SEE YOUR CHOOSEN LICENSE FOR MORE DETAILS.
 */
 
+
 /**
-* A log entry.
-*/
-class xLogEntry
+ * Represent stack trace
+ */
+class xStackTrace
 {
-	var $level;
-	var $message;
-	var $filename;
-	var $line;
+	var $m_trace;
 	
-	function xLogEntry($level,$message,$filename,$line)
+	function xStackTrace($trace)
 	{
-		$this->level = $level;
-		$this->message = $message;
-		$this->filename = $filename;
-		$this->line = $line;
+		$this->m_trace = $trace;
+	}
+	
+	/**
+	 * Retrieve the current stack trace
+	 *
+	 * @param int $ntoremove the number of stack trace to remove from the beginning
+	 * @return xStackTrace
+	 * @static
+	 */
+	function getCurrent($ntoremove)
+	{
+		$trace = debug_backtrace();
+		for($i=0;$i < $ntoremove;$i++)
+		{
+			unset($trace[$i]);
+		}
+		
+		return new xStackTrace($trace);
+	}
+	
+	/**
+	 * Returns a human readable representation of this stack trace
+	 *
+	 * @return string
+	 */
+	function renderTrace()
+	{
+		$output = '';
+		foreach($this->m_trace as $stack)
+		{
+			$class = isset($stack['class'])?$stack['class']:'';
+			$type = isset($stack['type'])?$stack['type']:'';
+			$output .= '<i>'. $class .$type.$stack['function'] . '</i> in file ' . $stack['file'] .
+				'@' . $stack['line'] . '<br/>';
+				
+		}
+		
+		return $output;
 	}
 };
 
 
 
-
-
-
 /**
-* A class containing static functions for managing screen logging
+* A log entry.
 */
-class xScreenLog
+class xLogEntry
 {
+	var $m_id;
+	var $m_level;
+	var $m_message;
+	var $m_filename;
+	var $m_line;
+	var $m_stacktrace;
+	
+	function xLogEntry($id,$level,$message,$filename,$line,$stacktrace = NULL)
+	{
+		$this->m_id = $id;
+		$this->m_level = $level;
+		$this->m_message = $message;
+		$this->m_filename = $filename;
+		$this->m_line = $line;
+		$this->m_stacktrace = $stacktrace;
+	}
+	
+	
 	/**
-	 * Enqueue a log entry for async display.
+	 * Enqueue a log entry for async screen display.
 	 * @param xLogEntry $log_entry the log entry
-	 * @static
 	 */
-	function add($log_entry)
+	function insertToScreen()
 	{
 		global $xanth_screen_log;
 		if(!isSet($xanth_screen_log))
 			$xanth_screen_log = array();
-		$xanth_screen_log[] = $log_entry;
+		$xanth_screen_log[] = $this;
 	}
 
 	/**
@@ -63,7 +110,7 @@ class xScreenLog
 	 * @return array(xLogEntry) An array of requested log entries
 	 * @static 
 	 */
-	function get($level = -1)
+	function getFromScreen($level = -1)
 	{
 		global $xanth_screen_log;
 		if(!isSet($xanth_screen_log))
@@ -90,7 +137,7 @@ class xScreenLog
 	 * @param int $level if not equal to -1,clears only log entries with this level.
 	 * @static
 	 */
-	function clear($level = -1)
+	function clearScreen($level = -1)
 	{
 		global $xanth_screen_log;
 		if($level == -1)
@@ -108,8 +155,106 @@ class xScreenLog
 			}
 		}
 	}
-
+	
+	/**
+	 * Render the screen log into a printable string. 
+	 *
+	 * @return string
+	 * @static
+	 */
+	function renderFromScreen()
+	{
+		$output = "";
+		foreach(xLogEntry::getFromScreen() as $entry)
+		{
+			$output .= "<table border='1'><tr><td>Log</td><td>";
+			
+			$output .= "<table border='1'><tr><th>id</th><th>level</th><th>message</th><th>filename</th><th>line</th></tr>";
+			$output .= '<tr><td>' . $entry->m_id . '</td><td>' . $entry->m_level . '</td><td>' .
+				$entry->m_message . '</td><td>' . $entry->m_filename .'</td><td>' . $entry->m_line . '</td></tr>';
+			$output .= "</table>";
+			$output .= "</td><tr>";
+			
+			$output .= "<tr><td>Stacktrace</td><td>";
+			if($entry->m_stacktrace != NULL)
+			{
+				$output .= $entry->m_stacktrace->renderTrace();			
+			}
+			$output .= "</td><tr>";
+			$output .= "</table>";
+		}
+		
+		return $output;
+	}
+	
+	/**
+	 *
+	 */
+	function renderFromDB()
+	{
+		$output = "";
+		foreach(xLogEntry::dbFindAll() as $entry)
+		{
+			$output .= "<table border='1'><tr><td>Log</td><td>";
+			
+			$output .= "<table border='1'><tr><th>id</th><th>level</th><th>message</th><th>filename</th><th>line</th></tr>";
+			$output .= '<tr><td>' . $entry->m_id . '</td><td>' . $entry->m_level . '</td><td>' .
+				$entry->m_message . '</td><td>' . $entry->m_filename .'</td><td>' . $entry->m_line . '</td></tr>';
+			$output .= "</table>";
+			$output .= "</td><tr>";
+			
+			$output .= "<tr><td>Stacktrace</td><td>";
+			if($entry->m_stacktrace != NULL)
+			{
+				$output .= $entry->m_stacktrace->renderTrace();			
+			}
+			$output .= "</td><tr>";
+			$output .= "</table>";
+		}
+		
+		return $output;
+	}
+	
+	/**
+	 * Insert this log entry into db
+	 */
+	function dbInsert()
+	{
+		//manual check to prevent deadlocks
+		if(!is_int($this->m_level) || !is_int($this->m_line))
+			return;
+		
+		xDB::getDB()->query("INSERT INTO xanth_log(level,message,filename,line,timestamp,stacktrace) VALUES(%d,'%s','%s',%d,NOW(),".
+			xDB::getDB()->encodeBlob(serialize($this->m_stacktrace)).")",
+			$this->m_level ,$this->m_message,$this->m_filename,$this->m_line);
+			
+		$this->m_id = xDB::getDB()->getLastId();
+	}
+	
+	/**
+	 * Delete a log entry from db. Based on id.
+	 */
+	function dbDelete()
+	{
+		xDB::getDB()->query("DELETE FROM xanth_log WHERE id = %d",$this->m_id);
+	}
+	
+	/**
+	 * Retrieves all logs.
+	 */
+	function dbFindAll()
+	{
+		$entries = array();
+		$result = xDB::getDB()->query("SELECT * FROM xanth_log");
+		while($row = xDB::getDB()->fetchObject($result))
+		{
+			$entries[] = new xLogEntry($row->id,$row->level,$row->message,$row->filename,
+				$row->line,unserialize(xDB::getDB()->decodeBlob($row->stacktrace)));
+		}
+		return $entries;
+	}
 };
+
 
 
 define('LOG_LEVEL_FATAL_ERROR',2);
@@ -143,7 +288,7 @@ class xLog
 	*/
 	function log($level,$message,$filename = '',$line = 0)
 	{
-		$log_entry = new xLogEntry($level,$message,$filename,$line);
+		$log_entry = new xLogEntry(0,$level,$message,$filename,$line);
 		
 		if($level == LOG_LEVEL_FATAL_ERROR)
 		{
@@ -152,17 +297,18 @@ class xLog
 		
 		if($level == LOG_LEVEL_ERROR || $level == LOG_LEVEL_WARNING || $level == LOG_LEVEL_NOTICE || $level == LOG_LEVEL_USER_MESSAGE)
 		{
-			xScreenLog::add($log_entry);
+			$log_entry->m_stacktrace = xStackTrace::getCurrent(2);
+			$log_entry->insertToScreen();
 		}
 		
 		if($level > LOG_LEVEL_FATAL_ERROR && $level < LOG_LEVEL_DEBUG && $level != LOG_LEVEL_USER_MESSAGE)
 		{
-			xDB::getDB()->log($log_entry);
+			$log_entry->dbInsert();
 		}
 		
 		if($level == LOG_LEVEL_DEBUG && xanth_conf_get('debug', false))
 		{
-			xDB::getDB()->log($log_entry);
+			$log_entry->dbInsert();
 		}
 	}
 };

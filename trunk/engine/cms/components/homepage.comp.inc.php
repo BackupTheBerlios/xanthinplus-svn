@@ -26,9 +26,7 @@ class xModuleHomepage extends xModule
 		$this->xModule('Homepage','engine/cms/components/');
 	}
 
-	/**
-	 * @see xDummyModule::getContent()
-	 */
+	// DOCS INHERITHED  ========================================================
 	function getContent($path)
 	{
 		if($path->m_base_path == '')
@@ -48,7 +46,7 @@ class xContentHomepage extends xContent
 	
 	function xContentHomepage()
 	{
-		$this->xContent('Homepage','Home','description','keywords');
+		$this->xContent('Home','description','keywords');
 	}
 
 	// DOCS INHERITHED  ========================================================

@@ -23,7 +23,7 @@ class xNode extends xElement
 {
 	function xNode()
 	{
-		$this->xElement('');
+		$this->xElement();
 	}
 	
 	// DOCS INHERITHED  ========================================================

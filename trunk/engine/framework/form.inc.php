@@ -86,36 +86,6 @@ class xInputValidatorText extends xInputValidator
 
 
 /**
- * A validator that checks that a text is tag-free. If this occur, the text are filtered from all tags.
- */
-class xInputValidatorTextNoTags extends xInputValidatorText
-{
-	/**
-	 * Contructor.
-	 *
-	 * @param int $maxlenght The max lenght of the text to be considered valid.
-	 */
-	function xInputValidatorTextNoTags($maxlength)
-	{
-		xInputValidatorText::xInputValidatorText($maxlength);
-	}
-	
-	// DOCS INHERITHED  ========================================================
-	function validate($input)
-	{
-		$input = xInputValidatorText::validate($input);
-		if(empty($input))
-		{
-			return $input;
-		}
-
-		$input = htmlspecialchars($input);
-		return $input;
-	}
-}
-
-
-/**
  * A validator that checks if a text correspond to a given regular expression.
  */
 class xInputValidatorTextRegex extends xInputValidatorText
@@ -465,7 +435,7 @@ class xFormElementTextArea extends xFormElement
 	// DOCS INHERITHED  ========================================================
 	function validate()
 	{
-		$this->value = htmlspecialchars($this->getPostedValue());
+		$this->m_value = htmlspecialchars($this->getPostedValue());
 		return xFormElement::validate();
 	}
 	

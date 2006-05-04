@@ -35,11 +35,14 @@ class xInstallCMS
 		//log
 		xDB::getDB()->query("
 			CREATE TABLE xanth_log (
+			id INT UNSIGNED AUTO_INCREMENT NOT NULL,
 			level MEDIUMINT NOT NULL,
 			message TEXT NOT NULL,
 			filename  VARCHAR(255) NOT NULL,
 			line MEDIUMINT NOT NULL,
-			timestamp TIMESTAMP
+			timestamp TIMESTAMP NOT NULL,
+			stacktrace BLOB,
+			PRIMARY KEY(id)
 			)TYPE=InnoDB"
 		);
 		
@@ -61,7 +64,7 @@ class xInstallCMS
 			name VARCHAR(64) NOT NULL,
 			title VARCHAR(255),
 			content TEXT,
-			content_format VARCHAR(64) NOT NULL,
+			content_filter VARCHAR(64) NOT NULL,
 			area VARCHAR(32),
 			is_dynamic TINYINT NOT NULL,
 			PRIMARY KEY(name)
@@ -151,12 +154,7 @@ function xanth_install_main()
 	xInstallCMS::installDBMySql();
 	
 	//print log
-	echo '<br />';
-	echo '<br />';
-	foreach(xScreenLog::get() as $entry)
-	{
-		echo '<br />' . $entry->level . ' ' . $entry->message . ' ' . $entry->filename . '@' . $entry->line;
-	}
+	echo xLogEntry::renderFromScreen();
 	
 	echo "Xanthin Successfully installed";
 }

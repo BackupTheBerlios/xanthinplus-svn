@@ -21,46 +21,65 @@
 class xPage extends xElement
 {
 	/**
-	* @var array(xArea)
-	* @access public
-	*/
+	 * @var xXanthPath
+	 * @access public
+	 */
+	var $m_path;
+	
+	
+	/**
+	 * @var array(xArea)
+	 * @access public
+	 */
 	var $m_areas;
 	
 	/**
-	* @var xContent
-	* @access public
-	*/
+	 * @var xContent
+	 * @access public
+	 */
 	var $m_content;
 	
 	/**
-	*
-	*/
-	function xPage()
+	 *
+	 */
+	function xPage($path,$content,$areas)
 	{
-		$this->xElement('');
+		$this->xElement();
 		
-		//broadcast onPageCreation event
-		$modules = xModule::getModules();
-		foreach($modules as $module)
-		{
-			if(method_exists($module,'onPageCreation'))
-			{
-				$module->onPageCreation();
-			}
-		}
-		
-		//ask for content
-		$this->m_content = xContent::getContent();
-		
-		//ask for areas
-		$this->m_areas = xArea::getAreas();
+		$this->m_path = $path;
+		$this->m_areas = $areas;
+		$this->m_content = $content;
 	}
 	
 	
 	// DOCS INHERITHED  ========================================================
 	function render()
 	{
-		return xTheme::getActive()->renderPage($this->m_id,$this->m_content,$this->m_areas);
+		return xTheme::getActive()->renderPage($this->m_content,$this->m_areas);
+	}
+	
+	/**
+	 * Retrieve the page that correnspond to a path.
+	 *
+	 * @param xXanthPath $path
+	 * @static
+	 */
+	function getPage($path)
+	{
+		//broadcast onPageCreation event
+		$modules = xModule::getModules();
+		foreach($modules as $module)
+		{
+			$module->onPageCreation($path);
+		}
+		
+		//ask for content
+		$content = xContent::getContent($path);
+		
+		//ask for areas
+		$areas = xArea::getAreas();
+		
+		return new xPage($path,$content,$areas);
 	}
 };
 

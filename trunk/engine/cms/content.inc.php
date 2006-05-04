@@ -43,9 +43,9 @@ class xContent extends xElement
 	 * 
 	 *
 	 */
-	function xContent($id,$title,$description,$keywords)
+	function xContent($title,$description,$keywords)
 	{
-		$this->xElement($id);
+		$this->xElement();
 		
 		$this->m_title = $title;
 		$this->m_description = $description;
@@ -62,33 +62,21 @@ class xContent extends xElement
 	/**
 	 * Gets the content.
 	 *
+	 * @param xXanthPath $path
 	 * @return xContent
 	 * @static
 	 */
-	function getContent()
+	function getContent($path)
 	{
 		$content = NULL;
 		
-		//extract the current path
-		$path = xXanthPath::getCurrent();
-		
 		//ask modules for a valid content for the current path.
-		$modules = xModule::getModules();
-		foreach($modules as $module)
-		{
-			if(method_exists($module,'getContent'))
-			{
-				$content = $module->getContent($path);
-				if($content !== NULL)
-				{
-					return $content;
-				}
-			}
-		}
+		$content = xModule::callWithSingleResult1('getContent',$path);
 		
-		if($content == NULL)
+		//not found
+		if($content === NULL)
 		{
-			$content = new xContentSimple('',"Page not found",'The page you requested was not found','','');
+			$content = new xContentSimple("Page not found",'The page you requested was not found','','');
 		}
 		
 		return $content;
@@ -112,9 +100,9 @@ class xContentSimple extends xContent
 	* 
 	*
 	*/
-	function xContentSimple($id,$title,$content,$description,$keywords)
+	function xContentSimple($title,$content,$description,$keywords)
 	{
-		$this->xContent($id,$title,$description,$keywords);
+		$this->xContent($title,$description,$keywords);
 		
 		$this->m_content = $content;
 	}
@@ -142,9 +130,9 @@ class xContentError extends xContent
 	 * 
 	 *
 	 */
-	function xContentError($id,$error)
+	function xContentError($error)
 	{
-		$this->xContent($id,'Error','Error','');
+		$this->xContent('Error','Error','');
 		
 		$this->m_error = $error;
 	}
@@ -164,14 +152,12 @@ class xContentError extends xContent
  */
 class xContentNotAuthorized extends xContentError
 {
-	
 	/**
 	 * 
-	 *
 	 */
 	function xContentNotAuthorized()
 	{
-		$this->xContentError($id,'You are not authorized to access this page');
+		$this->xContentError('You are not authorized to access this page');
 	}
 };
 

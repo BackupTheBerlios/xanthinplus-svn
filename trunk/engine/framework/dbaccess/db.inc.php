@@ -264,20 +264,6 @@ class xDB
 		//must override this function
 		assert(FALSE);
 	}
-
-
-	/**
-	* Save a log message into db. This function should not rise any php error log so should not 
-	* use other function from xanthin framework.
-	*
-	* @param xLogEntry $logentry The xLogEntry object to be logged.
-	* @abstract
-	*/
-	function log($logentry)
-	{
-		//must override this function
-		assert(FALSE);
-	}
 	
 	/**
 	* Increment the actual query count,in the current script execution.

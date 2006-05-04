@@ -21,17 +21,11 @@
 */
 class xElement
 {
-	var $m_id;
-	
 	/**
 	* Create a new Element.
-	* 
-	* @param mixed $id An indentificator fo the element, can be astring as well a number.
 	*/
-	function xElement($id)
-	{
-		$this->m_id = $id;
-	}
+	function xElement()
+	{}
 	
 	/**
 	* Render the page element using the object current view view.

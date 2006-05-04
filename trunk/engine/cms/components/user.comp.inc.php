@@ -26,28 +26,20 @@ class xModuleUser extends xModule
 		$this->xModule('User','engine/cms/components/');
 	}
 
-	/**
-	 * @see xDummyModule::renderBoxContent()
-	 */
-	function renderBoxContent($id)
+	// DOCS INHERITHED  ========================================================
+	function getDynamicBox($box)
 	{
-		if($id == 'Login')
+		if($box->m_id == 'Login')
 		{
-			$username = xUser::getLoggedinUsername();
-			if(!empty($username))
-			{
-				return "Logged as user $username<br /><a href=\"?p=user/logout\">Logout</a>";
-			}
-			
-			return "User not logged in<br /><a href=\"?p=user/login\">Login</a>";
+			return new xBoxLogin($box->m_id,$box->m_title,$box->m_is_dynamic,$box->m_content,
+				$box->m_content_filter,$box->m_area);
 		}
 		
 		return NULL;
 	}
 
-	/**
-	 * @see xDummyModule::getContent()
-	 */
+
+	// DOCS INHERITHED  ========================================================
 	function getContent($path)
 	{
 		//============================================================
@@ -65,7 +57,7 @@ class xModuleUser extends xModule
 				{
 					if($user = xUser::login($ret->m_valid_data['username'],$ret->m_valid_data['password'],TRUE) != NULL)
 					{
-						return new xContentSimple('',"User login",'Logged in','','');
+						return new xContentSimple("User login",'Logged in','','');
 					}
 				}
 				else
@@ -76,23 +68,23 @@ class xModuleUser extends xModule
 					}
 				}
 			}
-			return new xContentSimple('',"User login",$form->render(),'','');
+			return new xContentSimple("User login",$form->render(),'','');
 		}
 		
 		//============================================================
 		elseif($path->m_base_path == 'user/logout')
 		{
 			xUser::logout();
-			return new xContentSimple('',"User logout",'Logged out','','');
+			return new xContentSimple("User logout",'Logged out','','');
 		}
 		
 		//============================================================
 		return NULL;
 	}
 	
-	/**
-	 * @see xDummyModule::onPageCreation()
-	 */
+	
+	
+	// DOCS INHERITHED  ========================================================
 	function onPageCreation()
 	{
 		//check the login
@@ -101,5 +93,33 @@ class xModuleUser extends xModule
 };
 
 xModule::registerModule(new xModuleUser());
+
+
+/**
+ * A box for dysplaing login info.
+ */
+class xBoxLogin extends xBoxDynamic
+{
+	function xBoxLogin($id,$title,$is_dynamic,$content,$content_filter,$area = NULL)
+	{
+		xBoxDynamic::xBoxDynamic($id,$title,$is_dynamic,$content,$content_filter,$area);
+	}
+	
+	// DOCS INHERITHED  ========================================================
+	function render()
+	{
+		$username = xUser::getLoggedinUsername();
+		if(!empty($username))
+		{
+			$content = "Logged as user $username<br /><a href=\"?p=user/logout\">Logout</a>";
+		}
+		else
+		{
+			$content = "User not logged in<br /><a href=\"?p=user/login\">Login</a>";
+		}
+		
+		return xTheme::getActive()->renderBox($this->m_id,$this->m_title,$content);
+	}
+}
 	
 ?>

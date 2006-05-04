@@ -48,21 +48,18 @@ function xanth_main()
 	//error handler
 	set_error_handler('xanth_php_error_handler');
 	
+	$arr = NULL;
+	
 	//session
 	session_set_save_handler("on_session_start","on_session_end","on_session_read","on_session_write","on_session_destroy","on_session_gc");
 	session_start();
 	
-	//start execution
-	$page = new xPage();
-	echo $page->render();
+	//extract current path
+	$path = xXanthPath::getCurrent();
 	
-	//print log
-	echo '<br />';
-	echo '<br />';
-	foreach(xScreenLog::get() as $entry)
-	{
-		echo '<br />' . $entry->level . ' ' . $entry->message . ' ' . $entry->filename . '@' . $entry->line;
-	}
+	//start execution	
+	$page = xPage::getPage($path);
+	echo $page->render();
 	
 	session_write_close();
 	

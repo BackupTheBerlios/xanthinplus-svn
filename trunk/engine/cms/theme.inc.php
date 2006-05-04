@@ -39,11 +39,12 @@ class xTheme
 	/**
 	* Render the box element.
 	* 
+	* @param string $id
 	* @param string $title
 	* @param string $content
 	* @return string the renderized element.
 	*/
-	function renderBox($title,$content)
+	function renderBox($id,$title,$content)
 	{
 		$output = 
 		'<div>' . $title . '</div>
@@ -96,17 +97,16 @@ class xTheme
 	/**
 	* Render the whole page.
 	* 
-	* @param string $id
 	* @param array(xArea) $areas
 	* @return string the renderized element.
 	*/
-	function renderPage($id,$content,$areas)
+	function renderPage($content,$areas)
 	{
 		//first render areas for later use
 		$left_area_out = '';
 		foreach($areas as $area)
 		{
-			switch($area->m_id)
+			switch($area->m_name)
 			{
 			case 'leftArea':
 				$left_area_out .= $area->render();
@@ -129,9 +129,10 @@ class xTheme
 		$output .= "<body>\n";
 		$output .= '<table id="page-table"><tr>' . "\n";
 		$output .= '<td id="left-sidebar">' . $left_area_out . '</td>';
-		$output .= '<td id="content">'. $content->render() .'</td>';
+		$output .= '<td id="content">' . $content->render() . '</td>';
 		$output .= "</tr></table>\n";
 		$output .= '<div align="center"> Queries ' . xDB::getDB()->queryGetCount() . ', Execution time ' . xExecutionTime::render() . ' secs</div>';
+		$output .= xLogEntry::renderFromScreen();
 		$output .= " </body>\n";
 		$output .= "</html>\n";
 		
@@ -146,7 +147,6 @@ class xTheme
 	*/
 	function renderNode($page)
 	{
-		
 	}
 	
 	/**
@@ -157,7 +157,6 @@ class xTheme
 	*/
 	function renderContent($page)
 	{
-		
 	}
 };
 

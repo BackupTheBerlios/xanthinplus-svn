@@ -22,6 +22,12 @@
 class xBox extends xElement
 {
 	/**
+	 * @var string
+	 * @access public
+	 */
+	var $m_id;
+	
+	/**
 	* @var string
 	* @access public
 	*/
@@ -45,7 +51,7 @@ class xBox extends xElement
 	* @var string
 	* @access public
 	*/
-	var $m_content_format;
+	var $m_content_filter;
 	
 	/**
 	* if empty (NULL,FALSE,...) no area assignation
@@ -65,41 +71,22 @@ class xBox extends xElement
 	* @param string $content_format
 	* @param string $area
 	*/
-	function xBox($id,$title,$is_dynamic,$content,$content_format,$area = NULL)
+	function xBox($id,$title,$is_dynamic,$content,$content_filter,$area = NULL)
 	{
-		$this->xElement($id);
+		$this->xElement();
 		
+		$this->m_id = $id;
 		$this->m_title = $title;
 		$this->m_is_dynamic = $is_dynamic;
 		$this->m_content = $content;
-		$this->content_format = $content_format;
+		$this->content_filter = $content_filter;
 		$this->m_area = $area;
 	}
 	
 	// DOCS INHERITHED  ========================================================
 	function render()
 	{
-		if($this->m_is_dynamic)
-		{
-			$content = '';
-			$modules = xModule::getModules();
-			foreach($modules as $module)
-			{
-				if(method_exists($module,'renderBoxContent'))
-				{
-					$content = $module->renderBoxContent($this->m_id);
-					if($content != NULL)
-					{
-						return xTheme::getActive()->renderBox($this->m_title,$content);
-					}
-				}
-			}
-		}
-		else
-		{
-			//for now
-			assert(FALSE);
-		}
+		return NULL;
 	}
 	
 	/**
@@ -117,11 +104,95 @@ class xBox extends xElement
 	*/
 	function getBoxesForArea($name)
 	{
-		return xBoxDAO::find($this->m_id);
+		$boxes = xBoxDAO::find($this->m_name);
+		$boxes_new = array();
+		
+		//convert in dynamic or static
+		foreach($boxes as $box)
+		{
+			if($box->m_is_dynamic)
+			{
+				//ask for box from module
+				$newbox = xModule::callWithSingleResult1('getDynamicBox',$box);
+				
+				if($newbox == NULL)
+				{
+					xLog::log(LOG_LEVEL_ERROR,'Cannot retrieve dynamic box'. $box->m_id);
+				}
+				else
+				{
+					$boxes_new[] = $newbox; 
+				}
+			}
+			else
+			{
+				$boxes_new[] = new xBoxStatic($box->m_id,$box->m_title,$box->m_is_dynamic,$box->m_content,
+					$box->m_content_filter,$box->m_area);
+			}
+		}
+		
+		return $boxes_new;
 	}
 };
 
 
+/**
+* Represent a static box. Static boxes have their content stored in database an renderized by selected filter.
+*/
+class xBoxStatic extends xBox
+{
+	/**
+	* Contructor
+	*
+	* @param string $id
+	* @param string $title
+	* @param bool $is_dynamic
+	* @param string $content
+	* @param string $content_format
+	* @param string $area
+	*/
+	function xBoxStatic($id,$title,$is_dynamic,$content,$content_filter,$area = NULL)
+	{
+		xBox::xBox($id,$title,$is_dynamic,$content,$content_filter,$area);
+	}
+	
+	// DOCS INHERITHED  ========================================================
+	function render()
+	{
+		return xTheme::getActive()->renderBox($this->m_id,$this->m_title,$this->m_content);
+	}
+};
 
+
+/**
+* Represent a dynamic. A dynamic box is generated dynamically from a module.
+* @abstract
+*/
+class xBoxDynamic extends xBox
+{
+	/**
+	* Contructor
+	*
+	* @param string $id
+	* @param string $title
+	* @param bool $is_dynamic
+	* @param string $content
+	* @param string $content_format
+	* @param string $area
+	*/
+	function xBoxStatic($id,$title,$is_dynamic,$content,$content_filter,$area = NULL)
+	{
+		xBox::xBox($id,$title,$is_dynamic,$content,$content_filter,$area);
+	}
+	
+	/**
+	 * @abstract
+	 */
+	function render()
+	{
+		//virtual
+		assert(FALSE);
+	}
+};
 
 ?>

@@ -21,19 +21,32 @@
 */
 class xArea extends xElement
 {
+	/**
+	 * @var array(xBox)
+	 * @access public
+	 */
 	var $m_boxes;
+	
+	/**
+	 * @var string
+	 * @access public
+	 */
+	var $m_name;
+	
 	
 	/**
 	 * Contructor
 	 * 
 	 * @param string $name
 	 */
-	function xArea($id)
+	function xArea($name)
 	{
-		$this->xElement($id);
+		$this->xElement();
+		
+		$this->m_name = $name;
 		
 		//retrieve boxes for area
-		$this->m_boxes = xBox::getBoxesForArea($this->m_id);
+		$this->m_boxes = xBox::getBoxesForArea($this->m_name);
 	}
 	
 	/**
@@ -57,7 +70,7 @@ class xArea extends xElement
 	// DOCS INHERITHED  ========================================================
 	function render()
 	{
-		return xTheme::getActive()->renderArea($this->m_id,$this->m_boxes);
+		return xTheme::getActive()->renderArea($this->m_name,$this->m_boxes);
 	}
 };
 

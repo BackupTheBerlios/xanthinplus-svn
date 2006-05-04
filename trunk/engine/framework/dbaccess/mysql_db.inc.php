@@ -174,23 +174,6 @@ class xDBMysql extends xDB
 	{
 		return date('Y-m-d H-i-s',$timestamp);
 	}
-
-
-	// DOCS INHERITHED  ========================================================
-	function log($logentry)
-	{
-		//manual check to prevent deadlocks
-		if(!is_int($logentry->level) || !is_int($logentry->line))
-			return;
-		
-		$message = $this->escapeString($logentry->message);
-		$filename = $this->escapeString($logentry->filename);
-		
-		$result = $this->query("INSERT INTO xanth_log(level,message,filename,line,timestamp) VALUES(%d,'%s','%s',%d,NOW())",
-			$logentry->level ,$logentry->message,$logentry->filename,$logentry->line);
-		if(!$result)
-			exit('Logging failed:'. mysql_error());
-	}
 	
 	// DOCS INHERITHED  ========================================================
 	function query($query) 

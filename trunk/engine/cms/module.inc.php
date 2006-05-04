@@ -48,6 +48,48 @@ class xModule
 		$this->m_path = $path;
 	}
 	
+	/**
+	* This method should executes all sql queries needed to install a module in a mysql db.
+	*/
+	function installDBMySql()
+	{
+		return NULL;
+	}
+	
+	/**
+	* Returns a valid xContent for the passed path
+	*
+	* @param xXanthPath $path
+	* @return xContent A valid xContent object if your module is the responsable of the given path, NULL otherwise.
+	*/
+	function getContent($path)
+	{
+		return NULL;
+	}
+	
+	/**
+	* Called when the page creation occur. Use this method to do all the stuff befor a the page is created.
+	*
+	* @param xXanthPath $path
+	*/
+	function onPageCreation($path)
+	{
+		return NULL;
+	}
+	
+	/**
+	* Returns a dinamic box.
+	*
+	* @param xBox $box
+	* @return xBoxDynamic
+	*/
+	function getDynamicBox($box)
+	{
+		return NULL;
+	}
+	
+	//----------------STATIC FUNCTIONS----------------------------------------------
+	//----------------STATIC FUNCTIONS----------------------------------------------
 	//----------------STATIC FUNCTIONS----------------------------------------------
 	
 	/**
@@ -85,53 +127,185 @@ class xModule
 		return $g_modules;
 	}
 	
-};
-
-
-
-/**
-* A Dummy module that elecates all method you can implement in your module
-*/
-class xDummyModule extends xModule
+	
+	/**
+	 * Make a method call to all modules and return the first result !== NULL (0 argument version).
+	 *
+	 * @param string $function The method to call
+	 * @return mixed
+	 */
+	function callWithSingleResult0($function)
 	{
-
-	function xDummyModule()
-	{
-		//cannot instantiate this class
-		assert(FALSE);
+		$result = NULL;
+		$modules = xModule::getModules();
+		foreach($modules as $module)
+		{
+			$result = $module->$function();
+			if($result !== NULL)
+			{
+				return $result;
+			}
+		}
+		
+		return $result;
 	}
-
-	/**
-	* This method should executes all sql queries needed to install a module in a mysql db.
-	*/
-	function installDBMySql()
-	{}
 	
 	/**
-	* Returns a valid xContent for the passed path
-	*
-	* @param xXanthPath $path
-	* @return xContent A valid xContent object if your module is the responsable of the given path, NULL otherwise.
-	*/
-	function getContent($path)
-	{}
+	 * Make a method call to all modules and return the first result !== NULL (1 argument version).
+	 *
+	 * @param string $function The method to call
+	 * @return mixed
+	 */
+	function callWithSingleResult1($function,&$arg1)
+	{
+		$result = NULL;
+		$modules = xModule::getModules();
+		foreach($modules as $module)
+		{
+			$result = $module->$function($arg1);
+			if($result !== NULL)
+			{
+				return $result;
+			}
+		}
+		
+		return $result;
+	}
 	
 	/**
-	* Called when the page creation occur. Use this method to do all the stuff befor a the page is created.
-	*/
-	function onPageCreation()
-	{}
+	 * Make a method call to all modules and return the first result !== NULL (2 argument version).
+	 *
+	 * @param string $function The method to call
+	 * @return mixed
+	 */
+	function callWithSingleResult2($function,&$arg1,&$arg2)
+	{
+		$result = NULL;
+		$modules = xModule::getModules();
+		foreach($modules as $module)
+		{
+			$result = $module->$function($arg1,$arg2);
+			if($result !== NULL)
+			{
+				return $result;
+			}
+		}
+		
+		return $result;
+	}
 	
 	/**
-	* Returns the rendered content for a dynamic box
-	*
-	* @param string $id
-	* @return string The rendered content if your module is the responsable of the given id, NULL otherwise.
-	*/
-	function renderBoxContent($id)
-	{}
+	 * Make a method call to all modules and return an array that is the union
+	 * of all results != NULL returned. (0 argument version).
+	 *
+	 * @param string $function The method to call
+	 * @return array(mixed)
+	 */
+	function callWithArrayResult0($function)
+	{
+		$array_result = array();
+		$modules = xModule::getModules();
+		foreach($modules as $module)
+		{
+			$result = $module->$function();
+			if($result !== NULL)
+			{
+				$array_result[] = $result;
+			}
+		}
+		
+		return $array_result;
+	}
+	
+	/**
+	 * Make a method call to all modules and return an array that is the union
+	 * of all results != NULL returned. (1 argument version).
+	 *
+	 * @param string $function The method to call
+	 * @return array(mixed)
+	 */
+	function callWithArrayResult1($function,&$arg1)
+	{
+		$array_result = array();
+		$modules = xModule::getModules();
+		foreach($modules as $module)
+		{
+			$result = $module->$function($arg1);
+			if($result !== NULL)
+			{
+				$array_result[] = $result;
+			}
+		}
+		
+		return $array_result;
+	}
+	
+	/**
+	 * Make a method call to all modules and return an array that is the union
+	 * of all results != NULL returned. (0 argument version).
+	 *
+	 * @param string $function The method to call
+	 * @return array(mixed)
+	 */
+	function callWithArrayResult2($function,&$arg1,&$arg2)
+	{
+		$array_result = array();
+		$modules = xModule::getModules();
+		foreach($modules as $module)
+		{
+			$result = $module->$function($arg1,$arg2);
+			if($result !== NULL)
+			{
+				$array_result[] = $result;
+			}
+		}
+		
+		return $array_result;
+	}
+	
+	/**
+	 * Make a method call to all modules. (0 argument version).
+	 *
+	 * @param string $function The method to call
+	 */
+	function callWithNoResult0($function)
+	{
+		$modules = xModule::getModules();
+		foreach($modules as $module)
+		{
+			$module->$function();
+		}
+	}
+	
+	/**
+	 * Make a method call to all modules. (1 argument version).
+	 *
+	 * @param string $function The method to call
+	 */
+	function callWithNoResult1($function,&$arg1)
+	{
+		$modules = xModule::getModules();
+		foreach($modules as $module)
+		{
+			$module->$function($arg1);
+		}
+	}
+	
+	/**
+	 * Make a method call to all modules. (2 argument version).
+	 *
+	 * @param string $function The method to call
+	 */
+	function callWithNoResult2($function,&$arg1,&$arg2)
+	{
+		$modules = xModule::getModules();
+		foreach($modules as $module)
+		{
+			$module->$function($arg1,$arg2);
+		}
+	}
+	
 };
-
 
 
 

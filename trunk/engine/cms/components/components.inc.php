@@ -15,7 +15,7 @@
 * PURPOSE ARE DISCLAIMED.SEE YOUR CHOOSEN LICENSE FOR MORE DETAILS.
 */
 
-require_once('engine/cms/components/homepage.inc.php');
-require_once('engine/cms/components/user.inc.php');
+require_once('engine/cms/components/homepage.comp.inc.php');
+require_once('engine/cms/components/user.comp.inc.php');
 
 ?>

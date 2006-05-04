@@ -26,7 +26,7 @@ class xExecutionTime extends xElement
 	*/
 	function xExecutionTime()
 	{
-		$this->xElement('Execution Time');
+		$this->xElement();
 	}
 	
 	// DOCS INHERITHED  ========================================================
