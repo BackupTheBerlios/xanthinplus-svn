@@ -17,74 +17,143 @@
 
 
 /**
-* Represent a simple link menu.
-*/
+ * Represent a menu item.
+ */
+class xMenuItem extends xElement
+{
+	/**
+	 * @var string
+	 * @access public
+	 */
+	var $m_text; 
+	
+	/**
+	 * @var string
+	 * @access public
+	 */
+	var $m_link;
+	
+	
+	/**
+	 * Contructor
+	 *
+	 * @param string $text
+	 * @param string $link
+	 */
+	function xMenuItem($text,$link)
+	{
+		$this->m_text = $text;
+		$this->m_link = $link;
+	}	
+};
+
+
+/**
+ * Represent a simple link menu.
+ */
 class xMenu extends xBox
 {
 	/**
 	 * @var array(xMenuItem)
 	 */
-	var $m_items; 
+	var $m_items;
 	
 	/**
 	* Contructor
 	*
-	* @param string $id
+	* @param string $name
 	* @param string $title
-	* @param bool $is_dynamic
-	* @param string $content
-	* @param string $content_format
+	* @param string $type
 	* @param string $area
 	*/
-	function xMenu($id,$title,$is_dynamic,$content,$content_format,$area = NULL,$items = array())
+	function xMenu($name,$title,$type,$items = array(),$area = NULL)
 	{
-		$this->xBox($id,$title,$is_dynamic,$content,$content_format,$area);
+		$this->xBox($name,$title,$type,$area);
 		$this->m_items = $items;
 	}
 	
 	// DOCS INHERITHED  ========================================================
 	function render()
 	{
-		if($this->m_is_dynamic)
-		{
-			$content = '';
-			$modules = xModule::getModules();
-			foreach($modules as $module)
-			{
-				if(method_exists($module,'renderBoxContent'))
-				{
-					$content = $module->renderBoxContent($this->m_id);
-					if($content != NULL)
-					{
-						return xTheme::getActive()->renderBox($this->m_title,$content);
-					}
-				}
-			}
-		}
-		else
-		{
-			//for now
-			assert(FALSE);
-		}
+		$content = xTheme::getActive()->renderMenuItems($this->m_items);
+		return xTheme::getActive()->renderBox($this->m_name,$this->m_title,$content);
+	}
+};
+
+/**
+ * Represent a simple static link menu.
+ */
+class xMenuStatic extends xMenu
+{
+	/**
+	* Contructor
+	*
+	* @param string $name
+	* @param string $title
+	* @param string $type
+	* @param string $area
+	*/
+	function xMenuStatic($name,$title,$type,$items = array(),$area = NULL)
+	{
+		$this->xMenu($name,$title,$type,$items,$area);
 	}
 	
 	/**
-	* Insert a this box element into database.
-	*/
+	 * Insert this object into db
+	 */
 	function dbInsert()
 	{
-		xBoxDAO::insert($this);
+		xMenuStaticDAO::insert($this);
+	}
+	
+	/**
+	 * Build and return a xMenuStatic object derived from a simple xBox 
+	 *
+	 * @return xMenuStatic
+	 * @static
+	 */
+	function toSpecificBox($box)
+	{
+		//extract items from db
+		return xMenuStaticDAO::toSpecificBox($box);
 	}
 };
 
 
 /**
- * Represent a menu item.
+ * Represent a simple dinamic link menu.
  */
-class xMenuItem extends xElement
-{
+class xMenuDynamic extends xMenu
+{	
+	/**
+	* Contructor
+	*
+	* @param string $name
+	* @param string $title
+	* @param string $type
+	* @param string $area
+	*/
+	function xMenuDynamic($name,$title,$type,$items = array(),$area = NULL)
+	{
+		$this->xMenu($name,$title,$type,$items,$area);
+	}
 	
+	/**
+	 * Build and return a xMenuStatic object derived from a simple xBox 
+	 *
+	 * @return xMenuDynamic
+	 * @static
+	 */
+	function toSpecificBox($box)
+	{
+		//ask modules for items
+		$items = xModule::callWithArrayResult1('getMenuItem',$box->m_name);
+		
+		return new xMenuDynamic($box->m_name,$box->m_title,$box->m_type,$items,$box->m_area);
+	}
 };
+
+
 
 
 

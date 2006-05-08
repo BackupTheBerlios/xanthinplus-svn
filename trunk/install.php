@@ -15,10 +15,11 @@
 * PURPOSE ARE DISCLAIMED.SEE YOUR CHOOSEN LICENSE FOR MORE DETAILS.
 */
 
-
+error_reporting(E_ALL);
 require_once('conf.inc.php');
 require_once('./engine/framework/framework.inc.php');
 require_once('./engine/cms/cms.inc.php');
+
 
 xanth_install_main();
 

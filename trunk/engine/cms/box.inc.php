@@ -25,109 +25,122 @@ class xBox extends xElement
 	 * @var string
 	 * @access public
 	 */
-	var $m_id;
+	var $m_name;
 	
 	/**
-	* @var string
-	* @access public
-	*/
+	 * @var string
+	 * @access public
+	 */
 	var $m_title;
 	
 	/**
-	* if dynamic, content and content format will be ignored. Contents will be generated dymanically by some module.
-	*
-	* @var bool
-	* @access public
-	*/ 
-	var $m_is_dynamic;
-	
-	/**
-	* @var string
-	* @access public
-	*/
-	var $m_content;
-	
-	/**
-	* @var string
-	* @access public
-	*/
-	var $m_content_filter;
-	
-	/**
-	* if empty (NULL,FALSE,...) no area assignation
-	*
-	* @var string
-	* @access public
-	*/
+	 * if empty (NULL,FALSE,...) no area assignation
+	 *
+	 * @var string
+	 * @access public
+	 */
 	var $m_area;
+	
+	/**
+	 * The type of the box
+	 *
+	 * @var string
+	 * @access public
+	 */
+	var $m_type;
 	
 	/**
 	* Contructor
 	*
 	* @param string $id
 	* @param string $title
-	* @param bool $is_dynamic
-	* @param string $content
-	* @param string $content_format
 	* @param string $area
 	*/
-	function xBox($id,$title,$is_dynamic,$content,$content_filter,$area = NULL)
+	function xBox($name,$title,$type,$area = NULL)
 	{
 		$this->xElement();
 		
-		$this->m_id = $id;
+		$this->m_name = $name;
 		$this->m_title = $title;
-		$this->m_is_dynamic = $is_dynamic;
-		$this->m_content = $content;
-		$this->content_filter = $content_filter;
 		$this->m_area = $area;
+		$this->m_type = $type;
 	}
 	
 	// DOCS INHERITHED  ========================================================
 	function render()
 	{
-		return NULL;
+		//cannot render a simple box, you should convert this box into a 
+		//specified box to be able to render it.
+		assert(FALSE);
 	}
 	
 	/**
-	* Insert a this box element into database.
-	*/
+	 * Delete this object from db
+	 */
+	function dbDelete()
+	{
+		xBoxDAO::delete($this);
+	}
+	
+	/**
+	 * Insert this object into db
+	 */
 	function dbInsert()
 	{
 		xBoxDAO::insert($this);
 	}
 	
 	/**
-	*
-	*
-	* @static
-	*/
+	 * Convert a simple xBox into a specific xBox child object that correspond to the box type 
+	 * and ready to be rendered.
+	 *
+	 * @return xBox A specific xBox child object corresponding to the specified type or NULL if not found.
+	 * @static
+	 */
+	function toSpecificBox($box)
+	{
+		$newbox = NULL;
+		
+		//check for built-in box type
+		if($box->m_type == "dynamic")
+		{
+			$newbox = xBoxDynamic::toSpecificBox($box);
+		}
+		elseif($box->m_type == "static")
+		{
+			$newbox = xBoxStatic::toSpecificBox($box);
+		}
+		elseif($box->m_type == "menustatic")
+		{
+			$newbox = xMenuStatic::toSpecificBox($box);
+		}
+		elseif($box->m_type == "menudynamic")
+		{
+			$newbox = xMenuDynamic::toSpecificBox($box);
+		}
+		
+		return $newbox;
+	}
+	
+	/**
+	 * Retrieve all boxes assigned to a specified area. Returned boxe object correspond already to their 
+	 * type and are ready to be rendered.
+	 *
+	 * @return array(xBox)
+	 * @static
+	 */
 	function getBoxesForArea($name)
 	{
-		$boxes = xBoxDAO::find($this->m_name);
+		$boxes = xBoxDAO::find($name);
 		$boxes_new = array();
 		
 		//convert in dynamic or static
 		foreach($boxes as $box)
 		{
-			if($box->m_is_dynamic)
+			$boxnew = xBox::toSpecificBox($box);
+			if($boxnew != NULL)
 			{
-				//ask for box from module
-				$newbox = xModule::callWithSingleResult1('getDynamicBox',$box);
-				
-				if($newbox == NULL)
-				{
-					xLog::log(LOG_LEVEL_ERROR,'Cannot retrieve dynamic box'. $box->m_id);
-				}
-				else
-				{
-					$boxes_new[] = $newbox; 
-				}
-			}
-			else
-			{
-				$boxes_new[] = new xBoxStatic($box->m_id,$box->m_title,$box->m_is_dynamic,$box->m_content,
-					$box->m_content_filter,$box->m_area);
+				$boxes_new[] = $boxnew;
 			}
 		}
 		
@@ -137,52 +150,87 @@ class xBox extends xElement
 
 
 /**
-* Represent a static box. Static boxes have their content stored in database an renderized by selected filter.
-*/
+ * Represent a static box. Static boxes have their content stored in database an renderized by selected filter.
+ */
 class xBoxStatic extends xBox
 {
 	/**
+	 * @var string
+	 * @access public
+	 */
+	var $m_content;
+	
+	/**
+	 * @var string
+	 * @access public
+	 */
+	var $m_content_filter;
+
+	/**
 	* Contructor
 	*
-	* @param string $id
+	* @param string $name
 	* @param string $title
-	* @param bool $is_dynamic
+	* @param string $type
 	* @param string $content
-	* @param string $content_format
+	* @param string $content_filter
 	* @param string $area
 	*/
-	function xBoxStatic($id,$title,$is_dynamic,$content,$content_filter,$area = NULL)
+	function xBoxStatic($name,$title,$type,$content,$content_filter,$area = NULL)
 	{
-		xBox::xBox($id,$title,$is_dynamic,$content,$content_filter,$area);
+		xBox::xBox($name,$title,$type,$area);
+		
+		$this->m_content = $content;
+		$this->m_content_filter = $content_filter;
 	}
 	
 	// DOCS INHERITHED  ========================================================
 	function render()
 	{
-		return xTheme::getActive()->renderBox($this->m_id,$this->m_title,$this->m_content);
+		//!@TODO: filter content here
+		
+		return xTheme::getActive()->renderBox($this->m_name,$this->m_title,$this->m_content);
+	}
+	
+	/**
+	 * Insert this object into db
+	 */
+	function dbInsert()
+	{
+		xBoxStaticDAO::insert($this);
+	}
+	
+	/**
+	 * Constructs an return a xBoxStatic object derived from a simple xBox 
+	 *
+	 * @return xBoxStatic
+	 * @static
+	 */
+	function toSpecificBox($box)
+	{
+		//retrieve additional data from db
+		return xBoxStaticDAO::toSpecificBox($box);
 	}
 };
 
 
 /**
-* Represent a dynamic. A dynamic box is generated dynamically from a module.
-* @abstract
-*/
+ * Represent a dynamic. A dynamic box is generated dynamically from a module.
+ * @abstract
+ */
 class xBoxDynamic extends xBox
 {
 	/**
-	* Contructor
-	*
-	* @param string $id
-	* @param string $title
-	* @param bool $is_dynamic
-	* @param string $content
-	* @param string $content_format
-	* @param string $area
-	*/
-	function xBoxStatic($id,$title,$is_dynamic,$content,$content_filter,$area = NULL)
+	 * Contructor
+	 *
+	 * @param string $name
+	 * @param string $title
+	 * @param string $area
+	 * @param string $type
+	 */
+	function xBoxStatic($name,$title,$type,$area = NULL)
 	{
-		xBox::xBox($id,$title,$is_dynamic,$content,$content_filter,$area);
+		xBox::xBox($name,$title,$type,$area);
 	}
 	
 	/**
@@ -193,6 +241,27 @@ class xBoxDynamic extends xBox
 		//virtual
 		assert(FALSE);
 	}
+	
+	
+	/**
+	 * Constructs an return a xBoxStatic object derived from a simple xBox 
+	 *
+	 * @return xBoxDynamic
+	 * @static
+	 */
+	function toSpecificBox($box)
+	{
+		//ask for box from module
+		$newbox = xModule::callWithSingleResult1('getDynamicBox',$box);
+		
+		if($newbox == NULL)
+		{
+			xLog::log(LOG_LEVEL_ERROR,'Cannot retrieve dynamic box'. $box->m_name);
+		}
+		
+		return $newbox;
+	}
+	
 };
 
 ?>

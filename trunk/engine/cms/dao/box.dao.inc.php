@@ -18,8 +18,8 @@
 
 
 /**
-* Box Data Access Object
-*/
+ * Box Data Access Object
+ */
 class xBoxDAO
 {
 	/**
@@ -30,9 +30,9 @@ class xBoxDAO
 	*/
 	function insert($box)
 	{
-		$field_names = "name,title,is_dynamic,content,content_filter";
-		$field_values = "'%s','%s',%d,'%s','%s'";
-		$values = array($box->m_id,$box->m_title,$box->m_is_dynamic,$box->m_content,$box->m_content_filter);
+		$field_names = "name,title,type";
+		$field_values = "'%s','%s','%s'";
+		$values = array($box->m_name,$box->m_title,$box->m_type);
 		
 		if(!empty($box->m_area))
 		{
@@ -46,15 +46,15 @@ class xBoxDAO
 	
 	
 	/**
-	* Update an existing box.
-	*
-	* @param xBox $box
-	* @static 
-	*/
+	 * Update an existing box.
+	 *
+	 * @param xBox $box
+	 * @static 
+	 */
 	function update($box)
 	{
-		$fields = "content_filter = '%s',title = '%s',content = '%s'";
-		$values = array($box->m_content_filter,$box->m_title,$box->m_content);
+		$fields = "title = '%s'";
+		$values = array($box->m_title);
 		
 		if(!empty($box->m_area))
 		{
@@ -75,7 +75,7 @@ class xBoxDAO
 	*/
 	function delete($box)
 	{
-		xDB::getDB()->query("DELETE FROM box WHERE name = '%s'",$box->m_id);
+		xDB::getDB()->query("DELETE FROM box WHERE name = '%s'",$box->m_name);
 	}
 	
 	/**
@@ -109,7 +109,7 @@ class xBoxDAO
 		
 		while($row = xDB::getDB()->fetchArray($result))
 		{
-			$current_box = new xBox($row['name'],$row['title'],$row['is_dynamic'],$row['content'],$row['content_filter'],$row['area']);
+			$current_box = new xBox($row['name'],$row['title'],$row['type'],$row['area']);
 			$boxes[] = $current_box;
 		}
 		return $boxes;

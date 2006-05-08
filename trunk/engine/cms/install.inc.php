@@ -63,15 +63,24 @@ class xInstallCMS
 			CREATE TABLE box(
 			name VARCHAR(64) NOT NULL,
 			title VARCHAR(255),
-			content TEXT,
-			content_filter VARCHAR(64) NOT NULL,
 			area VARCHAR(32),
-			is_dynamic TINYINT NOT NULL,
+			type VARCHAR(32) NOT NULL,
 			PRIMARY KEY(name)
 			)TYPE=InnoDB"
 		);
+		
+		//static box
+		xDB::getDB()->query("
+			CREATE TABLE box_static(
+			box_name VARCHAR(64) NOT NULL,
+			content TEXT,
+			content_filter VARCHAR(64) NOT NULL,
+			PRIMARY KEY (box_name),
+			FOREIGN KEY (box_name) REFERENCES box(name) ON DELETE CASCADE
+			)TYPE=InnoDB"
+		);
 		//create some default box
-		$box = new xBox('Login','Login',true,'','','leftArea');
+		$box = new xBox('Login','Login','dynamic','leftArea');
 		$box->dbInsert();
 		
 		//Roles
@@ -126,6 +135,21 @@ class xInstallCMS
 		$user = new xUser('','admin','root@localhost.com');
 		$user->dbInsert('pass');
 		$user->giveRole(new xRole('administrator',''));
+		
+		
+		//menu
+		xDB::getDB()->query("
+			CREATE TABLE menu_static (
+			box_name VARCHAR(32) NOT NULL,
+			text VARCHAR(128) NOT NULL,
+			link VARCHAR(128) NOT NULL,
+			UNIQUE(box_name,text,link),
+			INDEX(box_name),
+			FOREIGN KEY (box_name) REFERENCES box(name) ON DELETE CASCADE
+			)TYPE=InnoDB"
+		);
+		$menu = new xMenuDynamic('Admin','Admin','menudynamic',array(),'leftArea');
+		$menu->dbInsert();
 	}
 };
 

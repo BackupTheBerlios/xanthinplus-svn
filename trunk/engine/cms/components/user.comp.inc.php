@@ -29,10 +29,9 @@ class xModuleUser extends xModule
 	// DOCS INHERITHED  ========================================================
 	function getDynamicBox($box)
 	{
-		if($box->m_id == 'Login')
+		if($box->m_name == 'Login')
 		{
-			return new xBoxLogin($box->m_id,$box->m_title,$box->m_is_dynamic,$box->m_content,
-				$box->m_content_filter,$box->m_area);
+			return new xBoxLogin($box->m_name,$box->m_title,$box->m_type,$box->m_area);
 		}
 		
 		return NULL;
@@ -90,6 +89,17 @@ class xModuleUser extends xModule
 		//check the login
 		xUser::checkUser();
 	}
+	
+	// DOCS INHERITHED  ========================================================
+	function getMenuItem($box_name)
+	{
+		if($box_name == 'Admin')
+		{
+			return new xMenuItem('Test','?p=test');
+		}
+		
+		return NULL;
+	}
 };
 
 xModule::registerModule(new xModuleUser());
@@ -100,9 +110,9 @@ xModule::registerModule(new xModuleUser());
  */
 class xBoxLogin extends xBoxDynamic
 {
-	function xBoxLogin($id,$title,$is_dynamic,$content,$content_filter,$area = NULL)
+	function xBoxLogin($name,$title,$type,$area = NULL)
 	{
-		xBoxDynamic::xBoxDynamic($id,$title,$is_dynamic,$content,$content_filter,$area);
+		xBoxDynamic::xBoxDynamic($name,$title,$type,$area);
 	}
 	
 	// DOCS INHERITHED  ========================================================
@@ -118,7 +128,7 @@ class xBoxLogin extends xBoxDynamic
 			$content = "User not logged in<br /><a href=\"?p=user/login\">Login</a>";
 		}
 		
-		return xTheme::getActive()->renderBox($this->m_id,$this->m_title,$content);
+		return xTheme::getActive()->renderBox($this->m_name,$this->m_title,$content);
 	}
 }
 	

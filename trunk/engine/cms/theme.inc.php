@@ -140,24 +140,23 @@ class xTheme
 	}
 	
 	/**
-	* Render the page element.
-	* 
-	* @param $page(xNode) The element to render.
-	* @return (string) the renderized element.
-	*/
-	function renderNode($page)
+	 * Render a list of menu items
+	 * 
+	 * @param array(xMenuItems) $areas
+	 * @return string the renderized element.
+	 */
+	function renderMenuItems($items)
 	{
+		$output = "<ul>\n";
+		foreach($items as $item)
+		{
+			$output .= '<li><a href="'.$item->m_link. '">' .$item->m_text. "</a></li>\n";
+		}
+		$output .= "</ul>\n";
+		
+		return $output;
 	}
 	
-	/**
-	* Render the page element.
-	* 
-	* @param $page(xStatic) The element to render.
-	* @return (string) the renderized element.
-	*/
-	function renderContent($page)
-	{
-	}
 };
 
 
