@@ -36,6 +36,17 @@ class xModuleHomepage extends xModule
 		
 		return NULL;
 	}
+	
+	// DOCS INHERITHED  ========================================================
+	function getMenuItem($box_name)
+	{
+		if($box_name == 'Admin')
+		{
+			return new xMenuItem('Home','?');
+		}
+		
+		return NULL;
+	}
 };
 
 /**

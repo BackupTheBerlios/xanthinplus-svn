@@ -123,6 +123,16 @@ class xBox extends xElement
 	}
 	
 	/**
+	 * Retrieve all boxes from db
+	 *
+	 * @return array(xBox)
+	 */
+	function findAll()
+	{
+		return xBoxDAO::findAll();
+	}
+	
+	/**
 	 * Retrieve all boxes assigned to a specified area. Returned boxe object correspond already to their 
 	 * type and are ready to be rendered.
 	 *

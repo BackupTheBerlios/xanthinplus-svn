@@ -42,7 +42,7 @@ class xRole
 	 */ 
 	function dbInsert()
 	{
-		xDB::getDB()->query("INSERT INTO role(name,description) VALUES ('%s','%s')",$this->m_name,$this->m_description);
+		xRoleDAO::insert($this);
 	}
 	
 	/**
@@ -50,7 +50,7 @@ class xRole
 	 */ 
 	function dbDelete()
 	{
-		xDB::getDB()->query("DELETE FROM role WHERE name = '%s'",$this->m_name);
+		xRoleDAO::delete($this->m_name);
 	}
 	
 	/**
@@ -58,7 +58,7 @@ class xRole
 	 */
 	function dbUpdate()
 	{
-		xDB::getDB()->query("UPDATE role SET description = '%s' WHERE name = '%s')",$this->m_description,$this->m_name);
+		xRoleDAO::update($this);
 	}
 	
 	/**
@@ -68,13 +68,7 @@ class xRole
 	 */
 	function findAll()
 	{
-		$roles = array();
-		$result = xDB::getDB()->query("SELECT * FROM roles");
-		while($row = xDB::getDB()->fetchObject($result))
-		{
-			$roles[] = new xRole($row->m_name,$row->m_description);
-		}
-		return $roles;
+		return xRoleDAO::findAll();
 	}
 	
 	/**
@@ -84,7 +78,7 @@ class xRole
 	 */
 	function giveAccessRule($access_rule)
 	{
-		xRoleDAO::giveAccessRule($this,$access_rule);
+		xRoleDAO::giveAccessRule($this->m_name,$access_rule);
 	}
 	
 	/**
@@ -94,7 +88,7 @@ class xRole
 	*/
 	function takeoffAccessRule($access_rule)
 	{
-		xRoleDAO::takeoffAccessRule($this,$access_rule);
+		xRoleDAO::takeoffAccessRule($this->m_name,$access_rule);
 	}
 	
 	/**
@@ -106,7 +100,7 @@ class xRole
 	 */
 	function haveAccess($access_rule)
 	{
-		return xRoleDAO::haveAccess($this,$access_rule);
+		return xRoleDAO::haveAccess($this->m_name,$access_rule);
 	}
 }
 

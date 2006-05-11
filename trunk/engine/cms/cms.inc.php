@@ -26,7 +26,7 @@ require_once('engine/cms/menu.inc.php');
 require_once('engine/cms/content.inc.php');
 require_once('engine/cms/install.inc.php');
 require_once('engine/cms/main.inc.php');
-require_once('engine/cms/node.inc.php');
+require_once('engine/cms/item.inc.php');
 require_once('engine/cms/page.inc.php');
 require_once('engine/cms/theme.inc.php');
 require_once('engine/cms/role.inc.php');

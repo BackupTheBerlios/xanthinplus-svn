@@ -62,11 +62,11 @@ class xUser
 	}
 	
 	/**
-	 * Delete this user from db
+	 * Delete this user from db. (based on username)
 	 */
 	function dbDelete()
 	{
-		xUserDAO::delete($this);
+		xUserDAO::delete($this->m_username);
 	}
 	
 	/**
@@ -287,56 +287,56 @@ class xUser
 	/**
 	 * Give a role to a user. Based on user id and role name.
 	 *
-	 * @param xRole $role
+	 * @param string $rolename
 	 */
-	function giveRole($role)
+	function giveRole($rolename)
 	{
-		xUserDAO::giveRole($this,$role);
+		xUserDAO::giveRole($this->m_id,$rolename);
 	}
 	
 	/**
 	 * Remove a user from a role. Based on user id and role name.
 	 *
-	 * @param xRole $role
+	 * @param string $rolename
 	 */
-	function removeFromRole($role)
+	function removeFromRole($rolename)
 	{
-		xUserDAO::removeFromRole($this,$role);
+		xUserDAO::removeFromRole($this->m_id,$rolename);
 	}
 	
 	/**
 	 * Check if the current active user have an access role.
 	 *
+	 * @param string $access_rule
 	 * @return bool
+	 * @static
 	 */
 	function checkUserAccess($access_rule)
 	{
-		$userid = xUser::getLoggedinUsername();
-		if($userid !== NULL)
+		$userid = xUser::getLoggedinUserid();
+		if($userid == NULL)
 		{
-			//if user has admin role bypass check
-			if(xUserDAO::haveRole($this,new xRole('administrator','')))
+			//check for authenticated user
+			if(xRoleDAO::haveAccess('authenticated',$access_rule))
 			{
 				return TRUE;
 			}
 			
-			$role = new xRole('authenticated','');
-			//check for authenticated user
-			if($role->haveAccess($access_rule))
+			//if user has admin role bypass check
+			if(xUserDAO::haveRole($userid,'administrator'))
 			{
 				return TRUE;
 			}
 			
 			//check for other roles
-			if(xUserDAO::haveAccessRule($this,$access_rule))
+			if(xUserDAO::haveAccessRule($userid,$access_rule))
 			{
 				return TRUE;
 			}
 		}
 		else //anonymous user
 		{
-			$role = new xRole('anonymous','');
-			if($role->haveAccess($access_rule))
+			if(xRoleDAO::haveAccess('anonymous',$access_rule))
 			{
 				return TRUE;
 			}

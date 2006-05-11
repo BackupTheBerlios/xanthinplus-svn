@@ -17,5 +17,6 @@
 
 require_once('engine/cms/components/homepage.comp.inc.php');
 require_once('engine/cms/components/user.comp.inc.php');
+require_once('engine/cms/components/box.comp.inc.php');
 
 ?>

@@ -22,17 +22,44 @@
 class xElement
 {
 	/**
-	* Create a new Element.
-	*/
-	function xElement()
-	{}
+	 * @var xAccessManager
+	 * @access public
+	 */
+	var $m_access_manager;
 	
 	/**
-	* Render the page element using the object current view view.
+	 * Create a new Element.
+	 */
+	function xElement($access_manager = xAccessManager::getNullAccessManager())
+	{
+		$this->m_access_manager = $access_manager();
+	}
+	
+	/**
+	* Check the element access manager and render the page element.
 	* 
 	* @return string XHTML code representing the renderized element.
 	*/
 	function render()
+	{
+		if($this->m_access_manager->checkAccess())
+		{
+			return $this->onRender();
+		}
+		else
+		{
+			return '';
+		}
+	}
+	
+	/**
+	 * Render the page element using the object current view view.
+	 *
+	 * @return string XHTML code representing the renderized element.
+	 * @abstract
+	 * @access protected
+	 */
+	function onRender()
 	{
 		//virtual method
 		assert(FALSE);

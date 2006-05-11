@@ -17,9 +17,9 @@
 
 
 /**
-* Represent a node in the CMS. A node can be an article, a blog entry, a forum post.
-*/
-class xNode extends xElement
+ * Represent a node in the CMS. An item can be an article, a blog entry, a forum post.
+ */
+class xItem extends xElement
 {
 	function xNode()
 	{
@@ -29,7 +29,7 @@ class xNode extends xElement
 	// DOCS INHERITHED  ========================================================
 	function render()
 	{
-		return xTheme::getActive()->renderNode($this);
+		
 	}
 };
 

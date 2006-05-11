@@ -37,47 +37,50 @@ class xModuleUser extends xModule
 		return NULL;
 	}
 
+	/**
+	 * @access private
+	 */
+	function _getContentLogin()
+	{
+		$form = new xForm('?p=user/login');
+		$form->m_elements[] = new xFormElementTextField('username','Username','','',TRUE,new xInputValidatorText(256));
+		$form->m_elements[] = new xFormElementPassword('password','Password','',TRUE,new xInputValidatorText(256));
+		$form->m_elements[] = new xFormSubmit('submit','login');
+		
+		$ret = $form->validate();
+		if(isset($ret->m_valid_data['submit']))
+		{
+			if(empty($ret->m_errors))
+			{
+				if($user = xUser::login($ret->m_valid_data['username'],$ret->m_valid_data['password'],TRUE) != NULL)
+				{
+					return new xContentSimple("User login",'Logged in','','');
+				}
+			}
+			else
+			{
+				foreach($ret->m_errors as $error)
+				{
+					xLog::log(LOG_LEVEL_USER_MESSAGE,$error);
+				}
+			}
+		}
+		return new xContentSimple("User login",$form->render(),'','');
+	}
 
 	// DOCS INHERITHED  ========================================================
 	function getContent($path)
 	{
-		//============================================================
 		if($path->m_base_path == 'user/login')
 		{
-			$form = new xForm('?p=user/login');
-			$form->m_elements[] = new xFormElementTextField('username','Username','','',TRUE,new xInputValidatorText(256));
-			$form->m_elements[] = new xFormElementPassword('password','Password','',TRUE,new xInputValidatorText(256));
-			$form->m_elements[] = new xFormSubmit('submit','login');
-			
-			$ret = $form->validate();
-			if(isset($ret->m_valid_data['submit']))
-			{
-				if(empty($ret->m_errors))
-				{
-					if($user = xUser::login($ret->m_valid_data['username'],$ret->m_valid_data['password'],TRUE) != NULL)
-					{
-						return new xContentSimple("User login",'Logged in','','');
-					}
-				}
-				else
-				{
-					foreach($ret->m_errors as $error)
-					{
-						xLog::log(LOG_LEVEL_USER_MESSAGE,$error);
-					}
-				}
-			}
-			return new xContentSimple("User login",$form->render(),'','');
+			return $this->_getContentLogin();
 		}
-		
-		//============================================================
 		elseif($path->m_base_path == 'user/logout')
 		{
 			xUser::logout();
 			return new xContentSimple("User logout",'Logged out','','');
 		}
 		
-		//============================================================
 		return NULL;
 	}
 	

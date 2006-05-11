@@ -47,8 +47,8 @@ class xTheme
 	function renderBox($id,$title,$content)
 	{
 		$output = 
-		'<div>' . $title . '</div>
-		<div>' . $content . '<div>
+		'<div class="box"><div class="title">' . $title . '</div>
+		<div>' . $content . '</div></div>
 		'
 		;
 		return $output;
@@ -124,7 +124,7 @@ class xTheme
 		$output .= "<title>" . $content->m_title . "</title>". "\n";
 		$output .= '<meta name="keywords" content="' . $content->m_keywords . '" />' . "\n";
 		$output .= '<meta name="description" content="' . $content->m_description . '" />'. "\n";
-		$output .= "<style type=\"text/css\" media=\"all\">@import \"themes/default_theme/style.css\";</style>" . "\n";
+		$output .= '<style type="text/css" media="all">@import "engine/cms/default.css";</style>' . "\n";
 		$output .= "</head>";
 		$output .= "<body>\n";
 		$output .= '<table id="page-table"><tr>' . "\n";

@@ -43,12 +43,12 @@ class xUserDAO
 	/**
 	 * Deletes a user. Based on username.
 	 *
-	 * @param xUser $username
+	 * @param string $username
 	 * @static
 	 */
-	function delete($user)
+	function delete($username)
 	{
-		xDB::getDB()->query("DELETE FROM user WHERE username= '%s'",$user->m_username);
+		xDB::getDB()->query("DELETE FROM user WHERE username= '%s'",$username);
 	}
 
 	/**
@@ -104,38 +104,38 @@ class xUserDAO
 	/**
 	 * Give a role to a user. Based on user id and role name.
 	 *
-	 * @param xUser $user
-	 * @param xRole $role
+	 * @param int $userid
+	 * @param string $rolename
 	 * @static
 	 */
-	function giveRole($user,$role)
+	function giveRole($userid,$rolename)
 	{
-		xDB::getDB()->query("INSERT INTO user_to_role(userid,roleName) VALUES (%d,'%s')",$user->m_id,$role->m_name);
+		xDB::getDB()->query("INSERT INTO user_to_role(userid,roleName) VALUES (%d,'%s')",$userid,$rolename);
 	}
 	
 	/**
 	 * Remove a user from a role. Based on user id and role name.
 	 *
-	 * @param xUser $user
-	 * @param xRole $role
+	 * @param int $userid
+	 * @param string $rolename
 	 * @static
 	 */
-	function removeFromRole($user,$role)
+	function removeFromRole($userid,$rolename)
 	{
-		xDB::getDB()->query("DELETE FROM user_to_role WHERE userid = %d AND roleName = '%s'",$user->m_id,$role->m_name);
+		xDB::getDB()->query("DELETE FROM user_to_role WHERE userid = %d AND roleName = '%s'",$userid,$rolename);
 	}
 	
 	/**
 	 * Retrieve all role names that belongs to a users. Based on id.
 	 *
-	 * @param xUser $user
+	 * @param int $userid
 	 * @return array(string)
 	 * @static
 	 */
-	function findUserRoleNames($user)
+	function findUserRoleNames($userid)
 	{
 		$roles = array();
-		$result = xDB::getDB()->query("SELECT * FROM user_to_role WHERE userid = %d",$user->m_id);
+		$result = xDB::getDB()->query("SELECT * FROM user_to_role WHERE userid = %d",$userid);
 		while($row = xDB::getDB()->fetchArray($result))
 		{
 			$roles[] = $row['roleName'];
@@ -146,15 +146,15 @@ class xUserDAO
 	/**
 	 * Check if an user have a specified role. Based on user id and role name.
 	 *
-	 * @param xUser $user
-	 * @param xRole $role
+	 * @param int $userid
+	 * @param string $rolename
 	 * @return bool
 	 * @static
 	 */
-	function haveRole($user,$role)
+	function haveRole($userid,$rolename)
 	{
 		$result = xDB::getDB()->query("SELECT * FROM user_to_role WHERE userid = %d AND roleName = '%s'",
-			$user->m_id,$role->m_name);
+			$userid,$rolename);
 		
 		if($row = xDB::getDB()->fetchArray($result))
 		{
@@ -168,16 +168,16 @@ class xUserDAO
 	/**
 	 * Check if an user have a specified access rule. Based on user id.
 	 *
-	 * @param xUser $user
+	 * @param int $userid
 	 * @param string $access_rule
 	 * @return bool
 	 * @static
 	 */
-	function haveAccessRule($user,$access_rule)
+	function haveAccessRule($userid,$access_rule)
 	{
 		$result = xDB::getDB()->query("SELECT role_access_rule.access_rule FROM user_to_role,role_access_rule WHERE 
 			user_to_role.userid = %d AND role_access_rule.roleName = user_to_role.roleName AND role_access_rule.access_rule = '%s'",
-			$user->m_id,$access_rule);
+			$userid,$access_rule);
 		
 		if($row = xDB::getDB()->fetchArray($result))
 		{
