@@ -15,9 +15,31 @@
 * PURPOSE ARE DISCLAIMED.SEE YOUR CHOOSEN LICENSE FOR MORE DETAILS.
 */
 
-require_once('engine/cms/components/homepage.comp.inc.php');
-require_once('engine/cms/components/user.comp.inc.php');
-require_once('engine/cms/components/box.comp.inc.php');
-require_once('engine/cms/components/test.comp.inc.php');
 
+/**
+* A module for tests
+*/
+class xModuleTest extends xModule
+{
+	function xModuleTest()
+	{
+		$this->xModule('Test','engine/cms/components/');
+	}
+
+	// DOCS INHERITHED  ========================================================
+	function getContent($path)
+	{
+		if($path->m_base_path == 'test')
+		{
+			xAccessFilterSetDAO::load(1);
+			
+			return new xContentSimple("Test",'','','');
+		}
+		
+		return NULL;
+	}
+};
+
+xModule::registerModule(new xModuleTest());
+	
 ?>

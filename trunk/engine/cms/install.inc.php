@@ -56,32 +56,7 @@ class xInstallCMS
 			PRIMARY KEY  (session_id)
 			)TYPE=InnoDB"
 		);
-		
-		
-		//box TODO add foreign key to content format
-		xDB::getDB()->query("
-			CREATE TABLE box(
-			name VARCHAR(64) NOT NULL,
-			title VARCHAR(255),
-			area VARCHAR(32),
-			type VARCHAR(32) NOT NULL,
-			PRIMARY KEY(name)
-			)TYPE=InnoDB"
-		);
-		
-		//static box
-		xDB::getDB()->query("
-			CREATE TABLE box_static(
-			box_name VARCHAR(64) NOT NULL,
-			content TEXT,
-			content_filter VARCHAR(64) NOT NULL,
-			PRIMARY KEY (box_name),
-			FOREIGN KEY (box_name) REFERENCES box(name) ON DELETE CASCADE
-			)TYPE=InnoDB"
-		);
-		//create some default box
-		$box = new xBox('Login','Login','dynamic','leftArea');
-		$box->dbInsert();
+
 		
 		//Roles
 		xDB::getDB()->query("
@@ -89,20 +64,6 @@ class xInstallCMS
 			name VARCHAR(32) NOT NULL,
 			description VARCHAR(255) NOT NULL,
 			PRIMARY KEY(name)
-			)TYPE=InnoDB"
-		);
-		$role = new xRole('administrator','Administrator');$role->dbInsert();
-		$role = new xRole('authenticated','Authenticated user');$role->dbInsert();
-		$role = new xRole('anonymous','Anonymous visitor');$role->dbInsert();
-		
-		//role to access rules
-		xDB::getDB()->query("
-			CREATE TABLE role_access_rule (
-			roleName VARCHAR(32) NOT NULL,
-			access_rule VARCHAR(32) NOT NULL,
-			UNIQUE(roleName,access_rule),
-			INDEX(roleName),
-			FOREIGN KEY (roleName) REFERENCES role(name) ON DELETE CASCADE
 			)TYPE=InnoDB"
 		);
 		
@@ -132,10 +93,85 @@ class xInstallCMS
 			FOREIGN KEY (roleName) REFERENCES role(name) ON DELETE CASCADE
 			)TYPE=InnoDB");
 			
-		$user = new xUser('','admin','root@localhost.com');
-		$user->dbInsert('pass');
-		$user->giveRole(new xRole('administrator',''));
+		//role to access rules TODO to remove
+		xDB::getDB()->query("
+			CREATE TABLE role_access_rule (
+			roleName VARCHAR(32) NOT NULL,
+			access_rule VARCHAR(32) NOT NULL,
+			UNIQUE(roleName,access_rule),
+			INDEX(roleName),
+			FOREIGN KEY (roleName) REFERENCES role(name) ON DELETE CASCADE
+			)TYPE=InnoDB"
+		);
 		
+		
+		//access filter set
+		xDB::getDB()->query("
+			CREATE TABLE access_filter_set (
+			id INT UNSIGNED AUTO_INCREMENT NOT NULL,
+			name VARCHAR(32) NOT NULL,
+			description VARCHAR(256) NOT NULL,
+			PRIMARY KEY(id)
+			)TYPE=InnoDB"
+		);
+		
+		//access filter role
+		xDB::getDB()->query("
+			CREATE TABLE access_filter_role (
+			filterid INT UNSIGNED NOT NULL,
+			roleName VARCHAR(32) NOT NULL,
+			UNIQUE(filterid,roleName),
+			INDEX(filterid),
+			INDEX(roleName),
+			FOREIGN KEY (filterid) REFERENCES access_filter_set(id) ON DELETE CASCADE,
+			FOREIGN KEY (roleName) REFERENCES role(name) ON DELETE CASCADE
+			)TYPE=InnoDB"
+		);
+		
+		//access filter path include
+		xDB::getDB()->query("
+			CREATE TABLE access_filter_path_include (
+			filterid INT UNSIGNED NOT NULL,
+			incpath VARCHAR(128) NOT NULL,
+			UNIQUE(filterid),
+			INDEX(filterid),
+			FOREIGN KEY (filterid) REFERENCES access_filter_set(id) ON DELETE CASCADE
+			)TYPE=InnoDB"
+		);
+		
+		//access filter path exclude
+		xDB::getDB()->query("
+			CREATE TABLE access_filter_path_exclude (
+			filterid INT UNSIGNED NOT NULL,
+			excpath VARCHAR(128) NOT NULL,
+			UNIQUE(filterid),
+			INDEX(filterid),
+			FOREIGN KEY (filterid) REFERENCES access_filter_set(id) ON DELETE CASCADE
+			)TYPE=InnoDB"
+		);
+		
+		//box
+		xDB::getDB()->query("
+			CREATE TABLE box(
+			name VARCHAR(64) NOT NULL,
+			title VARCHAR(255),
+			area VARCHAR(32),
+			type VARCHAR(32) NOT NULL,
+			PRIMARY KEY(name)
+			)TYPE=InnoDB"
+		);
+		
+		//box TODO add foreign key to content format
+		//static box
+		xDB::getDB()->query("
+			CREATE TABLE box_static(
+			box_name VARCHAR(64) NOT NULL,
+			content TEXT,
+			content_filter VARCHAR(64) NOT NULL,
+			PRIMARY KEY (box_name),
+			FOREIGN KEY (box_name) REFERENCES box(name) ON DELETE CASCADE
+			)TYPE=InnoDB"
+		);
 		
 		//menu
 		xDB::getDB()->query("
@@ -148,6 +184,28 @@ class xInstallCMS
 			FOREIGN KEY (box_name) REFERENCES box(name) ON DELETE CASCADE
 			)TYPE=InnoDB"
 		);
+		
+		
+		
+		
+		$role = new xRole('administrator','Administrator');
+		$role->dbInsert();
+		$role = new xRole('authenticated','Authenticated user');
+		$role->dbInsert();
+		$role = new xRole('anonymous','Anonymous visitor');
+		$role->dbInsert();
+		
+		$acc_filter = new xAccessFilterSet(-1,'test access','',array(new xAccessFilterPathInclude('pathinclude'),new xAccessFilterRole('administrator')));
+		$acc_filter->dbInsert();
+		
+		$user = new xUser('','admin','root@localhost.com');
+		$user->dbInsert('pass');
+		$user->giveRole('administrator');
+		
+		//create some default box
+		$box = new xBox('Login','Login','dynamic','leftArea');
+		$box->dbInsert();
+		
 		$menu = new xMenuDynamic('Admin','Admin','menudynamic',array(),'leftArea');
 		$menu->dbInsert();
 	}

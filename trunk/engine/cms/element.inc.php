@@ -22,34 +22,10 @@
 class xElement
 {
 	/**
-	 * @var xAccessManager
-	 * @access public
-	 */
-	var $m_access_manager;
-	
-	/**
 	 * Create a new Element.
 	 */
-	function xElement($access_manager = xAccessManager::getNullAccessManager())
+	function xElement()
 	{
-		$this->m_access_manager = $access_manager();
-	}
-	
-	/**
-	* Check the element access manager and render the page element.
-	* 
-	* @return string XHTML code representing the renderized element.
-	*/
-	function render()
-	{
-		if($this->m_access_manager->checkAccess())
-		{
-			return $this->onRender();
-		}
-		else
-		{
-			return '';
-		}
 	}
 	
 	/**
@@ -57,9 +33,8 @@ class xElement
 	 *
 	 * @return string XHTML code representing the renderized element.
 	 * @abstract
-	 * @access protected
 	 */
-	function onRender()
+	function render()
 	{
 		//virtual method
 		assert(FALSE);

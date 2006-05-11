@@ -20,5 +20,6 @@ require_once('engine/cms/dao/menustatic.dao.inc.php');
 require_once('engine/cms/dao/boxstatic.dao.inc.php');
 require_once('engine/cms/dao/role.dao.inc.php');
 require_once('engine/cms/dao/user.dao.inc.php');
+require_once('engine/cms/dao/accessfilter.dao.inc.php');
 
 ?>
