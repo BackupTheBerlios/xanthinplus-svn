@@ -86,6 +86,27 @@ class xAccessFilterSet
 	{
 		$this->m_id = xAccessFilterSetDAO::insert($this);
 	}
+	
+	/**
+	 *
+	 * @return xAccessFilterSet
+	 * @static 
+	 */
+	function dbLoad($id)
+	{
+		return xAccessFilterSetDAO::load($id);
+	}
+	
+	
+	/**
+	 *
+	 * @return array(xAccessFilterSet)
+	 * @static 
+	 */
+	function findAll()
+	{
+		return xAccessFilterSetDAO::findAll();
+	}
 }
 
 
@@ -117,7 +138,7 @@ class xAccessFilter
 
 
 /**
- * Filter based on current xanthpath (inclusive).
+ * Filter based on current xanthpath (inclusive). You can use 'path/to/include' as path to include a path.
  */
 class xAccessFilterPathInclude extends xAccessFilter
 {
@@ -134,12 +155,26 @@ class xAccessFilterPathInclude extends xAccessFilter
 	{
 		$this->m_path = $path;
 	}
+	
+	// DOCS INHERITHED  ========================================================
+	function checkAccess()
+	{
+		$path = xXanthPath::getCurrentAsString();
+		
+		$pos = strpos($path,$this->m_path);
+		if($pos === 0)
+		{
+			return TRUE;
+		}
+		
+		return FALSE;
+	}
 }
 
 /**
- * Filter based on current xanthpath (exclusive).
+ * Filter based on current xanthpath (exclusive).You can use 'path/to/include' as path to include a path.
  */
-class xAccessFilterPathExclude extends xAccessFilter
+class xAccessFilterPathExclude extends xAccessFilter 
 {
 	/**
 	 * @var string
@@ -153,6 +188,20 @@ class xAccessFilterPathExclude extends xAccessFilter
 	function xAccessFilterPathExclude($path)
 	{
 		$this->m_path = $path;
+	}
+	
+	// DOCS INHERITHED  ========================================================
+	function checkAccess()
+	{
+		$path = xXanthPath::getCurrentAsString();
+		
+		$pos = strpos($path,$this->m_path);
+		if($pos === 0)
+		{
+			return FALSE;
+		}
+		
+		return TRUE;
 	}
 }
 
@@ -176,6 +225,12 @@ class xAccessFilterRole extends xAccessFilter
 		$this->m_role_name = $m_role_name;
 	}
 	
+	
+	// DOCS INHERITHED  ========================================================
+	function checkAccess()
+	{
+		return xUser::checkCurrentUserRole($this->m_role_name);
+	}
 }
 
 ?>

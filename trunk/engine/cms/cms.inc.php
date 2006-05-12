@@ -33,6 +33,7 @@ require_once('engine/cms/role.inc.php');
 require_once('engine/cms/user.inc.php');
 require_once('engine/cms/utilities.inc.php');
 require_once('engine/cms/accessfilter.inc.php');
+require_once('engine/cms/accesspermission.inc.php');
 
 require_once('engine/cms/components/components.inc.php');
 

@@ -294,6 +294,32 @@ class xUser
 		xUserDAO::giveRole($this->m_id,$rolename);
 	}
 	
+	
+	/**
+	 * 
+	 *
+	 * @param string $rolename
+	 * @return bool
+	 * @static
+	 */
+	function haveRole($rolename)
+	{
+		xUserDAO::haveRole($this->m_id,$rolename);
+	}
+	
+	
+	/**
+	 * 
+	 *
+	 * @param string $rolename
+	 * @return bool
+	 * @static
+	 */
+	function currentHaveRole($rolename)
+	{
+		return xUserDAO::haveRole(xUser::getLoggedinUserid(),$rolename);
+	}
+	
 	/**
 	 * Remove a user from a role. Based on user id and role name.
 	 *
@@ -305,11 +331,31 @@ class xUser
 	}
 	
 	/**
+	 * Check if the current logged in user have a specified role
+	 *
+	 * @param string $role_name
+	 * @return bool
+	 * @static
+	 */
+	function checkCurrentUserRole($role_name)
+	{
+		$userid = xUser::getLoggedinUserid();
+		
+		if(($userid !== NULL && xUserDAO::haveRole($userid,$role_name)) || ($userid === NULL && $role_name == 'anonymous'))
+		{
+			return TRUE;
+		}
+
+		return FALSE;
+	}
+	
+	/**
 	 * Check if the current active user have an access role.
 	 *
 	 * @param string $access_rule
 	 * @return bool
 	 * @static
+	 * @deprecated
 	 */
 	function checkUserAccess($access_rule)
 	{

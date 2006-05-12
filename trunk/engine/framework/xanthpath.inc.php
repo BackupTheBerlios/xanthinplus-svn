@@ -30,6 +30,23 @@ class xXanthPath
 		$this->m_base_path = $base_path;
 	}
 	
+	/**
+	 * Retrieve the current complete path as a simple string. Note that this method does not check
+	 * the validity of the path.
+	 *
+	 * @return string
+	 */
+	function getCurrentAsString()
+	{
+		if(isset($_GET['p']))
+		{
+			return $_GET['p'];
+		}
+		else
+		{
+			return '';
+		}
+	}
 	
 	/**
 	 * Return a valid xXanthPath object on success, NULL on parsing error.

@@ -150,6 +150,16 @@ class xInstallCMS
 			)TYPE=InnoDB"
 		);
 		
+		//access permission
+		xDB::getDB()->query("
+			CREATE TABLE access_permission (
+			name VARCHAR(64) NOT NULL,
+			filterset INT UNSIGNED NOT NULL,
+			PRIMARY KEY(name),
+			FOREIGN KEY (filterset) REFERENCES access_filter_set(id) ON DELETE CASCADE
+			)TYPE=InnoDB"
+		);
+		
 		//box
 		xDB::getDB()->query("
 			CREATE TABLE box(
@@ -195,8 +205,10 @@ class xInstallCMS
 		$role = new xRole('anonymous','Anonymous visitor');
 		$role->dbInsert();
 		
-		$acc_filter = new xAccessFilterSet(-1,'test access','',array(new xAccessFilterPathInclude('pathinclude'),new xAccessFilterRole('administrator')));
+		$acc_filter = new xAccessFilterSet(-1,'Default admin sections','',array(new xAccessFilterRole('administrator')));
 		$acc_filter->dbInsert();
+		$perm = new xAccessPermission('manage box',$acc_filter->m_id);
+		$perm->dbInsert();
 		
 		$user = new xUser('','admin','root@localhost.com');
 		$user->dbInsert('pass');

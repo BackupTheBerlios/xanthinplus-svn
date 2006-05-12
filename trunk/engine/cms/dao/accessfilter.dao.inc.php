@@ -45,6 +45,8 @@ class xAccessFilterSetDAO
 		xAccessFilterSetDAO::_insertFilters($id,$access_filter_set->m_filters);
 		
 		//xDB::getDB()->commit();
+		
+		return $id;
 	}
 	
 	/**
@@ -126,28 +128,58 @@ class xAccessFilterSetDAO
 		if($row = xDB::getDB()->fetchObject($result))
 		{
 			$set = new xAccessFilterSet($filterid,$row->name,$row->description);
-			
-			$filters = array();
-			$result = xDB::getDB()->query("SELECT incpath FROM access_filter_path_include WHERE filterid = %d",$filterid);
-			while($row = xDB::getDB()->fetchObject($result))
-			{
-				$filters[] = new xAccessFilterPathInclude($row->incpath);
-			}
-			$result = xDB::getDB()->query("SELECT excpath FROM access_filter_path_exclude WHERE filterid = %d",$filterid);
-			while($row = xDB::getDB()->fetchObject($result))
-			{
-				$filters[] = new xAccessFilterPathInclude($row->excpath);
-			}
-			$result = xDB::getDB()->query("SELECT roleName FROM access_filter_role WHERE filterid = %d",$filterid);
-			while($row = xDB::getDB()->fetchObject($result))
-			{
-				$filters[] = new xAccessFilterPathInclude($row->roleName);
-			}
-			
-			$set->m_filters = $filters;
+			$set->m_filters = xAccessFilterSetDAO::_getFilters($filterid);
 		}
-		print_r($filters);
-		//assert(FALSE);//TODO
+		
+		return $set;
+	}
+	
+	/**
+	 *
+	 * @return array(xAccessFilter)
+	 * @access private
+	 * @static
+	 */
+	function _getFilters($filterid)
+	{
+		$filters = array();
+		$result = xDB::getDB()->query("SELECT incpath FROM access_filter_path_include WHERE filterid = %d",$filterid);
+		while($row = xDB::getDB()->fetchObject($result))
+		{
+			$filters[] = new xAccessFilterPathInclude($row->incpath);
+		}
+		$result = xDB::getDB()->query("SELECT excpath FROM access_filter_path_exclude WHERE filterid = %d",$filterid);
+		while($row = xDB::getDB()->fetchObject($result))
+		{
+			$filters[] = new xAccessFilterPathExclude($row->excpath);
+		}
+		$result = xDB::getDB()->query("SELECT roleName FROM access_filter_role WHERE filterid = %d",$filterid);
+		while($row = xDB::getDB()->fetchObject($result))
+		{
+			$filters[] = new xAccessFilterRole($row->roleName);
+		}
+		
+		return $filters;
+	}
+	
+	
+	/**
+	 *
+	 * @return array(xAccessFilterSet)
+	 * @static
+	 */
+	function findAll()
+	{
+		$sets = array();
+		$result = xDB::getDB()->query("SELECT * FROM access_filter_set");
+		while($row = xDB::getDB()->fetchObject($result))
+		{
+			$set = new xAccessFilterSet($row->id,$row->name,$row->description);
+			$set->m_filters = xAccessFilterSetDAO::_getFilters($row->id);
+			$sets[] = $set;
+		}
+		
+		return $sets;
 	}
 }
 
