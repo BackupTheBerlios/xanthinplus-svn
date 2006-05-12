@@ -33,6 +33,10 @@ class xModuleAccessControl extends xModule
 		{
 			return $this->_getContentManageAccessFilters();
 		}
+		elseif($path->m_base_path == 'admin/accesspermissions')
+		{
+			return $this->_getContentManageAccessPermissions();
+		}
 		
 		return NULL;
 	}
@@ -88,12 +92,46 @@ class xModuleAccessControl extends xModule
 		return new xContentSimple("Manage Access Filters",$output,'','');
 	}
 	
+	
+	/**
+	 * @access private
+	 */
+	function _getContentManageAccessPermissions()
+	{
+		//only if administrator!
+		if(!xUser::currentHaveRole('administrator'))
+		{
+			return new xContentNotAuthorized();
+		}
+		
+		$permissions = xAccessPermission::findAll();
+		
+		$output = 
+		'<table class="admin-table">
+		<tr><th>Permission name</th><th>Filter set</th><th>Operations</th></tr>
+		';
+		foreach($permissions as $permission)
+		{
+			$filterset = xAccessFilterSet::dbLoad($permission->m_filterset);
+			
+			$output .= '<tr><td>' . $permission->m_name . '</td><td>' . $filterset->m_name . '</td>';
+			$output .= '<td>Edit</td></tr>';
+		}
+		$output .= "</table>\n";
+		
+		return new xContentSimple("Manage Access Permissions",$output,'','');
+	}
+	
+	
 	// DOCS INHERITHED  ========================================================
 	function getMenuItem($box_name)
 	{
 		if($box_name == 'Admin')
 		{
-			return new xMenuItem('Manage Access Filters','?p=admin/accessfilters');
+			return array(
+				new xMenuItem('Manage Access Filters','?p=admin/accessfilters'),
+				new xMenuItem('Manage Access Permissions','?p=admin/accesspermissions')
+			);
 		}
 		
 		return NULL;

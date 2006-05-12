@@ -50,16 +50,25 @@ class xBox extends xElement
 	var $m_type;
 	
 	/**
+	 * @var int
+	 * @access public
+	 */
+	var $m_filterset;
+	
+	/**
 	* Contructor
 	*
 	* @param string $id
 	* @param string $title
+	* @param string $type
+	* @param int $filterset
 	* @param string $area
 	*/
-	function xBox($name,$title,$type,$area = NULL)
+	function xBox($name,$title,$type,$filterset = NULL,$area = NULL)
 	{
 		$this->xElement();
 		
+		$this->m_filterset = $filterset;
 		$this->m_name = $name;
 		$this->m_title = $title;
 		$this->m_area = $area;
@@ -68,6 +77,22 @@ class xBox extends xElement
 	
 	// DOCS INHERITHED  ========================================================
 	function render()
+	{
+		//here we will provide a check for access filter.
+		if(!empty($this->m_filterset))
+		{
+			$filterset = xAccessFilterSet::dbLoad($this->m_filterset);
+			if(! $filterset->checkAccess())
+			{
+				return NULL;
+			}
+		}
+		
+		return $this->onRender();
+	}
+	
+	// DOCS INHERITHED  ========================================================
+	function onRender()
 	{
 		//cannot render a simple box, you should convert this box into a 
 		//specified box to be able to render it.
@@ -186,16 +211,16 @@ class xBoxStatic extends xBox
 	* @param string $content_filter
 	* @param string $area
 	*/
-	function xBoxStatic($name,$title,$type,$content,$content_filter,$area = NULL)
+	function xBoxStatic($name,$title,$type,$content,$content_filter,$filterset,$area = NULL)
 	{
-		xBox::xBox($name,$title,$type,$area);
+		xBox::xBox($name,$title,$type,$filterset,$area);
 		
 		$this->m_content = $content;
 		$this->m_content_filter = $content_filter;
 	}
 	
 	// DOCS INHERITHED  ========================================================
-	function render()
+	function onRender()
 	{
 		//!@TODO: filter content here
 		
@@ -238,15 +263,15 @@ class xBoxDynamic extends xBox
 	 * @param string $area
 	 * @param string $type
 	 */
-	function xBoxStatic($name,$title,$type,$area = NULL)
+	function xBoxStatic($name,$title,$type,$filterset,$area = NULL)
 	{
-		xBox::xBox($name,$title,$type,$area);
+		xBox::xBox($name,$title,$type,$filterset,$area);
 	}
 	
 	/**
 	 * @abstract
 	 */
-	function render()
+	function onRender()
 	{
 		//virtual
 		assert(FALSE);

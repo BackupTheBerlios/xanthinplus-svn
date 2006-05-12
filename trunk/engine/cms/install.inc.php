@@ -92,18 +92,6 @@ class xInstallCMS
 			FOREIGN KEY (userid) REFERENCES user(id) ON DELETE CASCADE,
 			FOREIGN KEY (roleName) REFERENCES role(name) ON DELETE CASCADE
 			)TYPE=InnoDB");
-			
-		//role to access rules TODO to remove
-		xDB::getDB()->query("
-			CREATE TABLE role_access_rule (
-			roleName VARCHAR(32) NOT NULL,
-			access_rule VARCHAR(32) NOT NULL,
-			UNIQUE(roleName,access_rule),
-			INDEX(roleName),
-			FOREIGN KEY (roleName) REFERENCES role(name) ON DELETE CASCADE
-			)TYPE=InnoDB"
-		);
-		
 		
 		//access filter set
 		xDB::getDB()->query("
@@ -156,6 +144,7 @@ class xInstallCMS
 			name VARCHAR(64) NOT NULL,
 			filterset INT UNSIGNED NOT NULL,
 			PRIMARY KEY(name),
+			INDEX(filterset),
 			FOREIGN KEY (filterset) REFERENCES access_filter_set(id) ON DELETE CASCADE
 			)TYPE=InnoDB"
 		);
@@ -167,7 +156,10 @@ class xInstallCMS
 			title VARCHAR(255),
 			area VARCHAR(32),
 			type VARCHAR(32) NOT NULL,
-			PRIMARY KEY(name)
+			filterset INT UNSIGNED,
+			PRIMARY KEY(name),
+			INDEX(filterset),
+			FOREIGN KEY (filterset) REFERENCES access_filter_set(id) ON DELETE CASCADE
 			)TYPE=InnoDB"
 		);
 		
@@ -205,20 +197,22 @@ class xInstallCMS
 		$role = new xRole('anonymous','Anonymous visitor');
 		$role->dbInsert();
 		
-		$acc_filter = new xAccessFilterSet(-1,'Default admin sections','',array(new xAccessFilterRole('administrator')));
-		$acc_filter->dbInsert();
-		$perm = new xAccessPermission('manage box',$acc_filter->m_id);
-		$perm->dbInsert();
 		
 		$user = new xUser('','admin','root@localhost.com');
 		$user->dbInsert('pass');
 		$user->giveRole('administrator');
 		
-		//create some default box
-		$box = new xBox('Login','Login','dynamic','leftArea');
-		$box->dbInsert();
 		
-		$menu = new xMenuDynamic('Admin','Admin','menudynamic',array(),'leftArea');
+		$acc_filter = new xAccessFilterSet(-1,'Default admin sections','',array(new xAccessFilterRole('administrator')));
+		$acc_filter->dbInsert();
+		$perm = new xAccessPermission('manage box',$acc_filter->m_id);
+		$perm->dbInsert();
+		
+		
+		//create some default box
+		$box = new xBox('Login','Login','dynamic',NULL,'leftArea');
+		$box->dbInsert();
+		$menu = new xMenuDynamic('Admin','Admin','menudynamic',array(),$acc_filter->m_id,'leftArea');
 		$menu->dbInsert();
 	}
 };

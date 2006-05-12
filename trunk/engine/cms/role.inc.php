@@ -70,38 +70,6 @@ class xRole
 	{
 		return xRoleDAO::findAll();
 	}
-	
-	/**
-	 * Gives a new access rule to this role
-	 *
-	 * @param string $access_rule
-	 */
-	function giveAccessRule($access_rule)
-	{
-		xRoleDAO::giveAccessRule($this->m_name,$access_rule);
-	}
-	
-	/**
-	* Takes off from this roel an access rule
-	*
-	* @param string $access_rule
-	*/
-	function takeoffAccessRule($access_rule)
-	{
-		xRoleDAO::takeoffAccessRule($this->m_name,$access_rule);
-	}
-	
-	/**
-	 * Check if this role have an access rule
-	 *
-	 * @param string $access_rule
-	 * @return bool
-	 * @static
-	 */
-	function haveAccess($access_rule)
-	{
-		return xRoleDAO::haveAccess($this->m_name,$access_rule);
-	}
 }
 
 ?>

@@ -75,51 +75,6 @@ class xRoleDAO
 		}
 		return $roles;
 	}
-	
-	/**
-	 * Gives a new access rule to a role.
-	 *
-	 * @param string $rolename
-	 * @param string $access_rule
-	 * @static
-	 */
-	function giveAccessRule($rolename,$access_rule)
-	{
-		xDB::getDB()->query("INSERT INTO role_access_rule(roleName,access_rule) VALUES ('%s','%s')",
-			$rolename,$access_rule);
-	}
-	
-	/**
-	* Takes off from a role an access rule
-	*
-	* @param string $rolename
-	* @param string $access_rule
-	* @static
-	*/
-	function takeoffAccessRule($rolename,$access_rule)
-	{
-		xDB::getDB()->query("DELETE FROM role_access_rule WHERE roleId = '%s' AND access_rule = '%s'",
-			$rolename,$access_rule);
-	}
-	
-	/**
-	 * Check if a particular role have an access rule
-	 *
-	 * @param string $rolename
-	 * @param string $access_rule
-	 * @return bool
-	 * @static
-	 */
-	function haveAccess($rolename,$access_rule)
-	{
-		$result = xDB::getDB()->query("SELECT * FROM role_access_rule WHERE roleName = '%s' AND access_rule = '%s'",
-			$rolename,$access_rule);
-		if(xDB::getDB()->fetchObject($result))
-		{
-			return TRUE;
-		}
-		return FALSE;
-	}
 }
 
 ?>

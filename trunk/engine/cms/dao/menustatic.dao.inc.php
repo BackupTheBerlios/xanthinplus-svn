@@ -96,7 +96,7 @@ class xMenuStaticDAO
 			$items[] = new xMenuItem($row->text,$row->link);
 		}
 		
-		return new xMenuStatic($box->m_name,$box->m_title,$box->m_type,$items,$box->m_area);
+		return new xMenuStatic($box->m_name,$box->m_title,$box->m_type,$items,$box->m_filterset,$box->m_area);
 	}
 };
 

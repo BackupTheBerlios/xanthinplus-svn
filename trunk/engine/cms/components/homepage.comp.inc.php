@@ -61,7 +61,7 @@ class xContentHomepage extends xContent
 	}
 
 	// DOCS INHERITHED  ========================================================
-	function render()
+	function onRender()
 	{
 		return 'Xanthin homepage test';
 	}

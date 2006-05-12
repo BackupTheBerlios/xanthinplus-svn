@@ -53,7 +53,7 @@ class xContent extends xElement
 	}
 	
 	// DOCS INHERITHED  ========================================================
-	function render()
+	function onRender()
 	{
 		//must override
 		assert(FALSE);

@@ -77,6 +77,18 @@ class xAccessPermission
 		
 		return $set->checkAccess();
 	}
+	
+	
+	/**
+	 * Retrieve all access permissions
+	 *
+	 * @return array(xAccessPermission)
+	 * @static
+	 */
+	function findAll()
+	{
+		return xAccessPermissionDAO::findAll();
+	}
 }
 
 ?>

@@ -236,7 +236,7 @@ class xUser
 	 * @return bool
 	 * @static
 	 */
-	function checkUser()
+	function checkUserLogin()
 	{
 		if(xUser::checkSession())
 		{
@@ -346,48 +346,6 @@ class xUser
 			return TRUE;
 		}
 
-		return FALSE;
-	}
-	
-	/**
-	 * Check if the current active user have an access role.
-	 *
-	 * @param string $access_rule
-	 * @return bool
-	 * @static
-	 * @deprecated
-	 */
-	function checkUserAccess($access_rule)
-	{
-		$userid = xUser::getLoggedinUserid();
-		if($userid == NULL)
-		{
-			//check for authenticated user
-			if(xRoleDAO::haveAccess('authenticated',$access_rule))
-			{
-				return TRUE;
-			}
-			
-			//if user has admin role bypass check
-			if(xUserDAO::haveRole($userid,'administrator'))
-			{
-				return TRUE;
-			}
-			
-			//check for other roles
-			if(xUserDAO::haveAccessRule($userid,$access_rule))
-			{
-				return TRUE;
-			}
-		}
-		else //anonymous user
-		{
-			if(xRoleDAO::haveAccess('anonymous',$access_rule))
-			{
-				return TRUE;
-			}
-		}
-		
 		return FALSE;
 	}
 };

@@ -68,7 +68,7 @@ class xArea extends xElement
 	}
 	
 	// DOCS INHERITHED  ========================================================
-	function render()
+	function onRender()
 	{
 		return xTheme::getActive()->renderArea($this->m_name,$this->m_boxes);
 	}

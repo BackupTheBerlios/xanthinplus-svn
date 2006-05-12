@@ -30,7 +30,7 @@ class xExecutionTime extends xElement
 	}
 	
 	// DOCS INHERITHED  ========================================================
-	function render()
+	function onRender()
 	{
 		global $g_execution_started;
 		return '' . xExecutionTime::_getmicrotime() - $g_execution_started;

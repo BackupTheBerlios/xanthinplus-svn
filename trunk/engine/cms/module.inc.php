@@ -232,7 +232,17 @@ class xModule
 			$result = $module->$function();
 			if($result !== NULL)
 			{
-				$array_result[] = $result;
+				if(is_array($result))
+				{
+					foreach($result as $one_result)
+					{
+						$array_result[] = $one_result;
+					}
+				}
+				else
+				{
+					$array_result[] = $result;
+				}
 			}
 		}
 		
@@ -255,7 +265,17 @@ class xModule
 			$result = $module->$function($arg1);
 			if($result !== NULL)
 			{
-				$array_result[] = $result;
+				if(is_array($result))
+				{
+					foreach($result as $one_result)
+					{
+						$array_result[] = $one_result;
+					}
+				}
+				else
+				{
+					$array_result[] = $result;
+				}
 			}
 		}
 		
@@ -278,7 +298,17 @@ class xModule
 			$result = $module->$function($arg1,$arg2);
 			if($result !== NULL)
 			{
-				$array_result[] = $result;
+				if(is_array($result))
+				{
+					foreach($result as $one_result)
+					{
+						$array_result[] = $one_result;
+					}
+				}
+				else
+				{
+					$array_result[] = $result;
+				}
 			}
 		}
 		

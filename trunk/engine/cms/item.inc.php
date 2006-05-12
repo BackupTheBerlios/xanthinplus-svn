@@ -27,7 +27,7 @@ class xItem extends xElement
 	}
 	
 	// DOCS INHERITHED  ========================================================
-	function render()
+	function onRender()
 	{
 		
 	}

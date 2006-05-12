@@ -40,6 +40,12 @@ class xBoxDAO
 			$field_values .= ",'%s'";
 			$values[] = $box->m_area;
 		}
+		if(!empty($box->m_filterset))
+		{
+			$field_names .= ',filterset';
+			$field_values .= ",%d";
+			$values[] = $box->m_filterset;
+		}
 		
 		xDB::getDB()->query("INSERT INTO box($field_names) VALUES($field_values)",$values);
 	}
@@ -60,6 +66,11 @@ class xBoxDAO
 		{
 			$fields .= ",area = '%s'";
 			$values[] = $box->m_area;
+		}
+		if(!empty($box->m_filterset))
+		{
+			$fields .= ",filterset = %d";
+			$values[] = $box->m_filterset;
 		}
 		
 		$values[] = $box->m_id;
@@ -109,7 +120,7 @@ class xBoxDAO
 		
 		while($row = xDB::getDB()->fetchArray($result))
 		{
-			$current_box = new xBox($row['name'],$row['title'],$row['type'],$row['area']);
+			$current_box = new xBox($row['name'],$row['title'],$row['type'],$row['filterset'],$row['area']);
 			$boxes[] = $current_box;
 		}
 		return $boxes;

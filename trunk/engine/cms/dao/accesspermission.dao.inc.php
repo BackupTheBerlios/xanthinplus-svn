@@ -65,6 +65,24 @@ class xAccessPermissionDAO
 		
 		return NULL;
 	}
+	
+	/**
+	 * Retrieve all access permissions
+	 *
+	 * @return array(xAccessPermission)
+	 * @static
+	 */
+	function findAll()
+	{
+		$permissions = array();
+		$result = xDB::getDB()->query("SELECT * FROM access_permission");
+		while($row = xDB::getDB()->fetchObject($result))
+		{
+			$permissions[] = new xAccessPermission($row->name,$row->filterset);
+		}
+		
+		return $permissions;
+	}
 }
 
 ?>

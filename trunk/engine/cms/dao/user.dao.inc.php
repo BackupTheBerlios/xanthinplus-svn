@@ -164,29 +164,6 @@ class xUserDAO
 		return FALSE;
 	}
 	
-	
-	/**
-	 * Check if an user have a specified access rule. Based on user id.
-	 *
-	 * @param int $userid
-	 * @param string $access_rule
-	 * @return bool
-	 * @static
-	 */
-	function haveAccessRule($userid,$access_rule)
-	{
-		$result = xDB::getDB()->query("SELECT role_access_rule.access_rule FROM user_to_role,role_access_rule WHERE 
-			user_to_role.userid = %d AND role_access_rule.roleName = user_to_role.roleName AND role_access_rule.access_rule = '%s'",
-			$userid,$access_rule);
-		
-		if($row = xDB::getDB()->fetchArray($result))
-		{
-			return TRUE;
-		}
-		
-		return FALSE;
-	}
-	
 		
 	/**
 	 * Check for a valid login.

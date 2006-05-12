@@ -66,14 +66,14 @@ class xMenu extends xBox
 	* @param string $type
 	* @param string $area
 	*/
-	function xMenu($name,$title,$type,$items = array(),$area = NULL)
+	function xMenu($name,$title,$type,$items = array(),$filterset,$area = NULL)
 	{
-		$this->xBox($name,$title,$type,$area);
+		$this->xBox($name,$title,$type,$filterset,$area);
 		$this->m_items = $items;
 	}
 	
 	// DOCS INHERITHED  ========================================================
-	function render()
+	function onRender()
 	{
 		$content = xTheme::getActive()->renderMenuItems($this->m_items);
 		return xTheme::getActive()->renderBox($this->m_name,$this->m_title,$content);
@@ -93,9 +93,9 @@ class xMenuStatic extends xMenu
 	* @param string $type
 	* @param string $area
 	*/
-	function xMenuStatic($name,$title,$type,$items = array(),$area = NULL)
+	function xMenuStatic($name,$title,$type,$items = array(),$filterset,$area = NULL)
 	{
-		$this->xMenu($name,$title,$type,$items,$area);
+		$this->xMenu($name,$title,$type,$items,$filterset,$area);
 	}
 	
 	/**
@@ -133,9 +133,9 @@ class xMenuDynamic extends xMenu
 	* @param string $type
 	* @param string $area
 	*/
-	function xMenuDynamic($name,$title,$type,$items = array(),$area = NULL)
+	function xMenuDynamic($name,$title,$type,$items = array(),$filterset,$area = NULL)
 	{
-		$this->xMenu($name,$title,$type,$items,$area);
+		$this->xMenu($name,$title,$type,$items,$filterset,$area);
 	}
 	
 	/**
@@ -149,7 +149,7 @@ class xMenuDynamic extends xMenu
 		//ask modules for items
 		$items = xModule::callWithArrayResult1('getMenuItem',$box->m_name);
 		
-		return new xMenuDynamic($box->m_name,$box->m_title,$box->m_type,$items,$box->m_area);
+		return new xMenuDynamic($box->m_name,$box->m_title,$box->m_type,$items,$box->m_filterset,$box->m_area);
 	}
 };
 

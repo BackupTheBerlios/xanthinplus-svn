@@ -29,12 +29,22 @@ class xElement
 	}
 	
 	/**
+	 * Render the page element using the object current view view.Override onRender to implement your own class.
+	 *
+	 * @return string XHTML code representing the renderized element.
+	 */
+	function render()
+	{
+		return $this->onRender();
+	}
+	
+	/**
 	 * Render the page element using the object current view view.
 	 *
 	 * @return string XHTML code representing the renderized element.
 	 * @abstract
 	 */
-	function render()
+	function onRender()
 	{
 		//virtual method
 		assert(FALSE);

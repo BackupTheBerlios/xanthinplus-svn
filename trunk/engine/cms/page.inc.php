@@ -53,7 +53,7 @@ class xPage extends xElement
 	
 	
 	// DOCS INHERITHED  ========================================================
-	function render()
+	function onRender()
 	{
 		return xTheme::getActive()->renderPage($this->m_content,$this->m_areas);
 	}
