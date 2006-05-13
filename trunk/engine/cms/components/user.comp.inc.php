@@ -92,17 +92,6 @@ class xModuleUser extends xModule
 		//check the login
 		xUser::checkUserLogin();
 	}
-	
-	// DOCS INHERITHED  ========================================================
-	function getMenuItem($box_name)
-	{
-		if($box_name == 'Admin')
-		{
-			return new xMenuItem('Test','?p=test');
-		}
-		
-		return NULL;
-	}
 };
 
 xModule::registerModule(new xModuleUser());

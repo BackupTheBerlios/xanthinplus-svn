@@ -156,6 +156,7 @@ class xInstallCMS
 			title VARCHAR(255) NOT NULL,
 			area VARCHAR(32),
 			type VARCHAR(32) NOT NULL,
+			weight TINYINT NOT NULL,
 			filterset INT UNSIGNED,
 			PRIMARY KEY(name),
 			INDEX(filterset),
@@ -174,20 +175,43 @@ class xInstallCMS
 			)TYPE=InnoDB"
 		);
 		
-		//menu
+		//menu_static_items
 		xDB::getDB()->query("
-			CREATE TABLE menu_static (
+			CREATE TABLE menu_items (
 			box_name VARCHAR(32) NOT NULL,
-			text VARCHAR(128) NOT NULL,
+			id INT UNSIGNED AUTO_INCREMENT NOT NULL,
+			label VARCHAR(128) NOT NULL,
 			link VARCHAR(128) NOT NULL,
-			UNIQUE(box_name,text,link),
+			weight TINYINT NOT NULL,
+			parent INT UNSIGNED,
+			accessfiltersetid INT UNSIGNED,
+			PRIMARY KEY(id),
 			INDEX(box_name),
-			FOREIGN KEY (box_name) REFERENCES box(name) ON DELETE CASCADE
+			FOREIGN KEY (parent) REFERENCES menu_items(id) ON DELETE CASCADE,
+			FOREIGN KEY (box_name) REFERENCES box(name) ON DELETE CASCADE,
+			FOREIGN KEY (accessfiltersetid) REFERENCES access_filter_set(id) ON DELETE CASCADE
 			)TYPE=InnoDB"
 		);
 		
-		
-		
+		//item
+		xDB::getDB()->query("
+			CREATE TABLE item (
+			id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+			title VARCHAR(256) NOT NULL,
+			type VARCHAR(32) NOT NULL,
+			author VARCHAR(64) NOT NULL,
+			content TEXT NOT NULL,
+			content_filter VARCHAR(64) NOT NULL,
+			published TINYINT NOT NULL,
+			sticky TINYINT NOT NULL,
+			weight TINYINT NOT NULL,
+			description VARCHAR(512) NOT NULL,
+			keywords VARCHAR(128) NOT NULL,
+			creation_time TIMESTAMP NOT NULL,
+			lastedit_time TIMESTAMP,
+			PRIMARY KEY (id)
+			)TYPE=InnoDB"
+		);
 		
 		$role = new xRole('administrator','Administrator');
 		$role->dbInsert();
@@ -209,9 +233,20 @@ class xInstallCMS
 		
 		
 		//create some default box
-		$box = new xBox('Login','Login','dynamic',NULL,'leftArea');
+		$box = new xBox('Login','Login','dynamic',0,NULL,'leftArea');
 		$box->dbInsert();
-		$menu = new xMenuDynamic('Admin','Admin','menudynamic',array(),$acc_filter->m_id,'leftArea');
+		
+		//menus
+		$menu = new xMenu('Admin','Admin','menu',0,array(),NULL,'leftArea');
+	
+		$menuitem = new xMenuItem('Homepage','?',0);
+		$menu->m_items[] = $menuitem;
+		$menuitem = new xMenuItem('Manage Boxes','?p=admin/box',0);
+		$menu->m_items[] = $menuitem;
+		$menuitem = new xMenuItem('Manage Access Filters','?p=admin/accessfilters',0);
+		$menuitem->m_subitems[] = new xMenuItem('Manage Access Permission','?p=admin/accesspermissions',0);
+		$menu->m_items[] = $menuitem;
+		
 		$menu->dbInsert();
 	}
 };

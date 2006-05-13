@@ -142,17 +142,35 @@ class xTheme
 	/**
 	 * Render a list of menu items
 	 * 
-	 * @param array(xMenuItems) $areas
+	 * @param string $label
+	 * @param string $link
+	 * @param string subitems
+	 * @return string the renderized element.
+	 */
+	function renderMenuItem($label,$link,$subitems)
+	{
+		return '<li><a href="' . $link . '">' . $label . '</a>' . $subitems . '</li>';
+	}
+	
+	
+	/**
+	 * Render a list of menu items
+	 * 
+	 * @param array(xMenuItem)
 	 * @return string the renderized element.
 	 */
 	function renderMenuItems($items)
 	{
-		$output = "<ul>\n";
-		foreach($items as $item)
+		$output = '';
+		if(!empty($items))
 		{
-			$output .= '<li><a href="'.$item->m_link. '">' .$item->m_text. "</a></li>\n";
+			$output .= "<ul>\n";
+			foreach($items as $item)
+			{
+				$output .= $item->render();
+			}
+			$output .= "</ul>\n";
 		}
-		$output .= "</ul>\n";
 		
 		return $output;
 	}

@@ -53,6 +53,12 @@ class xBox extends xElement
 	 * @var int
 	 * @access public
 	 */
+	var $m_weight;
+	
+	/**
+	 * @var int
+	 * @access public
+	 */
 	var $m_filterset;
 	
 	/**
@@ -64,10 +70,11 @@ class xBox extends xElement
 	* @param int $filterset
 	* @param string $area
 	*/
-	function xBox($name,$title,$type,$filterset = NULL,$area = NULL)
+	function xBox($name,$title,$type,$weight,$filterset = NULL,$area = NULL)
 	{
 		$this->xElement();
 		
+		$this->m_weight = $weight;
 		$this->m_filterset = $filterset;
 		$this->m_name = $name;
 		$this->m_title = $title;
@@ -79,13 +86,9 @@ class xBox extends xElement
 	function render()
 	{
 		//here we will provide a check for access filter.
-		if(!empty($this->m_filterset))
+		if(! xAccessFilterSet::checkAccessByFilterSetId($this->m_filterset))
 		{
-			$filterset = xAccessFilterSet::dbLoad($this->m_filterset);
-			if(! $filterset->checkAccess())
-			{
-				return NULL;
-			}
+			return NULL;
 		}
 		
 		return $this->onRender();
@@ -135,13 +138,9 @@ class xBox extends xElement
 		{
 			$newbox = xBoxStatic::toSpecificBox($box);
 		}
-		elseif($box->m_type == "menustatic")
+		elseif($box->m_type == "menu")
 		{
-			$newbox = xMenuStatic::toSpecificBox($box);
-		}
-		elseif($box->m_type == "menudynamic")
-		{
-			$newbox = xMenuDynamic::toSpecificBox($box);
+			$newbox = xMenu::toSpecificBox($box);
 		}
 		
 		return $newbox;
@@ -156,7 +155,7 @@ class xBox extends xElement
 	{
 		return xBoxDAO::findAll();
 	}
-	
+
 	/**
 	 * Retrieve all boxes assigned to a specified area. Returned boxe object correspond already to their 
 	 * type and are ready to be rendered.
@@ -179,10 +178,13 @@ class xBox extends xElement
 			}
 		}
 		
+		//now order the boxes by weight
+		usort($boxes_new, "_objWeightCompare");
+		
 		return $boxes_new;
 	}
 };
-
+	
 
 /**
  * Represent a static box. Static boxes have their content stored in database an renderized by selected filter.
@@ -211,9 +213,9 @@ class xBoxStatic extends xBox
 	* @param string $content_filter
 	* @param string $area
 	*/
-	function xBoxStatic($name,$title,$type,$content,$content_filter,$filterset,$area = NULL)
+	function xBoxStatic($name,$title,$type,$weight,$content,$content_filter,$filterset,$area = NULL)
 	{
-		xBox::xBox($name,$title,$type,$filterset,$area);
+		xBox::xBox($name,$title,$type,$weight,$filterset,$area);
 		
 		$this->m_content = $content;
 		$this->m_content_filter = $content_filter;
@@ -263,9 +265,9 @@ class xBoxDynamic extends xBox
 	 * @param string $area
 	 * @param string $type
 	 */
-	function xBoxStatic($name,$title,$type,$filterset,$area = NULL)
+	function xBoxStatic($name,$title,$type,$weight,$filterset,$area = NULL)
 	{
-		xBox::xBox($name,$title,$type,$filterset,$area);
+		xBox::xBox($name,$title,$type,$weight,$filterset,$area);
 	}
 	
 	/**

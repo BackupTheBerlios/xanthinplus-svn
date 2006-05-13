@@ -80,6 +80,26 @@ class xAccessFilterSet
 	}
 	
 	/**
+	 * Check
+	 *
+	 * @static
+	 * @return bool
+	 */
+	function checkAccessByFilterSetId($filtersetid)
+	{
+		if(!empty($filtersetid))
+		{
+			$filterset = xAccessFilterSet::dbLoad($filtersetid);
+			if(! $filterset->checkAccess())
+			{
+				return FALSE;
+			}
+		}
+		
+		return TRUE;
+	}
+	
+	/**
 	 * Insert this object into db
 	 */
 	function dbInsert()

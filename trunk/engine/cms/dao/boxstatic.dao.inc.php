@@ -82,8 +82,8 @@ class xBoxStaticDAO
 		
 		if($row = xDB::getDB()->fetcObject($result))
 		{
-			return new xBoxStatic($box->m_name,$box->m_title,$box->m_type,$row->content,$row->content_filter,
-				$box->m_filterset,$box->m_area);
+			return new xBoxStatic($box->m_name,$box->m_title,$box->m_type,$box->m_weight,
+				$row->content,$row->content_filter,$box->m_filterset,$box->m_area);
 		}
 		return NULL;
 	}

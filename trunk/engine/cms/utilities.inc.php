@@ -17,6 +17,20 @@
 
 
 /**
+ * 
+ */
+function _objWeightCompare($a, $b)
+{
+    if ($a->m_weight == $b->m_weight) 
+	{
+        return 0;
+    }
+	
+    return ($a->m_weight < $b->m_weight) ? -1 : 1;
+}
+
+
+/**
 * An element to count the exexution time of the script. Render it at the foot of your page.
 */
 class xExecutionTime extends xElement

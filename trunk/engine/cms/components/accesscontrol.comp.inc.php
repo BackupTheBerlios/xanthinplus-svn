@@ -121,21 +121,7 @@ class xModuleAccessControl extends xModule
 		
 		return new xContentSimple("Manage Access Permissions",$output,'','');
 	}
-	
-	
-	// DOCS INHERITHED  ========================================================
-	function getMenuItem($box_name)
-	{
-		if($box_name == 'Admin')
-		{
-			return array(
-				new xMenuItem('Manage Access Filters','?p=admin/accessfilters'),
-				new xMenuItem('Manage Access Permissions','?p=admin/accesspermissions')
-			);
-		}
-		
-		return NULL;
-	}
+
 };
 
 xModule::registerModule(new xModuleAccessControl());

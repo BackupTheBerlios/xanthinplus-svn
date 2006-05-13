@@ -72,17 +72,6 @@ class xModuleBox extends xModule
 		
 		return new xContentSimple("Manage box",$output,'','');
 	}
-	
-	// DOCS INHERITHED  ========================================================
-	function getMenuItem($box_name)
-	{
-		if($box_name == 'Admin')
-		{
-			return new xMenuItem('Manage Box','?p=admin/box');
-		}
-		
-		return NULL;
-	}
 };
 
 xModule::registerModule(new xModuleBox());

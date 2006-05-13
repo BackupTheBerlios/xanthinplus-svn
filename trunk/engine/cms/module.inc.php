@@ -99,17 +99,6 @@ class xModule
 		return NULL;
 	}
 	
-	/**
-	 * Declare a menu items to be added to a specific menu.
-	 *
-	 * @param string $box_name
-	 * @return xMenuItem
-	 */
-	function getMenuItem($box_name)
-	{
-		return NULL;
-	}
-	
 	//----------------STATIC FUNCTIONS----------------------------------------------
 	//----------------STATIC FUNCTIONS----------------------------------------------
 	//----------------STATIC FUNCTIONS----------------------------------------------

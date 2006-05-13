@@ -25,7 +25,7 @@ class xMenuItem extends xElement
 	 * @var string
 	 * @access public
 	 */
-	var $m_text; 
+	var $m_label;
 	
 	/**
 	 * @var string
@@ -33,18 +33,59 @@ class xMenuItem extends xElement
 	 */
 	var $m_link;
 	
+	/**
+	 * @var int
+	 * @access public
+	 */
+	var $m_weight;
+	
+	/**
+	 * @var int
+	 * @access public
+	 */
+	var $m_accessfilterset;
+	
+	/**
+	 * @var array(xMenuItem)
+	 * @access public
+	 */
+	var $m_subitems;
 	
 	/**
 	 * Contructor
 	 *
-	 * @param string $text
-	 * @param string $link
 	 */
-	function xMenuItem($text,$link)
+	function xMenuItem($label,$link,$weight,$subitems = array(),$accessfilterset = NULL)
 	{
-		$this->m_text = $text;
+		$this->m_label = $label;
 		$this->m_link = $link;
-	}	
+		$this->m_weight = $weight;
+		$this->m_accessfilterset = $accessfilterset;
+		$this->m_subitems = $subitems;
+	}
+	
+	// DOCS INHERITHED  ========================================================
+	function render()
+	{
+		//here we will provide a check for access filter.
+		if(! xAccessFilterSet::checkAccessByFilterSetId($this->m_accessfilterset))
+		{
+			return NULL;
+		}
+		
+		return $this->onRender();
+	}
+	
+	
+	// DOCS INHERITHED  ========================================================
+	function onRender()
+	{
+		usort($this->m_subitems, "_objWeightCompare");
+		
+		$subitems = xTheme::getActive()->renderMenuItems($this->m_subitems);
+
+		return xTheme::getActive()->renderMenuItem($this->m_label,$this->m_link,$subitems);
+	}
 };
 
 
@@ -66,36 +107,19 @@ class xMenu extends xBox
 	* @param string $type
 	* @param string $area
 	*/
-	function xMenu($name,$title,$type,$items = array(),$filterset,$area = NULL)
+	function xMenu($name,$title,$type,$weight,$items = array(),$filterset,$area = NULL)
 	{
-		$this->xBox($name,$title,$type,$filterset,$area);
+		$this->xBox($name,$title,$type,$weight,$filterset,$area);
 		$this->m_items = $items;
 	}
 	
 	// DOCS INHERITHED  ========================================================
 	function onRender()
 	{
+		usort($this->m_items, "_objWeightCompare");
 		$content = xTheme::getActive()->renderMenuItems($this->m_items);
+		
 		return xTheme::getActive()->renderBox($this->m_name,$this->m_title,$content);
-	}
-};
-
-/**
- * Represent a simple static link menu.
- */
-class xMenuStatic extends xMenu
-{
-	/**
-	* Contructor
-	*
-	* @param string $name
-	* @param string $title
-	* @param string $type
-	* @param string $area
-	*/
-	function xMenuStatic($name,$title,$type,$items = array(),$filterset,$area = NULL)
-	{
-		$this->xMenu($name,$title,$type,$items,$filterset,$area);
 	}
 	
 	/**
@@ -103,7 +127,7 @@ class xMenuStatic extends xMenu
 	 */
 	function dbInsert()
 	{
-		xMenuStaticDAO::insert($this);
+		xMenuDAO::insert($this);
 	}
 	
 	/**
@@ -115,46 +139,9 @@ class xMenuStatic extends xMenu
 	function toSpecificBox($box)
 	{
 		//extract items from db
-		return xMenuStaticDAO::toSpecificBox($box);
+		return xMenuDAO::toSpecificBox($box);
 	}
 };
-
-
-/**
- * Represent a simple dinamic link menu.
- */
-class xMenuDynamic extends xMenu
-{	
-	/**
-	* Contructor
-	*
-	* @param string $name
-	* @param string $title
-	* @param string $type
-	* @param string $area
-	*/
-	function xMenuDynamic($name,$title,$type,$items = array(),$filterset,$area = NULL)
-	{
-		$this->xMenu($name,$title,$type,$items,$filterset,$area);
-	}
-	
-	/**
-	 * Build and return a xMenuStatic object derived from a simple xBox 
-	 *
-	 * @return xMenuDynamic
-	 * @static
-	 */
-	function toSpecificBox($box)
-	{
-		//ask modules for items
-		$items = xModule::callWithArrayResult1('getMenuItem',$box->m_name);
-		
-		return new xMenuDynamic($box->m_name,$box->m_title,$box->m_type,$items,$box->m_filterset,$box->m_area);
-	}
-};
-
-
-
 
 
 ?>

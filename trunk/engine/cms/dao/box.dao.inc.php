@@ -30,9 +30,9 @@ class xBoxDAO
 	*/
 	function insert($box)
 	{
-		$field_names = "name,title,type";
-		$field_values = "'%s','%s','%s'";
-		$values = array($box->m_name,$box->m_title,$box->m_type);
+		$field_names = "name,title,type,weight";
+		$field_values = "'%s','%s','%s',%d";
+		$values = array($box->m_name,$box->m_title,$box->m_type,$box->m_weight);
 		
 		if(!empty($box->m_area))
 		{
@@ -59,8 +59,8 @@ class xBoxDAO
 	 */
 	function update($box)
 	{
-		$fields = "title = '%s'";
-		$values = array($box->m_title);
+		$fields = "title = '%s',weight = %d";
+		$values = array($box->m_title,$box->m_weight);
 		
 		if(!empty($box->m_area))
 		{
@@ -129,7 +129,7 @@ class xBoxDAO
 		
 		while($row = xDB::getDB()->fetchArray($result))
 		{
-			$current_box = new xBox($row['name'],$row['title'],$row['type'],$row['filterset'],$row['area']);
+			$current_box = new xBox($row['name'],$row['title'],$row['type'],$row['weight'],$row['filterset'],$row['area']);
 			$boxes[] = $current_box;
 		}
 		return $boxes;
