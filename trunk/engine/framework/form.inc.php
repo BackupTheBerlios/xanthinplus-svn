@@ -34,12 +34,11 @@ class xInputValidator
 	 * Validate the user input.
 	 *
 	 * @param mixed $input The input to validate
-	 * @return mixed The validated input, NULL on error. 
-	 * An explanation of the error is available in the member m_last_error.
+	 * @return bool
 	 */
-	function validate($input)
+	function isValid($input)
 	{
-		return $input;
+		return TRUE;
 	}
 }
 
@@ -67,20 +66,56 @@ class xInputValidatorText extends xInputValidator
 	
 	
 	// DOCS INHERITHED  ========================================================
-	function validate($input)
+	function isValid($input)
 	{
 		if(empty($input))
 		{
-			return $input;
+			return TRUE;
 		}
 		
 		if($this->m_maxlength > 0 && strlen($input) > $this->m_maxlength)
 		{
 			$this->m_last_error = 'Field contains too much characters (max is '.$this->m_maxlength.')';
-			return NULL;
+			return FALSE;
 		}
 
-		return $input;
+		return TRUE;
+	}
+}
+
+/**
+ * A simple validator that checks for valid BBcode.
+ */
+class xInputValidatorBBCode extends xInputValidator
+{
+	
+	/**
+	 * Contructor.
+	 *
+	 * * @param int $maxlenght The max lenght of the text to be considered valid.
+	 */
+	function xInputValidatorBBCode($maxlength)
+	{
+		xInputValidatorText::xInputValidatorText($maxlength);
+	}
+	
+	
+	// DOCS INHERITHED  ========================================================
+	function isValid($input)
+	{
+		if(! xInputValidatorText::isValid($input))
+		{
+			return FALSE;
+		}
+		
+		$bbparser = new xBBCodeParser($input);
+		if($bbparser === FALSE)
+		{
+			$this->m_last_error = 'You have an error in your BBCode syntax: ' . $bbparser->m_last_error;
+			return FALSE;
+		}
+		
+		return TRUE;
 	}
 }
 
@@ -109,21 +144,20 @@ class xInputValidatorTextRegex extends xInputValidatorText
 	}
 	
 	// DOCS INHERITHED  ========================================================
-	function validate($input)
+	function isValid($input)
 	{
-		$input = xInputValidatorText::validate($input);
-		if(empty($input))
+		if(! xInputValidatorText::isValid($input))
 		{
-			return $input;
+			return FALSE;
 		}
 		
 		if(!preg_match($this->m_regex,$input))
 		{
 			$this->m_last_error = 'Field does not contain a valid input';
-			return NULL;
+			return FALSE;
 		}
 		
-		return $input;
+		return TRUE;
 	}
 }
 
@@ -140,21 +174,20 @@ class xInputValidatorTextEmail extends xInputValidatorText
 	}
 	
 	// DOCS INHERITHED  ========================================================
-	function validate($input)
+	function isValid($input)
 	{
-		$input = xInputValidatorText::validate($input);
-		if(empty($input))
+		if(!xInputValidatorText::isValid($input))
 		{
-			return $input;
+			return FALSE;
 		}
 		
 		if(!xanth_valid_email($input))
 		{
 			$this->m_last_error = 'Field does not contain a valid email address';
-			return NULL;
+			return FALSE;
 		}
 		
-		return $input;
+		return TRUE;
 	}
 }
 
@@ -175,21 +208,20 @@ class xInputValidatorTextNameId extends xInputValidatorText
 	}
 	
 	// DOCS INHERITHED  ========================================================
-	function validate($input)
+	function isValid($input)
 	{
-		$input = xInputValidatorText::validate($input);
-		if(empty($input))
+		if( ! xInputValidatorText::isValid($input))
 		{
-			return $input;
+			return FALSE;
 		}
 		
 		if(!preg_match('#^[A-Z][A-Z0-9_-]{2,'.$this->m_maxlength.'}$#i',$input))
 		{
 			$this->m_last_error = 'Field does not contain a valid name';
-			return NULL;
+			return FALSE;
 		}
 		
-		return $input;
+		return TRUE;
 	}
 }
 
@@ -205,21 +237,21 @@ class xInputValidatorInteger extends xInputValidator
 	}
 	
 	// DOCS INHERITHED  ========================================================
-	function validate($input)
+	function isValid($input)
 	{
 		if(empty($input))
 		{
-			return $input;
+			return TRUE;
 		}
 		
 		if(!is_numeric($input))
 		{
 			$this->m_last_error = 'Field must contain a valid number';
-			return NULL;
+			return FALSE;
 		}
 		
 		
-		return (int)$input;
+		return TRUE;
 	}
 }
 
@@ -292,10 +324,9 @@ class xFormElement
 	/**
 	 * Validate the user input corresponding to this form element, using the provided validator.
 	 *
-	 * @return mixed The validated inpout on success, NULL on error. 
-	 * An explanation of the error is given in the member m_last_error.
+	 * @return bool
 	 */
-	function validate()
+	function isValid()
 	{
 		$posted_value = $this->getPostedValue();
 		if($posted_value === '')
@@ -304,20 +335,21 @@ class xFormElement
 			{
 				$this->m_last_error = 'Field '.$this->m_label.' is mandatory';
 				$this->m_invalid = TRUE;
-				return NULL;
+				return FALSE;
 			}
-			return '';
+			
+			return TRUE;
 		}
 		
-		$ret = $this->m_validator->validate($posted_value);
-		
-		if($ret === NULL)
+		if(! $this->m_validator->isValid($posted_value))
 		{
 			$this->m_invalid = TRUE;
 			$this->m_last_error = $this->m_label . ': ' .$this->validator->m_last_error;
+			
+			return FALSE;
 		}
 
-		return $ret;
+		return TRUE;
 	}
 	
 	/**
@@ -345,10 +377,10 @@ class xFormElementTextField extends xFormElement
 	}
 	
 	// DOCS INHERITHED  ========================================================
-	function validate()
+	function isValid()
 	{
 		$this->m_value = htmlspecialchars($this->getPostedValue());
-		return xFormElement::validate();
+		return xFormElement::isValid();
 	}
 	
 	// DOCS INHERITHED  ========================================================
@@ -389,9 +421,9 @@ class xFormElementPassword extends xFormElement
 	}
 	
 	// DOCS INHERITHED  ========================================================
-	function validate()
+	function isValid()
 	{
-		return xFormElement::validate();
+		return xFormElement::isValid();
 	}
 	
 	// DOCS INHERITHED  ========================================================
@@ -433,10 +465,10 @@ class xFormElementTextArea extends xFormElement
 	}
 	
 	// DOCS INHERITHED  ========================================================
-	function validate()
+	function isValid()
 	{
 		$this->m_value = htmlspecialchars($this->getPostedValue());
-		return xFormElement::validate();
+		return xFormElement::isValid();
 	}
 	
 	// DOCS INHERITHED  ========================================================
@@ -479,51 +511,42 @@ class xFormElementHidden extends xFormElement
 	}
 	
 	// DOCS INHERITHED  ========================================================
-	function validate()
+	function isValid()
 	{
-		//check for mandatory
 		$posted_value = $this->getPostedValue();
-		if($posted_value === '')
+		
+		//check for mandatory
+		if(! xFormElement::isValid())
 		{
-			if($this->m_mandatory)
-			{
-				$this->m_last_error = 'Field '. $this->m_label.' is mandatory';
-				return NULL;
-			}
-			return '';
+			return FALSE;
 		}
 		
 		//array or sigle value
 		if(is_array($posted_value))
 		{
-			$ret = array();
 			foreach($posted_value as $element)
 			{
-				$r = $this->m_validator->validate($element);
-				if($r === NULL)
+				if(! $this->m_validator->isValid($element))
 				{
 					$this->m_invalid = TRUE;
 					$this->m_last_error = $this->m_label . ': ' .$this->m_validator->m_last_error;
-					return NULL;
+					
+					return FALSE;
 				}
-				$ret[] = $r;
 			}
-			return $ret;
 		}
 		else
 		{
-			$ret = $this->m_validator->validate($posted_value);
-		
-			if($ret === NULL)
+			if(! $this->m_validator->isValid($element))
 			{
 				$this->m_invalid = TRUE;
 				$this->m_last_error = $this->m_label . ': ' .$this->m_validator->m_last_error;
+				
+				return FALSE;
 			}
-
-			return $ret;
 		}
 		
-		return NULL;
+		return TRUE;
 	}
 	
 	// DOCS INHERITHED  ========================================================
@@ -557,7 +580,7 @@ class xFormElementCheckbox extends xFormElement
 	}
 	
 	// DOCS INHERITHED  ========================================================
-	function validate()
+	function isValid()
 	{
 		if($this->getPostedValue() === $this->m_value)
 		{
@@ -568,7 +591,7 @@ class xFormElementCheckbox extends xFormElement
 			$this->m_checked = FALSE;
 		}
 		
-		return xFormElement::validate();
+		return xFormElement::isValid();
 	}
 	
 	// DOCS INHERITHED  ========================================================
@@ -613,18 +636,14 @@ class xFormElementOptions extends xFormElement
 	
 	
 	// DOCS INHERITHED  ========================================================
-	function validate()
+	function isValid()
 	{
 		//check for mandatory
 		$posted_value = $this->getPostedValue();
-		if($posted_value === '')
+		
+		if(! xFormElement::isValid())
 		{
-			if($this->m_mandatory)
-			{
-				$this->m_last_error = 'Field '.$this->m_label.' is mandatory';
-				return NULL;
-			}
-			return '';
+			return FALSE;
 		}
 		
 		$elements_posted = array();
@@ -634,7 +653,7 @@ class xFormElementOptions extends xFormElement
 			if(!$this->m_multi_select)
 			{
 				$this->m_last_error = 'Cannot select multiple values for field '.$this->m_label;
-				return NULL;
+				return FALSE;
 			}
 			else
 			{
@@ -646,56 +665,45 @@ class xFormElementOptions extends xFormElement
 			$elements_posted = array($posted_value);
 		}
 		
+		
 		//check if all values corresponds to at least an option
 		$elements_posted_checked = array();
 		foreach($elements_posted as $element_posted)
 		{
+			$found = FALSE;
 			foreach($this->m_options as $opt_name => $opt_val)
 			{
 				if($opt_val === $element_posted)
 				{
-					$elements_posted_checked[] = $opt_val;
+					$found = TRUE;
 					break;
 				}
 			}
-		}
-		
-		//now check
-		if(count($elements_posted_checked) != count($elements_posted))
-		{
-			$this->m_last_error = 'You have selected an invalid option for input '.$this->m_label;
-		}
-		else
-		{
-			//save values as array and validate input
-			$this->m_value = array();
-			$ret = array();
-			foreach($elements_posted_checked as $element)
-			{
-				$this->m_value[] = htmlspecialchars($element);
-				
-				$r = $this->m_validator->validate($element);
-				if($r === NULL)
-				{
-					$this->m_invalid = TRUE;
-					$this->m_last_error = $this->m_label . ': ' .$this->m_validator->m_last_error;
-					return NULL;
-				}
-				$ret[] = $r;
-			}
 			
-			//return array
-			if($this->m_multi_select)
+			if(! $found)
 			{
-				return $ret;
-			}
-			else //return as single value
-			{
-				return reset($ret);
+				$this->m_last_error = 'You have selected an invalid option for input '.$this->m_label;
+				
+				return FALSE;
 			}
 		}
 		
-		return NULL;
+		//save values as array
+		$this->m_value = array();
+		foreach($elements_posted_checked as $element)
+		{
+			$this->m_value[] = htmlspecialchars($element);
+			
+			if(! $this->m_validator->isValid($element))
+			{
+				$this->m_invalid = TRUE;
+				$this->m_last_error = $this->m_label . ': ' .$this->m_validator->m_last_error;
+				
+				return FALSE;
+			}
+		}
+		
+		return TRUE;
 	}
 	
 	// DOCS INHERITHED  ========================================================
@@ -760,7 +768,7 @@ class xFormElementRadio extends xFormElement
 	}
 	
 	// DOCS INHERITHED  ========================================================
-	function validate()
+	function isValid()
 	{
 		if($this->getPostedValue() === $this->m_value)
 		{
@@ -771,7 +779,7 @@ class xFormElementRadio extends xFormElement
 			$this->m_checked = FALSE;
 		}
 		
-		return xFormElement::validate();
+		return xFormElement::isValid();
 	}
 		
 	// DOCS INHERITHED  ========================================================
@@ -848,16 +856,16 @@ class xFormGroup
 		
 		foreach($this->m_elements as $element)
 		{
-			$ret = $element->validate();
-			if($ret === NULL)
+			if(! $element->isValid())
 			{
 				$data->m_errors[] = $element->m_last_error;
 			}
 			else
 			{
-				$data->m_valid_data[$element->m_name] = $ret;
+				$data->m_valid_data[$element->m_name] = $element->getPostedValue();
 			}
 		}
+		
 		return $data;
 	}
 	
@@ -919,14 +927,13 @@ class xFormRadioGroup extends xFormGroup
 		else
 		{
 			$in_array_elem->m_checked = TRUE;
-			$ret = $in_array_elem->validate();
-			if($ret === NULL)
+			if(! $in_array_elem->isValid())
 			{
 				$data->m_errors[] = $in_array_elem->m_last_error;
 			}
 			else
 			{
-				$data->m_valid_data[$in_array_elem->m_name] = $ret;
+				$data->m_valid_data[$in_array_elem->m_name] = $in_array_elem->getPostedValue();
 			}
 		}
 		
@@ -1004,7 +1011,7 @@ class xForm
 		
 		foreach($this->m_elements as $element)
 		{
-			$ret = $element->validate();
+			$ret = $element->isValid();
 			
 			if(xanth_instanceof($element,'xFormGroup')) //is a group
 			{
@@ -1019,7 +1026,7 @@ class xForm
 				}
 				else
 				{
-					$data->m_valid_data[$element->m_name] = $ret;
+					$data->m_valid_data[$element->m_name] = $element->getPostedValue();
 				}
 			}
 		}

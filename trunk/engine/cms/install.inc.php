@@ -153,7 +153,7 @@ class xInstallCMS
 		xDB::getDB()->query("
 			CREATE TABLE box(
 			name VARCHAR(64) NOT NULL,
-			title VARCHAR(255),
+			title VARCHAR(255) NOT NULL,
 			area VARCHAR(32),
 			type VARCHAR(32) NOT NULL,
 			filterset INT UNSIGNED,
@@ -163,12 +163,11 @@ class xInstallCMS
 			)TYPE=InnoDB"
 		);
 		
-		//box TODO add foreign key to content format
 		//static box
 		xDB::getDB()->query("
 			CREATE TABLE box_static(
 			box_name VARCHAR(64) NOT NULL,
-			content TEXT,
+			content TEXT NOT NULL,
 			content_filter VARCHAR(64) NOT NULL,
 			PRIMARY KEY (box_name),
 			FOREIGN KEY (box_name) REFERENCES box(name) ON DELETE CASCADE

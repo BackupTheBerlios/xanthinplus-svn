@@ -23,5 +23,7 @@ require_once('engine/framework/form.inc.php');
 require_once('engine/framework/dbaccess/db.inc.php');
 require_once('engine/framework/dbaccess/mysql_db.inc.php');
 require_once('engine/framework/xanthpath.inc.php');
+require_once('engine/framework/bbcode.inc.php');
+require_once('engine/framework/contentfilter.inc.php');
 
 ?>

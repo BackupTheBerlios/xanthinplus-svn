@@ -67,10 +67,19 @@ class xBoxDAO
 			$fields .= ",area = '%s'";
 			$values[] = $box->m_area;
 		}
+		else
+		{
+			$fields .= ",area = NULL";
+		}
+		
 		if(!empty($box->m_filterset))
 		{
 			$fields .= ",filterset = %d";
 			$values[] = $box->m_filterset;
+		}
+		else
+		{
+			$fields .= ",filterset = NULL";
 		}
 		
 		$values[] = $box->m_id;

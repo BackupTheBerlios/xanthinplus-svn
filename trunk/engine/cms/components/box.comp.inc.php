@@ -51,12 +51,22 @@ class xModuleBox extends xModule
 		
 		$output = 
 		'<table class="admin-table">
-		<tr><th>Name</th><th>Title</th><th>Type</th><th>Area</th><th>Operations</th></tr>
+		<tr><th>Name</th><th>Title</th><th>Type</th><th>Filter name</th><th>Area</th><th>Operations</th></tr>
 		';
 		foreach($boxes as $box)
 		{
+			if(!empty($box->m_filterset))
+			{
+				$filter = xAccessFilterSet::dbLoad($box->m_filterset);
+				$filtername = $filter->m_name;
+			}
+			else
+			{
+				$filtername = '[No Filter]';
+			}
+			
 			$output .= '<tr><td>' . $box->m_name . '</td><td>' . $box->m_title . '</td><td>'.
-			$box->m_type . '</td><td>' . $box->m_area . '</td><td>Edit</td></tr>';
+			$box->m_type . '</td><td>' . $filtername . '</td><td>' . $box->m_area . '</td><td>Edit</td></tr>';
 		}
 		$output .= "</table>\n";
 		

@@ -124,6 +124,7 @@ class xAccessFilterSetDAO
 	 */
 	function load($filterid)
 	{
+		$set = NULL;
 		$result = xDB::getDB()->query("SELECT name,description FROM access_filter_set WHERE id = %d",$filterid);
 		if($row = xDB::getDB()->fetchObject($result))
 		{
