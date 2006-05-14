@@ -83,7 +83,7 @@ class xItemDAO
 	 */
 	function _itemFromRow($row_object)
 	{
-		return new($row_object->id,$row_object->title,$row_object->type,$row_object->author,
+		return new xItem($row_object->id,$row_object->title,$row_object->type,$row_object->author,
 			$row_object->content,$row_object->content_filter,$row_object->published,
 			$row_object->approved,$row_object->accept_replies,$row_object->sticky,
 			$row_object->weight,$row_object->description,$row_object->keywords,
@@ -93,7 +93,7 @@ class xItemDAO
 	/**
 	 * Retrieve a specific item
 	 *
-	 * @return array(xItem)
+	 * @return xItem
 	 * @static
 	 */
 	function load($id)
@@ -108,7 +108,7 @@ class xItemDAO
 	}
 	
 	/**
-	 * Retrieves all items.
+	 * Retrieves all replies associated with an items.
 	 *
 	 * @param int $parentid
 	 * @param int $nelementpage Number of elements per page
@@ -148,53 +148,59 @@ class xItemDAO
 	 * @param bool $published
 	 * @param bool $approved
 	 * @param int $cathegory Exact search on category id
-	 * @param timestamp $creation_time Exact search
-	 * @param timestamp $lastedit_time Exact search
+	 * @param int $nelementpage Number of elements per page
+	 * @param int $npage Number of page (starting from 1).
 	 * @return array(xItem)
 	 * @static
 	 */
-	function find($type,$title,$author,$content,$published,$approved,$cathegory,
-		$creation_time,$lastedit_time,$downlimit,$uplimit)
+	function find($type,$title,$author,$content,$published,$approved,$cathegory,$nelementpage = 0,$npage = 0)
 	{
 		$items = array();
 		
 		$query_tables = array("item");
 		$values = array();
 		$query_where = array();
+		$query_where_link = array();
 		
 		if($type !=== NULL)
 		{
 			$query_where[] = "item.type = '%s'";
+			$query_where_link[] = "AND";
 			$values[] = $type;
 		}
 		
 		if($title !=== NULL)
 		{
 			$query_where[] = "item.title LIKE '%s'";
+			$query_where_link[] = "AND";
 			$values[] = $title;
 		}
 		
 		if($author !=== NULL)
 		{
 			$query_where[] = "item.author = '%s'";
+			$query_where_link[] = "AND";
 			$values[] = $author;
 		}
 		
 		if($content !=== NULL)
 		{
 			$query_where[] = "item.content LIKE '%s'";
+			$query_where_link[] = "AND";
 			$values[] = $content;
 		}
 		
 		if($published !=== NULL)
 		{
 			$query_where[] = "item.published = %d";
+			$query_where_link[] = "AND";
 			$values[] = $published;
 		}
 		
 		if($approved !=== NULL)
 		{
 			$query_where[] = "item.approved = %d";
+			$query_where_link[] = "AND";
 			$values[] = $approved;
 		}
 		
@@ -202,35 +208,58 @@ class xItemDAO
 		{
 			$query_tables[] = "item_to_cathegory"
 			$query_where[] = "item_to_cathegory.catid = %d AND item.id = item_to_cathegory.itemid";
+			$query_where_link[] = "AND";
 			$values[] = $cathegory;
 		}
 		
-		if($creation_time !=== NULL)
+		if($npage !== 0)
 		{
-			$query_where[] = "item.creation_time = '%s'";
-			$values[] = xDB::getDB()->encodeTimestamp($creation_time);
+			$query_where[] .= "LIMIT %d,%d";
+			$query_where_link[] = "";
+			$values[] = ($npage - 1) * $nelementpage;
+			$values[] = $nelementpage;
 		}
 		
-		if($lastedit_time !=== NULL)
+		//now construct the query
+		$query = "SELECT * FROM ";
+		foreach($query_tables as $query_table)
 		{
-			$query_where[] = "item.lastedit_time = '%s'";
-			$values[] = xDB::getDB()->encodeTimestamp($lastedit_time);
+			if($i === 0) //not adding link string
+			{
+				$query .= $query_table;
+			}
+			else
+			{
+				$query .= "," . $query_table;
+			}
+			
 		}
 		
-		if($approved !=== NULL)
+		$query .= " ";
+		for($i = 0;$i < count($query_where);$i++)
 		{
-			$query_where[] = "item.approved = %d";
-			$values[] = $approved;
+			if($i === 0) //not adding link string
+			{
+				$query .= "WHERE ";
+				$query .= $query_where[$i];
+			}
+			else
+			{
+				$query .= " " . $query_where_link[$i] . " ";
+				$query .= $query_where[$i];
+			}
 		}
 		
-		
-		$result = xDB::getDB()->query("SELECT * FROM item");
+		$result = xDB::getDB()->query($query,$values);
 		while($row = xDB::getDB()->fetchObject($result))
 		{
 			$items[] = xItemDAO::_itemFromRow($row);
 		}
 		return $items;
 	}
+	
+	
+	
 };
 
 ?>

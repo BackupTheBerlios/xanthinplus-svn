@@ -78,6 +78,65 @@ class xCathegory extends xElement
 	{
 		
 	}
+	
+	
+	/** 
+	 * Inserts this into db
+	 */
+	function dbInsert()
+	{
+		xCathegoryDAO::insert($this);
+	}
+	
+	/** 
+	 * Delete this cathegory from db
+	 */
+	function dbDelete()
+	{
+		xCathegoryDAO::delete($this->m_id);
+	}
+	
+	
+	/** 
+	 * Delete a cathegory from db using its id
+	 *
+	 * @param int $catid
+	 * @static
+	 */
+	function dbDeleteById($catid)
+	{
+		xCathegoryDAO::delete($catid);
+	}
+	
+	/**
+	 * Update this in db
+	 */
+	function dbUpdate()
+	{
+		xCathegoryDAO::update($this);
+	}
+	
+	/**
+	 * Retrieve a specific cathegory from db
+	 *
+	 * @return xCathegory
+	 * @static
+	 */
+	function dbLoad($id)
+	{
+		return xCathegoryDAO::load($id);
+	}
+	
+	/**
+	 * Retrieves all cathegories.
+	 *
+	 * @return array(xCathegory)
+	 * @static
+	 */
+	function findAll()
+	{
+		return xCathegoryDAO::findAll();
+	}
 };
 
 

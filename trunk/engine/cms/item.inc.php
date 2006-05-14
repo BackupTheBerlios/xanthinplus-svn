@@ -145,6 +145,89 @@ class xItem extends xElement
 	{
 		
 	}
+	
+	/** 
+	 * Inserts this into db
+	 */
+	function dbInsert()
+	{
+		xItemDAO::insert($this);
+	}
+	
+	/** 
+	 * Delete this from db
+	 */
+	function dbDelete()
+	{
+		xItemDAO::delete($this->m_id);
+	}
+	
+	
+	/** 
+	 * Delete an item from db using its id
+	 *
+	 * @param int $catid
+	 * @static
+	 */
+	function dbDeleteById($id)
+	{
+		xItemDAO::delete($id);
+	}
+	
+	/**
+	 * Update this in db
+	 */
+	function dbUpdate()
+	{
+		xItemDAO::update($this);
+	}
+	
+	/**
+	 * Retrieve a specific item from db
+	 *
+	 * @return xItem
+	 * @static
+	 */
+	function dbLoad($id)
+	{
+		return xItemDAO::load($id);
+	}
+	
+	/**
+	 * Retrieves all replies associated with an item.
+	 *
+	 * @param int $parentid
+	 * @param int $nelementpage Number of elements per page
+	 * @param int $npage Number of page (starting from 1).
+	 * @return array(xItem)
+	 * @static
+	 */
+	function findReplies($parentid,$nelementpage = 0,$npage = 0)
+	{
+		return xItemDAO::findReplies($parentid,$nelementpage,$npage);
+	}
+	
+	
+	/**
+	 * Retrieves all items.
+	 *
+	 * @param string $type Exact search
+	 * @param string $title Like search
+	 * @param string $author Exact search
+	 * @param string $content Like search
+	 * @param bool $published
+	 * @param bool $approved
+	 * @param int $cathegory Exact search on category id
+	 * @param int $nelementpage Number of elements per page
+	 * @param int $npage Number of page (starting from 1).
+	 * @return array(xItem)
+	 * @static
+	 */
+	function find($type = NULL,$title = NULL,$author = NULL,$conten = NULLt,$published = NULL,$approved = NULL,
+		$cathegory = NULL,$nelementpage = 0,$npage = 0)
+	{
+		return xItemDAO::find($type,$title,$author,$content,$published,$approved,$cathegory,$nelementpage,$npage);
+	}
 };
 
 

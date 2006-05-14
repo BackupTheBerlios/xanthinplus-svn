@@ -16,64 +16,156 @@
 */
 
 
-class xRoleDAO
+class xCathegoryDAO
 {
-	function xRole()
+	function xCathegoryDAO()
 	{
 		//non instaltiable
 		assert(FALSE);
 	}
 	
 	/**
-	 * Insert a new role 
+	 * Insert a new cathegory
 	 *
-	 * @param xRole $role The role to insert
+	 * @param xCathegory $cathegory
+	 * @return int The new id
 	 * @static
 	 */
-	function insert($role)
+	function insert($cathegory)
 	{
-		xDB::getDB()->query("INSERT INTO role(name,description) VALUES ('%s','%s')",$role->m_name,$role->m_description);
+		$field_names = "name,description";
+		$field_values = "'%s','%s'";
+		$values = array($cathegory->m_name,$cathegory->m_description);
+		
+		if(!empty($cathegory->m_parent_cathegory))
+		{
+			$field_names .= ',parent_cathegory';
+			$field_values .= ",%d";
+			$values[] = $cathegory->m_parent_cathegory;
+		}
+		
+		
+		if(!empty($cathegory->m_accessfiltersetid))
+		{
+			$field_names .= ',accessfiltersetid';
+			$field_values .= ",%d";
+			$values[] = $cathegory->m_accessfiltersetid;
+		}
+		
+		if(!empty($cathegory->m_items_type))
+		{
+			$field_names .= ',items_type';
+			$field_values .= ",'%s'";
+			$values[] = $cathegory->m_items_type;
+		}
+		
+		xDB::getDB()->query("INSERT INTO cathegory($field_names) VALUES($field_values)",$values);
+		return xDB::getDB()->getLastId();
 	}
 	
 	/**
-	 * Deletes a role. Based on key.
+	 * Deletes a cathegory
 	 *
 	 * 
-	 * @param string $rolename
+	 * @param int $catid
 	 * @static
 	 */
-	function delete($rolename)
+	function delete($catid)
 	{
-		xDB::getDB()->query("DELETE FROM role WHERE name = '%s'",$rolename);
+		xDB::getDB()->query("DELETE FROM cathegory WHERE id = %d",$catid);
 	}
 	
 	/**
-	 * Updates a role.
+	 * Updates a cathegory.
 	 *
 	 * 
-	 * @param xRole $role The role to update
+	 * @param xCathegory $cathegory
 	 * @static
 	 */
-	function update($role)
+	function update($cathegory)
 	{
-		xDB::getDB()->query("UPDATE role SET description = '%s' WHERE name = '%s')",$role->m_description,$role->m_name);
+		$fields = "name = '%s',description = '%s'";
+		$values = array($item_type->m_name,$item_type->m_description);
+		
+		if(!empty($cathegory->m_accessfiltersetid))
+		{
+			$fields .= ",accessfiltersetid = %d";
+			$values[] = $cathegory->m_accessfiltersetid;
+		}
+		else
+		{
+			$fields .= ",accessfiltersetid = NULL";
+		}
+		
+		if(!empty($cathegory->m_parent_cathegory))
+		{
+			$fields .= ",parent_cathegory = %d";
+			$values[] = $cathegory->m_parent_cathegory;
+		}
+		else
+		{
+			$fields .= ",parent_cathegory = NULL";
+		}
+		
+		if(!empty($cathegory->m_items_type))
+		{
+			$fields .= ",items_type = '%s'";
+			$values[] = $cathegory->m_items_type;
+		}
+		else
+		{
+			$fields .= ",items_type = NULL";
+		}
+		
+		
+		$values[] = $cathegory->m_id;
+		xDB::getDB()->query("UPDATE cathegory SET $fields WHERE id = %d",$values);
 	}
 	
 	/**
-	 * Retrieves all roles.
 	 *
-	 * @return array(xRole)
+	 * @return xCathegory
+	 * @static
+	 * @access private
+	 */
+	function _cathegoryFromRow($row_object)
+	{
+		return new xCathegory($row_object->id,$row_object->name,$row_object->description,$row_object->parent_cathegory,
+			$row_object->items_type,$row_object->accessfiltersetid);
+	}
+	
+	/**
+	 * Load an cathegory from db.
+	 *
+	 * @return xCathegory
+	 * @static
+	 */
+	function load($catid)
+	{
+		$result = xDB::getDB()->query("SELECT * FROM cathegory WHERE id = %d",$catid);
+		if($row = xDB::getDB()->fetchObject($result))
+		{
+			return xCathegoryDAO::_cathegoryFromRow($row);
+		}
+		
+		return NULL;
+	}
+	
+	/**
+	 * Retrieves all cathegories.
+	 *
+	 * @return array(xCathegory)
 	 * @static
 	 */
 	function findAll()
 	{
-		$roles = array();
-		$result = xDB::getDB()->query("SELECT * FROM roles");
+		$cats = array();
+		$result = xDB::getDB()->query("SELECT * FROM cathegory");
 		while($row = xDB::getDB()->fetchObject($result))
 		{
-			$roles[] = new xRole($row->name,$row->description);
+			$cats[] = xCathegoryDAO::_cathegoryFromRow($row);
 		}
-		return $roles;
+		return $cats;
 	}
 }
 

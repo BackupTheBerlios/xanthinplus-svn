@@ -96,6 +96,65 @@ class xItemType
 		$this->m_accessfiltersetid = $accessfiltersetid;
 		$this->m_default_accept_replies = $default_accept_replies;
 	}
+	
+	
+	/** 
+	 * Inserts this into db
+	 */
+	function dbInsert()
+	{
+		xItemTypeDAO::insert($this);
+	}
+	
+	/** 
+	 * Delete this from db
+	 */
+	function dbDelete()
+	{
+		xItemTypeDAO::delete($this->m_name);
+	}
+	
+	
+	/** 
+	 * Delete an item type from db using its name
+	 *
+	 * @param string $typename
+	 * @static
+	 */
+	function dbDeleteById($typename)
+	{
+		xItemTypeDAO::delete($typename);
+	}
+	
+	/**
+	 * Update this in db
+	 */
+	function dbUpdate()
+	{
+		xItemTypeDAO::update($this);
+	}
+	
+	/**
+	 * Retrieve a specific item type from db
+	 *
+	 * @return xItemType
+	 * @static
+	 */
+	function dbLoad($name)
+	{
+		return xItemTypeDAO::load($name);
+	}
+	
+	/**
+	 * Retrieves all itme types.
+	 *
+	 * @return array(xItemType)
+	 * @static
+	 */
+	function findAll()
+	{
+		return xItemTypeDAO::findAll();
+	}
 };
 
 

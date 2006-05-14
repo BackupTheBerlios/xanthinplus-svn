@@ -249,7 +249,7 @@ class xInstallCMS
 			creation_time DATETIME NOT NULL,
 			lastedit_time DATETIME,
 			PRIMARY KEY (id),
-			FOREIGN KEY (type) REFERENCES item_type(name) ON DELETE RESTRICT,
+			FOREIGN KEY (type) REFERENCES item_type(name) ON DELETE RESTRICT
 			)TYPE=InnoDB"
 		);
 		
@@ -292,6 +292,8 @@ class xInstallCMS
 		$acc_filter->dbInsert();
 		$perm = new xAccessPermission('manage box',$acc_filter->m_id);
 		$perm->dbInsert();
+		$perm = new xAccessPermission('admin items',$acc_filter->m_id);
+		$perm->dbInsert();
 		
 		
 		//create some default box
@@ -304,6 +306,8 @@ class xInstallCMS
 		$menuitem = new xMenuItem('Homepage','?',0);
 		$menu->m_items[] = $menuitem;
 		$menuitem = new xMenuItem('Manage Boxes','?p=admin/box',0);
+		$menu->m_items[] = $menuitem;
+		$menuitem = new xMenuItem('Manage Items','?p=admin/items',0);
 		$menu->m_items[] = $menuitem;
 		$menuitem = new xMenuItem('Manage Access Filters','?p=admin/accessfilters',0);
 		$menuitem->m_subitems[] = new xMenuItem('Manage Access Permission','?p=admin/accesspermissions',0);
