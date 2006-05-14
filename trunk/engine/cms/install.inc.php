@@ -40,7 +40,7 @@ class xInstallCMS
 			message TEXT NOT NULL,
 			filename  VARCHAR(255) NOT NULL,
 			line MEDIUMINT NOT NULL,
-			timestamp TIMESTAMP NOT NULL,
+			timestamp DATETIME NOT NULL,
 			stacktrace BLOB,
 			PRIMARY KEY(id)
 			)TYPE=InnoDB"
@@ -52,7 +52,7 @@ class xInstallCMS
 			CREATE TABLE sessions (
 			session_id VARCHAR(32) NOT NULL,
 			session_data TEXT NOT NULL,
-			session_timestamp TIMESTAMP NOT NULL,
+			session_timestamp DATETIME NOT NULL,
 			PRIMARY KEY  (session_id)
 			)TYPE=InnoDB"
 		);
@@ -145,7 +145,7 @@ class xInstallCMS
 			filterset INT UNSIGNED NOT NULL,
 			PRIMARY KEY(name),
 			INDEX(filterset),
-			FOREIGN KEY (filterset) REFERENCES access_filter_set(id) ON DELETE CASCADE
+			FOREIGN KEY (filterset) REFERENCES access_filter_set(id) ON DELETE RESTRICT
 			)TYPE=InnoDB"
 		);
 		
@@ -160,7 +160,7 @@ class xInstallCMS
 			filterset INT UNSIGNED,
 			PRIMARY KEY(name),
 			INDEX(filterset),
-			FOREIGN KEY (filterset) REFERENCES access_filter_set(id) ON DELETE CASCADE
+			FOREIGN KEY (filterset) REFERENCES access_filter_set(id) ON DELETE SET NULL
 			)TYPE=InnoDB"
 		);
 		
@@ -189,9 +189,46 @@ class xInstallCMS
 			INDEX(box_name),
 			FOREIGN KEY (parent) REFERENCES menu_items(id) ON DELETE CASCADE,
 			FOREIGN KEY (box_name) REFERENCES box(name) ON DELETE CASCADE,
-			FOREIGN KEY (accessfiltersetid) REFERENCES access_filter_set(id) ON DELETE CASCADE
+			FOREIGN KEY (accessfiltersetid) REFERENCES access_filter_set(id) ON DELETE SET NULL
 			)TYPE=InnoDB"
 		);
+		
+		
+		//item type
+		xDB::getDB()->query("
+			CREATE TABLE item_type (
+			name VARCHAR(32) NOT NULL,
+			description VARCHAR(256) NOT NULL,
+			default_content_filter VARCHAR(64) NOT NULL,
+			default_approved TINYINT NOT NULL,
+			default_published TINYINT NOT NULL,
+			default_sticky TINYINT NOT NULL,
+			default_weight TINYINT NOT NULL,
+			default_accept_replies TINYINT NOT NULL,
+			accessfiltersetid INT UNSIGNED,
+			PRIMARY KEY (name),
+			FOREIGN KEY (accessfiltersetid) REFERENCES access_filter_set(id) ON DELETE SET NULL
+			)TYPE=InnoDB"
+		);
+		
+		
+		//item cathegory
+		xDB::getDB()->query("
+			CREATE TABLE item_cathegory (
+			id INT UNSIGNED AUTO_INCREMENT NOT NULL,
+			name VARCHAR(32) NOT NULL,
+			description TEXT NOT NULL,
+			accessfiltersetid INT UNSIGNED,
+			parent_cathegory INT UNSIGNED,
+			items_type VARCHAR(32),
+			PRIMARY KEY (id),
+			UNIQUE(name),
+			FOREIGN KEY (accessfiltersetid) REFERENCES access_filter_set(id) ON DELETE SET NULL,
+			FOREIGN KEY (parent_cathegory) REFERENCES item_cathegory(id) ON DELETE CASCADE,
+			FOREIGN KEY (items_type) REFERENCES item_type(name) ON DELETE SET NULL
+			)TYPE=InnoDB"
+		);
+		
 		
 		//item
 		xDB::getDB()->query("
@@ -203,15 +240,40 @@ class xInstallCMS
 			content TEXT NOT NULL,
 			content_filter VARCHAR(64) NOT NULL,
 			published TINYINT NOT NULL,
+			approved TINYINT NOT NULL,
+			accept_replies TINYINT NOT NULL,
 			sticky TINYINT NOT NULL,
 			weight TINYINT NOT NULL,
 			description VARCHAR(512) NOT NULL,
 			keywords VARCHAR(128) NOT NULL,
-			creation_time TIMESTAMP NOT NULL,
-			lastedit_time TIMESTAMP,
-			PRIMARY KEY (id)
+			creation_time DATETIME NOT NULL,
+			lastedit_time DATETIME,
+			PRIMARY KEY (id),
+			FOREIGN KEY (type) REFERENCES item_type(name) ON DELETE RESTRICT,
 			)TYPE=InnoDB"
 		);
+		
+		//replies
+		xDB::getDB()->query("
+			CREATE TABLE item_replies (
+			parentid INT UNSIGNED NOT NULL,
+			childid INT UNSIGNED NOT NULL,
+			FOREIGN KEY (parentid) REFERENCES item(id) ON DELETE CASCADE,
+			FOREIGN KEY (childid) REFERENCES item(id) ON DELETE CASCADE
+			)TYPE=InnoDB"
+		);
+		
+		//catogory items
+		xDB::getDB()->query("
+			CREATE TABLE item_to_cathegory (
+			itemid INT UNSIGNED NOT NULL,
+			catid INT UNSIGNED NOT NULL,
+			FOREIGN KEY (itemid) REFERENCES item(id) ON DELETE CASCADE,
+			FOREIGN KEY (catid) REFERENCES item_cathegory(id) ON DELETE CASCADE
+			)TYPE=InnoDB"
+		);
+		
+		
 		
 		$role = new xRole('administrator','Administrator');
 		$role->dbInsert();

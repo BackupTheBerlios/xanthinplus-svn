@@ -18,7 +18,7 @@
 
 class xRoleDAO
 {
-	function xRoleDAO()
+	function xRole()
 	{
 		//non instaltiable
 		assert(FALSE);

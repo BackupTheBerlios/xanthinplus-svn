@@ -67,6 +67,19 @@ class xItem extends xElement
 	 * @var bool
 	 * @access public
 	 */
+	var $m_approved;
+	
+	/**
+	 * @var bool
+	 * @access public
+	 */
+	var $m_accept_replies;
+	
+	
+	/**
+	 * @var bool
+	 * @access public
+	 */
 	var $m_sticky;
 	
 	
@@ -105,7 +118,7 @@ class xItem extends xElement
 	 *
 	 */
 	function xItem($id,$title,$type,$author,$content,$content_filter,
-		$published,$sticky,$weight,$description,$keywords,$creation_time,$lastedit_time)
+		$published,$approved,$accept_replies,$sticky,$weight,$description,$keywords,$creation_time,$lastedit_time)
 	{
 		$this->xElement();
 		
@@ -116,6 +129,8 @@ class xItem extends xElement
 		$this->m_content = $content;
 		$this->m_content_filter = $content_filter;
 		$this->m_published = $published;
+		$this->m_approved = $approved;
+		$this->m_accept_replies = $accept_replies;
 		$this->m_sticky = $sticky;
 		$this->m_weight = $weight;
 		$this->m_description = $description;
