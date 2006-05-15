@@ -118,7 +118,7 @@ class xItem extends xElement
 	 *
 	 */
 	function xItem($id,$title,$type,$author,$content,$content_filter,
-		$published,$approved,$accept_replies,$sticky,$weight,$description,$keywords,$creation_time,$lastedit_time)
+		$published,$approved,$accept_replies,$sticky,$weight,$description,$keywords,$creation_time = NULL,$lastedit_time = NULL)
 	{
 		$this->xElement();
 		
@@ -258,6 +258,89 @@ class xItem extends xElement
 	function getFormBodyInput($var_name,$value,$mandatory)
 	{
 		return new xFormElementTextArea($var_name,'Body','',$value,$mandatory,new xInputValidatorText(0));
+	}
+	
+	
+	/**
+	 * Return a form element for asking for published input
+	 *
+	 * @param string $var_name The name of the form element
+	 * @param bool $checked
+	 * @return xFormElement
+	 * @static
+	 */
+	function getFormPublishedCheck($var_name,$checked)
+	{
+		return new xFormElementCheckbox($var_name,'Published','',1,$checked,FALSE,new xInputValidatorInteger());
+	}
+	
+	/**
+	 * Return a form element for asking for approved check
+	 *
+	 * @param string $var_name The name of the form element
+	 * @param bool $checked
+	 * @return xFormElement
+	 * @static
+	 */
+	function getFormApprovedCheck($var_name,$checked)
+	{
+		return new xFormElementCheckbox($var_name,'Approved','',1,$checked,FALSE,new xInputValidatorInteger());
+	}
+	
+	
+	/**
+	 * Return a form element for asking for accept replies check
+	 *
+	 * @param string $var_name The name of the form element
+	 * @param bool $checked
+	 * @return xFormElement
+	 * @static
+	 */
+	function getFormAcceptRepliesCheck($var_name,$checked)
+	{
+		return new xFormElementCheckbox($var_name,'Accept Replies','',1,$checked,FALSE,new xInputValidatorInteger());
+	}
+	
+	
+	/**
+	 * Return a form element for asking for sticky input
+	 *
+	 * @param string $var_name The name of the form element
+	 * @param bool $checked
+	 * @return xFormElement
+	 * @static
+	 */
+	function getFormStickyCheck($var_name,$checked)
+	{
+		return new xFormElementCheckbox($var_name,'Sticky','',1,$checked,FALSE,new xInputValidatorInteger());
+	}
+	
+	/**
+	 * Return a form element for asking for description input
+	 *
+	 * @param string $var_name The name of the form element
+	 * @param string $value
+	 * @param bool $mandatory True if this input is manadtory
+	 * @return xFormElement
+	 * @static
+	 */
+	function getFormDescriptionInput($var_name,$value,$mandatory)
+	{
+		return new xFormElementTextField($var_name,'Description','',$value,$mandatory,new xInputValidatorText(512));
+	}
+	
+	/**
+	 * Return a form element for asking for keywords input
+	 *
+	 * @param string $var_name The name of the form element
+	 * @param string $value
+	 * @param bool $mandatory True if this input is manadtory
+	 * @return xFormElement
+	 * @static
+	 */
+	function getFormKeywordsInput($var_name,$value,$mandatory)
+	{
+		return new xFormElementTextField($var_name,'Keywords','',$value,$mandatory,new xInputValidatorText(128));
 	}
 };
 

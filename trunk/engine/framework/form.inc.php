@@ -850,7 +850,7 @@ class xFormGroup
 	var $m_elements;
 	var $m_label;
 	
-	function xFormGroup($elements = array(),$label = NULL)
+	function xFormGroup($label,$elements = array())
 	{
 		$this->m_label = $label;
 		$this->m_elements = $elements;
@@ -910,9 +910,9 @@ class xFormGroup
  */
 class xFormRadioGroup extends xFormGroup
 {
-	function xFormRadioGroup($elements = array(),$label = NULL)
+	function xFormRadioGroup($label = NULL,$elements = array())
 	{
-		xFormGroup::xFormGroup($elements,$label);
+		xFormGroup::xFormGroup($label,$elements);
 	}
 	
 	// DOCS INHERITHED  ========================================================
@@ -1035,15 +1035,17 @@ class xForm
 		
 		foreach($this->m_elements as $element)
 		{
-			$ret = $element->isValid($this->m_method);
-			
 			if(xanth_instanceof($element,'xFormGroup')) //is a group
 			{
-				$data->errors = array_merge($ret->m_errors,$data->m_errors);
-				$data->valid_data = array_merge($ret->m_valid_data,$data->m_valid_data);
+				$ret = $element->validate($this->m_method);
+				
+				$data->m_errors = array_merge($ret->m_errors,$data->m_errors);
+				$data->m_valid_data = array_merge($ret->m_valid_data,$data->m_valid_data);
 			}
 			else //simple form element
 			{
+				$ret = $element->isValid($this->m_method);
+				
 				if($ret === NULL)
 				{
 					$data->m_errors[] = $element->m_last_error;

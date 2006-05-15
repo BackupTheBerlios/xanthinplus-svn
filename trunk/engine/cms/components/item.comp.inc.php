@@ -37,6 +37,10 @@ class xModuleItem extends xModule
 		{
 			return $this->_getContentAdminItemCreate();
 		}
+		elseif($path->m_base_path == 'view/item')
+		{
+			return $this->_getContentViewItem($path->m_resource_id);
+		}
 		
 		return NULL;
 	}
@@ -52,19 +56,33 @@ class xModuleItem extends xModule
 		}
 		
 		//create form
-		$form = new xForm('?p=admin/entry/create');
-		
+		$form = new xForm('?p=admin/item/create');
 		//item type
 		$form->m_elements[] = xItemType::getFormTypeChooser('type','',true);
-		
 		//item title
 		$form->m_elements[] = xItem::getFormTitleInput('title','',true);
-		
 		//item body
 		$form->m_elements[] = xItem::getFormBodyInput('body','',true);
-		
 		//item filter
 		$form->m_elements[] = xContentFilterController::getFormContentFilterChooser('filter','html',TRUE);
+		
+		$group = new xFormGroup('Parameters');
+		//item published
+		$group->m_elements[] = xItem::getFormPublishedCheck('published',false);
+		//item approved
+		$group->m_elements[] = xItem::getFormApprovedCheck('approved',false);
+		//item sticky
+		$group->m_elements[] = xItem::getFormStickyCheck('sticky',false);
+		//item accept replies
+		$group->m_elements[] = xItem::getFormAcceptRepliesCheck('accept_replies',false);
+		$form->m_elements[] = $group;
+		
+		$group = new xFormGroup('Metadata');
+		//item description
+		$group->m_elements[] = xItem::getFormDescriptionInput('description','',false);
+		//item keywords
+		$group->m_elements[] = xItem::getFormKeywordsInput('keywords','',false);
+		$form->m_elements[] = $group;
 		
 		//submit buttom
 		$form->m_elements[] = new xFormSubmit('submit','Create');
@@ -74,13 +92,18 @@ class xModuleItem extends xModule
 		{
 			if(empty($ret->m_errors))
 			{
-				return new xContentSimple("Create new item (generic)",'Here insert the items','','');
+				$item = new xItem(0,$ret->m_valid_data['title'],$ret->m_valid_data['type'],'autore',
+					$ret->m_valid_data['body'],$ret->m_valid_data['filter'],$ret->m_valid_data['published'],
+					$ret->m_valid_data['approved'],$ret->m_valid_data['accept_replies'],$ret->m_valid_data['sticky'],
+					0,$ret->m_valid_data['description'],$ret->m_valid_data['keywords']);
+				$item->dbInsert();
+				return new xContentSimple("Create new item (generic)",'New item was created with id: ','','');
 			}
 			else
 			{
 				foreach($ret->m_errors as $error)
 				{
-					xanth_log(LOG_LEVEL_USER_MESSAGE,$error);
+					xLog::log(LOG_LEVEL_USER_MESSAGE,$error);
 				}
 			}
 		}
@@ -103,27 +126,29 @@ class xModuleItem extends xModule
 		
 		$output = 
 		'<table class="admin-table">
-		<tr><th>Name</th><th>Title</th><th>Type</th><th>Filter name</th><th>Area</th><th>Operations</th></tr>
+		<tr><th>ID</th><th>Title</th><th>Operations</th></tr>
 		';
-		foreach($boxes as $box)
+		foreach($items as $item)
 		{
-			if(!empty($box->m_filterset))
-			{
-				$filter = xAccessFilterSet::dbLoad($box->m_filterset);
-				$filtername = $filter->m_name;
-			}
-			else
-			{
-				$filtername = '[No Filter]';
-			}
-			
-			$output .= '<tr><td>' . $box->m_name . '</td><td>' . $box->m_title . '</td><td>'.
-			$box->m_type . '</td><td>' . $filtername . '</td><td>' . $box->m_area . '</td><td>Edit</td></tr>';
+			$output .= '<tr><td>' . $item->m_id . '</td><td>' . $item->m_title . '</td>'
+			. '<td>Edit</td></tr>';
 		}
 		$output .= "</table>\n";
 		
-		return new xContentSimple("Manage box",$output,'','');
+		return new xContentSimple("Admin items",$output,'','');
 	}
+	
+	
+	/**
+	 * @access private
+	 */
+	function _getContentViewItem($path->m_resource_id)
+	{
+		
+	}
+	
+	
+	
 };
 
 xModule::registerModule(new xModuleItem());

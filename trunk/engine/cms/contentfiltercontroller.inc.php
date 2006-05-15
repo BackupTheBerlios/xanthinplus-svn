@@ -77,7 +77,7 @@ class xContentFilterController
 	 */
 	function getFormContentFilterChooser($var_name,$value,$mandatory)
 	{
-		$content_filter_radio_group = new xFormRadioGroup(array(),'Content filter');
+		$content_filter_radio_group = new xFormRadioGroup('Content filter');
 		
 		$filters = array();
 		$filters[] = array('name' => 'html','description' => 'Full HTML');
