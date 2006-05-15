@@ -64,6 +64,41 @@ class xContentFilterController
 		
 		return $ret;
 	}
+	
+	
+	/**
+	 * Return a form element for asking for contentn filter chooser
+	 *
+	 * @param string $var_name The name of the form element
+	 * @param string $value
+	 * @param bool $mandatory True if this input is manadtory
+	 * @return xFormElement
+	 * @static
+	 */
+	function getFormContentFilterChooser($var_name,$value,$mandatory)
+	{
+		$content_filter_radio_group = new xFormRadioGroup(array(),'Content filter');
+		
+		$filters = array();
+		$filters[] = array('name' => 'html','description' => 'Full HTML');
+		$filters[] = array('name' => 'php','description' => 'PHP code');
+		$filters[] = array('name' => 'bbcode','description' => 'BBCode');
+		$filters[] = array('name' => 'notags','description' => 'Tags are stripped');
+		
+		foreach($filters as $filter)
+		{
+			$checked = FALSE;
+			if($value === $filter['name'])
+			{
+				$checked = TRUE;
+			}
+			
+			$content_filter_radio_group->m_elements[] = new xFormElementRadio($var_name,$filter['name'],
+				$filter['description'],$filter['name'],$checked,$mandatory,	new xInputValidatorTextNameId(64));
+		}
+		
+		return $content_filter_radio_group;
+	}
 }
 
 ?>

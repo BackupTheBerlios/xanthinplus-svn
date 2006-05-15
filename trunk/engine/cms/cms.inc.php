@@ -26,7 +26,6 @@ require_once('engine/cms/menu.inc.php');
 require_once('engine/cms/content.inc.php');
 require_once('engine/cms/install.inc.php');
 require_once('engine/cms/main.inc.php');
-require_once('engine/cms/item.inc.php');
 require_once('engine/cms/page.inc.php');
 require_once('engine/cms/theme.inc.php');
 require_once('engine/cms/role.inc.php');
@@ -34,6 +33,10 @@ require_once('engine/cms/user.inc.php');
 require_once('engine/cms/utilities.inc.php');
 require_once('engine/cms/accessfilter.inc.php');
 require_once('engine/cms/accesspermission.inc.php');
+require_once('engine/cms/contentfiltercontroller.inc.php');
+require_once('engine/cms/item.inc.php');
+require_once('engine/cms/itemtype.inc.php');
+require_once('engine/cms/cathegory.inc.php');
 
 require_once('engine/cms/components/components.inc.php');
 

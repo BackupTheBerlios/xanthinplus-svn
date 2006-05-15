@@ -295,14 +295,9 @@ class xFormElement
 	 *
 	 * @return string The user input on success, an empty string otherwise.
 	 */
-	function getPostedValue()
+	function getInputValue($method)
 	{
-		if(isset($_POST[$this->m_name]))
-		{
-			return $_POST[$this->m_name];
-		}
-		
-		return '';
+		return xFormElement::getInputValueByName($this->m_name,$method);
 	}
 	
 	/**
@@ -311,11 +306,25 @@ class xFormElement
 	 * @return string The user input on success, an empty string otherwise.
 	 * @static
 	 */
-	function getPostedValueByName($name)
+	function getInputValueByName($name,$method)
 	{
-		if(isset($_POST[$name]))
+		if(strcasecmp($method,'POST') == 0)
 		{
-			return $_POST[$name];
+			if(isset($_POST[$name]))
+			{
+				return $_POST[$name];
+			}
+		}
+		elseif(strcasecmp($method,'GET') == 0)
+		{		
+			if(isset($_GET[$name]))
+			{
+				return $_GET[$name];
+			}
+		}
+		else
+		{
+			assert(FALSE);
 		}
 		
 		return '';
@@ -324,11 +333,12 @@ class xFormElement
 	/**
 	 * Validate the user input corresponding to this form element, using the provided validator.
 	 *
+	 * @param string $method POST or GET
 	 * @return bool
 	 */
-	function isValid()
+	function isValid($method)
 	{
-		$posted_value = $this->getPostedValue();
+		$posted_value = $this->getInputValue($method);
 		if($posted_value === '')
 		{
 			if($this->m_mandatory)
@@ -377,10 +387,10 @@ class xFormElementTextField extends xFormElement
 	}
 	
 	// DOCS INHERITHED  ========================================================
-	function isValid()
+	function isValid($method)
 	{
-		$this->m_value = htmlspecialchars($this->getPostedValue());
-		return xFormElement::isValid();
+		$this->m_value = htmlspecialchars($this->getInputValue($method));
+		return xFormElement::isValid($method);
 	}
 	
 	// DOCS INHERITHED  ========================================================
@@ -421,9 +431,9 @@ class xFormElementPassword extends xFormElement
 	}
 	
 	// DOCS INHERITHED  ========================================================
-	function isValid()
+	function isValid($method)
 	{
-		return xFormElement::isValid();
+		return xFormElement::isValid($method);
 	}
 	
 	// DOCS INHERITHED  ========================================================
@@ -465,10 +475,10 @@ class xFormElementTextArea extends xFormElement
 	}
 	
 	// DOCS INHERITHED  ========================================================
-	function isValid()
+	function isValid($method)
 	{
-		$this->m_value = htmlspecialchars($this->getPostedValue());
-		return xFormElement::isValid();
+		$this->m_value = htmlspecialchars($this->getInputValue($method));
+		return xFormElement::isValid($method);
 	}
 	
 	// DOCS INHERITHED  ========================================================
@@ -511,12 +521,12 @@ class xFormElementHidden extends xFormElement
 	}
 	
 	// DOCS INHERITHED  ========================================================
-	function isValid()
+	function isValid($method)
 	{
-		$posted_value = $this->getPostedValue();
+		$posted_value = $this->getInputValue($method);
 		
 		//check for mandatory
-		if(! xFormElement::isValid())
+		if(! xFormElement::isValid($method))
 		{
 			return FALSE;
 		}
@@ -580,9 +590,9 @@ class xFormElementCheckbox extends xFormElement
 	}
 	
 	// DOCS INHERITHED  ========================================================
-	function isValid()
+	function isValid($method)
 	{
-		if($this->getPostedValue() === $this->m_value)
+		if($this->getInputValue($method) === $this->m_value)
 		{
 			$this->m_checked = TRUE;
 		}
@@ -591,7 +601,7 @@ class xFormElementCheckbox extends xFormElement
 			$this->m_checked = FALSE;
 		}
 		
-		return xFormElement::isValid();
+		return xFormElement::isValid($method);
 	}
 	
 	// DOCS INHERITHED  ========================================================
@@ -636,12 +646,12 @@ class xFormElementOptions extends xFormElement
 	
 	
 	// DOCS INHERITHED  ========================================================
-	function isValid()
+	function isValid($method)
 	{
 		//check for mandatory
-		$posted_value = $this->getPostedValue();
+		$posted_value = $this->getInputValue($method);
 		
-		if(! xFormElement::isValid())
+		if(! xFormElement::isValid($method))
 		{
 			return FALSE;
 		}
@@ -768,9 +778,9 @@ class xFormElementRadio extends xFormElement
 	}
 	
 	// DOCS INHERITHED  ========================================================
-	function isValid()
+	function isValid($method)
 	{
-		if($this->getPostedValue() === $this->m_value)
+		if($this->getInputValue($method) === $this->m_value)
 		{
 			$this->m_checked = TRUE;
 		}
@@ -779,7 +789,7 @@ class xFormElementRadio extends xFormElement
 			$this->m_checked = FALSE;
 		}
 		
-		return xFormElement::isValid();
+		return xFormElement::isValid($method);
 	}
 		
 	// DOCS INHERITHED  ========================================================
@@ -795,6 +805,7 @@ class xFormElementRadio extends xFormElement
 		$output .= ' type="radio"/>'."\n";
 		$output .= '<label class="radio-label" for="id-'.$this->m_name.'">'.$this->m_label.'</label>' . "\n";
 		$output .= '</div>'. "\n";
+		
 		return $output;
 	}
 };
@@ -850,19 +861,19 @@ class xFormGroup
 	 *
 	 * @return xValidationData
 	 */
-	function validate()
+	function validate($method)
 	{
 		$data = new xValidationData();
 		
 		foreach($this->m_elements as $element)
 		{
-			if(! $element->isValid())
+			if(! $element->isValid($method))
 			{
 				$data->m_errors[] = $element->m_last_error;
 			}
 			else
 			{
-				$data->m_valid_data[$element->m_name] = $element->getPostedValue();
+				$data->m_valid_data[$element->m_name] = $element->getInputValue($method);
 			}
 		}
 		
@@ -905,7 +916,7 @@ class xFormRadioGroup extends xFormGroup
 	}
 	
 	// DOCS INHERITHED  ========================================================
-	function validate()
+	function validate($method)
 	{
 		$data = new xValidationData();
 		
@@ -913,7 +924,7 @@ class xFormRadioGroup extends xFormGroup
 		$in_array_elem = NULL;
 		foreach($this->m_elements as $element)
 		{
-			if($element->m_value === $element->getPostedValue())
+			if($element->m_value === $element->getInputValue($method))
 			{
 				$in_array_elem = $element;
 				break;
@@ -927,13 +938,13 @@ class xFormRadioGroup extends xFormGroup
 		else
 		{
 			$in_array_elem->m_checked = TRUE;
-			if(! $in_array_elem->isValid())
+			if(! $in_array_elem->isValid($method))
 			{
 				$data->m_errors[] = $in_array_elem->m_last_error;
 			}
 			else
 			{
-				$data->m_valid_data[$in_array_elem->m_name] = $in_array_elem->getPostedValue();
+				$data->m_valid_data[$in_array_elem->m_name] = $in_array_elem->getInputValue($method);
 			}
 		}
 		
@@ -959,8 +970,15 @@ class xForm
 	 */
 	var $m_action;
 	
-	function xForm($action,$elements = array())
+	/**
+	 * @var string
+	 * @access public
+	 */
+	var $m_method;
+	
+	function xForm($action,$method = 'POST',$elements = array())
 	{
+		$this->m_method = $method;
 		$this->m_action = $action;
 		$this->m_elements = $elements;
 	}
@@ -976,8 +994,9 @@ class xForm
 		$token = md5(uniqid(rand(), TRUE));
 		$_SESSION['form_token'] = $token;
 		$_SESSION['form_token_time'] = time();
-		$output = "<form action=\"". $this->m_action . "\" method=\"post\"> \n";
-		$output .= "<input type=\"hidden\" name=\"form_token\" value=\"$token\" />";
+		$output = '<form action="'. $this->m_action . '" method="'.$this->m_method.'">
+		<input type="hidden" name="form_token" value="'.$token.'" />';
+		$output .= "";
 		
 		foreach($this->m_elements as $element)
 		{
@@ -997,8 +1016,13 @@ class xForm
 	function validate()
 	{
 		$data = new xValidationData();
-		//first validate the token
-		if(!(isset($_SESSION['form_token']) && isset($_POST['form_token']) && $_POST['form_token'] == $_SESSION['form_token']))
+		
+		//first validate the token to prevent ???
+		if(!(
+			(isset($_SESSION['form_token']) && (isset($_POST['form_token']) || isset($_GET['form_token'])))
+			&& (($_POST['form_token'] == $_SESSION['form_token']) || ($_GET['form_token'] == $_SESSION['form_token']))
+			)
+		)
 		{
 			return $data;
 		}
@@ -1007,11 +1031,11 @@ class xForm
 		if($token_age > 300)
 		{
 			return $data;
-		}	
+		}
 		
 		foreach($this->m_elements as $element)
 		{
-			$ret = $element->isValid();
+			$ret = $element->isValid($this->m_method);
 			
 			if(xanth_instanceof($element,'xFormGroup')) //is a group
 			{
@@ -1026,7 +1050,7 @@ class xForm
 				}
 				else
 				{
-					$data->m_valid_data[$element->m_name] = $element->getPostedValue();
+					$data->m_valid_data[$element->m_name] = $element->getInputValue($this->m_method);
 				}
 			}
 		}

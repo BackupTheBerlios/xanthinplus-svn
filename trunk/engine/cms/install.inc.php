@@ -292,7 +292,9 @@ class xInstallCMS
 		$acc_filter->dbInsert();
 		$perm = new xAccessPermission('manage box',$acc_filter->m_id);
 		$perm->dbInsert();
-		$perm = new xAccessPermission('admin items',$acc_filter->m_id);
+		$perm = new xAccessPermission('admin item',$acc_filter->m_id);
+		$perm->dbInsert();
+		$perm = new xAccessPermission('admin item create',$acc_filter->m_id);
 		$perm->dbInsert();
 		
 		
@@ -305,15 +307,22 @@ class xInstallCMS
 	
 		$menuitem = new xMenuItem('Homepage','?',0);
 		$menu->m_items[] = $menuitem;
+		
 		$menuitem = new xMenuItem('Manage Boxes','?p=admin/box',0);
 		$menu->m_items[] = $menuitem;
-		$menuitem = new xMenuItem('Manage Items','?p=admin/items',0);
+		
+		$menuitem = new xMenuItem('Manage Items','?p=admin/item',0);
+		$menuitem->m_subitems[] = new xMenuItem('Create Item (Generic)','?p=admin/item/create',0);
 		$menu->m_items[] = $menuitem;
+		
 		$menuitem = new xMenuItem('Manage Access Filters','?p=admin/accessfilters',0);
 		$menuitem->m_subitems[] = new xMenuItem('Manage Access Permission','?p=admin/accesspermissions',0);
 		$menu->m_items[] = $menuitem;
 		
 		$menu->dbInsert();
+		
+		$item_type = new xItemType('article','A generic article','html',true,true,false,0,true,NULL);
+		$item_type->dbInsert();
 	}
 };
 

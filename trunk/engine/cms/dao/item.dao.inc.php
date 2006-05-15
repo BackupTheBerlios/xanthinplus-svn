@@ -122,7 +122,7 @@ class xItemDAO
 		$query = "SELECT * FROM item,item_replies WHERE item_replies.parentid = %d AND item.id = item_replies.childid";
 		$values = array($parentid);
 		
-		if($npage !== 0)
+		if($npage != 0)
 		{
 			$query .= " LIMIT %d,%d";
 			$values[] = ($npage - 1) * $nelementpage;
@@ -162,57 +162,57 @@ class xItemDAO
 		$query_where = array();
 		$query_where_link = array();
 		
-		if($type !=== NULL)
+		if($type !== NULL)
 		{
 			$query_where[] = "item.type = '%s'";
 			$query_where_link[] = "AND";
 			$values[] = $type;
 		}
 		
-		if($title !=== NULL)
+		if($title !== NULL)
 		{
 			$query_where[] = "item.title LIKE '%s'";
 			$query_where_link[] = "AND";
 			$values[] = $title;
 		}
 		
-		if($author !=== NULL)
+		if($author !== NULL)
 		{
 			$query_where[] = "item.author = '%s'";
 			$query_where_link[] = "AND";
 			$values[] = $author;
 		}
 		
-		if($content !=== NULL)
+		if($content !== NULL)
 		{
 			$query_where[] = "item.content LIKE '%s'";
 			$query_where_link[] = "AND";
 			$values[] = $content;
 		}
 		
-		if($published !=== NULL)
+		if($published !== NULL)
 		{
 			$query_where[] = "item.published = %d";
 			$query_where_link[] = "AND";
 			$values[] = $published;
 		}
 		
-		if($approved !=== NULL)
+		if($approved !== NULL)
 		{
 			$query_where[] = "item.approved = %d";
 			$query_where_link[] = "AND";
 			$values[] = $approved;
 		}
 		
-		if($cathegory !=== NULL)
+		if($cathegory !== NULL)
 		{
-			$query_tables[] = "item_to_cathegory"
+			$query_tables[] = "item_to_cathegory";
 			$query_where[] = "item_to_cathegory.catid = %d AND item.id = item_to_cathegory.itemid";
 			$query_where_link[] = "AND";
 			$values[] = $cathegory;
 		}
 		
-		if($npage !== 0)
+		if($npage != 0)
 		{
 			$query_where[] .= "LIMIT %d,%d";
 			$query_where_link[] = "";
@@ -222,6 +222,7 @@ class xItemDAO
 		
 		//now construct the query
 		$query = "SELECT * FROM ";
+		$i = 0;
 		foreach($query_tables as $query_table)
 		{
 			if($i === 0) //not adding link string
@@ -232,7 +233,7 @@ class xItemDAO
 			{
 				$query .= "," . $query_table;
 			}
-			
+			$i++;
 		}
 		
 		$query .= " ";

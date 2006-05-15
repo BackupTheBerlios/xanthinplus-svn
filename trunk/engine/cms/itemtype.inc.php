@@ -84,8 +84,6 @@ class xItemType
 	function xItemType($name,$description,$default_content_filter,$default_approved,$default_published,$default_sticky,$default_weight,
 		$default_accept_replies,$accessfiltersetid)
 	{
-		$this->xElement();
-		
 		$this->m_name = $name;
 		$this->m_description = $description;
 		$this->m_default_content_filter = $default_content_filter;
@@ -154,6 +152,27 @@ class xItemType
 	function findAll()
 	{
 		return xItemTypeDAO::findAll();
+	}
+	
+	/**
+	 * Return a form element representing all item types presents in db
+	 *
+	 * @param string $var_name The name of the form element
+	 * @param string $value
+	 * @param bool $mandatory True if this input is manadtory
+	 * @return xFormElement
+	 * @static
+	 */
+	function getFormTypeChooser($var_name,$value,$mandatory)
+	{
+		$types = xItemType::findAll();
+		$options = array();
+		foreach($types as $type)
+		{
+			$options[$type->m_name] = $type->m_name;
+		}
+		return new xFormElementOptions($var_name,'Select item type','',$value,$options,FALSE,$mandatory,
+			new xInputValidatorTextNameId(32));
 	}
 };
 

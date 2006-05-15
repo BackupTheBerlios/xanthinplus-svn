@@ -223,10 +223,41 @@ class xItem extends xElement
 	 * @return array(xItem)
 	 * @static
 	 */
-	function find($type = NULL,$title = NULL,$author = NULL,$conten = NULLt,$published = NULL,$approved = NULL,
+	function find($type = NULL,$title = NULL,$author = NULL,$content = NULL,$published = NULL,$approved = NULL,
 		$cathegory = NULL,$nelementpage = 0,$npage = 0)
 	{
 		return xItemDAO::find($type,$title,$author,$content,$published,$approved,$cathegory,$nelementpage,$npage);
+	}
+	
+	
+	
+	/**
+	 * Return a form element for asking for title input
+	 *
+	 * @param string $var_name The name of the form element
+	 * @param string $value
+	 * @param bool $mandatory True if this input is manadtory
+	 * @return xFormElement
+	 * @static
+	 */
+	function getFormTitleInput($var_name,$value,$mandatory)
+	{
+		return new xFormElementTextField($var_name,'Title','',$value,$mandatory,new xInputValidatorText(256));
+	}
+	
+	
+	/**
+	 * Return a form element for asking for body input
+	 *
+	 * @param string $var_name The name of the form element
+	 * @param string $value
+	 * @param bool $mandatory True if this input is manadtory
+	 * @return xFormElement
+	 * @static
+	 */
+	function getFormBodyInput($var_name,$value,$mandatory)
+	{
+		return new xFormElementTextArea($var_name,'Body','',$value,$mandatory,new xInputValidatorText(0));
 	}
 };
 

@@ -22,5 +22,8 @@ require_once('engine/cms/dao/role.dao.inc.php');
 require_once('engine/cms/dao/user.dao.inc.php');
 require_once('engine/cms/dao/accessfilter.dao.inc.php');
 require_once('engine/cms/dao/accesspermission.dao.inc.php');
+require_once('engine/cms/dao/item.dao.inc.php');
+require_once('engine/cms/dao/itemtype.dao.inc.php');
+require_once('engine/cms/dao/cathegory.dao.inc.php');
 
 ?>
