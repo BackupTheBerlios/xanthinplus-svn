@@ -226,7 +226,7 @@ class xBoxStatic extends xBox
 	{
 		//!@TODO: filter content here
 		
-		return xTheme::getActive()->renderBox($this->m_name,$this->m_title,$this->m_content);
+		return xTheme::render3('renderBox',$this->m_name,$this->m_title,$this->m_content);
 	}
 	
 	/**

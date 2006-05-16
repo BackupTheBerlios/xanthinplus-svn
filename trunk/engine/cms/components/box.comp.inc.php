@@ -74,7 +74,7 @@ class xModuleBox extends xModule
 	}
 };
 
-xModule::registerModule(new xModuleBox());
+xModule::registerDefaultModule(new xModuleBox());
 
 	
 ?>

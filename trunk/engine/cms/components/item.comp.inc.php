@@ -142,7 +142,7 @@ class xModuleItem extends xModule
 	/**
 	 * @access private
 	 */
-	function _getContentViewItem($path->m_resource_id)
+	function _getContentViewItem()
 	{
 		
 	}
@@ -151,7 +151,7 @@ class xModuleItem extends xModule
 	
 };
 
-xModule::registerModule(new xModuleItem());
+xModule::registerDefaultModule(new xModuleItem());
 
 	
 ?>

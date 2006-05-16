@@ -124,7 +124,7 @@ class xModuleAccessControl extends xModule
 
 };
 
-xModule::registerModule(new xModuleAccessControl());
+xModule::registerDefaultModule(new xModuleAccessControl());
 
 	
 ?>

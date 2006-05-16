@@ -57,6 +57,6 @@ class xContentHomepage extends xContent
 };
 
 
-xModule::registerModule(new xModuleHomepage());
+xModule::registerDefaultModule(new xModuleHomepage());
 	
 ?>

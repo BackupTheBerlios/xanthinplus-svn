@@ -16,8 +16,12 @@
 */
 
 
+$g_xanth_builtin_themes = array();
+$g_xanth_themes = array();
+
 /**
 * An object that contains methods for render xElement objects.
+* @see xDummyTheme For all implementable methods
 */
 class xTheme
 {
@@ -25,17 +29,216 @@ class xTheme
 	{
 	}
 	
+	//----------------STATIC FUNCTIONS----------------------------------------------
+	//----------------STATIC FUNCTIONS----------------------------------------------
+	//----------------STATIC FUNCTIONS----------------------------------------------
+	
 	/**
-	* Get current active theme.
+	* Register a theme.
 	*
-	* @return xTheme
+	* @param xTheme $theme The module to register.
+	* @internal
 	* @static
 	*/
-	function getActive()
+	function registerDefaultTheme($theme)
 	{
-		return new xTheme();
+		global $g_xanth_builtin_themes;
+		$g_xanth_builtin_themes[] = $theme;
 	}
 	
+	
+	/**
+	* Retrieve all registered themes as an array.
+	*
+	* @return array(xTheme)
+	* @internal
+	* @static
+	*/
+	function getDefaultThemes()
+	{
+		global $g_xanth_builtin_themes;
+		return $g_xanth_builtin_themes;
+	}
+	
+	/**
+	* Register a theme.
+	*
+	* @param xTheme $theme
+	* @static
+	*/
+	function registerTheme($theme)
+	{
+		global $g_xanth_themes;
+		$g_xanth_themes[] = $theme;
+	}
+	
+	
+	/**
+	* Retrieve all registered themes as an array.
+	*
+	* @return array(xTheme)
+	* @static
+	*/
+	function getThemes()
+	{
+		global $g_xanth_themes;
+		return $g_xanth_themes;
+	}
+	
+	/**
+	 * Make a method call to all themes and return the first result !== NULL (0 argument version).
+	 *
+	 * @param string $function
+	 * @return string The renderung output
+	 */
+	function render0($function)
+	{
+		//first to user modules then default
+		$all_themes = array(xTheme::getThemes(),xTheme::getDefaultThemes());
+		
+		foreach($all_themes as $themes)
+		{
+			foreach($themes as $theme)
+			{
+				if(method_exists($theme,$function))
+				{
+					$result = $theme->$function();
+					if($result !== NULL)
+					{
+						return $result;
+					}
+				}
+			}
+		}
+		
+		return NULL;
+	}
+	
+	
+	/**
+	 * Make a method call to all themes and return the first result !== NULL (1 argument version).
+	 *
+	 * @param string $function
+	 * @return string The renderung output
+	 */
+	function render1($function,&$arg1)
+	{
+		//first to user modules then default
+		$all_themes = array(xTheme::getThemes(),xTheme::getDefaultThemes());
+		
+		foreach($all_themes as $themes)
+		{
+			foreach($themes as $theme)
+			{
+				if(method_exists($theme,$function))
+				{
+					$result = $theme->$function($arg1);
+					if($result !== NULL)
+					{
+						return $result;
+					}
+				}
+			}
+		}
+		
+		return NULL;
+	}
+	
+	/**
+	 * Make a method call to all themes and return the first result !== NULL (2 argument version).
+	 *
+	 * @param string $function
+	 * @return string The renderung output
+	 */
+	function render2($function,&$arg1,&$arg2)
+	{
+		//first to user modules then default
+		$all_themes = array(xTheme::getThemes(),xTheme::getDefaultThemes());
+		
+		foreach($all_themes as $themes)
+		{
+			foreach($themes as $theme)
+			{
+				if(method_exists($theme,$function))
+				{
+					$result = $theme->$function($arg1,$arg2);
+					if($result !== NULL)
+					{
+						return $result;
+					}
+				}
+			}
+		}
+		
+		return NULL;
+	}
+	
+	
+	/**
+	 * Make a method call to all themes and return the first result !== NULL (3 argument version).
+	 *
+	 * @param string $function
+	 * @return string The renderung output
+	 */
+	function render3($function,&$arg1,&$arg2,&$arg3)
+	{
+		//first to user modules then default
+		$all_themes = array(xTheme::getThemes(),xTheme::getDefaultThemes());
+		
+		foreach($all_themes as $themes)
+		{
+			foreach($themes as $theme)
+			{
+				if(method_exists($theme,$function))
+				{
+					$result = $theme->$function($arg1,$arg2,$arg3);
+					if($result !== NULL)
+					{
+						return $result;
+					}
+				}
+			}
+		}
+		
+		return NULL;
+	}
+	
+	
+	/**
+	 * Make a method call to all themes and return the first result !== NULL (4 argument version).
+	 *
+	 * @param string $function
+	 * @return string The renderung output
+	 */
+	function render4($function,&$arg1,&$arg2,&$arg3,&$arg4)
+	{
+		//first to user modules then default
+		$all_themes = array(xTheme::getThemes(),xTheme::getDefaultThemes());
+		
+		foreach($all_themes as $themes)
+		{
+			foreach($themes as $theme)
+			{
+				if(method_exists($theme,$function))
+				{
+					$result = $theme->$function($arg1,$arg2,$arg3,$arg4);
+					if($result !== NULL)
+					{
+						return $result;
+					}
+				}
+			}
+		}
+		
+		return NULL;
+	}
+};
+
+/**
+ * A dummy theme class for documentation purpose only
+ */
+class xDummyTheme extends xTheme
+{
 	/**
 	* Render the box element.
 	* 
@@ -44,6 +247,80 @@ class xTheme
 	* @param string $content
 	* @return string the renderized element.
 	*/
+	function renderBox($id,$title,$content)
+	{
+	}
+	
+	/**
+	* Render the area element.
+	* 
+	* @param string $id
+	* @param array(xBox) $boxes
+	* @param xContent $content
+	* @return string the renderized element.
+	*/
+	function renderArea($id,$boxes)
+	{
+	}
+	
+	
+	/**
+	* Should return an array of strings representing the names of the areas in the page.
+	*
+	* @return array(string) Area names
+	*/
+	function declareAreas()
+	{
+	}
+	
+	/**
+	* Render the whole page.
+	* 
+	* @param array(xArea) $areas
+	* @return string the renderized element.
+	*/
+	function renderPage($content,$areas)
+	{
+	}
+	
+	/**
+	 * Render a list of menu items
+	 * 
+	 * @param string $label
+	 * @param string $link
+	 * @param string subitems
+	 * @return string the renderized element.
+	 */
+	function renderMenuItem($label,$link,$subitems)
+	{
+	}
+	
+	
+	/**
+	 * Render a list of menu items
+	 * 
+	 * @param array(xMenuItem)
+	 * @return string the renderized element.
+	 */
+	function renderMenuItems($items)
+	{
+	}
+	
+}
+
+
+/**
+ * The default theme.
+ */
+class xDefaultTheme extends xTheme
+{
+	
+	function xDefaultTheme()
+	{}
+	
+	/**
+	 * @see xDummyModule
+	 */
 	function renderBox($id,$title,$content)
 	{
 		$output = 
@@ -55,13 +332,8 @@ class xTheme
 	}
 	
 	/**
-	* Render the area element.
-	* 
-	* @param string $id
-	* @param array(xBox) $boxes
-	* @param xContent $content
-	* @return string the renderized element.
-	*/
+	 * @see xDummyModule
+	 */
 	function renderArea($id,$boxes)
 	{
 		$output = '';
@@ -85,21 +357,16 @@ class xTheme
 	
 	
 	/**
-	* Should return an array of strings representing the names of the areas in the page.
-	*
-	* @return array(string) Area names
-	*/
+	 * @see xDummyModule
+	 */
 	function declareAreas()
 	{
 		return array('leftArea');
 	}
 	
 	/**
-	* Render the whole page.
-	* 
-	* @param array(xArea) $areas
-	* @return string the renderized element.
-	*/
+	 * @see xDummyModule
+	 */
 	function renderPage($content,$areas)
 	{
 		//first render areas for later use
@@ -140,12 +407,7 @@ class xTheme
 	}
 	
 	/**
-	 * Render a list of menu items
-	 * 
-	 * @param string $label
-	 * @param string $link
-	 * @param string subitems
-	 * @return string the renderized element.
+	 * @see xDummyModule
 	 */
 	function renderMenuItem($label,$link,$subitems)
 	{
@@ -154,10 +416,7 @@ class xTheme
 	
 	
 	/**
-	 * Render a list of menu items
-	 * 
-	 * @param array(xMenuItem)
-	 * @return string the renderized element.
+	 * @see xDummyModule
 	 */
 	function renderMenuItems($items)
 	{
@@ -174,8 +433,11 @@ class xTheme
 		
 		return $output;
 	}
-	
 };
+
+
+xTheme::registerDefaultTheme(new xDefaultTheme());
+
 
 
 ?>

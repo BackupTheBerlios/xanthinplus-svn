@@ -15,6 +15,8 @@
 * PURPOSE ARE DISCLAIMED.SEE YOUR CHOOSEN LICENSE FOR MORE DETAILS.
 */
 
+$g_xanth_builtin_modules = array();
+$g_xanth_modules = array();
 
 /**
 * The base class for modules.
@@ -24,79 +26,10 @@
 class xModule
 {
 	/**
-	* @var string
-	* @access public
-	*/
-	var $m_name;
-	
-	/**
-	* Relative path to the xanthine directory
-	*
-	* @var string
-	* @access public
-	*/
-	var $m_path;
-	
-	/**
-	*
-	* @param string $name
-	* @param string $path Relative path to the xanthine directory
-	*/
-	function xModule($name,$path)
-	{
-		$this->m_name = $name;
-		$this->m_path = $path;
-	}
-	
-	/**
-	* This method should executes all sql queries needed to install a module in a mysql db.
-	*/
-	function installDBMySql()
-	{
-		return NULL;
-	}
-	
-	/**
-	* Returns a valid xContent for the passed path
-	*
-	* @param xXanthPath $path
-	* @return xContent A valid xContent object if your module is the responsable of the given path, NULL otherwise.
-	*/
-	function getContent($path)
-	{
-		return NULL;
-	}
-	
-	/**
-	* Called when the page creation occur. Use this method to do all the stuff befor a the page is created.
-	*
-	* @param xXanthPath $path
-	*/
-	function onPageCreation($path)
-	{
-		return NULL;
-	}
-	
-	/**
-	* Returns a dinamic box.
-	*
-	* @param xBox $box
-	* @return xBoxDynamic
-	*/
-	function getDynamicBox($box)
-	{
-		return NULL;
-	}
-	
-	/**
-	 * Returns a specific xBox child object corresponding to the specified type.
 	 *
-	 * @param xBox $box
-	 * @return xBox
 	 */
-	function convertFromSimpleBox($box)
+	function xModule()
 	{
-		return NULL;
 	}
 	
 	//----------------STATIC FUNCTIONS----------------------------------------------
@@ -107,17 +40,39 @@ class xModule
 	* Register a module.
 	*
 	* @param xModule $module The module to register.
+	* @internal
+	* @static
+	*/
+	function registerDefaultModule($module)
+	{
+		global $g_xanth_builtin_modules;
+		$g_xanth_builtin_modules[] = $module;
+	}
+	
+	
+	/**
+	* Retrieve all registered modules as an array.
+	*
+	* @return array(xModule) all registered modules.
+	* @internal
+	* @static
+	*/
+	function getDefaultModules()
+	{
+		global $g_xanth_builtin_modules;
+		return $g_xanth_builtin_modules;
+	}
+	
+	/**
+	* Register a module.
+	*
+	* @param xModule $module The module to register.
 	* @static
 	*/
 	function registerModule($module)
 	{
-		global $g_modules;
-		if(!isset($g_modules))
-		{
-			$g_modules = array();
-		}
-		
-		$g_modules[] = $module;
+		global $g_xanth_modules;
+		$g_xanth_modules[] = $module;
 	}
 	
 	
@@ -129,13 +84,8 @@ class xModule
 	*/
 	function getModules()
 	{
-		global $g_modules;
-		if(!isset($g_modules))
-		{
-			$g_modules = array();
-		}
-		
-		return $g_modules;
+		global $g_xanth_modules;
+		return $g_xanth_modules;
 	}
 	
 	
@@ -147,18 +97,25 @@ class xModule
 	 */
 	function callWithSingleResult0($function)
 	{
-		$result = NULL;
-		$modules = xModule::getModules();
-		foreach($modules as $module)
+		//first to user modules then default
+		$all_modules = array(xModule::getModules(),xModule::getDefaultModules());
+		
+		foreach($all_modules as $modules)
 		{
-			$result = $module->$function();
-			if($result !== NULL)
+			foreach($modules as $module)
 			{
-				return $result;
+				if(method_exists($module,$function))
+				{
+					$result = $module->$function();
+					if($result !== NULL)
+					{
+						return $result;
+					}
+				}
 			}
 		}
 		
-		return $result;
+		return NULL;
 	}
 	
 	/**
@@ -169,18 +126,25 @@ class xModule
 	 */
 	function callWithSingleResult1($function,&$arg1)
 	{
-		$result = NULL;
-		$modules = xModule::getModules();
-		foreach($modules as $module)
+		//first to user modules then default
+		$all_modules = array(xModule::getModules(),xModule::getDefaultModules());
+		
+		foreach($all_modules as $modules)
 		{
-			$result = $module->$function($arg1);
-			if($result !== NULL)
+			foreach($modules as $module)
 			{
-				return $result;
+				if(method_exists($module,$function))
+				{
+					$result = $module->$function($arg1);
+					if($result !== NULL)
+					{
+						return $result;
+					}
+				}
 			}
 		}
 		
-		return $result;
+		return NULL;
 	}
 	
 	/**
@@ -191,18 +155,25 @@ class xModule
 	 */
 	function callWithSingleResult2($function,&$arg1,&$arg2)
 	{
-		$result = NULL;
-		$modules = xModule::getModules();
-		foreach($modules as $module)
+		//first to user modules then default
+		$all_modules = array(xModule::getModules(),xModule::getDefaultModules());
+		
+		foreach($all_modules as $modules)
 		{
-			$result = $module->$function($arg1,$arg2);
-			if($result !== NULL)
+			foreach($modules as $module)
 			{
-				return $result;
+				if(method_exists($module,$function))
+				{
+					$result = $module->$function($arg1,$arg2);
+					if($result !== NULL)
+					{
+						return $result;
+					}
+				}
 			}
 		}
 		
-		return $result;
+		return NULL;
 	}
 	
 	/**
@@ -215,22 +186,25 @@ class xModule
 	function callWithArrayResult0($function)
 	{
 		$array_result = array();
-		$modules = xModule::getModules();
+		$modules = array_merge(xModule::getModules(),xModule::getDefaultModules());
 		foreach($modules as $module)
 		{
-			$result = $module->$function();
-			if($result !== NULL)
+			if(method_exists($module,$function))
 			{
-				if(is_array($result))
+				$result = $module->$function();
+				if($result !== NULL)
 				{
-					foreach($result as $one_result)
+					if(is_array($result))
 					{
-						$array_result[] = $one_result;
+						foreach($result as $one_result)
+						{
+							$array_result[] = $one_result;
+						}
 					}
-				}
-				else
-				{
-					$array_result[] = $result;
+					else
+					{
+						$array_result[] = $result;
+					}
 				}
 			}
 		}
@@ -248,22 +222,25 @@ class xModule
 	function callWithArrayResult1($function,&$arg1)
 	{
 		$array_result = array();
-		$modules = xModule::getModules();
+		$modules = array_merge(xModule::getModules(),xModule::getDefaultModules());
 		foreach($modules as $module)
 		{
-			$result = $module->$function($arg1);
-			if($result !== NULL)
+			if(method_exists($module,$function))
 			{
-				if(is_array($result))
+				$result = $module->$function($arg1);
+				if($result !== NULL)
 				{
-					foreach($result as $one_result)
+					if(is_array($result))
 					{
-						$array_result[] = $one_result;
+						foreach($result as $one_result)
+						{
+							$array_result[] = $one_result;
+						}
 					}
-				}
-				else
-				{
-					$array_result[] = $result;
+					else
+					{
+						$array_result[] = $result;
+					}
 				}
 			}
 		}
@@ -281,22 +258,25 @@ class xModule
 	function callWithArrayResult2($function,&$arg1,&$arg2)
 	{
 		$array_result = array();
-		$modules = xModule::getModules();
+		$modules = array_merge(xModule::getModules(),xModule::getDefaultModules());
 		foreach($modules as $module)
 		{
-			$result = $module->$function($arg1,$arg2);
-			if($result !== NULL)
+			if(method_exists($module,$function))
 			{
-				if(is_array($result))
+				$result = $module->$function($arg1,$arg2);
+				if($result !== NULL)
 				{
-					foreach($result as $one_result)
+					if(is_array($result))
 					{
-						$array_result[] = $one_result;
+						foreach($result as $one_result)
+						{
+							$array_result[] = $one_result;
+						}
 					}
-				}
-				else
-				{
-					$array_result[] = $result;
+					else
+					{
+						$array_result[] = $result;
+					}
 				}
 			}
 		}
@@ -311,10 +291,13 @@ class xModule
 	 */
 	function callWithNoResult0($function)
 	{
-		$modules = xModule::getModules();
+		$modules = array_merge(xModule::getModules(),xModule::getDefaultModules());
 		foreach($modules as $module)
 		{
-			$module->$function();
+			if(method_exists($module,$function))
+			{
+				$module->$function();
+			}
 		}
 	}
 	
@@ -325,10 +308,13 @@ class xModule
 	 */
 	function callWithNoResult1($function,&$arg1)
 	{
-		$modules = xModule::getModules();
+		$modules = array_merge(xModule::getModules(),xModule::getDefaultModules());
 		foreach($modules as $module)
-		{
-			$module->$function($arg1);
+		{	
+			if(method_exists($module,$function))
+			{
+				$module->$function($arg1);
+			}
 		}
 	}
 	
@@ -339,15 +325,69 @@ class xModule
 	 */
 	function callWithNoResult2($function,&$arg1,&$arg2)
 	{
-		$modules = xModule::getModules();
+		$modules = array_merge(xModule::getModules(),xModule::getDefaultModules());
 		foreach($modules as $module)
 		{
-			$module->$function($arg1,$arg2);
+			if(method_exists($module,$function))
+			{
+				$module->$function($arg1,$arg2);
+			}
 		}
 	}
 	
 };
 
+/**
+ * A dummy module class for documentation purpose only.
+ */
+class xDummyModule extends xModule
+{
+	/**
+	* This method should executes all sql queries needed to install a module in a mysql db.
+	*/
+	function installDBMySql()
+	{
+	}
+	
+	/**
+	* Returns a valid xContent for the passed path
+	*
+	* @param xXanthPath $path
+	* @return xContent A valid xContent object if your module is the responsable of the given path, NULL otherwise.
+	*/
+	function getContent($path)
+	{
+	}
+	
+	/**
+	* Called when the page creation occur. Use this method to do all the stuff befor a the page is created.
+	*
+	* @param xXanthPath $path
+	*/
+	function onPageCreation($path)
+	{
+	}
+	
+	/**
+	* Returns a dinamic box.
+	*
+	* @param xBox $box
+	* @return xBoxDynamic
+	*/
+	function getDynamicBox($box)
+	{
+	}
+	
+	/**
+	 * Returns a specific xBox child object corresponding to the specified type.
+	 *
+	 * @param xBox $box
+	 * @return xBox
+	 */
+	function convertFromSimpleBox($box)
+	{
+	}
+}
 
 
 ?>

@@ -94,7 +94,7 @@ class xModuleUser extends xModule
 	}
 };
 
-xModule::registerModule(new xModuleUser());
+xModule::registerDefaultModule(new xModuleUser());
 
 
 /**
@@ -120,7 +120,7 @@ class xBoxLogin extends xBoxDynamic
 			$content = "User not logged in<br /><a href=\"?p=user/login\">Login</a>";
 		}
 		
-		return xTheme::getActive()->renderBox($this->m_name,$this->m_title,$content);
+		return xTheme::render3('renderBox',$this->m_name,$this->m_title,$content);
 	}
 }
 	

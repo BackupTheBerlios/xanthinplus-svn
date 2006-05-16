@@ -40,6 +40,6 @@ class xModuleTest extends xModule
 	}
 };
 
-xModule::registerModule(new xModuleTest());
+xModule::registerDefaultModule(new xModuleTest());
 	
 ?>

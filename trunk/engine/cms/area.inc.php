@@ -57,7 +57,7 @@ class xArea extends xElement
 	*/
 	function getAreas()
 	{
-		$area_strings = xTheme::getActive()->declareAreas();
+		$area_strings = xTheme::render0('declareAreas');
 		$areas = array();
 		foreach($area_strings as $area_string)
 		{
@@ -70,7 +70,7 @@ class xArea extends xElement
 	// DOCS INHERITHED  ========================================================
 	function onRender()
 	{
-		return xTheme::getActive()->renderArea($this->m_name,$this->m_boxes);
+		return xTheme::render2('renderArea',$this->m_name,$this->m_boxes);
 	}
 };
 
