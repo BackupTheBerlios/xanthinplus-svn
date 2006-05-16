@@ -31,7 +31,7 @@ class xModuleBox extends xModule
 	{
 		if($path->m_base_path == 'admin/box')
 		{
-			return $this->_getContentManageBox();
+			return $this->_getContentAdminBox();
 		}
 		
 		return NULL;
@@ -40,7 +40,7 @@ class xModuleBox extends xModule
 	/**
 	 * @access private
 	 */
-	function _getContentManageBox()
+	function _getContentAdminBox()
 	{
 		if(!xAccessPermission::checkPermission('manage box'))
 		{

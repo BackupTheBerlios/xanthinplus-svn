@@ -296,6 +296,8 @@ class xInstallCMS
 		$perm->dbInsert();
 		$perm = new xAccessPermission('admin item create',$acc_filter->m_id);
 		$perm->dbInsert();
+		$perm = new xAccessPermission('admin itemtype',$acc_filter->m_id);
+		$perm->dbInsert();
 		
 		
 		//create some default box
@@ -312,7 +314,8 @@ class xInstallCMS
 		$menu->m_items[] = $menuitem;
 		
 		$menuitem = new xMenuItem('Manage Items','?p=admin/item',0);
-		$menuitem->m_subitems[] = new xMenuItem('Create Item (Generic)','?p=admin/item/create',0);
+		$menuitem->m_subitems[] = new xMenuItem('Create Item (Generic)','?p=item/create',0);
+		$menuitem->m_subitems[] = new xMenuItem('Manage types','?p=admin/itemtype',0);
 		$menu->m_items[] = $menuitem;
 		
 		$menuitem = new xMenuItem('Manage Access Filters','?p=admin/accessfilters',0);

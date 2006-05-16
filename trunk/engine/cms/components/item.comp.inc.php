@@ -23,23 +23,22 @@ class xModuleItem extends xModule
 {
 	function xModuleItem()
 	{
-		$this->xModule('Item','engine/cms/components/');
+		$this->xModule();
 	}
 	
 	// DOCS INHERITHED  ========================================================
 	function getContent($path)
 	{
-		if($path->m_base_path == 'admin/item')
+		switch($path->m_base_path)
 		{
-			return $this->_getContentAdminItem();
-		}
-		elseif($path->m_base_path == 'admin/item/create')
-		{
-			return $this->_getContentAdminItemCreate();
-		}
-		elseif($path->m_base_path == 'view/item')
-		{
-			return $this->_getContentViewItem($path->m_resource_id);
+			case 'admin/item':
+				return $this->_getContentAdminItem();
+			case 'item/create':
+				return $this->_getContentAdminItemCreate();
+			case 'item/view':
+				return $this->_getContentViewItem($path->m_resource_id);
+			case 'admin/itemtype':
+				return $this->_getContentAdminItemType();
 		}
 		
 		return NULL;
@@ -56,7 +55,7 @@ class xModuleItem extends xModule
 		}
 		
 		//create form
-		$form = new xForm('?p=admin/item/create');
+		$form = new xForm('?p=item/create');
 		//item type
 		$form->m_elements[] = xItemType::getFormTypeChooser('type','',true);
 		//item title
@@ -131,7 +130,7 @@ class xModuleItem extends xModule
 		foreach($items as $item)
 		{
 			$output .= '<tr><td>' . $item->m_id . '</td><td>' . $item->m_title . '</td>'
-			. '<td>Edit</td></tr>';
+			. '<td>Edit <a href="?p=item/view//' . $item->m_id . '">View</a></td></tr>';
 		}
 		$output .= "</table>\n";
 		
@@ -142,11 +141,54 @@ class xModuleItem extends xModule
 	/**
 	 * @access private
 	 */
-	function _getContentViewItem()
+	function _getContentViewItem($resource_id)
 	{
+		$item = xItem::dbLoad($resource_id);
+		$type = xItemType::dbLoad($item->m_type);
 		
+		//here we will provide a check for access filter.
+		if(! xAccessFilterSet::checkAccessByFilterSetId($type->m_accessfiltersetid))
+		{
+			return new xContentNotAuthorized();
+		}
+		
+		return new xContentSimple($item->m_title,$item->render(),$item->m_description,$item->m_keywords);
 	}
 	
+	/**
+	 * @access private
+	 */
+	function _getContentAdminItemType()
+	{
+		if(!xAccessPermission::checkPermission('admin itemtype'))
+		{
+			return new xContentNotAuthorized();
+		}
+		
+		$types = xItemType::findAll();
+		
+		$output = 
+		'<table class="admin-table">
+		<tr><th>Name</th><th>Filter</th><th>Operations</th></tr>
+		';
+		foreach($types as $type)
+		{
+			if(!empty($type->m_accessfiltersetid))
+			{
+				$filter = xAccessFilterSet::dbLoad($type->m_accessfiltersetid);
+				$filtername = $filter->m_name;
+			}
+			else
+			{
+				$filtername = '[No Filter]';
+			}
+			
+			$output .= '<tr><td>' . $type->m_name . '</td><td>' . $filtername . '</td><td>Edit</td></tr>';
+		}
+		$output .= "</table>\n";
+		
+		return new xContentSimple("Admin item types",$output,'','');
+	}
 	
 	
 };

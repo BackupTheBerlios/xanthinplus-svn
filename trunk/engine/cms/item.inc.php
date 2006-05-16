@@ -139,11 +139,10 @@ class xItem extends xElement
 		$this->m_lastedit_time = $lastedit_time;
 	}
 	
-	
 	// DOCS INHERITHED  ========================================================
 	function onRender()
 	{
-		
+		return xTheme::render3('renderItem',$this->m_type,$this->m_title,$this->m_content);
 	}
 	
 	/** 

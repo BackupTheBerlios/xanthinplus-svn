@@ -80,6 +80,7 @@ class xXanthPath
 	{
 	    if (!preg_match('#^(([A-Z_]+)?(/[A-Z_]+)*)(//([A-Z0-9_-]+))?$#i', $path,$pieces))
 		{
+			var_dump($pieces);
 	        return NULL;
 	    }
 		else 

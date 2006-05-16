@@ -73,8 +73,15 @@ class xPage extends xElement
 			$module->onPageCreation($path);
 		}
 		
-		//ask for content
-		$content = xContent::getContent($path);
+		if($path !== NULL)
+		{
+			//ask for content
+			$content = xContent::getContent($path);
+		}
+		else
+		{
+			$content = new xContentSimple('Error','ERROR: Invalid path','','');
+		}
 		
 		//ask for areas
 		$areas = xArea::getAreas();

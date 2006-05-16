@@ -306,6 +306,16 @@ class xDummyTheme extends xTheme
 	{
 	}
 	
+	
+	/**
+	 * Render an item
+	 * 
+	 * @param array(xMenuItem)
+	 * @return string the renderized element.
+	 */
+	function renderItem($type,$title,$content)
+	{
+	}
 }
 
 
@@ -430,6 +440,17 @@ class xDefaultTheme extends xTheme
 			}
 			$output .= "</ul>\n";
 		}
+		
+		return $output;
+	}
+	
+	/**
+	 * @see xDummyModule
+	 */
+	function renderItem($type,$title,$content)
+	{
+		$output = '<div class="item-title">' . $title . '</div>
+		<div class="item-content">' . $content . '</div>';
 		
 		return $output;
 	}
