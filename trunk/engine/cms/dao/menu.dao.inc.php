@@ -104,6 +104,18 @@ class xMenuDAO
 		xBoxDAO::delete($menu);
 	}
 	
+	
+	/**
+	 *
+	 * @return xMenuItem
+	 * @static
+	 * @access private
+	 */
+	function _menuitemFromRow($row_object)
+	{
+		return new xMenuItem($row_object->label,$row_object->link,$row_object->weight);
+	}
+	
 	/**
 	 *
 	 * @return array(xMenuItems)
@@ -120,7 +132,7 @@ class xMenuDAO
 		
 			while($row = xDB::getDB()->fetchObject($result))
 			{
-				$newitem = new xMenuItem($row->label,$row->link,$row->weight,$row->accessfiltersetid);
+				$newitem = xMenuDAO::_menuitemFromRow($row);
 				$newitem->m_subitems = xMenuDAO::_getMenuItems($menuname,$row->id);
 				
 				$items[] = $newitem;
@@ -133,7 +145,7 @@ class xMenuDAO
 		
 			while($row = xDB::getDB()->fetchObject($result))
 			{
-				$newitem = new xMenuItem($row->label,$row->link,$row->weight,$row->accessfiltersetid);
+				$newitem = xMenuDAO::_menuitemFromRow($row);
 				$newitem->m_subitems = xMenuDAO::_getMenuItems($menuname,$row->id);
 				
 				$items[] = $newitem;

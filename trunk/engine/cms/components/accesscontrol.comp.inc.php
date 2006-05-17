@@ -31,11 +31,7 @@ class xModuleAccessControl extends xModule
 	{
 		if($path->m_base_path == 'admin/accessfilters')
 		{
-			return $this->_getContentManageAccessFilters();
-		}
-		elseif($path->m_base_path == 'admin/accesspermissions')
-		{
-			return $this->_getContentManageAccessPermissions();
+			return $this->_getContentAdminAccessFilters();
 		}
 		
 		return NULL;
@@ -44,7 +40,7 @@ class xModuleAccessControl extends xModule
 	/**
 	 * @access private
 	 */
-	function _getContentManageAccessFilters()
+	function _getContentAdminAccessFilters()
 	{
 		//only if administrator!
 		if(!xUser::currentHaveRole('administrator'))
@@ -90,36 +86,6 @@ class xModuleAccessControl extends xModule
 		$output .= "</table>\n";
 		
 		return new xContentSimple("Manage Access Filters",$output,'','');
-	}
-	
-	
-	/**
-	 * @access private
-	 */
-	function _getContentManageAccessPermissions()
-	{
-		//only if administrator!
-		if(!xUser::currentHaveRole('administrator'))
-		{
-			return new xContentNotAuthorized();
-		}
-		
-		$permissions = xAccessPermission::findAll();
-		
-		$output = 
-		'<table class="admin-table">
-		<tr><th>Permission name</th><th>Filter set</th><th>Operations</th></tr>
-		';
-		foreach($permissions as $permission)
-		{
-			$filterset = xAccessFilterSet::dbLoad($permission->m_filterset);
-			
-			$output .= '<tr><td>' . $permission->m_name . '</td><td>' . $filterset->m_name . '</td>';
-			$output .= '<td>Edit</td></tr>';
-		}
-		$output .= "</table>\n";
-		
-		return new xContentSimple("Manage Access Permissions",$output,'','');
 	}
 
 };

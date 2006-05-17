@@ -49,7 +49,7 @@ class xModuleItem extends xModule
 	 */
 	function _getContentAdminItemCreate()
 	{
-		if(!xAccessPermission::checkPermission('admin item create'))
+		if(!xAccessPermission::checkCurrentUserPermission('item',0,'create'))
 		{
 			return new xContentNotAuthorized();
 		}
@@ -116,7 +116,7 @@ class xModuleItem extends xModule
 	 */
 	function _getContentAdminItem()
 	{
-		if(!xAccessPermission::checkPermission('admin item'))
+		if(!xAccessPermission::checkCurrentUserPermission('item',0,'admin'))
 		{
 			return new xContentNotAuthorized();
 		}
@@ -144,10 +144,9 @@ class xModuleItem extends xModule
 	function _getContentViewItem($resource_id)
 	{
 		$item = xItem::dbLoad($resource_id);
-		$type = xItemType::dbLoad($item->m_type);
 		
 		//here we will provide a check for access filter.
-		if(! xAccessFilterSet::checkAccessByFilterSetId($type->m_accessfiltersetid))
+		if(!xAccessPermission::checkCurrentUserPermission('item',$item->m_type_id,'create'))
 		{
 			return new xContentNotAuthorized();
 		}
@@ -160,7 +159,7 @@ class xModuleItem extends xModule
 	 */
 	function _getContentAdminItemType()
 	{
-		if(!xAccessPermission::checkPermission('admin itemtype'))
+		if(!xAccessPermission::checkCurrentUserPermission('itemtype',0,'admin'))
 		{
 			return new xContentNotAuthorized();
 		}
@@ -169,21 +168,11 @@ class xModuleItem extends xModule
 		
 		$output = 
 		'<table class="admin-table">
-		<tr><th>Name</th><th>Filter</th><th>Operations</th></tr>
+		<tr><th>Id</th><th>Name</th><th>Operations</th></tr>
 		';
 		foreach($types as $type)
 		{
-			if(!empty($type->m_accessfiltersetid))
-			{
-				$filter = xAccessFilterSet::dbLoad($type->m_accessfiltersetid);
-				$filtername = $filter->m_name;
-			}
-			else
-			{
-				$filtername = '[No Filter]';
-			}
-			
-			$output .= '<tr><td>' . $type->m_name . '</td><td>' . $filtername . '</td><td>Edit</td></tr>';
+			$output .= '<tr><td>' . $type->m_id . '</td><td>' . $type->m_name . '</td><td>Edit</td></tr>';
 		}
 		$output .= "</table>\n";
 		

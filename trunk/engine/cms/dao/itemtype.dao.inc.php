@@ -32,33 +32,25 @@ class xItemTypeDAO
 	 */
 	function insert($item_type)
 	{
-		$field_names = "name,description,default_content_filter,default_approved,default_published,default_sticky,
-			default_weight,default_accept_replies";
-		$field_values = "'%s','%s',%d,%d,%d,%d,%d,%d";
-		$values = array($item_type->m_name,$item_type->m_description,$item_type->m_default_content_filter,
-			$item_type->m_default_approved,$item_type->m_default_published,$item_type->m_default_sticky,
-			$item_type->m_default_weight,$item_type->m_default_accept_replies);
-		
-		if(!empty($item_type->m_accessfiltersetid))
-		{
-			$field_names .= ',accessfiltersetid';
-			$field_values .= ",%d";
-			$values[] = $item_type->m_accessfiltersetid;
-		}
-		
-		xDB::getDB()->query("INSERT INTO item_type($field_names) VALUES($field_values)",$values);
+		xDB::getDB()->query("INSERT INTO item_type (name,description,default_content_filter,default_approved,
+			default_published,default_sticky,default_accept_replies) 
+			VALUES ('%s','%s','%s',%d,%d,%d,%d)",$item_type->m_name,$item_type->m_description,
+			$item_type->m_default_content_filter,$item_type->m_default_approved,$item_type->m_default_published,
+			$item_type->m_default_sticky,$item_type->m_default_accept_replies);
+			
+		return xDB::getDB()->getLastId();
 	}
 	
 	/**
 	 * Deletes an item type.
 	 *
 	 * 
-	 * @param string $itemtypename
+	 * @param int $itemtypeid
 	 * @static
 	 */
-	function delete($itemtypename)
+	function delete($itemtypeid)
 	{
-		xDB::getDB()->query("DELETE FROM item_type WHERE name = '%s'",$itemtypename);
+		xDB::getDB()->query("DELETE FROM item_type WHERE id = %d",$itemtypeid);
 	}
 	
 	/**
@@ -70,24 +62,11 @@ class xItemTypeDAO
 	 */
 	function update($item_type)
 	{
-		$fields = "description = '%s',default_content_filter = %d,default_approved = %d,default_published = %d,
-			default_sticky = %d,default_weight = %d,default_accept_replies = %d";
-		$values = array($item_type->m_description,$item_type->m_default_content_filter,
+		xDB::getDB()->query("UPDATE item_type SET name = '%s',description = '%s',default_content_filter = %d,
+			default_approved = %d,default_published = %d,default_sticky = %d,default_accept_replies = %d 
+			WHERE id = %d",$item_type->m_name,$item_type->m_description,$item_type->m_default_content_filter,
 			$item_type->m_default_approved,$item_type->m_default_published,$item_type->m_default_sticky,
-			$item_type->m_default_weight,$item_type->m_default_accept_replies);
-		
-		if(!empty($item_type->m_accessfiltersetid))
-		{
-			$fields .= ",accessfiltersetid = %d";
-			$values[] = $item_type->m_accessfiltersetid;
-		}
-		else
-		{
-			$fields .= ",accessfiltersetid = NULL";
-		}
-		
-		$values[] = $item_type->m_name;
-		xDB::getDB()->query("UPDATE item_type SET $fields WHERE name = '%s'",$values);
+			$item_type->m_default_accept_replies,$item_type->m_id);
 	}
 	
 	/**
@@ -98,9 +77,9 @@ class xItemTypeDAO
 	 */
 	function _itemtypeFromRow($row_object)
 	{
-		return new xItemType($row_object->name,$row_object->description,$row_object->default_content_filter,
-			$row_object->default_approved,$row_object->default_published,$row_object->default_sticky,
-			$row_object->default_weight,$row_object->default_accept_replies,$row_object->accessfiltersetid);
+		return new xItemType($row_object->id,$row_object->name,$row_object->description,
+			$row_object->default_content_filter,$row_object->default_approved,$row_object->default_published,
+			$row_object->default_sticky,$row_object->default_accept_replies);
 	}
 	
 	
@@ -110,9 +89,9 @@ class xItemTypeDAO
 	 * @return xItemType
 	 * @static
 	 */
-	function load($itemtypename)
+	function load($itemtypeid)
 	{
-		$result = xDB::getDB()->query("SELECT * FROM item_type WHERE name = '%s'",$itemtypename);
+		$result = xDB::getDB()->query("SELECT * FROM item_type WHERE id = %d",$itemtypeid);
 		if($row = xDB::getDB()->fetchObject($result))
 		{
 			return xItemTypeDAO::_itemtypeFromRow($row);

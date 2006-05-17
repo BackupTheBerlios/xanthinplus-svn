@@ -44,22 +44,14 @@ class xCathegoryDAO
 			$values[] = $cathegory->m_parent_cathegory;
 		}
 		
-		
-		if(!empty($cathegory->m_accessfiltersetid))
-		{
-			$field_names .= ',accessfiltersetid';
-			$field_values .= ",%d";
-			$values[] = $cathegory->m_accessfiltersetid;
-		}
-		
 		if(!empty($cathegory->m_items_type))
 		{
 			$field_names .= ',items_type';
-			$field_values .= ",'%s'";
+			$field_values .= ",%d";
 			$values[] = $cathegory->m_items_type;
 		}
 		
-		xDB::getDB()->query("INSERT INTO cathegory($field_names) VALUES($field_values)",$values);
+		xDB::getDB()->query("INSERT INTO item_cathegory($field_names) VALUES($field_values)",$values);
 		return xDB::getDB()->getLastId();
 	}
 	
@@ -72,7 +64,7 @@ class xCathegoryDAO
 	 */
 	function delete($catid)
 	{
-		xDB::getDB()->query("DELETE FROM cathegory WHERE id = %d",$catid);
+		xDB::getDB()->query("DELETE FROM item_cathegory WHERE id = %d",$catid);
 	}
 	
 	/**
@@ -86,16 +78,7 @@ class xCathegoryDAO
 	{
 		$fields = "name = '%s',description = '%s'";
 		$values = array($item_type->m_name,$item_type->m_description);
-		
-		if(!empty($cathegory->m_accessfiltersetid))
-		{
-			$fields .= ",accessfiltersetid = %d";
-			$values[] = $cathegory->m_accessfiltersetid;
-		}
-		else
-		{
-			$fields .= ",accessfiltersetid = NULL";
-		}
+
 		
 		if(!empty($cathegory->m_parent_cathegory))
 		{
@@ -109,7 +92,7 @@ class xCathegoryDAO
 		
 		if(!empty($cathegory->m_items_type))
 		{
-			$fields .= ",items_type = '%s'";
+			$fields .= ",items_type = %d";
 			$values[] = $cathegory->m_items_type;
 		}
 		else
@@ -119,7 +102,7 @@ class xCathegoryDAO
 		
 		
 		$values[] = $cathegory->m_id;
-		xDB::getDB()->query("UPDATE cathegory SET $fields WHERE id = %d",$values);
+		xDB::getDB()->query("UPDATE item_cathegory SET $fields WHERE id = %d",$values);
 	}
 	
 	/**
@@ -131,7 +114,7 @@ class xCathegoryDAO
 	function _cathegoryFromRow($row_object)
 	{
 		return new xCathegory($row_object->id,$row_object->name,$row_object->description,$row_object->parent_cathegory,
-			$row_object->items_type,$row_object->accessfiltersetid);
+			$row_object->items_type);
 	}
 	
 	/**
@@ -142,7 +125,7 @@ class xCathegoryDAO
 	 */
 	function load($catid)
 	{
-		$result = xDB::getDB()->query("SELECT * FROM cathegory WHERE id = %d",$catid);
+		$result = xDB::getDB()->query("SELECT * FROM item_cathegory WHERE id = %d",$catid);
 		if($row = xDB::getDB()->fetchObject($result))
 		{
 			return xCathegoryDAO::_cathegoryFromRow($row);
@@ -160,7 +143,7 @@ class xCathegoryDAO
 	function findAll()
 	{
 		$cats = array();
-		$result = xDB::getDB()->query("SELECT * FROM cathegory");
+		$result = xDB::getDB()->query("SELECT * FROM item_cathegory");
 		while($row = xDB::getDB()->fetchObject($result))
 		{
 			$cats[] = xCathegoryDAO::_cathegoryFromRow($row);

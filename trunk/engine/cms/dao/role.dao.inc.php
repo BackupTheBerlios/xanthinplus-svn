@@ -59,6 +59,19 @@ class xRoleDAO
 		xDB::getDB()->query("UPDATE role SET description = '%s' WHERE name = '%s')",$role->m_description,$role->m_name);
 	}
 	
+	
+	/**
+	 *
+	 * @return xItem
+	 * @static
+	 * @access private
+	 */
+	function _roleFromRow($row_object)
+	{
+		return new xRole($row_object->name,$row_object->description);
+	}
+	
+	
 	/**
 	 * Retrieves all roles.
 	 *
@@ -71,7 +84,7 @@ class xRoleDAO
 		$result = xDB::getDB()->query("SELECT * FROM roles");
 		while($row = xDB::getDB()->fetchObject($result))
 		{
-			$roles[] = new xRole($row->name,$row->description);
+			$roles[] = xRoleDAO::_roleFromRow($row);
 		}
 		return $roles;
 	}

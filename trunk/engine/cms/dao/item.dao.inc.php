@@ -33,12 +33,12 @@ class xItemDAO
 	 */
 	function insert($item)
 	{
-		xDB::getDB()->query("INSERT INTO item(title,type,author,content,content_filter,published,approved,
-			accept_replies,sticky,weight,description,keywords,creation_time) 
-			VALUES ('%s','%s','%s','%s','%s',%d,%d,%d,%d,%d,'%s','%s',NOW())",
-			$item->m_title,$item->m_type,$item->m_author,$item->m_content,$item->m_content_filter,
+		xDB::getDB()->query("INSERT INTO item(title,type_id,author,content,content_filter,published,approved,
+			accept_replies,sticky,description,keywords,creation_time) 
+			VALUES ('%s',%d,'%s','%s','%s',%d,%d,%d,%d,'%s','%s',NOW())",
+			$item->m_title,$item->m_type_id,$item->m_author,$item->m_content,$item->m_content_filter,
 			$item->m_published,$item->m_approved,$item->m_accept_replies,$item->m_sticky,
-			$item->m_weight,$item->m_description,$item->m_keywords);
+			$item->m_description,$item->m_keywords);
 	}
 	
 	/**
@@ -67,10 +67,10 @@ class xItemDAO
 	function update($item)
 	{
 		xDB::getDB()->query("UPDATE item SET title = '%s',content = '%s',content_filter = '%s',
-			published = %d,approved = %d,accept_replies = %d,sticky = %d,weight = %d,
+			published = %d,approved = %d,accept_replies = %d,sticky = %d,
 			description = '%s',keywords = '%s',lastedittime = NOW()",
 			$item->m_title,$item->m_content,$item->m_content_filter,$item->m_published,
-			$item->m_approved,$item->m_accept_replies,$item->m_sticky,$item->m_weight,
+			$item->m_approved,$item->m_accept_replies,$item->m_sticky,
 			$item->m_description,$item->m_keywords);
 	}
 	
@@ -83,10 +83,10 @@ class xItemDAO
 	 */
 	function _itemFromRow($row_object)
 	{
-		return new xItem($row_object->id,$row_object->title,$row_object->type,$row_object->author,
+		return new xItem($row_object->id,$row_object->title,$row_object->type_id,$row_object->author,
 			$row_object->content,$row_object->content_filter,$row_object->published,
 			$row_object->approved,$row_object->accept_replies,$row_object->sticky,
-			$row_object->weight,$row_object->description,$row_object->keywords,
+			$row_object->description,$row_object->keywords,
 			$row_object->creation_time,$row_object->lastedit_time);
 	}
 	
@@ -141,7 +141,7 @@ class xItemDAO
 	/**
 	 * Retrieves all items.
 	 *
-	 * @param string $type Exact search
+	 * @param string $type_id Exact search
 	 * @param string $title Like search
 	 * @param string $author Exact search
 	 * @param string $content Like search
@@ -153,7 +153,7 @@ class xItemDAO
 	 * @return array(xItem)
 	 * @static
 	 */
-	function find($type,$title,$author,$content,$published,$approved,$cathegory,$nelementpage = 0,$npage = 0)
+	function find($type_id,$title,$author,$content,$published,$approved,$cathegory,$nelementpage = 0,$npage = 0)
 	{
 		$items = array();
 		
@@ -162,11 +162,11 @@ class xItemDAO
 		$query_where = array();
 		$query_where_link = array();
 		
-		if($type !== NULL)
+		if($type_id !== NULL)
 		{
-			$query_where[] = "item.type = '%s'";
+			$query_where[] = "item.type_id = %d";
 			$query_where_link[] = "AND";
-			$values[] = $type;
+			$values[] = $type_id;
 		}
 		
 		if($title !== NULL)

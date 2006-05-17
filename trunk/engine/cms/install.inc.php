@@ -141,11 +141,13 @@ class xInstallCMS
 		//access permission
 		xDB::getDB()->query("
 			CREATE TABLE access_permission (
-			name VARCHAR(64) NOT NULL,
-			filterset INT UNSIGNED NOT NULL,
-			PRIMARY KEY(name),
-			INDEX(filterset),
-			FOREIGN KEY (filterset) REFERENCES access_filter_set(id) ON DELETE RESTRICT
+			resource VARCHAR(64) NOT NULL,
+			resource_type_id INT UNSIGNED NOT NULL,
+			operation VARCHAR(32) NOT NULL,
+			role VARCHAR(32) NOT NULL,
+			description VARCHAR(128) NOT NULL,
+			PRIMARY KEY(resource,resource_type_id,operation,role),
+			FOREIGN KEY (role) REFERENCES role(name) ON DELETE CASCADE
 			)TYPE=InnoDB"
 		);
 		
@@ -184,12 +186,10 @@ class xInstallCMS
 			link VARCHAR(128) NOT NULL,
 			weight TINYINT NOT NULL,
 			parent INT UNSIGNED,
-			accessfiltersetid INT UNSIGNED,
 			PRIMARY KEY(id),
 			INDEX(box_name),
 			FOREIGN KEY (parent) REFERENCES menu_items(id) ON DELETE CASCADE,
-			FOREIGN KEY (box_name) REFERENCES box(name) ON DELETE CASCADE,
-			FOREIGN KEY (accessfiltersetid) REFERENCES access_filter_set(id) ON DELETE SET NULL
+			FOREIGN KEY (box_name) REFERENCES box(name) ON DELETE CASCADE
 			)TYPE=InnoDB"
 		);
 		
@@ -197,17 +197,16 @@ class xInstallCMS
 		//item type
 		xDB::getDB()->query("
 			CREATE TABLE item_type (
+			id INT UNSIGNED AUTO_INCREMENT NOT NULL,
 			name VARCHAR(32) NOT NULL,
 			description VARCHAR(256) NOT NULL,
 			default_content_filter VARCHAR(64) NOT NULL,
 			default_approved TINYINT NOT NULL,
 			default_published TINYINT NOT NULL,
 			default_sticky TINYINT NOT NULL,
-			default_weight TINYINT NOT NULL,
 			default_accept_replies TINYINT NOT NULL,
-			accessfiltersetid INT UNSIGNED,
-			PRIMARY KEY (name),
-			FOREIGN KEY (accessfiltersetid) REFERENCES access_filter_set(id) ON DELETE SET NULL
+			PRIMARY KEY (id),
+			UNIQUE (name)
 			)TYPE=InnoDB"
 		);
 		
@@ -218,14 +217,12 @@ class xInstallCMS
 			id INT UNSIGNED AUTO_INCREMENT NOT NULL,
 			name VARCHAR(32) NOT NULL,
 			description TEXT NOT NULL,
-			accessfiltersetid INT UNSIGNED,
 			parent_cathegory INT UNSIGNED,
-			items_type VARCHAR(32),
+			items_type INT UNSIGNED,
 			PRIMARY KEY (id),
 			UNIQUE(name),
-			FOREIGN KEY (accessfiltersetid) REFERENCES access_filter_set(id) ON DELETE SET NULL,
 			FOREIGN KEY (parent_cathegory) REFERENCES item_cathegory(id) ON DELETE CASCADE,
-			FOREIGN KEY (items_type) REFERENCES item_type(name) ON DELETE SET NULL
+			FOREIGN KEY (items_type) REFERENCES item_type(id) ON DELETE SET NULL
 			)TYPE=InnoDB"
 		);
 		
@@ -235,7 +232,7 @@ class xInstallCMS
 			CREATE TABLE item (
 			id INT UNSIGNED NOT NULL AUTO_INCREMENT,
 			title VARCHAR(256) NOT NULL,
-			type VARCHAR(32) NOT NULL,
+			type_id INT UNSIGNED NOT NULL,
 			author VARCHAR(64) NOT NULL,
 			content TEXT NOT NULL,
 			content_filter VARCHAR(64) NOT NULL,
@@ -243,13 +240,12 @@ class xInstallCMS
 			approved TINYINT NOT NULL,
 			accept_replies TINYINT NOT NULL,
 			sticky TINYINT NOT NULL,
-			weight TINYINT NOT NULL,
 			description VARCHAR(512) NOT NULL,
 			keywords VARCHAR(128) NOT NULL,
 			creation_time DATETIME NOT NULL,
 			lastedit_time DATETIME,
 			PRIMARY KEY (id),
-			FOREIGN KEY (type) REFERENCES item_type(name) ON DELETE RESTRICT
+			FOREIGN KEY (type_id) REFERENCES item_type(id) ON DELETE RESTRICT
 			)TYPE=InnoDB"
 		);
 		
@@ -290,14 +286,6 @@ class xInstallCMS
 		
 		$acc_filter = new xAccessFilterSet(-1,'Default admin sections','',array(new xAccessFilterRole('administrator')));
 		$acc_filter->dbInsert();
-		$perm = new xAccessPermission('manage box',$acc_filter->m_id);
-		$perm->dbInsert();
-		$perm = new xAccessPermission('admin item',$acc_filter->m_id);
-		$perm->dbInsert();
-		$perm = new xAccessPermission('admin item create',$acc_filter->m_id);
-		$perm->dbInsert();
-		$perm = new xAccessPermission('admin itemtype',$acc_filter->m_id);
-		$perm->dbInsert();
 		
 		
 		//create some default box
@@ -307,7 +295,7 @@ class xInstallCMS
 		//menus
 		$menu = new xMenu('Admin','Admin','menu',0,array(),NULL,'leftArea');
 	
-		$menuitem = new xMenuItem('Homepage','?',0);
+		$menuitem = new xMenuItem('Homepage','?',-1);
 		$menu->m_items[] = $menuitem;
 		
 		$menuitem = new xMenuItem('Manage Boxes','?p=admin/box',0);
@@ -318,13 +306,17 @@ class xInstallCMS
 		$menuitem->m_subitems[] = new xMenuItem('Manage types','?p=admin/itemtype',0);
 		$menu->m_items[] = $menuitem;
 		
+		$menuitem = new xMenuItem('Manage Cathegories','?p=admin/cathegory',0);
+		$menuitem->m_subitems[] = new xMenuItem('Create catheogry','?p=cathegory/create',0);
+		$menu->m_items[] = $menuitem;
+		
 		$menuitem = new xMenuItem('Manage Access Filters','?p=admin/accessfilters',0);
 		$menuitem->m_subitems[] = new xMenuItem('Manage Access Permission','?p=admin/accesspermissions',0);
 		$menu->m_items[] = $menuitem;
 		
 		$menu->dbInsert();
 		
-		$item_type = new xItemType('article','A generic article','html',true,true,false,0,true,NULL);
+		$item_type = new xItemType(-1,'article','A generic article','html',true,true,false,true);
 		$item_type->dbInsert();
 	}
 };

@@ -43,16 +43,10 @@ class xCathegory extends xElement
 	 * @var int
 	 * @access public
 	 */
-	var $m_accessfiltersetid;
-	
-	/**
-	 * @var int
-	 * @access public
-	 */
 	var $m_parent_cathegory;
 	
 	/**
-	 * @var string
+	 * @var int
 	 * @access public
 	 */
 	var $m_items_type;
@@ -60,14 +54,13 @@ class xCathegory extends xElement
 	/**
 	 *
 	 */
-	function xCathegory($id,$name,$description,$parent_cathegory,$items_type,$accessfiltersetid)
+	function xCathegory($id,$name,$description,$parent_cathegory,$items_type)
 	{
 		$this->xElement();
 		
 		$this->m_id = $id;
 		$this->m_name = $name;
 		$this->m_description = $description;
-		$this->m_accessfiltersetid = $accessfiltersetid;
 		$this->m_parent_cathegory = $parent_cathegory;
 		$this->m_items_type = $items_type;
 	}
@@ -136,6 +129,63 @@ class xCathegory extends xElement
 	function findAll()
 	{
 		return xCathegoryDAO::findAll();
+	}
+	
+	
+	/**
+	 * Return a form element for asking for name input
+	 *
+	 * @param string $var_name The name of the form element
+	 * @param string $value
+	 * @param bool $mandatory True if this input is manadtory
+	 * @return xFormElement
+	 * @static
+	 */
+	function getFormCathegoryChooser($var_name,$value,$mandatory)
+	{
+		$cathegories = xCathegory::findAll();
+		
+		$options = array();
+		if(!$mandatory)
+		{
+			$options[''] = 0;
+		}
+		foreach($cathegories as $cathegory)
+		{
+			$options[$cathegory->m_name] = $cathegory->m_id;
+		}
+		
+		return new xFormElementOptions($var_name,'Select cathegory','',$value,$options,FALSE,$mandatory,
+			new xInputValidatorInteger());
+	}
+	
+	
+	/**
+	 * Return a form element for asking for name input
+	 *
+	 * @param string $var_name The name of the form element
+	 * @param string $value
+	 * @param bool $mandatory True if this input is manadtory
+	 * @return xFormElement
+	 * @static
+	 */
+	function getFormNameInput($var_name,$value,$mandatory)
+	{
+		return new xFormElementTextField($var_name,'Name','',$value,$mandatory,new xInputValidatorText(32));
+	}
+	
+	/**
+	 * Return a form element for asking for Description input
+	 *
+	 * @param string $var_name The name of the form element
+	 * @param string $value
+	 * @param bool $mandatory True if this input is manadtory
+	 * @return xFormElement
+	 * @static
+	 */
+	function getFormDescriptionInput($var_name,$value,$mandatory)
+	{
+		return new xFormElementTextField($var_name,'Description','',$value,$mandatory,new xInputValidatorText(32));
 	}
 };
 

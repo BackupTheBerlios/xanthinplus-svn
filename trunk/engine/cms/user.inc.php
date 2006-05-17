@@ -252,6 +252,17 @@ class xUser
 	}
 	
 	/**
+	 * 
+	 * @return array(xRole)
+	 * @static
+	 */
+	function getRoles($uid)
+	{
+		return xUserDAO::getRoles($uid);
+	}
+	
+	
+	/**
 	 * Returns the userid of the current logged in user.
 	 *
 	 * @return int The userid of the current logged in user, 0 on errors.
@@ -266,6 +277,7 @@ class xUser
 		
 		return 0;
 	}
+
 	
 	/**
 	 * Returns the username of the current logged in user.
@@ -300,17 +312,26 @@ class xUser
 	 *
 	 * @param string $rolename
 	 * @return bool
-	 * @static
 	 */
 	function haveRole($rolename)
 	{
-		xUserDAO::haveRole($this->m_id,$rolename);
+		return xUserDAO::haveRole($this->m_id,$rolename);
 	}
 	
 	
 	/**
 	 * 
 	 *
+	 * @param string $rolename
+	 * @return bool
+	 */
+	function haveRoleByUid($uid,$rolename)
+	{
+		return xUserDAO::haveRole($uid,$rolename);
+	}
+	
+	/**
+	 * 
 	 * @param string $rolename
 	 * @return bool
 	 * @static
@@ -348,6 +369,7 @@ class xUser
 
 		return FALSE;
 	}
+	
 };
 
 

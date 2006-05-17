@@ -25,24 +25,42 @@ class xAccessPermission
 	 * @var string
 	 * @access public
 	 */
-	var $m_name;
+	var $m_resource;
 	
 	/**
 	 * @var int
 	 * @access public
 	 */
-	var $m_filterset;
+	var $m_resource_type_id;
+	
+	/**
+	 * @var string
+	 * @access public
+	 */
+	var $m_operation;
+	
+	/**
+	 * @var string
+	 * @access public
+	 */
+	var $m_role;
+	
+	/**
+	 * @var string
+	 * @access public
+	 */
+	var $m_description;
 	
 	/**
 	 * Contructor
-	 *
-	 * @param string $name
-	 * @param int $fitlerset
 	 */
-	function xAccessPermission($name,$filterset)
+	function xAccessPermission($resource,$resource_type_id,$operation,$role,$description)
 	{
-		$this->m_name = $name;
-		$this->m_filterset = $filterset;
+		$this->m_resource = $resource;
+		$this->m_resource_type_id = $resource_type_id;
+		$this->m_operation = $operation;
+		$this->m_role = $role;
+		$this->m_description = $description;
 	}
 	
 	
@@ -54,28 +72,64 @@ class xAccessPermission
 		xAccessPermissionDAO::insert($this);
 	}
 	
+	/**
+	 *
+	 */
+	function dbDelete()
+	{
+		xAccessPermissionDAO::delete($this->m_resource,$this->m_resource_type_id,$this->m_operation,$this->m_role);
+	}
+	
 	
 	/**
 	 *
-	 * @param string $name
 	 * @return bool
 	 * @static
 	 */
-	function checkPermission($name)
+	function checkPermission($resource,$resource_type_id,$operation,$role)
 	{
-		$permission = xAccessPermissionDAO::load($name);
-		if($permission === NULL)
+		$perm = xAccessPermissionDAO::load($resource,$resource_type_id,$operation,$role);
+		if($perm === NULL)
 		{
 			return FALSE;
 		}
 		
-		$set = xAccessFilterSet::dbLoad($permission->m_filterset);
-		if($set === NULL)
+		return TRUE;
+	}
+	
+	
+	/**
+	 *
+	 * @return bool
+	 * @static
+	 */
+	function checkCurrentUserPermission($resource,$resource_type_id,$operation)
+	{
+		$uid = xUser::getLoggedinUserid();
+		if($uid === 0)
 		{
-			return FALSE;
+			return xAccessPermission::checkPermission($resource,$resource_type_id,$operation,'anonymous');
+		}
+		else
+		{
+			//bypass if administrator
+			if(xUser::currentHaveRole('administrator'))
+			{
+				return TRUE;
+			}
+			
+			//check for authenticated role
+			$perm = xAccessPermission::checkPermission($resource,$resource_type_id,$operation,'authenticated');
+			if($perm)
+			{
+				return TRUE;
+			}
+			
+			//check for other roles
+			return xAccessPermission::checkUserPermission($resource,$resource_type_id,$operation,$uid);
 		}
 		
-		return $set->checkAccess();
+		return FALSE;
 	}
 	
 	

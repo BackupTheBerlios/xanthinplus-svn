@@ -22,6 +22,12 @@
 class xItemType
 {
 	/**
+	 * @var int
+	 * @access public
+	 */
+	var $m_id;
+	
+	/**
 	 * @var string
 	 * @access public
 	 */
@@ -58,20 +64,6 @@ class xItemType
 	var $m_default_sticky;
 	
 	/**
-	 * @var int
-	 * @access public
-	 */
-	var $m_default_weight;
-	
-	
-	/**
-	 * @var int
-	 * @access public
-	 */
-	var $m_accessfiltersetid;
-	
-	
-	/**
 	 * @var bool
 	 * @access public
 	 */
@@ -81,17 +73,16 @@ class xItemType
 	/**
 	 *
 	 */
-	function xItemType($name,$description,$default_content_filter,$default_approved,$default_published,$default_sticky,$default_weight,
-		$default_accept_replies,$accessfiltersetid)
+	function xItemType($id,$name,$description,$default_content_filter,$default_approved,$default_published,$default_sticky,
+		$default_accept_replies)
 	{
+		$this->m_id = $id;
 		$this->m_name = $name;
 		$this->m_description = $description;
 		$this->m_default_content_filter = $default_content_filter;
 		$this->m_default_approved = $default_approved;
 		$this->m_default_published = $default_published;
 		$this->m_default_sticky = $default_sticky;
-		$this->m_default_weight = $default_weight;
-		$this->m_accessfiltersetid = $accessfiltersetid;
 		$this->m_default_accept_replies = $default_accept_replies;
 	}
 	
@@ -101,7 +92,7 @@ class xItemType
 	 */
 	function dbInsert()
 	{
-		xItemTypeDAO::insert($this);
+		$this->m_id = xItemTypeDAO::insert($this);
 	}
 	
 	/** 
@@ -109,19 +100,19 @@ class xItemType
 	 */
 	function dbDelete()
 	{
-		xItemTypeDAO::delete($this->m_name);
+		xItemTypeDAO::delete($this->m_id);
 	}
 	
 	
 	/** 
-	 * Delete an item type from db using its name
+	 * Delete an item type from db using its id
 	 *
-	 * @param string $typename
+	 * @param int $typeid
 	 * @static
 	 */
-	function dbDeleteById($typename)
+	function dbDeleteById($typeid)
 	{
-		xItemTypeDAO::delete($typename);
+		xItemTypeDAO::delete($typeid);
 	}
 	
 	/**
@@ -138,9 +129,9 @@ class xItemType
 	 * @return xItemType
 	 * @static
 	 */
-	function dbLoad($name)
+	function dbLoad($id)
 	{
-		return xItemTypeDAO::load($name);
+		return xItemTypeDAO::load($id);
 	}
 	
 	/**
@@ -169,10 +160,10 @@ class xItemType
 		$options = array();
 		foreach($types as $type)
 		{
-			$options[$type->m_name] = $type->m_name;
+			$options[$type->m_name] = $type->m_id;
 		}
 		return new xFormElementOptions($var_name,'Select item type','',$value,$options,FALSE,$mandatory,
-			new xInputValidatorTextNameId(32));
+			new xInputValidatorInteger());
 	}
 };
 

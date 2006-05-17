@@ -34,10 +34,10 @@ class xItem extends xElement
 	var $m_title;
 	
 	/**
-	 * @var string
+	 * @var int
 	 * @access public
 	 */
-	var $m_type;
+	var $m_type_id;
 	
 	/**
 	 * @var string
@@ -82,13 +82,6 @@ class xItem extends xElement
 	 */
 	var $m_sticky;
 	
-	
-	/**
-	 * @var int
-	 * @access public
-	 */
-	var $m_weight;
-	
 	/**
 	 * @var string
 	 * @access public
@@ -117,14 +110,14 @@ class xItem extends xElement
 	/**
 	 *
 	 */
-	function xItem($id,$title,$type,$author,$content,$content_filter,
-		$published,$approved,$accept_replies,$sticky,$weight,$description,$keywords,$creation_time = NULL,$lastedit_time = NULL)
+	function xItem($id,$title,$type_id,$author,$content,$content_filter,
+		$published,$approved,$accept_replies,$sticky,$description,$keywords,$creation_time = NULL,$lastedit_time = NULL)
 	{
 		$this->xElement();
 		
 		$this->m_id = $id;
 		$this->m_title = $title;
-		$this->m_type = $type;
+		$this->m_type_id = $type_id;
 		$this->m_author = $author;
 		$this->m_content = $content;
 		$this->m_content_filter = $content_filter;
@@ -132,7 +125,6 @@ class xItem extends xElement
 		$this->m_approved = $approved;
 		$this->m_accept_replies = $accept_replies;
 		$this->m_sticky = $sticky;
-		$this->m_weight = $weight;
 		$this->m_description = $description;
 		$this->m_keywords = $keywords;
 		$this->m_creation_time = $creation_time;

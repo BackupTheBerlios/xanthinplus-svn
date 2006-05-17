@@ -40,12 +40,6 @@ class xMenuItem extends xElement
 	var $m_weight;
 	
 	/**
-	 * @var int
-	 * @access public
-	 */
-	var $m_accessfilterset;
-	
-	/**
 	 * @var array(xMenuItem)
 	 * @access public
 	 */
@@ -55,12 +49,11 @@ class xMenuItem extends xElement
 	 * Contructor
 	 *
 	 */
-	function xMenuItem($label,$link,$weight,$subitems = array(),$accessfilterset = NULL)
+	function xMenuItem($label,$link,$weight,$subitems = array())
 	{
 		$this->m_label = $label;
 		$this->m_link = $link;
 		$this->m_weight = $weight;
-		$this->m_accessfilterset = $accessfilterset;
 		$this->m_subitems = $subitems;
 	}
 	
@@ -68,10 +61,6 @@ class xMenuItem extends xElement
 	function render()
 	{
 		//here we will provide a check for access filter.
-		if(! xAccessFilterSet::checkAccessByFilterSetId($this->m_accessfilterset))
-		{
-			return NULL;
-		}
 		
 		return $this->onRender();
 	}

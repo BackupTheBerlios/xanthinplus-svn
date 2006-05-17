@@ -42,7 +42,7 @@ class xModuleBox extends xModule
 	 */
 	function _getContentAdminBox()
 	{
-		if(!xAccessPermission::checkPermission('manage box'))
+		if(!xAccessPermission::checkCurrentUserPermission('box',0,'admin'))
 		{
 			return new xContentNotAuthorized();
 		}

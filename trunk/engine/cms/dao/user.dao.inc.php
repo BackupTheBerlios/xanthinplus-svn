@@ -113,6 +113,27 @@ class xUserDAO
 		xDB::getDB()->query("INSERT INTO user_to_role(userid,roleName) VALUES (%d,'%s')",$userid,$rolename);
 	}
 	
+	
+	/**
+	 * Return all user's roles
+	 *
+	 * @return array(xRole)
+	 * @static
+	 */
+	function getRoles($userid)
+	{
+		$result = xDB::getDB()->query("SELECT role.name,role.description FROM role,user_to_role WHERE user_to_role.userid = %d 
+			AND role.name = user_to_role.roleName",$userid);
+		
+		$roles = array();
+		while($row = xDB::getDB()->fetchObject($result))
+		{
+			$roles[] = xRoleDAO::_roleFromRow($row);
+		}
+		
+		return $roles;
+	}
+	
 	/**
 	 * Remove a user from a role. Based on user id and role name.
 	 *
