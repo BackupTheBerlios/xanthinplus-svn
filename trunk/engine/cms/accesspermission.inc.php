@@ -46,21 +46,14 @@ class xAccessPermission
 	var $m_role;
 	
 	/**
-	 * @var string
-	 * @access public
-	 */
-	var $m_description;
-	
-	/**
 	 * Contructor
 	 */
-	function xAccessPermission($resource,$resource_type_id,$operation,$role,$description)
+	function xAccessPermission($resource,$resource_type_id,$operation,$role)
 	{
 		$this->m_resource = $resource;
 		$this->m_resource_type_id = $resource_type_id;
 		$this->m_operation = $operation;
 		$this->m_role = $role;
-		$this->m_description = $description;
 	}
 	
 	
@@ -80,6 +73,15 @@ class xAccessPermission
 		xAccessPermissionDAO::delete($this->m_resource,$this->m_resource_type_id,$this->m_operation,$this->m_role);
 	}
 	
+		
+	/**
+	 *
+	 * @return bool
+	 */
+	function checkPermissionForRole($role)
+	{
+		return checkPermission($this->m_resource,$this->m_resource_type_id,$this->m_operation,$role);
+	}
 	
 	/**
 	 *
@@ -144,5 +146,47 @@ class xAccessPermission
 		return xAccessPermissionDAO::findAll();
 	}
 }
+
+
+
+/**
+ * Represent a description of an access permission
+ */
+class xPermissionDescriptor()
+{
+	/**
+	 * @var string
+	 * @access public
+	 */
+	var $m_resource;
+	
+	/**
+	 * @var int
+	 * @access public
+	 */
+	var $m_resource_type_id;
+	
+	/**
+	 * @var string
+	 * @access public
+	 */
+	var $m_operation;
+	
+	/**
+	 * @var string
+	 * @access public
+	 */
+	var $m_description;
+	
+	
+	function xPermissionDescriptor($resource,$resource_type_id,$operation,$description)
+	{
+		$this->m_resource = $resource;
+		$this->m_resource_type_id = $resource_type_id;
+		$this->m_operation = $operation;
+		$this->m_description = $description;
+	}
+}
+
 
 ?>

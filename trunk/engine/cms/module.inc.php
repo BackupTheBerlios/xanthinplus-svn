@@ -360,6 +360,16 @@ class xDummyModule extends xModule
 	}
 	
 	/**
+	* Returns a single permission descriptor or array of permission descriptor that corresponds to
+	* all access permissions that a module uses.
+	*
+	* @return xAccessPermissionDescriptor
+	*/
+	function getPermissionDescriptors()
+	{
+	}
+	
+	/**
 	* Called when the page creation occur. Use this method to do all the stuff befor a the page is created.
 	*
 	* @param xXanthPath $path

@@ -26,7 +26,27 @@ class xModuleItem extends xModule
 		$this->xModule();
 	}
 	
-	// DOCS INHERITHED  ========================================================
+	/**
+	 * @see xDummyModule::getPermissionDescriptors()
+	 */ 
+	function getPermissionDescriptors()
+	{
+		$descr = array(new xAccessPermissionDescriptor('item',0,'create','Create item of any type'));
+		
+		$itemtypes = xItemType::fildAll();
+		foreach($itemtypes as $itemtype)
+		{
+			$descr[] = new xAccessPermissionDescriptor('item',$itemtype->m_id,'create',
+				'Create item of type "'. $itemtype->m_name .'"');
+		}
+		
+		return $descr;
+	}
+	
+	
+	/**
+	 * @see xDummyModule::getContent()
+	 */ 
 	function getContent($path)
 	{
 		switch($path->m_base_path)
@@ -34,9 +54,9 @@ class xModuleItem extends xModule
 			case 'admin/item':
 				return $this->_getContentAdminItem();
 			case 'item/create':
-				return $this->_getContentAdminItemCreate();
+				return $this->_getContentAdminItemCreate($path);
 			case 'item/view':
-				return $this->_getContentViewItem($path->m_resource_id);
+				return $this->_getContentViewItem($path);
 			case 'admin/itemtype':
 				return $this->_getContentAdminItemType();
 		}
@@ -47,17 +67,40 @@ class xModuleItem extends xModule
 	/**
 	 * @access private
 	 */
-	function _getContentAdminItemCreate()
+	function _getContentAdminItemCreate($path)
 	{
-		if(!xAccessPermission::checkCurrentUserPermission('item',0,'create'))
+		//check for type permission
+		$type = 0;
+		if(isset($path->m_vars['type']))
+		{
+			$type = $path->m_vars['type'];
+		}
+		if(!xAccessPermission::checkCurrentUserPermission('item',$type,'create'))
+		{
+				return new xContentNotAuthorized();
+		}
+	
+		//check for cathegory permission
+		$cat = 0;
+		if(isset($path->m_vars['cathegory']))
+		{
+			$cat = $path->m_vars['cathegory'];
+		}
+		if(!xAccessPermission::checkCurrentUserPermission('cathegory',$cat,'insert'))
 		{
 			return new xContentNotAuthorized();
 		}
+
 		
 		//create form
-		$form = new xForm('?p=item/create');
-		//item type
-		$form->m_elements[] = xItemType::getFormTypeChooser('type','',true);
+		$form = new xForm('?p=' . $path->m_full_path);
+		
+		if($type === 0)
+		{
+			//item type
+			$form->m_elements[] = xItemType::getFormTypeChooser('type','',true);
+		}
+		
 		//item title
 		$form->m_elements[] = xItem::getFormTitleInput('title','',true);
 		//item body
@@ -91,7 +134,12 @@ class xModuleItem extends xModule
 		{
 			if(empty($ret->m_errors))
 			{
-				$item = new xItem(0,$ret->m_valid_data['title'],$ret->m_valid_data['type'],'autore',
+				if($type === 0)
+				{
+					$type = $ret->m_valid_data['type'];
+				}
+				
+				$item = new xItem(0,$ret->m_valid_data['title'],$type,'autore',
 					$ret->m_valid_data['body'],$ret->m_valid_data['filter'],$ret->m_valid_data['published'],
 					$ret->m_valid_data['approved'],$ret->m_valid_data['accept_replies'],$ret->m_valid_data['sticky'],
 					0,$ret->m_valid_data['description'],$ret->m_valid_data['keywords']);
@@ -130,7 +178,7 @@ class xModuleItem extends xModule
 		foreach($items as $item)
 		{
 			$output .= '<tr><td>' . $item->m_id . '</td><td>' . $item->m_title . '</td>'
-			. '<td>Edit <a href="?p=item/view//' . $item->m_id . '">View</a></td></tr>';
+			. '<td>Edit <a href="?p=item/view//id[' . $item->m_id . ']">View</a></td></tr>';
 		}
 		$output .= "</table>\n";
 		
@@ -141,9 +189,14 @@ class xModuleItem extends xModule
 	/**
 	 * @access private
 	 */
-	function _getContentViewItem($resource_id)
+	function _getContentViewItem($path)
 	{
-		$item = xItem::dbLoad($resource_id);
+		if(!isset($path->m_vars['id']))
+		{
+			return new xContentNotFound();
+		}
+		
+		$item = xItem::dbLoad($path->m_vars['id']);
 		
 		//here we will provide a check for access filter.
 		if(!xAccessPermission::checkCurrentUserPermission('item',$item->m_type_id,'create'))

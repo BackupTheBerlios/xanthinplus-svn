@@ -145,7 +145,6 @@ class xInstallCMS
 			resource_type_id INT UNSIGNED NOT NULL,
 			operation VARCHAR(32) NOT NULL,
 			role VARCHAR(32) NOT NULL,
-			description VARCHAR(128) NOT NULL,
 			PRIMARY KEY(resource,resource_type_id,operation,role),
 			FOREIGN KEY (role) REFERENCES role(name) ON DELETE CASCADE
 			)TYPE=InnoDB"

@@ -22,12 +22,16 @@
 class xXanthPath
 {
 	var $m_base_path;
-	var $m_resource_id;
+	var $m_vars;
+	var $m_full_path;
 	
-	function xXanthPath($base_path = NULL,$resource_id = NULL)
+	
+	function xXanthPath()
 	{
-		$this->m_resource_id = $resource_id;
-		$this->m_base_path = $base_path;
+		$this->m_base_path = NULL;
+		$this->m_vars = array();
+		$this->m_full_path = NULL;
+	
 	}
 	
 	/**
@@ -78,18 +82,25 @@ class xXanthPath
 	*/
 	function _parse($path) 
 	{
-	    if (!preg_match('#^(([A-Z_]+)?(/[A-Z_]+)*)(//([A-Z0-9_-]+))?$#i', $path,$pieces))
+	    if(!preg_match('#^(([A-Z_]+)?(/[A-Z_]+)*)((//[A-Z0-9_-]+\[[A-Z0-9_-]*\])*)$#i', $path,$pieces))
 		{
-			var_dump($pieces);
 	        return NULL;
 	    }
 		else 
 		{
 			$path = new xXanthPath();
+			$path->m_full_path = $pieces[0];
 			$path->m_base_path = $pieces[1];
-			if(isSet($pieces[5]))
+			
+			if(isSet($pieces[4]))
 			{
-				$path->m_resource_id = $pieces[5];
+				if(preg_match_all('#//([A-Z0-9_-]+)\[([A-Z0-9_-]*)\]*#i',$pieces[4],$pieces))
+				{
+					for($i = 0;$i < count($pieces[1]);$i++)
+					{
+						$path->m_vars[$pieces[1][$i]] = $pieces[2][$i];
+					}
+				}
 			}
 			
 			return $path;
