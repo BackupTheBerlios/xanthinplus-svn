@@ -22,12 +22,6 @@
 class xItemType
 {
 	/**
-	 * @var int
-	 * @access public
-	 */
-	var $m_id;
-	
-	/**
 	 * @var string
 	 * @access public
 	 */
@@ -39,51 +33,14 @@ class xItemType
 	 */
 	var $m_description;
 	
-	/**
-	 * @var string
-	 * @access public
-	 */
-	var $m_default_content_filter;
-	
-	/**
-	 * @var bool
-	 * @access public
-	 */
-	var $m_default_approved;
-	
-	/**
-	 * @var bool
-	 * @access public
-	 */
-	var $m_default_published;
-	
-	/**
-	 * @var bool
-	 * @access public
-	 */
-	var $m_default_sticky;
-	
-	/**
-	 * @var bool
-	 * @access public
-	 */
-	var $m_default_accept_replies;
-	
-	
+
 	/**
 	 *
 	 */
-	function xItemType($id,$name,$description,$default_content_filter,$default_approved,$default_published,$default_sticky,
-		$default_accept_replies)
+	function xItemType($name,$description)
 	{
-		$this->m_id = $id;
 		$this->m_name = $name;
 		$this->m_description = $description;
-		$this->m_default_content_filter = $default_content_filter;
-		$this->m_default_approved = $default_approved;
-		$this->m_default_published = $default_published;
-		$this->m_default_sticky = $default_sticky;
-		$this->m_default_accept_replies = $default_accept_replies;
 	}
 	
 	
@@ -100,19 +57,19 @@ class xItemType
 	 */
 	function dbDelete()
 	{
-		xItemTypeDAO::delete($this->m_id);
+		xItemTypeDAO::delete($this->m_name);
 	}
 	
 	
 	/** 
-	 * Delete an item type from db using its id
+	 * Delete an item type from db using its name
 	 *
-	 * @param int $typeid
+	 * @param int $typename
 	 * @static
 	 */
-	function dbDeleteById($typeid)
+	function dbDeleteById($typename)
 	{
-		xItemTypeDAO::delete($typeid);
+		xItemTypeDAO::delete($typename);
 	}
 	
 	/**
@@ -129,9 +86,9 @@ class xItemType
 	 * @return xItemType
 	 * @static
 	 */
-	function dbLoad($id)
+	function dbLoad($typename)
 	{
-		return xItemTypeDAO::load($id);
+		return xItemTypeDAO::load($typename);
 	}
 	
 	/**
@@ -160,7 +117,7 @@ class xItemType
 		$options = array();
 		foreach($types as $type)
 		{
-			$options[$type->m_name] = $type->m_id;
+			$options[$type->m_name] = $type->m_name;
 		}
 		return new xFormElementOptions($var_name,'Select item type','',$value,$options,FALSE,$mandatory,
 			new xInputValidatorInteger());

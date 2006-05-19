@@ -34,10 +34,10 @@ class xItem extends xElement
 	var $m_title;
 	
 	/**
-	 * @var int
+	 * @var string
 	 * @access public
 	 */
-	var $m_type_id;
+	var $m_type;
 	
 	/**
 	 * @var string
@@ -58,43 +58,6 @@ class xItem extends xElement
 	var $m_content_filter;
 	
 	/**
-	 * @var bool
-	 * @access public
-	 */
-	var $m_published;
-	
-	/**
-	 * @var bool
-	 * @access public
-	 */
-	var $m_approved;
-	
-	/**
-	 * @var bool
-	 * @access public
-	 */
-	var $m_accept_replies;
-	
-	
-	/**
-	 * @var bool
-	 * @access public
-	 */
-	var $m_sticky;
-	
-	/**
-	 * @var string
-	 * @access public
-	 */
-	var $m_description;
-			
-	/**
-	 * @var string
-	 * @access public
-	 */
-	var $m_keywords;
-	
-	/**
 	 * @var timestamp
 	 * @access public
 	 */
@@ -110,8 +73,7 @@ class xItem extends xElement
 	/**
 	 *
 	 */
-	function xItem($id,$title,$type_id,$author,$content,$content_filter,
-		$published,$approved,$accept_replies,$sticky,$description,$keywords,$creation_time = NULL,$lastedit_time = NULL)
+	function xItem($id,$title,$type,$author,$content,$content_filter,$creation_time = NULL,$lastedit_time = NULL)
 	{
 		$this->xElement();
 		
@@ -121,36 +83,8 @@ class xItem extends xElement
 		$this->m_author = $author;
 		$this->m_content = $content;
 		$this->m_content_filter = $content_filter;
-		$this->m_published = $published;
-		$this->m_approved = $approved;
-		$this->m_accept_replies = $accept_replies;
-		$this->m_sticky = $sticky;
-		$this->m_description = $description;
-		$this->m_keywords = $keywords;
 		$this->m_creation_time = $creation_time;
 		$this->m_lastedit_time = $lastedit_time;
-	}
-	
-	// DOCS INHERITHED  ========================================================
-	function onRender()
-	{
-		return xTheme::render3('renderItem',$this->m_type,$this->m_title,$this->m_content);
-	}
-	
-	/** 
-	 * Inserts this into db
-	 */
-	function dbInsert()
-	{
-		xItemDAO::insert($this);
-	}
-	
-	/** 
-	 * Delete this from db
-	 */
-	function dbDelete()
-	{
-		xItemDAO::delete($this->m_id);
 	}
 	
 	
@@ -166,26 +100,71 @@ class xItem extends xElement
 	}
 	
 	/**
-	 * Update this in db
+	 * Convert a simple xItem into a specific xItem child object that correspond to the item type 
+	 * and ready to be rendered. Works also with array of items.
+	 *
+	 * @return xItem (or array(xItem)) A specific xItem child object corresponding to the specified type or NULL if not found.
+	 * @todo add the ask to modules
+	 * @static
 	 */
-	function dbUpdate()
+	function toSpecificItem($item)
 	{
-		xItemDAO::update($this);
+		$newitem = NULL;
+		
+		if(! is_array($item))
+		{
+			//check for built-in box type
+			if($item->m_type == "page")
+			{
+				$newitem = xItemPage::toSpecificItem($item);
+			}
+			else
+			{
+				//todo
+			}
+		}
+		else
+		{
+			$newitem = array();
+			foreach($item as $a_item)
+			{
+				$tmp = xItem::toSpecificItem($a_item);
+				
+				if(empty($tmp))
+				{
+					xLog::log(LOG_LEVEL_WARNING,'Cannot convert a generic item to a specific one (type: '.$a_item->m_type .')' );
+				}
+				else
+				{
+					$newitem[] = $tmp;
+				}
+			}
+		}
+		
+		return $newitem;
 	}
 	
+	
 	/**
-	 * Retrieve a specific item from db
+	 * Retrieve a specific item from db.(already converted in specific item)
 	 *
 	 * @return xItem
 	 * @static
 	 */
 	function dbLoad($id)
 	{
-		return xItemDAO::load($id);
+		$item = xItemDAO::load($id);
+		
+		if($item === NULL)
+		{
+			return NULL;
+		}
+		
+		return xItem::toSpecificItem($item);
 	}
 	
 	/**
-	 * Retrieves all replies associated with an item.
+	 * Retrieves all replies associated with an item.(already converted in specific items)
 	 *
 	 * @param int $parentid
 	 * @param int $nelementpage Number of elements per page
@@ -195,31 +174,27 @@ class xItem extends xElement
 	 */
 	function findReplies($parentid,$nelementpage = 0,$npage = 0)
 	{
-		return xItemDAO::findReplies($parentid,$nelementpage,$npage);
+		return xItem::toSpecificItem(xItemDAO::findReplies($parentid,$nelementpage,$npage));
 	}
 	
 	
 	/**
-	 * Retrieves all items.
+	 * Retrieves all items (already converted in specific items).
 	 *
 	 * @param string $type Exact search
 	 * @param string $title Like search
 	 * @param string $author Exact search
 	 * @param string $content Like search
-	 * @param bool $published
-	 * @param bool $approved
 	 * @param int $cathegory Exact search on category id
 	 * @param int $nelementpage Number of elements per page
 	 * @param int $npage Number of page (starting from 1).
 	 * @return array(xItem)
 	 * @static
 	 */
-	function find($type = NULL,$title = NULL,$author = NULL,$content = NULL,$published = NULL,$approved = NULL,
-		$cathegory = NULL,$nelementpage = 0,$npage = 0)
+	function find($type = NULL,$title = NULL,$author = NULL,$content = NULL,$cathegory = NULL,$nelementpage = 0,$npage = 0)
 	{
-		return xItemDAO::find($type,$title,$author,$content,$published,$approved,$cathegory,$nelementpage,$npage);
+		return xItem::toSpecificItem(xItemDAO::find($type,$title,$author,$content,$cathegory,$nelementpage,$npage))
 	}
-	
 	
 	
 	/**
@@ -249,89 +224,6 @@ class xItem extends xElement
 	function getFormBodyInput($var_name,$value,$mandatory)
 	{
 		return new xFormElementTextArea($var_name,'Body','',$value,$mandatory,new xInputValidatorText(0));
-	}
-	
-	
-	/**
-	 * Return a form element for asking for published input
-	 *
-	 * @param string $var_name The name of the form element
-	 * @param bool $checked
-	 * @return xFormElement
-	 * @static
-	 */
-	function getFormPublishedCheck($var_name,$checked)
-	{
-		return new xFormElementCheckbox($var_name,'Published','',1,$checked,FALSE,new xInputValidatorInteger());
-	}
-	
-	/**
-	 * Return a form element for asking for approved check
-	 *
-	 * @param string $var_name The name of the form element
-	 * @param bool $checked
-	 * @return xFormElement
-	 * @static
-	 */
-	function getFormApprovedCheck($var_name,$checked)
-	{
-		return new xFormElementCheckbox($var_name,'Approved','',1,$checked,FALSE,new xInputValidatorInteger());
-	}
-	
-	
-	/**
-	 * Return a form element for asking for accept replies check
-	 *
-	 * @param string $var_name The name of the form element
-	 * @param bool $checked
-	 * @return xFormElement
-	 * @static
-	 */
-	function getFormAcceptRepliesCheck($var_name,$checked)
-	{
-		return new xFormElementCheckbox($var_name,'Accept Replies','',1,$checked,FALSE,new xInputValidatorInteger());
-	}
-	
-	
-	/**
-	 * Return a form element for asking for sticky input
-	 *
-	 * @param string $var_name The name of the form element
-	 * @param bool $checked
-	 * @return xFormElement
-	 * @static
-	 */
-	function getFormStickyCheck($var_name,$checked)
-	{
-		return new xFormElementCheckbox($var_name,'Sticky','',1,$checked,FALSE,new xInputValidatorInteger());
-	}
-	
-	/**
-	 * Return a form element for asking for description input
-	 *
-	 * @param string $var_name The name of the form element
-	 * @param string $value
-	 * @param bool $mandatory True if this input is manadtory
-	 * @return xFormElement
-	 * @static
-	 */
-	function getFormDescriptionInput($var_name,$value,$mandatory)
-	{
-		return new xFormElementTextField($var_name,'Description','',$value,$mandatory,new xInputValidatorText(512));
-	}
-	
-	/**
-	 * Return a form element for asking for keywords input
-	 *
-	 * @param string $var_name The name of the form element
-	 * @param string $value
-	 * @param bool $mandatory True if this input is manadtory
-	 * @return xFormElement
-	 * @static
-	 */
-	function getFormKeywordsInput($var_name,$value,$mandatory)
-	{
-		return new xFormElementTextField($var_name,'Keywords','',$value,$mandatory,new xInputValidatorText(128));
 	}
 };
 

@@ -16,29 +16,35 @@
 */
 
 
-class xItemDAO
+class xItemPageDAO
 {
-	function xItemDAO()
+	function xItemPageDAO()
 	{
 		//non instaltiable
 		assert(FALSE);
 	}
 	
 	/**
-	 * Insert a new item
+	 * Insert a new item page
 	 *
-	 * @param xItem $item
+	 * @param xItemPage $item
 	 * @return int The new id
 	 * @static
 	 */
 	function insert($item)
 	{
-		$id = xUniqueId::generate('item');
+		xDB::getDB()->startTransaction();
 		
-		xDB::getDB()->query("INSERT INTO item(id,title,type,author,content,content_filter,creation_time) 
-			VALUES (%d,'%s','%s','%s','%s','%s',NOW())",
-			$id,$item->m_title,$item->m_type,$item->m_author,$item->m_content,$item->m_content_filter);
+		$id = xItemDAO::insert($item);
+		
+		xDB::getDB()->query("INSERT INTO item_page(itemid,subtype,published,sticky,accept_replies,published,approved,
+			meta_description,meta_keywords) VALUES (%d,'%s',%d,%d,%d,%d,%d,'%s','%s'",
+			$id,$item->m_subtype,$item->m_published,$item->m_sticky,$item->m_accept_replies,$item->m_published,
+			$item->m_approved,$item->m_meta_description,$item->m_meta_keywords);
 			
+		
+		xDB::getDB()->commit();
+		
 		return $id;
 	}
 	
@@ -50,53 +56,74 @@ class xItemDAO
 	 */
 	function delete($itemid)
 	{
-		xDB::getDB()->startTransaction();
-		
-		xDB::getDB()->query("DELETE FROM item WHERE id = %d",$itemid);
-		xDB::getDB()->query("DELETE FROM item_replies WHERE parentid = %d",$itemid);
-		
-		xDB::getDB()->commit();
+		xItemDAO::delete($itemid);
 	}
 	
 	/**
 	 * Updates an item.
 	 *
 	 * 
-	 * @param xItem $item
+	 * @param xItemPage $item
 	 * @static
 	 */
 	function update($item)
 	{
-		xDB::getDB()->query("UPDATE item SET title = '%s',content = '%s',content_filter = '%s',lastedittime = NOW()",
-			$item->m_title,$item->m_content,$item->m_content_filter);
+		xDB::getDB()->startTransaction();
+		
+		xItemDAO::update($item);
+		
+		xDB::getDB()->query("UPDATE item_page SET published = %d,sticky = %d,accept_replies = %d,published = %d,
+			approved = %d,meta_description = '%s',meta_keywords = '%s' WHERE itemid = %d",
+			$item->m_published,$item->m_sticky,$item->m_accept_replies,$item->m_published,
+			$item->m_approved,$item->m_meta_description,$item->m_meta_keywords,$item->m_id);
+			
+		xDB::getDB()->commit();
 	}
 	
 	
 	/**
 	 *
-	 * @return xItem
+	 * @return xItemPage
 	 * @static
 	 * @access private
 	 */
-	function _itemFromRow($row_object)
+	function _itempageFromRow($row_object)
 	{
 		return new xItem($row_object->id,$row_object->title,$row_object->type,$row_object->author,
-			$row_object->content,$row_object->content_filter,
-			$row_object->creation_time,$row_object->lastedit_time);
+			$row_object->content,$row_object->content_filter,$row_object->creation_time,$row_object->lastedit_time,
+			$row_object->subtype,$row_object->published,$row_object->sticky,$row_object->accept_replies,
+			$row_object->published,$row_object->approved,$row_object->meta_description,$row_object->meta_keywords);
 	}
 	
 	/**
-	 * Retrieve a specific item
 	 *
-	 * @return xItem
+	 */
+	function toSpecificItem($item)
+	{
+		$result = xDB::getDB()->query("SELECT * FROM item_page WHERE itemid = %d",$item->m_id);
+		if($row = xDB::getDB()->fetchObject($result))
+		{
+			return new xItem($item->m_id,$item->m_title,$item->m_type,$item->m_author,
+				$item->m_content,$item->m_ontent_filter,$item->m_creation_time,$item->m_lastedit_time,
+				$row->subtype,$row->published,$row->sticky,$row->accept_replies,
+				$row->published,$row->approved,$row->meta_description,$row->meta_keywords);
+		}
+		
+		return NULL;
+	}
+	
+	/**
+	 * Retrieve a specific item page
+	 *
+	 * @return xItemPage
 	 * @static
 	 */
 	function load($id)
 	{
-		$result = xDB::getDB()->query("SELECT * FROM item WHERE id = %d",$id);
+		$result = xDB::getDB()->query("SELECT * FROM item,item_page WHERE item.id = %d AND item_page.itemid = item.id",$id);
 		if($row = xDB::getDB()->fetchObject($result))
 		{
-			return xItemDAO::_itemFromRow($row);
+			return xItemPageDAO::_itempageFromRow($row);
 		}
 		
 		return NULL;

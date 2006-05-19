@@ -56,6 +56,15 @@ class xInstallCMS
 			PRIMARY KEY  (session_id)
 			)TYPE=InnoDB"
 		);
+		
+		//uniqueid
+		xDB::getDB()->query("
+			CREATE TABLE uniqueid (
+			tablename VARCHAR(32) NOT NULL,
+			currentid INT UNSIEGNED NOT NULL,
+			PRIMARY KEY  (tablename)
+			)TYPE=InnoDB"
+		);
 
 		
 		//Roles
@@ -142,10 +151,10 @@ class xInstallCMS
 		xDB::getDB()->query("
 			CREATE TABLE access_permission (
 			resource VARCHAR(64) NOT NULL,
-			resource_type_id INT UNSIGNED NOT NULL,
+			resource_type VARCHAR(64) NOT NULL,
 			operation VARCHAR(32) NOT NULL,
 			role VARCHAR(32) NOT NULL,
-			PRIMARY KEY(resource,resource_type_id,operation,role),
+			PRIMARY KEY(resource,resource_type,operation,role),
 			FOREIGN KEY (role) REFERENCES role(name) ON DELETE CASCADE
 			)TYPE=InnoDB"
 		);
@@ -196,32 +205,37 @@ class xInstallCMS
 		//item type
 		xDB::getDB()->query("
 			CREATE TABLE item_type (
-			id INT UNSIGNED AUTO_INCREMENT NOT NULL,
 			name VARCHAR(32) NOT NULL,
 			description VARCHAR(256) NOT NULL,
-			default_content_filter VARCHAR(64) NOT NULL,
-			default_approved TINYINT NOT NULL,
-			default_published TINYINT NOT NULL,
-			default_sticky TINYINT NOT NULL,
-			default_accept_replies TINYINT NOT NULL,
-			PRIMARY KEY (id),
-			UNIQUE (name)
+			PRIMARY KEY (name)
+			)TYPE=InnoDB"
+		);
+		
+		
+		//cathegory type
+		xDB::getDB()->query("
+			CREATE TABLE cathegory_type (
+			name VARCHAR(32) NOT NULL,
+			description VARCHAR(256) NOT NULL,
+			PRIMARY KEY (name)
 			)TYPE=InnoDB"
 		);
 		
 		
 		//item cathegory
 		xDB::getDB()->query("
-			CREATE TABLE item_cathegory (
-			id INT UNSIGNED AUTO_INCREMENT NOT NULL,
+			CREATE TABLE cathegory (
+			id INT UNSIGNED NOT NULL,
 			name VARCHAR(32) NOT NULL,
+			type VARCHAR(32) NOT NULL,
 			description TEXT NOT NULL,
 			parent_cathegory INT UNSIGNED,
-			items_type INT UNSIGNED,
+			items_type VARCHAR(32),
 			PRIMARY KEY (id),
 			UNIQUE(name),
 			FOREIGN KEY (parent_cathegory) REFERENCES item_cathegory(id) ON DELETE CASCADE,
-			FOREIGN KEY (items_type) REFERENCES item_type(id) ON DELETE SET NULL
+			FOREIGN KEY (items_type) REFERENCES item_type(name) ON DELETE SET NULL,
+			FOREIGN KEY (type) REFERENCES cathegory_type(name) ON DELETE RESTRICT
 			)TYPE=InnoDB"
 		);
 		
@@ -229,22 +243,47 @@ class xInstallCMS
 		//item
 		xDB::getDB()->query("
 			CREATE TABLE item (
-			id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+			id INT UNSIGNED NOT NULL,
 			title VARCHAR(256) NOT NULL,
-			type_id INT UNSIGNED NOT NULL,
+			type VARCHAR(32) NOT NULL,
 			author VARCHAR(64) NOT NULL,
 			content TEXT NOT NULL,
 			content_filter VARCHAR(64) NOT NULL,
-			published TINYINT NOT NULL,
-			approved TINYINT NOT NULL,
-			accept_replies TINYINT NOT NULL,
-			sticky TINYINT NOT NULL,
-			description VARCHAR(512) NOT NULL,
-			keywords VARCHAR(128) NOT NULL,
 			creation_time DATETIME NOT NULL,
 			lastedit_time DATETIME,
 			PRIMARY KEY (id),
-			FOREIGN KEY (type_id) REFERENCES item_type(id) ON DELETE RESTRICT
+			FOREIGN KEY (type) REFERENCES item_type(name) ON DELETE RESTRICT
+			)TYPE=InnoDB"
+		);
+		
+		
+		xDB::getDB()->query("
+			CREATE TABLE item_page_subtype (
+			name VARCHAR(32) NOT NULL
+			description VARCHAR(256) NOT NULL,
+			allowed_content_filters VARCHAR(64) NOT NULL,
+			default_published TINYINT NOT NULL,
+			default_sticky TINYINT NOT NULL,
+			default_accept_replies TINYINT NOT NULL,
+			default_approved TINYINT NOT NULL,
+			PRIMARY KEY (name)
+			)TYPE=InnoDB"
+		);
+		
+		//pageitem
+		xDB::getDB()->query("
+			CREATE TABLE item_page (
+			itemid INT UNSIGNED NOT NULL,
+			subtype VARCHAR(32) NOT NULL,
+			published TINYINT NOT NULL,
+			sticky TINYINT NOT NULL,
+			accept_replies TINYINT NOT NULL,
+			approved TINYINT NOT NULL,
+			meta_description VARCHAR(128) NOT NULL,
+			meta_keywords VARCHAR(128) NOT NULL,
+			UNIQUE(itemid),
+			FOREIGN KEY (itemid) REFERENCES item(id) ON DELETE CASCADE,
+			FOREIGN KEY (subtype) REFERENCES item_page_subtype(name) ON DELETE RESTRICT
 			)TYPE=InnoDB"
 		);
 		
@@ -314,6 +353,7 @@ class xInstallCMS
 		$menu->m_items[] = $menuitem;
 		
 		$menu->dbInsert();
+		
 		
 		$item_type = new xItemType(-1,'article','A generic article','html',true,true,false,true);
 		$item_type->dbInsert();

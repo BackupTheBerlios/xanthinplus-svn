@@ -28,10 +28,10 @@ class xAccessPermission
 	var $m_resource;
 	
 	/**
-	 * @var int
+	 * @var mixed
 	 * @access public
 	 */
-	var $m_resource_type_id;
+	var $m_resource_type;
 	
 	/**
 	 * @var string
@@ -48,10 +48,10 @@ class xAccessPermission
 	/**
 	 * Contructor
 	 */
-	function xAccessPermission($resource,$resource_type_id,$operation,$role)
+	function xAccessPermission($resource,$resource_type,$operation,$role)
 	{
 		$this->m_resource = $resource;
-		$this->m_resource_type_id = $resource_type_id;
+		$this->m_resource_type = $resource_type;
 		$this->m_operation = $operation;
 		$this->m_role = $role;
 	}
@@ -70,7 +70,7 @@ class xAccessPermission
 	 */
 	function dbDelete()
 	{
-		xAccessPermissionDAO::delete($this->m_resource,$this->m_resource_type_id,$this->m_operation,$this->m_role);
+		xAccessPermissionDAO::delete($this->m_resource,$this->m_resource_type,$this->m_operation,$this->m_role);
 	}
 	
 		
@@ -80,7 +80,7 @@ class xAccessPermission
 	 */
 	function checkPermissionForRole($role)
 	{
-		return checkPermission($this->m_resource,$this->m_resource_type_id,$this->m_operation,$role);
+		return checkPermission($this->m_resource,$this->m_resource_type,$this->m_operation,$role);
 	}
 	
 	/**
@@ -88,9 +88,9 @@ class xAccessPermission
 	 * @return bool
 	 * @static
 	 */
-	function checkPermission($resource,$resource_type_id,$operation,$role)
+	function checkPermission($resource,$resource_type,$operation,$role)
 	{
-		$perm = xAccessPermissionDAO::load($resource,$resource_type_id,$operation,$role);
+		$perm = xAccessPermissionDAO::load($resource,$resource_type,$operation,$role);
 		if($perm === NULL)
 		{
 			return FALSE;
@@ -105,12 +105,12 @@ class xAccessPermission
 	 * @return bool
 	 * @static
 	 */
-	function checkCurrentUserPermission($resource,$resource_type_id,$operation)
+	function checkCurrentUserPermission($resource,$resource_type,$operation)
 	{
 		$uid = xUser::getLoggedinUserid();
 		if($uid === 0)
 		{
-			return xAccessPermission::checkPermission($resource,$resource_type_id,$operation,'anonymous');
+			return xAccessPermission::checkPermission($resource,$resource_type,$operation,'anonymous');
 		}
 		else
 		{
@@ -121,14 +121,14 @@ class xAccessPermission
 			}
 			
 			//check for authenticated role
-			$perm = xAccessPermission::checkPermission($resource,$resource_type_id,$operation,'authenticated');
+			$perm = xAccessPermission::checkPermission($resource,$resource_type,$operation,'authenticated');
 			if($perm)
 			{
 				return TRUE;
 			}
 			
 			//check for other roles
-			return xAccessPermission::checkUserPermission($resource,$resource_type_id,$operation,$uid);
+			return xAccessPermission::checkUserPermission($resource,$resource_type,$operation,$uid);
 		}
 		
 		return FALSE;
@@ -152,7 +152,7 @@ class xAccessPermission
 /**
  * Represent a description of an access permission
  */
-class xPermissionDescriptor()
+class xPermissionDescriptor
 {
 	/**
 	 * @var string
@@ -161,10 +161,10 @@ class xPermissionDescriptor()
 	var $m_resource;
 	
 	/**
-	 * @var int
+	 * @var mixed
 	 * @access public
 	 */
-	var $m_resource_type_id;
+	var $m_resource_type;
 	
 	/**
 	 * @var string
@@ -179,10 +179,10 @@ class xPermissionDescriptor()
 	var $m_description;
 	
 	
-	function xPermissionDescriptor($resource,$resource_type_id,$operation,$description)
+	function xPermissionDescriptor($resource,$resource_type,$operation,$description)
 	{
 		$this->m_resource = $resource;
-		$this->m_resource_type_id = $resource_type_id;
+		$this->m_resource_type = $resource_type;
 		$this->m_operation = $operation;
 		$this->m_description = $description;
 	}
