@@ -243,7 +243,7 @@ class xUser
 			return TRUE;
 		}
 		
-		if(xUser::checkPersistentLogin() != NULL)
+		if(xUser::checkPersistentLogin() !== NULL)
 		{
 			return TRUE;
 		}

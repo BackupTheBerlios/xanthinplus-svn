@@ -16,30 +16,24 @@
 */
 
 
-class xItemDAO
+class xItemCommentDAO
 {
-	function xItemDAO()
+	function xItemCommentDAO()
 	{
 		//non instaltiable
 		assert(FALSE);
 	}
 	
 	/**
-	 * Insert a new item
+	 * Insert a new item Comment
 	 *
-	 * @param xItem $item
+	 * @param xItemComment $item
 	 * @return int The new id
 	 * @static
 	 */
 	function insert($item)
 	{
-		$id = xUniqueId::generate('item');
-		
-		xDB::getDB()->query("INSERT INTO item(id,title,type,author,content,content_filter,creation_time) 
-			VALUES (%d,'%s','%s','%s','%s','%s',NOW())",
-			$id,$item->m_title,$item->m_type,$item->m_author,$item->m_content,$item->m_content_filter);
-			
-		return $id;
+		return xItemDAO::insert($item);
 	}
 	
 	/**
@@ -50,93 +44,65 @@ class xItemDAO
 	 */
 	function delete($itemid)
 	{
-		xDB::getDB()->startTransaction();
-		
-		xDB::getDB()->query("DELETE FROM item WHERE id = %d",$itemid);
-		xDB::getDB()->query("DELETE FROM item_replies WHERE parentid = %d",$itemid);
-		
-		xDB::getDB()->commit();
+		xItemDAO::delete($itemid);
 	}
 	
 	/**
 	 * Updates an item.
 	 *
 	 * 
-	 * @param xItem $item
+	 * @param xItemComment $item
 	 * @static
 	 */
 	function update($item)
 	{
-		xDB::getDB()->query("UPDATE item SET title = '%s',content = '%s',content_filter = '%s',lastedittime = NOW()",
-			$item->m_title,$item->m_content,$item->m_content_filter);
+		xItemDAO::update($item);
 	}
 	
 	
 	/**
 	 *
-	 * @return xItem
+	 * @return xItemComment
 	 * @static
 	 * @access private
 	 */
-	function _itemFromRow($row_object)
+	function _itemcommentFromRow($row_object)
 	{
-		return new xItem($row_object->id,$row_object->title,$row_object->type,$row_object->author,
-			$row_object->content,$row_object->content_filter,
-			$row_object->creation_time,$row_object->lastedit_time);
+		return new xItemComment($row_object->id,$row_object->title,$row_object->type,$row_object->author,
+			$row_object->content,$row_object->content_filter,$row_object->creation_time,$row_object->lastedit_time);
 	}
 	
 	/**
-	 * Retrieve a specific item
 	 *
-	 * @return xItem
+	 */
+	function toSpecificItem($item)
+	{
+		return new xItemComment($item->m_id,$item->m_title,$item->m_type,$item->m_author,
+			$item->m_content,$item->m_ontent_filter,$item->m_creation_time,$item->m_lastedit_time);
+	}
+	
+	/**
+	 * Retrieve a specific item page
+	 *
+	 * @return xItemComment
 	 * @static
 	 */
 	function load($id)
 	{
-		$result = xDB::getDB()->query("SELECT * FROM item WHERE id = %d",$id);
+		$result = xDB::getDB()->query("SELECT * FROM item WHERE item.id = %d AND item.type = '%s' AND 
+			item_page.itemid = item.id",$id,'comment');
 		if($row = xDB::getDB()->fetchObject($result))
 		{
-			return xItemDAO::_itemFromRow($row);
+			return xItemPageDAO::_itemcommentFromRow($row);
 		}
 		
 		return NULL;
 	}
 	
-	/**
-	 * Retrieves all replies associated with an items.
-	 *
-	 * @param int $parentid
-	 * @param int $nelementpage Number of elements per page
-	 * @param int $npage Number of page (starting from 1).
-	 * @return array(xItem)
-	 * @static
-	 */
-	function findReplies($parentid,$nelementpage = 0,$npage = 0)
-	{
-		$items = array();
-		$query = "SELECT * FROM item,item_replies WHERE item_replies.parentid = %d AND item.id = item_replies.childid";
-		$values = array($parentid);
-		
-		if($npage != 0)
-		{
-			$query .= " LIMIT %d,%d";
-			$values[] = ($npage - 1) * $nelementpage;
-			$values[] = $nelementpage;
-		}
-		
-		$result = xDB::getDB()->query($query,$values);
-		while($row = xDB::getDB()->fetchObject($result))
-		{
-			$items[] = xItemDAO::_itemFromRow($row);
-		}
-		return $items;
-	}
-	
 	
 	/**
-	 * Retrieves all items.
+	 * Retrieves all item comments.
 	 *
-	 * @param string $type Exact search
 	 * @param string $title Like search
 	 * @param string $author Exact search
 	 * @param string $content Like search
@@ -146,20 +112,23 @@ class xItemDAO
 	 * @return array(xItem)
 	 * @static
 	 */
-	function find($type,$title,$author,$content,$cathegory,$nelementpage = 0,$npage = 0)
+	function find($parentid,$title,$author,$content,$cathegory,$nelementpage = 0,$npage = 0)
 	{
 		$items = array();
 		
-		$query_tables = array("item");
+		$query_tables = array("item,item_replies");
 		$values = array();
 		$query_where = array();
 		$query_where_link = array();
 		
-		if($type !== NULL)
+		$query_where[] .= "item.type = 'comment'";
+		$query_where_link[] = "AND";
+		
+		if($parentid !== NULL)
 		{
-			$query_where[] = "item.type = '%s'";
+			$query_where[] = "item_replies.parentid = %d AND item.id = item_replies.childid";
 			$query_where_link[] = "AND";
-			$values[] = $type;
+			$values[] = $parentid;
 		}
 		
 		if($title !== NULL)
@@ -198,7 +167,7 @@ class xItemDAO
 			$values[] = ($npage - 1) * $nelementpage;
 			$values[] = $nelementpage;
 		}
-		
+			
 		//now construct the query
 		$query = "SELECT * FROM ";
 		$i = 0;
@@ -233,7 +202,7 @@ class xItemDAO
 		$result = xDB::getDB()->query($query,$values);
 		while($row = xDB::getDB()->fetchObject($result))
 		{
-			$items[] = xItemDAO::_itemFromRow($row);
+			$items[] = xItemCommentDAO::_itemcommentFromRow($row);
 		}
 		return $items;
 	}

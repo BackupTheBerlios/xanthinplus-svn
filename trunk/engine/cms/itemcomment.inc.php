@@ -17,69 +17,16 @@
 
 
 /**
- * Represent the simplest item in xanthin+
+ * Represent a comment
  */
-class xItemPage extends xItem
+class xItemComment extends xItem
 {
-	/**
-	 * @var string
-	 * @access public
-	 */
-	var $m_subtype;
-	
-	/**
-	 * @var bool
-	 * @access public
-	 */
-	var $m_sticky;
-	
-	/**
-	 * @var bool
-	 * @access public
-	 */
-	var $m_accept_replies;
-	
-	/**
-	 * @var bool
-	 * @access public
-	 */
-	var $m_published;
-	
-	/**
-	 * @var bool
-	 * @access public
-	 */
-	var $m_approved;
-	
-	/**
-	 * @var string
-	 * @access public
-	 */
-	var $m_meta_description;
-	
-	/**
-	 * @var bool
-	 * @access public
-	 */
-	var $m_meta_keywords;
-	
-	
 	/**
 	 *
 	 */
-	function xItemPage($id,$title,$type,$author,$content,$content_filter,$creation_time,$lastedit_time,
-		$subtype,$published,$sticky,$accept_replies,$published,$approved,$meta_description,$meta_keywords)
+	function xItemComment($id,$title,$type,$author,$content,$content_filter,$creation_time,$lastedit_time)
 	{
 		$this->xItem($id,$title,$type,$author,$content,$content_filter,$creation_time,$lastedit_time);
-		
-		$this->m_subtype = $subtype;
-		$this->m_published = $published;
-		$this->m_sticky = $sticky;
-		$this->m_accept_replies = $accept_replies;
-		$this->m_published = $published;
-		$this->m_approved = $approved;
-		$this->m_meta_description = $meta_description;
-		$this->m_meta_keywords = $meta_keywords;
 	}
 	
 	

@@ -221,7 +221,6 @@ class xInstallCMS
 			)TYPE=InnoDB"
 		);
 		
-		
 		//item cathegory
 		xDB::getDB()->query("
 			CREATE TABLE cathegory (
@@ -355,7 +354,11 @@ class xInstallCMS
 		$menu->dbInsert();
 		
 		
-		$item_type = new xItemType(-1,'article','A generic article','html',true,true,false,true);
+		$item_type = new xItemType('page','Basic item type');
+		$item_type->dbInsert();
+		$item_type = new xItemType('comment','A comment');
+		$item_type->dbInsert();
+		$item_type = new xItemPageType('page','Basic item type');
 		$item_type->dbInsert();
 	}
 };

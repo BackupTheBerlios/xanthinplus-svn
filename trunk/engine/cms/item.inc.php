@@ -193,7 +193,7 @@ class xItem extends xElement
 	 */
 	function find($type = NULL,$title = NULL,$author = NULL,$content = NULL,$cathegory = NULL,$nelementpage = 0,$npage = 0)
 	{
-		return xItem::toSpecificItem(xItemDAO::find($type,$title,$author,$content,$cathegory,$nelementpage,$npage))
+		return xItem::toSpecificItem(xItemDAO::find($type,$title,$author,$content,$cathegory,$nelementpage,$npage));
 	}
 	
 	

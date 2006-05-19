@@ -19,7 +19,7 @@
 /**
  * An item type.
  */
-class xItemType
+class xCathegoryType
 {
 	/**
 	 * @var string
@@ -37,7 +37,7 @@ class xItemType
 	/**
 	 *
 	 */
-	function xItemType($name,$description)
+	function xCathegoryType($name,$description)
 	{
 		$this->m_name = $name;
 		$this->m_description = $description;
@@ -49,7 +49,7 @@ class xItemType
 	 */
 	function dbInsert()
 	{
-		$this->m_id = xItemTypeDAO::insert($this);
+		$this->m_id = xCathegoryTypeDAO::insert($this);
 	}
 	
 	/** 
@@ -57,7 +57,7 @@ class xItemType
 	 */
 	function dbDelete()
 	{
-		xItemTypeDAO::delete($this->m_name);
+		xCathegoryTypeDAO::delete($this->m_name);
 	}
 	
 	
@@ -69,7 +69,7 @@ class xItemType
 	 */
 	function dbDeleteByName($typename)
 	{
-		xItemTypeDAO::delete($typename);
+		xCathegoryTypeDAO::delete($typename);
 	}
 	
 	/**
@@ -77,7 +77,7 @@ class xItemType
 	 */
 	function dbUpdate()
 	{
-		xItemTypeDAO::update($this);
+		xCathegoryTypeDAO::update($this);
 	}
 	
 	/**
@@ -88,39 +88,18 @@ class xItemType
 	 */
 	function dbLoad($typename)
 	{
-		return xItemTypeDAO::load($typename);
+		return xCathegoryTypeDAO::load($typename);
 	}
 	
 	/**
 	 * Retrieves all itme types.
 	 *
-	 * @return array(xItemType)
+	 * @return array(xCathegoryType)
 	 * @static
 	 */
 	function findAll()
 	{
-		return xItemTypeDAO::findAll();
-	}
-	
-	/**
-	 * Return a form element representing all item types presents in db
-	 *
-	 * @param string $var_name The name of the form element
-	 * @param string $value
-	 * @param bool $mandatory True if this input is manadtory
-	 * @return xFormElement
-	 * @static
-	 */
-	function getFormTypeChooser($var_name,$value,$mandatory)
-	{
-		$types = xItemType::findAll();
-		$options = array();
-		foreach($types as $type)
-		{
-			$options[$type->m_name] = $type->m_name;
-		}
-		return new xFormElementOptions($var_name,'Select item type','',$value,$options,FALSE,$mandatory,
-			new xInputValidatorInteger());
+		return xCathegoryTypeDAO::findAll();
 	}
 };
 

@@ -129,41 +129,11 @@ class xItemPageDAO
 		return NULL;
 	}
 	
-	/**
-	 * Retrieves all replies associated with an items.
-	 *
-	 * @param int $parentid
-	 * @param int $nelementpage Number of elements per page
-	 * @param int $npage Number of page (starting from 1).
-	 * @return array(xItem)
-	 * @static
-	 */
-	function findReplies($parentid,$nelementpage = 0,$npage = 0)
-	{
-		$items = array();
-		$query = "SELECT * FROM item,item_replies WHERE item_replies.parentid = %d AND item.id = item_replies.childid";
-		$values = array($parentid);
-		
-		if($npage != 0)
-		{
-			$query .= " LIMIT %d,%d";
-			$values[] = ($npage - 1) * $nelementpage;
-			$values[] = $nelementpage;
-		}
-		
-		$result = xDB::getDB()->query($query,$values);
-		while($row = xDB::getDB()->fetchObject($result))
-		{
-			$items[] = xItemDAO::_itemFromRow($row);
-		}
-		return $items;
-	}
-	
 	
 	/**
 	 * Retrieves all items.
 	 *
-	 * @param string $type Exact search
+	 * @param string $subtype Exact search
 	 * @param string $title Like search
 	 * @param string $author Exact search
 	 * @param string $content Like search
@@ -173,20 +143,20 @@ class xItemPageDAO
 	 * @return array(xItem)
 	 * @static
 	 */
-	function find($type,$title,$author,$content,$cathegory,$nelementpage = 0,$npage = 0)
+	function find($subtype,$title,$author,$content,$cathegory,$nelementpage = 0,$npage = 0)
 	{
 		$items = array();
 		
-		$query_tables = array("item");
+		$query_tables = array("item,item_page");
 		$values = array();
 		$query_where = array();
 		$query_where_link = array();
 		
-		if($type_id !== NULL)
+		if($subtype !== NULL)
 		{
-			$query_where[] = "item.type_id = %d";
+			$query_where[] = "item_page.subtype = '%s'";
 			$query_where_link[] = "AND";
-			$values[] = $type_id;
+			$values[] = $subtype;
 		}
 		
 		if($title !== NULL)
@@ -226,6 +196,9 @@ class xItemPageDAO
 			$values[] = $nelementpage;
 		}
 		
+		$query_where[] .= "item_page.itemid = item.id";
+		$query_where_link[] = "AND";
+			
 		//now construct the query
 		$query = "SELECT * FROM ";
 		$i = 0;
@@ -260,7 +233,7 @@ class xItemPageDAO
 		$result = xDB::getDB()->query($query,$values);
 		while($row = xDB::getDB()->fetchObject($result))
 		{
-			$items[] = xItemDAO::_itemFromRow($row);
+			$items[] = xItemDAO::_itempageFromRow($row);
 		}
 		return $items;
 	}

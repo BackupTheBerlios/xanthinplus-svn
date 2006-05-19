@@ -67,11 +67,7 @@ class xPage extends xElement
 	function getPage($path)
 	{
 		//broadcast onPageCreation event
-		$modules = xModule::getModules();
-		foreach($modules as $module)
-		{
-			$module->onPageCreation($path);
-		}
+		xModule::callWithNoResult1('onPageCreation',$path);
 		
 		if($path !== NULL)
 		{

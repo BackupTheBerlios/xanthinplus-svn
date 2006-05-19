@@ -17,9 +17,9 @@
 
 
 /**
- * An item type.
+ * An item page subtype.
  */
-class xItemType
+class xItemPageType
 {
 	/**
 	 * @var string
@@ -33,14 +33,49 @@ class xItemType
 	 */
 	var $m_description;
 	
+	/**
+	 * @var array(string)
+	 * @access public
+	 */
+	var $m_allowed_content_filters;
+	
+	/**
+	 * @var bool
+	 * @access public
+	 */
+	var $m_default_published;
+	
+	/**
+	 * @var bool
+	 * @access public
+	 */
+	var $m_default_sticky;
+	
+	/**
+	 * @var bool
+	 * @access public
+	 */
+	var $m_default_accept_replies;
+	
+	/**
+	 * @var bool
+	 * @access public
+	 */
+	var $m_default_approved;
 
 	/**
 	 *
 	 */
-	function xItemType($name,$description)
+	function xItemPageType($name,$description,$allowed_content_filters,$default_published,$default_sticky,
+		$default_accept_replies,$default_approved)
 	{
 		$this->m_name = $name;
 		$this->m_description = $description;
+		$this->m_allowed_content_filters = $allowed_content_filters;
+		$this->m_default_published = $default_published;
+		$this->m_default_sticky = $default_sticky;
+		$this->default_accept_replies = $default_accept_replies;
+		$this->m_default_approved = $default_approved;
 	}
 	
 	
@@ -49,7 +84,7 @@ class xItemType
 	 */
 	function dbInsert()
 	{
-		$this->m_id = xItemTypeDAO::insert($this);
+		$this->m_id = xItemPageTypeDAO::insert($this);
 	}
 	
 	/** 
@@ -57,7 +92,7 @@ class xItemType
 	 */
 	function dbDelete()
 	{
-		xItemTypeDAO::delete($this->m_name);
+		xItemPageTypeDAO::delete($this->m_name);
 	}
 	
 	
@@ -67,9 +102,9 @@ class xItemType
 	 * @param int $typename
 	 * @static
 	 */
-	function dbDeleteByName($typename)
+	function dbDeleteById($typename)
 	{
-		xItemTypeDAO::delete($typename);
+		xItemPageTypeDAO::delete($typename);
 	}
 	
 	/**
@@ -77,50 +112,29 @@ class xItemType
 	 */
 	function dbUpdate()
 	{
-		xItemTypeDAO::update($this);
+		xItemPageTypeDAO::update($this);
 	}
 	
 	/**
 	 * Retrieve a specific item type from db
 	 *
-	 * @return xItemType
+	 * @return xItemPageType
 	 * @static
 	 */
 	function dbLoad($typename)
 	{
-		return xItemTypeDAO::load($typename);
+		return xItemPageTypeDAO::load($typename);
 	}
 	
 	/**
 	 * Retrieves all itme types.
 	 *
-	 * @return array(xItemType)
+	 * @return array(xItemPageType)
 	 * @static
 	 */
 	function findAll()
 	{
-		return xItemTypeDAO::findAll();
-	}
-	
-	/**
-	 * Return a form element representing all item types presents in db
-	 *
-	 * @param string $var_name The name of the form element
-	 * @param string $value
-	 * @param bool $mandatory True if this input is manadtory
-	 * @return xFormElement
-	 * @static
-	 */
-	function getFormTypeChooser($var_name,$value,$mandatory)
-	{
-		$types = xItemType::findAll();
-		$options = array();
-		foreach($types as $type)
-		{
-			$options[$type->m_name] = $type->m_name;
-		}
-		return new xFormElementOptions($var_name,'Select item type','',$value,$options,FALSE,$mandatory,
-			new xInputValidatorInteger());
+		return xItemPageTypeDAO::findAll();
 	}
 };
 
