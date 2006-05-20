@@ -61,6 +61,8 @@ function xanth_main()
 	
 	session_write_close();
 	
+	xNotifications::postProcessing();
+	
 	ob_end_flush();
 }
 

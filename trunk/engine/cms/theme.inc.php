@@ -299,23 +299,33 @@ class xDummyTheme extends xTheme
 	/**
 	 * Render a list of menu items
 	 * 
-	 * @param array(xMenuItem)
+	 * @param array(xMenuItem) $items
 	 * @return string the renderized element.
 	 */
 	function renderMenuItems($items)
 	{
 	}
 	
-	
 	/**
-	 * Render an item
-	 * 
-	 * @param array(xMenuItem)
+	 * Render an item page
+	 *
+	 * @param string $subtype
+	 * @param string $title
+	 * @param string $content
 	 * @return string the renderized element.
 	 */
-	function renderItem($type,$title,$content)
+	function renderItemPage($subtype,$title,$content)
 	{
 	}
+	
+	/**
+	 * Render an array of notifications
+	 *
+	 * @param array(array("severity" => int,"message" => string)) $notifications
+	 * @return string the renderized element.
+	 */
+	function renderNotifications($notifications)
+	{}
 }
 
 
@@ -445,7 +455,7 @@ class xDefaultTheme extends xTheme
 	}
 	
 	/**
-	 * @see xDummyModule
+	 * @see xDummyModule::renderItemPage()
 	 */
 	function renderItemPage($subtype,$title,$content)
 	{
@@ -453,6 +463,14 @@ class xDefaultTheme extends xTheme
 		<div class="item-content">' . $content . '</div>';
 		
 		return $output;
+	}
+	
+	/**
+	 * @see xDummyModule::renderNotifications()
+	 */
+	function renderNotifications($notifications)
+	{
+		
 	}
 };
 
