@@ -85,7 +85,10 @@ class xItemPage extends xItem
 	// DOCS INHERITHED  ========================================================
 	function onRender()
 	{
-		return xTheme::render3('renderItemPage',$this->m_subtype,$this->m_title,$this->m_content);
+		$error = '';
+		$content = xContentFilterController::applyFilter($this->m_content_filter,$this->m_content,$error);
+		$title = xContentFilterController::applyFilter('notags',$this->m_title,$error);
+		return xTheme::render3('renderItemPage',$this->m_subtype,$title,$content);
 	}
 	
 	/** 

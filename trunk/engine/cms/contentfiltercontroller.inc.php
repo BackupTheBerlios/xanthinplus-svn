@@ -30,24 +30,24 @@ class xContentFilterController
 	 *
 	 * @return string
 	 */
-	function applyFilter($filtername,$input)
+	function applyFilter($filtername,$input,&$error)
 	{
 		switch($filtername)
 		{
 			case 'html':
-				$filter = xContentFilterBypass();
+				$filter = new xContentFilterBypass();
 				break;
 				
 			case 'php':
-				$filter = xContentFilterPhp();
+				$filter = new xContentFilterPhp();
 				break;
 				
 			case 'bbcode':
-				$filter = xContentFilterBBCode();
+				$filter = new xContentFilterBBCode();
 				break;
 				
 			case 'notags':
-				$filter = xContentFilterNoTags();
+				$filter = new xContentFilterNoTags();
 				break;
 				
 			default:
@@ -58,8 +58,8 @@ class xContentFilterController
 		$ret = $filter->filter($input);
 		if($ret === NULL)
 		{
-			xLog::log(LOG_LEVEL_WARNING,'Error while filtering content: ' . $filter->m_last_error);
-			return '';
+			$error = 'Error while filtering content: ' . $filter->m_last_error;
+			return NULL;
 		}
 		
 		return $ret;
@@ -100,5 +100,50 @@ class xContentFilterController
 		return $content_filter_radio_group;
 	}
 }
+
+
+/**
+ * A validator that checks dinamically the content, by providing a dinamyc "post" or "get" variable
+ * representing a content filter.
+ */
+class xInputValidatorDynamicContentFilter extends xInputValidatorText
+{
+	var $m_variable_name;
+	var $m_method;
+	
+	/**
+	 * Contructor.
+	 *
+	 * @param int $maxlenght The max lenght of the text to be considered valid.
+	 */
+	function xInputValidatorDynamicContentFilter($maxlength,$variable_name,$method = 'POST')
+	{
+		xInputValidatorText::xInputValidatorText($maxlength);
+		
+		$this->m_variable_name = $variable_name;
+		$this->m_method = $method;
+	}
+	
+	// DOCS INHERITHED  ========================================================
+	function isValid($input)
+	{
+		if( ! xInputValidatorText::isValid($input))
+		{
+			return FALSE;
+		}
+		
+		$error = '';
+		if(xContentFilterController::applyFilter(xFormElement::getInputValueByName($this->m_variable_name,$this->m_method),
+			$input,$error) === NULL)
+		{
+			$this->m_last_error = $error;
+			return FALSE;
+		}
+		
+		return TRUE;
+	}
+}
+
+
 
 ?>

@@ -55,8 +55,8 @@ class xModuleItem extends xModule
 				return $this->_getContentAdminItem();
 			case 'item/page/create':
 				return $this->_getContentItemPageCreate($path);
-			case 'item/view':
-				return $this->_getContentViewItem($path);
+			case 'item/page/view':
+				return $this->_getContentItemPageView($path);
 			case 'admin/itemtype':
 				return $this->_getContentAdminItemType();
 		}
@@ -106,7 +106,8 @@ class xModuleItem extends xModule
 		//item title
 		$form->m_elements[] = xItem::getFormTitleInput('title','',true);
 		//item body
-		$form->m_elements[] = xItem::getFormBodyInput('body','',true);
+		$form->m_elements[] = xItem::getFormBodyInput('body','Body','','',true,
+			new xInputValidatorDynamicContentFilter(0,'filter'));
 		//item filter
 		$form->m_elements[] = xContentFilterController::getFormContentFilterChooser('filter','html',TRUE);
 		
@@ -133,7 +134,7 @@ class xModuleItem extends xModule
 		$form->m_elements[] = new xFormSubmit('submit','Create');
 		
 		$ret = $form->validate();
-		if(isset($ret->m_valid_data['submit']))
+		if(! $ret->isEmpty())
 		{
 			if(empty($ret->m_errors))
 			{
@@ -158,7 +159,7 @@ class xModuleItem extends xModule
 			}
 		}
 		
-		return new xContentSimple("Create new item (generic)",$form->render(),'','');
+		return new xContentSimple("Create new item page",$form->render(),'','');
 	}
 	
 	
@@ -174,6 +175,7 @@ class xModuleItem extends xModule
 		
 		$items = xItem::find();
 		
+		$error = '';
 		
 		$output = 
 		'<table class="admin-table">
@@ -181,8 +183,9 @@ class xModuleItem extends xModule
 		';
 		foreach($items as $item)
 		{
-			$output .= '<tr><td>' . $item->m_id . '</td><td>' . $item->m_title . '</td>'
-			. '<td>Edit <a href="?p=item/view//id[' . $item->m_id . ']">View</a></td></tr>';
+			$output .= '<tr><td>' . $item->m_id . '</td><td>' . 
+				xContentFilterController::applyFilter('notags',$item->m_title,$error) . '</td>'
+			. '<td>Edit <a href="?p=item/' .$item->m_type. '/view//id[' . $item->m_id . ']">View</a></td></tr>';
 		}
 		$output .= "</table>\n";
 		
@@ -194,22 +197,27 @@ class xModuleItem extends xModule
 	/**
 	 * @access private
 	 */
-	function _getContentViewItem($path)
+	function _getContentItemPageView($path)
 	{
 		if(!isset($path->m_vars['id']))
 		{
 			return new xContentNotFound();
 		}
 		
-		$item = xItem::dbLoad($path->m_vars['id']);
+		$item = xItemPage::dbLoad($path->m_vars['id']);
 		
-		//here we will provide a check for access filter.
-		if(!xAccessPermission::checkCurrentUserPermission('item',$item->m_type_id,'create'))
+		if($item === NULL)
+		{
+			return new xContentNotFound();
+		}
+		
+		//check access
+		if(!xAccessPermission::checkCurrentUserPermission('item',$item->m_type . '/' . $item->m_subtype,'view'))
 		{
 			return new xContentNotAuthorized();
 		}
 		
-		return new xContentSimple($item->m_title,$item->render(),$item->m_description,$item->m_keywords);
+		return new xContentSimple($item->m_title,$item->render(),$item->m_meta_description,$item->m_meta_keywords);
 	}
 	
 	/**

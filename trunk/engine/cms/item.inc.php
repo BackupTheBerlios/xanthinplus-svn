@@ -219,7 +219,6 @@ class xItem extends xElement
 		return xItem::toSpecificItem(xItemDAO::find($parentid,$title,$author,$content,$cathegory,$nelementpage,$npage));
 	}
 	
-	
 	/**
 	 * Return a form element for asking for title input
 	 *
@@ -244,9 +243,9 @@ class xItem extends xElement
 	 * @return xFormElement
 	 * @static
 	 */
-	function getFormBodyInput($var_name,$value,$mandatory)
+	function getFormBodyInput($var_name,$label,$description,$value,$mandatory,$input_validator)
 	{
-		return new xFormElementTextArea($var_name,'Body','',$value,$mandatory,new xInputValidatorText(0));
+		return new xFormElementTextArea($var_name,$label,$description,$value,$mandatory,$input_validator);
 	}
 };
 

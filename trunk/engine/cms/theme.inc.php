@@ -447,7 +447,7 @@ class xDefaultTheme extends xTheme
 	/**
 	 * @see xDummyModule
 	 */
-	function renderItem($type,$title,$content)
+	function renderItemPage($subtype,$title,$content)
 	{
 		$output = '<div class="item-title">' . $title . '</div>
 		<div class="item-content">' . $content . '</div>';

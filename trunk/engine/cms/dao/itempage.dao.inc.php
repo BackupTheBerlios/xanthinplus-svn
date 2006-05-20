@@ -96,7 +96,7 @@ class xItemPageDAO
 	 */
 	function _itempageFromRow($row_object)
 	{
-		return new xItem($row_object->id,$row_object->title,$row_object->type,$row_object->author,
+		return new xItemPage($row_object->id,$row_object->title,$row_object->type,$row_object->author,
 			$row_object->content,$row_object->content_filter,$row_object->creation_time,$row_object->lastedit_time,
 			$row_object->subtype,$row_object->published,$row_object->sticky,$row_object->accept_replies,
 			$row_object->published,$row_object->approved,$row_object->meta_description,$row_object->meta_keywords);

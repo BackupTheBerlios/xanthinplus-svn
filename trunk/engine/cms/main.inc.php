@@ -61,7 +61,7 @@ function xanth_main()
 	
 	session_write_close();
 	
-	echo ob_get_clean();
+	ob_end_flush();
 }
 
 ?>

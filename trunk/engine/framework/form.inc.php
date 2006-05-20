@@ -255,6 +255,7 @@ class xInputValidatorInteger extends xInputValidator
 	}
 }
 
+
 /**
  * The base class for all form elements.
  *
@@ -312,14 +313,14 @@ class xFormElement
 		{
 			if(isset($_POST[$name]))
 			{
-				return $_POST[$name];
+				return (string)$_POST[$name];
 			}
 		}
 		elseif(strcasecmp($method,'GET') == 0)
 		{		
 			if(isset($_GET[$name]))
 			{
-				return $_GET[$name];
+				return (string)$_GET[$name];
 			}
 		}
 		else
@@ -338,6 +339,7 @@ class xFormElement
 	 */
 	function isValid($method)
 	{
+		
 		$posted_value = $this->getInputValue($method);
 		if($posted_value === '')
 		{
@@ -354,7 +356,7 @@ class xFormElement
 		if(! $this->m_validator->isValid($posted_value))
 		{
 			$this->m_invalid = TRUE;
-			$this->m_last_error = $this->m_label . ': ' .$this->validator->m_last_error;
+			$this->m_last_error = $this->m_label . ': ' .$this->m_validator->m_last_error;
 			
 			return FALSE;
 		}
@@ -839,6 +841,11 @@ class xValidationData
 {
 	var $m_valid_data = array();
 	var $m_errors = array();
+	
+	function isEmpty()
+	{
+		return empty($this->m_valid_data) && empty($this->m_errors);
+	}
 }
 
 
@@ -984,6 +991,77 @@ class xForm
 	}
 	
 	/**
+	 * @access private
+	 */
+	function _addFormToken()
+	{
+		$token = md5(uniqid(rand(), TRUE));
+		$_SESSION['form_token'][$token] = time();
+		return $token;
+	}
+	
+	/**
+	 * Valid tokens are cleared automatically on success
+	 *
+	 * @access private
+	 */
+	function _checkFormToken($method)
+	{
+		if(!isset($_SESSION['form_token']))
+		{
+			return FALSE;
+		}
+		
+		if(strcasecmp($method,'POST') == 0)
+		{
+			if(!isset($_POST['form_token']))
+			{
+				return FALSE;
+			}
+			
+			if(! isset($_SESSION['form_token'][$_POST['form_token']]))
+			{
+				return FALSE;
+			}
+			
+			$token = $_POST['form_token'];
+		}
+		else
+		{
+			if(!isset($_GET['form_token']))
+			{
+				return FALSE;
+			}
+			
+			if(! isset($_SESSION['form_token'][$_GET['form_token']]))
+			{
+				return FALSE;
+			}
+			
+			$token = $_GET['form_token'];
+		}
+		
+		$token_age = time() - $_SESSION['form_token'][$token];
+		if($token_age > 3600) //1 Hour
+		{
+			xForm::_removeFormToken($token);
+			return FALSE;
+		}
+		
+		xForm::_removeFormToken($token);
+		
+		return TRUE;
+	}
+	
+	/**
+	 * @access private
+	 */
+	function _removeFormToken($token)
+	{
+		unset($_SESSION['form_token'][$token]);
+	}
+	
+	/**
 	 * Render the whole form included its elements.
 	 *
 	 * @return string The renderized form.
@@ -991,9 +1069,8 @@ class xForm
 	function render()
 	{
 		//set a token against "Cross-Site Request Forgeries" attacks
-		$token = md5(uniqid(rand(), TRUE));
-		$_SESSION['form_token'] = $token;
-		$_SESSION['form_token_time'] = time();
+		$token = xForm::_addFormToken();
+		
 		$output = '<form action="'. $this->m_action . '" method="'.$this->m_method.'">
 		<input type="hidden" name="form_token" value="'.$token.'" />';
 		$output .= "";
@@ -1017,18 +1094,8 @@ class xForm
 	{
 		$data = new xValidationData();
 		
-		//first validate the token to prevent ???
-		if(!(
-			(isset($_SESSION['form_token']) && (isset($_POST['form_token']) || isset($_GET['form_token'])))
-			&& (($_POST['form_token'] == $_SESSION['form_token']) || ($_GET['form_token'] == $_SESSION['form_token']))
-			)
-		)
-		{
-			return $data;
-		}
-		
-		$token_age = time() - $_SESSION['form_token_time'];
-		if($token_age > 300)
+		//first validate the token to prevent "Cross-Site Request Forgeries" attacks
+		if(! xForm::_checkFormToken($this->m_method))
 		{
 			return $data;
 		}
@@ -1046,7 +1113,7 @@ class xForm
 			{
 				$ret = $element->isValid($this->m_method);
 				
-				if($ret === NULL)
+				if($ret === FALSE)
 				{
 					$data->m_errors[] = $element->m_last_error;
 				}
