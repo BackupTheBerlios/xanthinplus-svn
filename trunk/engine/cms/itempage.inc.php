@@ -68,12 +68,11 @@ class xItemPage extends xItem
 	 *
 	 */
 	function xItemPage($id,$title,$type,$author,$content,$content_filter,$creation_time,$lastedit_time,
-		$subtype,$published,$sticky,$accept_replies,$published,$approved,$meta_description,$meta_keywords)
+		$subtype,$published,$sticky,$accept_replies,$approved,$meta_description,$meta_keywords)
 	{
 		$this->xItem($id,$title,$type,$author,$content,$content_filter,$creation_time,$lastedit_time);
 		
 		$this->m_subtype = $subtype;
-		$this->m_published = $published;
 		$this->m_sticky = $sticky;
 		$this->m_accept_replies = $accept_replies;
 		$this->m_published = $published;
@@ -125,6 +124,15 @@ class xItemPage extends xItem
 	}
 	
 	/**
+	 *
+	 */
+	function toSpecificItem($item)
+	{
+		return xItemPageDAO::toSpecificItem($item);
+	}
+	
+	
+	/**
 	 * Retrieves all items.
 	 *
 	 * @param string $type Exact search
@@ -140,6 +148,101 @@ class xItemPage extends xItem
 	function find($subtype = NULL,$title = NULL,$author = NULL,$content = NULL,$cathegory = NULL,$nelementpage = 0,$npage = 0)
 	{
 		return xItemPageDAO::find($subtype,$title,$author,$content,$cathegory,$nelementpage,$npage);
+	}
+	
+	
+	/**
+	 * Return a form element for asking for published input
+	 *
+	 * @param string $var_name The name of the form element
+	 * @param string $label
+	 * @param string $description
+	 * @param bool $checked
+	 * @return xFormElement
+	 * @static
+	 */
+	function getFormPublishedCheck($var_name,$label,$description,$checked)
+	{
+		return new xFormElementCheckbox($var_name,$label,$description,1,$checked,FALSE,new xInputValidatorInteger());
+	}
+	
+	/**
+	 * Return a form element for asking for approved check
+	 *
+	 * @param string $var_name The name of the form element
+	 * @param string $label
+	 * @param string $description
+	 * @param bool $checked
+	 * @return xFormElement
+	 * @static
+	 */
+	function getFormApprovedCheck($var_name,$label,$description,$checked)
+	{
+		return new xFormElementCheckbox($var_name,$label,$description,1,$checked,FALSE,new xInputValidatorInteger());
+	}
+	
+	
+	/**
+	 * Return a form element for asking for accept replies check
+	 *
+	 * @param string $var_name The name of the form element
+	 * @param string $label
+	 * @param string $description
+	 * @param bool $checked
+	 * @return xFormElement
+	 * @static
+	 */
+	function getFormAcceptRepliesCheck($var_name,$label,$description,$checked)
+	{
+		return new xFormElementCheckbox($var_name,$label,$description,1,$checked,FALSE,new xInputValidatorInteger());
+	}
+	
+	
+	/**
+	 * Return a form element for asking for sticky input
+	 *
+	 * @param string $var_name The name of the form element
+	 * @param string $label
+	 * @param string $description
+	 * @param bool $checked
+	 * @return xFormElement
+	 * @static
+	 */
+	function getFormStickyCheck($var_name,$label,$description,$checked)
+	{
+		return new xFormElementCheckbox($var_name,$label,$description,1,$checked,FALSE,new xInputValidatorInteger());
+	}
+	
+	/**
+	 * Return a form element for asking for description input
+	 *
+	 * @param string $var_name The name of the form element
+	 * @param string $value
+	 * @param string $label
+	 * @param string $description
+	 * @param bool $mandatory True if this input is manadtory
+	 * @return xFormElement
+	 * @static
+	 */
+	function getFormDescriptionInput($var_name,$label,$description,$value,$mandatory)
+	{
+		return new xFormElementTextField($var_name,$label,$description,$value,$mandatory,new xInputValidatorText(512));
+	}
+	
+	/**
+	 * Return a form element for asking for keywords input
+	 *
+	 * @param string $var_name The name of the form element
+	 * @param string $value
+	 * @param string $label
+	 * @param string $description
+	 * @param bool $mandatory True if this input is manadtory
+	 * @return xFormElement
+	 * @static
+	 */
+	function getFormKeywordsInput($var_name,$label,$description,$value,$mandatory)
+	{
+		return new xFormElementTextField($var_name,$label,$description,$value,$mandatory,new xInputValidatorText(128));
 	}
 };
 

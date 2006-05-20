@@ -89,7 +89,7 @@ class xItemPageTypeDAO
 	 */
 	function load($typename)
 	{
-		$result = xDB::getDB()->query("SELECT * FROM item_page_type WHERE name = '%s'",$typename);
+		$result = xDB::getDB()->query("SELECT * FROM item_page_subtype WHERE name = '%s'",$typename);
 		if($row = xDB::getDB()->fetchObject($result))
 		{
 			return xItemPageTypeDAO::_itempagetypeFromRow($row);
@@ -107,7 +107,7 @@ class xItemPageTypeDAO
 	function findAll()
 	{
 		$types = array();
-		$result = xDB::getDB()->query("SELECT * FROM item_page_type");
+		$result = xDB::getDB()->query("SELECT * FROM item_page_subtype");
 		while($row = xDB::getDB()->fetchObject($result))
 		{
 			$types[] = xItemPageTypeDAO::_itempagetypeFromRow($row);

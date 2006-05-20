@@ -53,8 +53,8 @@ class xModuleItem extends xModule
 		{
 			case 'admin/item':
 				return $this->_getContentAdminItem();
-			case 'item/create':
-				return $this->_getContentAdminItemCreate($path);
+			case 'item/page/create':
+				return $this->_getContentItemPageCreate($path);
 			case 'item/view':
 				return $this->_getContentViewItem($path);
 			case 'admin/itemtype':
@@ -67,15 +67,17 @@ class xModuleItem extends xModule
 	/**
 	 * @access private
 	 */
-	function _getContentAdminItemCreate($path)
+	function _getContentItemPageCreate($path)
 	{
 		//check for type permission
-		$type = 0;
-		if(isset($path->m_vars['type']))
+		$subtype = NULL;
+		$typecheck = 'page';
+		if(isset($path->m_vars['subtype']))
 		{
-			$type = $path->m_vars['type'];
+			$subtype = $path->m_vars['subtype'];
+			$typecheck = 'page/'.$subtype;
 		}
-		if(!xAccessPermission::checkCurrentUserPermission('item',$type,'create'))
+		if(!xAccessPermission::checkCurrentUserPermission('item',$typecheck,'create'))
 		{
 				return new xContentNotAuthorized();
 		}
@@ -95,10 +97,10 @@ class xModuleItem extends xModule
 		//create form
 		$form = new xForm('?p=' . $path->m_full_path);
 		
-		if($type === 0)
+		if($subtype === NULL)
 		{
-			//item type
-			$form->m_elements[] = xItemType::getFormTypeChooser('type','',true);
+			//item page subtype
+			$form->m_elements[] = xItemPageType::getFormItemPageTypeChooser('subtype','Choose subtype','','',TRUE);
 		}
 		
 		//item title
@@ -108,22 +110,23 @@ class xModuleItem extends xModule
 		//item filter
 		$form->m_elements[] = xContentFilterController::getFormContentFilterChooser('filter','html',TRUE);
 		
+		
 		$group = new xFormGroup('Parameters');
 		//item published
-		$group->m_elements[] = xItem::getFormPublishedCheck('published',false);
+		$group->m_elements[] = xItemPage::getFormPublishedCheck('published','Published','',false);
 		//item approved
-		$group->m_elements[] = xItem::getFormApprovedCheck('approved',false);
+		$group->m_elements[] = xItemPage::getFormApprovedCheck('approved','Approved','',false);
 		//item sticky
-		$group->m_elements[] = xItem::getFormStickyCheck('sticky',false);
+		$group->m_elements[] = xItemPage::getFormStickyCheck('sticky','Sticky','',false);
 		//item accept replies
-		$group->m_elements[] = xItem::getFormAcceptRepliesCheck('accept_replies',false);
+		$group->m_elements[] = xItemPage::getFormAcceptRepliesCheck('accept_replies','Accept Replies','',false);
 		$form->m_elements[] = $group;
 		
 		$group = new xFormGroup('Metadata');
 		//item description
-		$group->m_elements[] = xItem::getFormDescriptionInput('description','',false);
+		$group->m_elements[] = xItemPage::getFormDescriptionInput('description','Description','','',false);
 		//item keywords
-		$group->m_elements[] = xItem::getFormKeywordsInput('keywords','',false);
+		$group->m_elements[] = xItemPage::getFormKeywordsInput('keywords','Keywords','','',false);
 		$form->m_elements[] = $group;
 		
 		//submit buttom
@@ -134,17 +137,17 @@ class xModuleItem extends xModule
 		{
 			if(empty($ret->m_errors))
 			{
-				if($type === 0)
+				if($subtype === NULL)
 				{
-					$type = $ret->m_valid_data['type'];
+					$subtype = $ret->m_valid_data['subtype'];
 				}
 				
-				$item = new xItem(0,$ret->m_valid_data['title'],$type,'autore',
-					$ret->m_valid_data['body'],$ret->m_valid_data['filter'],$ret->m_valid_data['published'],
-					$ret->m_valid_data['approved'],$ret->m_valid_data['accept_replies'],$ret->m_valid_data['sticky'],
-					0,$ret->m_valid_data['description'],$ret->m_valid_data['keywords']);
+				$item = new xItemPage(-1,$ret->m_valid_data['title'],'page','autore',
+					$ret->m_valid_data['body'],$ret->m_valid_data['filter'],NULL,NULL,$subtype,
+					$ret->m_valid_data['published'],$ret->m_valid_data['sticky'],$ret->m_valid_data['accept_replies'],
+					$ret->m_valid_data['approved'],0,$ret->m_valid_data['description'],$ret->m_valid_data['keywords']);
 				$item->dbInsert();
-				return new xContentSimple("Create new item (generic)",'New item was created with id: ','','');
+				return new xContentSimple("Create new item page",'New item was created with id: ','','');
 			}
 			else
 			{
@@ -171,6 +174,7 @@ class xModuleItem extends xModule
 		
 		$items = xItem::find();
 		
+		
 		$output = 
 		'<table class="admin-table">
 		<tr><th>ID</th><th>Title</th><th>Operations</th></tr>
@@ -183,6 +187,7 @@ class xModuleItem extends xModule
 		$output .= "</table>\n";
 		
 		return new xContentSimple("Admin items",$output,'','');
+		
 	}
 	
 	

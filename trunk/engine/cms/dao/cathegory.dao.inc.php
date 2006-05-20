@@ -31,8 +31,13 @@ class xCathegoryDAO
 	 * @return int The new id
 	 * @static
 	 */
-	function insert($cathegory)
+	function insert($cathegory,$transaction = TRUE)
 	{
+		if($transaction)
+		{
+			xDB::getDB()->startTransaction();
+		}
+		
 		$id = xUniqueId::generate('cathegory');
 		$field_names = "id,name,type,description";
 		$field_values = "%d,'%s','%s','%s'";
@@ -53,6 +58,11 @@ class xCathegoryDAO
 		}
 		
 		xDB::getDB()->query("INSERT INTO cathegory($field_names) VALUES($field_values)",$values);
+		
+		if($transaction)
+		{
+			xDB::getDB()->commit();
+		}
 		
 		return $id;
 	}

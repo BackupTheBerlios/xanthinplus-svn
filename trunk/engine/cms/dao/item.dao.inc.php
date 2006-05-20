@@ -31,14 +31,24 @@ class xItemDAO
 	 * @return int The new id
 	 * @static
 	 */
-	function insert($item)
+	function insert($item,$transaction = TRUE)
 	{
+		if($transaction)
+		{
+			xDB::getDB()->startTransaction();
+		}
+		
 		$id = xUniqueId::generate('item');
 		
 		xDB::getDB()->query("INSERT INTO item(id,title,type,author,content,content_filter,creation_time) 
 			VALUES (%d,'%s','%s','%s','%s','%s',NOW())",
 			$id,$item->m_title,$item->m_type,$item->m_author,$item->m_content,$item->m_content_filter);
-			
+		
+		if($transaction)
+		{
+			xDB::getDB()->commit();
+		}
+		
 		return $id;
 	}
 	
@@ -136,7 +146,6 @@ class xItemDAO
 	/**
 	 * Retrieves all items.
 	 *
-	 * @param string $type Exact search
 	 * @param string $title Like search
 	 * @param string $author Exact search
 	 * @param string $content Like search
@@ -146,7 +155,7 @@ class xItemDAO
 	 * @return array(xItem)
 	 * @static
 	 */
-	function find($type,$title,$author,$content,$cathegory,$nelementpage = 0,$npage = 0)
+	function find($title,$parentid,$author,$content,$cathegory,$nelementpage = 0,$npage = 0)
 	{
 		$items = array();
 		
@@ -155,11 +164,12 @@ class xItemDAO
 		$query_where = array();
 		$query_where_link = array();
 		
-		if($type !== NULL)
+		if($parentid !== NULL)
 		{
-			$query_where[] = "item.type = '%s'";
+			$query_tables[] = "item_replies";
+			$query_where[] = "item_replies.parentid = %d AND item.id = item_replies.childid";
 			$query_where_link[] = "AND";
-			$values[] = $type;
+			$values[] = $parentid;
 		}
 		
 		if($title !== NULL)

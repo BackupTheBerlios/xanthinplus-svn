@@ -389,12 +389,23 @@ class xDummyModule extends xModule
 	}
 	
 	/**
-	 * Returns a specific xBox child object corresponding to the specified type.
-	 *
-	 * @param xBox $box
-	 * @return xBox
+	 * Executes a search and return xItem child objects that corresponds to the specified type.
+	 * 
+	 * @param string $type
+	 * @param array($title,$author,$content,$cathegory,$nelementpage,$npage) $params
 	 */
-	function convertFromSimpleBox($box)
+	function findSpecificItems($type,$params)
+	{
+	}
+	
+	
+	/**
+	 * Load a xItem child object that corresponds to the specified type.
+	 * 
+	 * @param string $type
+	 * @param int $id
+	 */
+	function loadSpecificItem($type,$id)
 	{
 	}
 }

@@ -31,19 +31,26 @@ class xItemPageDAO
 	 * @return int The new id
 	 * @static
 	 */
-	function insert($item)
+	function insert($item,$transaction = TRUE)
 	{
-		xDB::getDB()->startTransaction();
+		if($transaction)
+		{
+			xDB::getDB()->startTransaction();
+		}
 		
-		$id = xItemDAO::insert($item);
+		$id = xItemDAO::insert($item,FALSE);
 		
-		xDB::getDB()->query("INSERT INTO item_page(itemid,subtype,published,sticky,accept_replies,published,approved,
-			meta_description,meta_keywords) VALUES (%d,'%s',%d,%d,%d,%d,%d,'%s','%s'",
+		xDB::getDB()->query("INSERT INTO item_page(itemid,subtype,sticky,accept_replies,published,approved,
+			meta_description,meta_keywords) VALUES (%d,'%s',%d,%d,%d,%d,'%s','%s')",
 			$id,$item->m_subtype,$item->m_published,$item->m_sticky,$item->m_accept_replies,$item->m_published,
 			$item->m_approved,$item->m_meta_description,$item->m_meta_keywords);
 			
 		
-		xDB::getDB()->commit();
+		if($transaction)
+		{
+			xDB::getDB()->commit();
+		}
+		
 		
 		return $id;
 	}
@@ -104,7 +111,7 @@ class xItemPageDAO
 		if($row = xDB::getDB()->fetchObject($result))
 		{
 			return new xItem($item->m_id,$item->m_title,$item->m_type,$item->m_author,
-				$item->m_content,$item->m_ontent_filter,$item->m_creation_time,$item->m_lastedit_time,
+				$item->m_content,$item->m_content_filter,$item->m_creation_time,$item->m_lastedit_time,
 				$row->subtype,$row->published,$row->sticky,$row->accept_replies,
 				$row->published,$row->approved,$row->meta_description,$row->meta_keywords);
 		}

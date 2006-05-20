@@ -79,7 +79,7 @@ class xItem extends xElement
 		
 		$this->m_id = $id;
 		$this->m_title = $title;
-		$this->m_type_id = $type_id;
+		$this->m_type = $type;
 		$this->m_author = $author;
 		$this->m_content = $content;
 		$this->m_content_filter = $content_filter;
@@ -109,10 +109,10 @@ class xItem extends xElement
 	 */
 	function toSpecificItem($item)
 	{
-		$newitem = NULL;
-		
 		if(! is_array($item))
 		{
+			$newitem = NULL;
+			
 			//check for built-in box type
 			if($item->m_type == "page")
 			{
@@ -146,35 +146,38 @@ class xItem extends xElement
 	
 	
 	/**
-	 * Retrieve a specific item from db.(already converted in specific item)
+	 * Retrieve a specific item from db.(NOT converted in specific item)
 	 *
 	 * @return xItem
 	 * @static
 	 */
 	function dbLoad($id)
 	{
-		$item = xItemDAO::load($id);
-		
-		if($item === NULL)
-		{
-			return NULL;
-		}
-		
-		return xItem::toSpecificItem($item);
+		return xItemDAO::load($id);
 	}
 	
 	/**
-	 * Retrieves all replies associated with an item.(already converted in specific items)
+	 * Retrieve a specific item from db.
 	 *
-	 * @param int $parentid
-	 * @param int $nelementpage Number of elements per page
-	 * @param int $npage Number of page (starting from 1).
-	 * @return array(xItem)
+	 * @return xItem
 	 * @static
 	 */
-	function findReplies($parentid,$nelementpage = 0,$npage = 0)
+	function dbLoadSpecificItem($type,$id)
 	{
-		return xItem::toSpecificItem(xItemDAO::findReplies($parentid,$nelementpage,$npage));
+		if($item->m_type == "page")
+		{
+			return xItemPage::load($id);
+		}
+		if($item->m_type == "comment")
+		{
+			return xItemComment::load($id);
+		}
+		else
+		{
+			return xModule::callWithSingleResult1('loadSpecificItem',$type,$id);
+		}
+		
+		return array();
 	}
 	
 	
@@ -183,6 +186,8 @@ class xItem extends xElement
 	 *
 	 * @param string $type Exact search
 	 * @param string $title Like search
+	 * @param int $parentid If you specify also a type the search will be restricted to the only type of replies 
+	 * suppported by the specified item type, this allow great performance gain.
 	 * @param string $author Exact search
 	 * @param string $content Like search
 	 * @param int $cathegory Exact search on category id
@@ -191,9 +196,27 @@ class xItem extends xElement
 	 * @return array(xItem)
 	 * @static
 	 */
-	function find($type = NULL,$title = NULL,$author = NULL,$content = NULL,$cathegory = NULL,$nelementpage = 0,$npage = 0)
+	function find($type = NULL,$parentid = NULL,$title = NULL,$author = NULL,$content = NULL,$cathegory = NULL,$nelementpage = 0,$npage = 0)
 	{
-		return xItem::toSpecificItem(xItemDAO::find($type,$title,$author,$content,$cathegory,$nelementpage,$npage));
+		if(!empty($type))
+		{
+			if($item->m_type == "page")
+			{
+				return xItemPage::find($parentid,$title,$author,$content,$cathegory,$nelementpage,$npage);
+			}
+			if($item->m_type == "comment")
+			{
+				return xItemComment::find($parentid,$title,$author,$content,$cathegory,$nelementpage,$npage);
+			}
+			else
+			{
+				return xModule::callWithSingleResult1('findSpecificItems',$type,array($parentid,$title,$author,$content,$cathegory,$nelementpage,$npage));
+			}
+			
+			return array();
+		}
+		
+		return xItem::toSpecificItem(xItemDAO::find($parentid,$title,$author,$content,$cathegory,$nelementpage,$npage));
 	}
 	
 	

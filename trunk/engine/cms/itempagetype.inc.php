@@ -136,6 +136,30 @@ class xItemPageType
 	{
 		return xItemPageTypeDAO::findAll();
 	}
+	
+	
+	/**
+	 * Return a form element representing all item page subtypes presents in db
+	 *
+	 * @param string $var_name The name of the form element
+	 * @param string $description
+	 * @param string $label
+	 * @param string $value
+	 * @param bool $mandatory True if this input is manadtory
+	 * @return xFormElement
+	 * @static
+	 */
+	function getFormItemPageTypeChooser($var_name,$label,$description,$value,$mandatory)
+	{
+		$types = xItemPageType::findAll();
+		$options = array();
+		foreach($types as $type)
+		{
+			$options[$type->m_name] = $type->m_name;
+		}
+		return new xFormElementOptions($var_name,$label,$description,$value,$options,FALSE,$mandatory,
+			new xInputValidatorTextNameId(32));
+	}
 };
 
 

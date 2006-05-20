@@ -61,7 +61,7 @@ class xInstallCMS
 		xDB::getDB()->query("
 			CREATE TABLE uniqueid (
 			tablename VARCHAR(32) NOT NULL,
-			currentid INT UNSIEGNED NOT NULL,
+			currentid INT UNSIGNED NOT NULL,
 			PRIMARY KEY  (tablename)
 			)TYPE=InnoDB"
 		);
@@ -232,11 +232,12 @@ class xInstallCMS
 			items_type VARCHAR(32),
 			PRIMARY KEY (id),
 			UNIQUE(name),
-			FOREIGN KEY (parent_cathegory) REFERENCES item_cathegory(id) ON DELETE CASCADE,
+			FOREIGN KEY (parent_cathegory) REFERENCES cathegory(id) ON DELETE CASCADE,
 			FOREIGN KEY (items_type) REFERENCES item_type(name) ON DELETE SET NULL,
 			FOREIGN KEY (type) REFERENCES cathegory_type(name) ON DELETE RESTRICT
 			)TYPE=InnoDB"
 		);
+		xUniqueId::createNew('cathegory');
 		
 		
 		//item
@@ -254,11 +255,12 @@ class xInstallCMS
 			FOREIGN KEY (type) REFERENCES item_type(name) ON DELETE RESTRICT
 			)TYPE=InnoDB"
 		);
+		xUniqueId::createNew('item');
 		
 		
 		xDB::getDB()->query("
 			CREATE TABLE item_page_subtype (
-			name VARCHAR(32) NOT NULL
+			name VARCHAR(32) NOT NULL,
 			description VARCHAR(256) NOT NULL,
 			allowed_content_filters VARCHAR(64) NOT NULL,
 			default_published TINYINT NOT NULL,
@@ -302,7 +304,7 @@ class xInstallCMS
 			itemid INT UNSIGNED NOT NULL,
 			catid INT UNSIGNED NOT NULL,
 			FOREIGN KEY (itemid) REFERENCES item(id) ON DELETE CASCADE,
-			FOREIGN KEY (catid) REFERENCES item_cathegory(id) ON DELETE CASCADE
+			FOREIGN KEY (catid) REFERENCES cathegory(id) ON DELETE CASCADE
 			)TYPE=InnoDB"
 		);
 		
@@ -339,7 +341,7 @@ class xInstallCMS
 		$menu->m_items[] = $menuitem;
 		
 		$menuitem = new xMenuItem('Manage Items','?p=admin/item',0);
-		$menuitem->m_subitems[] = new xMenuItem('Create Item (Generic)','?p=item/create',0);
+		$menuitem->m_subitems[] = new xMenuItem('Create Item page','?p=item/page/create',0);
 		$menuitem->m_subitems[] = new xMenuItem('Manage types','?p=admin/itemtype',0);
 		$menu->m_items[] = $menuitem;
 		
@@ -358,7 +360,7 @@ class xInstallCMS
 		$item_type->dbInsert();
 		$item_type = new xItemType('comment','A comment');
 		$item_type->dbInsert();
-		$item_type = new xItemPageType('page','Basic item type');
+		$item_type = new xItemPageType('page','Basic item type','html,bbcode,notags',true,false,false,true);
 		$item_type->dbInsert();
 	}
 };

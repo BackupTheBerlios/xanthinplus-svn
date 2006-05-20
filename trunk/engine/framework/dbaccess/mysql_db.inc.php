@@ -117,18 +117,6 @@ class xDBMysql extends xDB
 	{
 		return mysql_real_escape_string($text);
 	}
-	
-	// DOCS INHERITHED  ========================================================
-	function lockTable($table) 
-	{
-		$this->query('LOCK TABLES {%s} WRITE', $table);
-	}
-
-	// DOCS INHERITHED  ========================================================
-	function unlockTables()
-	{
-		$this->query('UNLOCK TABLES');
-	}
 
 	// DOCS INHERITHED  ========================================================
 	function _startTransaction()
