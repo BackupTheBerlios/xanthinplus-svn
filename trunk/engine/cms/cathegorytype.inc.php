@@ -46,18 +46,23 @@ class xCathegoryType
 	
 	/** 
 	 * Inserts this into db
+	 * @return bool FALSE on error
 	 */
 	function dbInsert()
 	{
 		$this->m_id = xCathegoryTypeDAO::insert($this);
+		
+		return $this->m_id;
 	}
 	
 	/** 
 	 * Delete this from db
+	 *
+	 * @return bool FALSE on error
 	 */
 	function dbDelete()
 	{
-		xCathegoryTypeDAO::delete($this->m_name);
+		return xCathegoryTypeDAO::delete($this->m_name);
 	}
 	
 	
@@ -65,19 +70,22 @@ class xCathegoryType
 	 * Delete an item type from db using its name
 	 *
 	 * @param int $typename
+	 * @return bool FALSE on error
 	 * @static
 	 */
 	function dbDeleteByName($typename)
 	{
-		xCathegoryTypeDAO::delete($typename);
+		return xCathegoryTypeDAO::delete($typename);
 	}
 	
 	/**
 	 * Update this in db
+	 *
+	 * @return bool FALSE on error
 	 */
 	function dbUpdate()
 	{
-		xCathegoryTypeDAO::update($this);
+		return xCathegoryTypeDAO::update($this);
 	}
 	
 	/**

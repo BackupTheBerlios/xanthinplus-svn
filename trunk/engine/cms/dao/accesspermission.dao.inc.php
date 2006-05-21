@@ -29,11 +29,12 @@ class xAccessPermissionDAO
 	/**
 	 *
 	 * @param xAccessPermission $access_permission
+	 * @return bool FALSE on error
 	 * @static
 	 */
 	function insert($access_permission)
 	{
-		xDB::getDB()->query("INSERT INTO access_permission(resource,resource_type,operation,role) 
+		return xDB::getDB()->query("INSERT INTO access_permission(resource,resource_type,operation,role) 
 			VALUES ('%s','%s','%s','%s')",
 			$access_permission->m_resource,(string) $access_permission->m_resource_type,$access_permission->m_operation,
 			$access_permission->m_role);
@@ -41,11 +42,12 @@ class xAccessPermissionDAO
 	
 	/**
 	 *
+	 * @return bool FALSE on error
 	 * @static
 	 */
 	function delete($resource,$resource_type,$operation,$role)
 	{
-		xDB::getDB()->query("DELETE FROM access_permission WHERE resource = '%s' AND resource_type = '%s' 
+		return xDB::getDB()->query("DELETE FROM access_permission WHERE resource = '%s' AND resource_type = '%s' 
 			AND operation = '%s' AND role = '%s'",$resource,(string) $resource_type,$operation,$role);
 	}
 	

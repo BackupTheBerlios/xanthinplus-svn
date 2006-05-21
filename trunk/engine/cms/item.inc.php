@@ -92,11 +92,12 @@ class xItem extends xElement
 	 * Delete an item from db using its id
 	 *
 	 * @param int $catid
+	 * @return bool FALSE on error
 	 * @static
 	 */
 	function dbDeleteById($id)
 	{
-		xItemDAO::delete($id);
+		return xItemDAO::delete($id);
 	}
 	
 	/**

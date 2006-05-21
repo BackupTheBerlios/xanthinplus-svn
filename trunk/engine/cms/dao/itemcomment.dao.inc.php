@@ -28,23 +28,24 @@ class xItemCommentDAO
 	 * Insert a new item Comment
 	 *
 	 * @param xItemComment $item
-	 * @return int The new id
+	 * @return int The new id or FALSE on error
 	 * @static
 	 */
-	function insert($item)
+	function insert($item,$transaction = true)
 	{
-		return xItemDAO::insert($item);
+		return xItemDAO::insert($item,$transaction);
 	}
 	
 	/**
 	 * Deletes an item and all its replies.
 	 * 
 	 * @param int $itemid
+	 * @return bool FALSE on error
 	 * @static
 	 */
-	function delete($itemid)
+	function delete($itemid,$transaction = true)
 	{
-		xItemDAO::delete($itemid);
+		return xItemDAO::delete($itemid,$transaction);
 	}
 	
 	/**
@@ -52,11 +53,12 @@ class xItemCommentDAO
 	 *
 	 * 
 	 * @param xItemComment $item
+	 * @return bool FALSE on error
 	 * @static
 	 */
 	function update($item)
 	{
-		xItemDAO::update($item);
+		return xItemDAO::update($item);
 	}
 	
 	

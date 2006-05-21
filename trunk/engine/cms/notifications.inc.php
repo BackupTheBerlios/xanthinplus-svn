@@ -21,7 +21,7 @@ $g_xanth_ob_after_notifications = '';
 $g_xanth_notifications = array();
 
 
-define('NOTIFICATION_ADVICE',2);
+define('NOTIFICATION_NOTICE',2);
 define('NOTIFICATION_WARNING',4);
 define('NOTIFICATION_ERROR',8);
 
@@ -60,17 +60,19 @@ class xNotifications
 	/**
 	 * Render this static element
 	 */
-	function render()
+	function render(&$lastoutput)
 	{
 		global $g_xanth_ob_before_notifications;
 		$g_xanth_ob_before_notifications = ob_get_clean();
+		$g_xanth_ob_before_notifications .= $lastoutput;
+		$lastoutput = '';
 		ob_start();
 	}
 	
 	/**
 	 *
 	 * @param int $severity One between:
-	 * - NOTIFICATION_ADVICE
+	 * - NOTIFICATION_NOTICE
 	 * - NOTIFICATION_WARNING
 	 * - NOTIFICATION_ERROR
 	 * @param string $message
@@ -88,13 +90,14 @@ class xNotifications
 	function _renderAll()
 	{
 		global $g_xanth_notifications;
+		
 		$notifications = array();
 		foreach($g_xanth_notifications as $notification)
 		{
-			$notifications[] = array('severity' => $notification->severity,'message' => $notification->message);
+			$notifications[] = array('severity' => $notification->m_severity,'message' => $notification->m_message);
 		}
 		
-		return xTheme::render3('renderNotifications',$notifications);
+		return xTheme::render1('renderNotifications',$notifications);
 	}
 	
 	/**

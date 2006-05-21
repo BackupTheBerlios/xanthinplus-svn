@@ -28,11 +28,12 @@ class xItemPageTypeDAO
 	 * Insert a new item type
 	 *
 	 * @param xItemPageType $item_type
+	 * @return bool FALSE on error
 	 * @static
 	 */
 	function insert($item_type)
 	{
-		xDB::getDB()->query("INSERT INTO item_page_subtype (name,description,allowed_content_filters,default_published,
+		return xDB::getDB()->query("INSERT INTO item_page_subtype (name,description,allowed_content_filters,default_published,
 			default_sticky,default_accept_replies,default_approved) VALUES ('%s','%s','%s',%d,%d,%d,%d)",
 			$item_type->m_name,$item_type->m_description,$item_type->m_allowed_content_filters,
 			$item_type->m_default_published,$item_type->m_default_sticky,$item_type->m_default_accept_replies,
@@ -48,7 +49,7 @@ class xItemPageTypeDAO
 	 */
 	function delete($typename)
 	{
-		xDB::getDB()->query("DELETE FROM item_page_subtype WHERE name = '%s'",$typename);
+		return xDB::getDB()->query("DELETE FROM item_page_subtype WHERE name = '%s'",$typename);
 	}
 	
 	/**
@@ -60,7 +61,7 @@ class xItemPageTypeDAO
 	 */
 	function update($item_type)
 	{
-		xDB::getDB()->query("UPDATE item_page_subtype SET description = '%s', allowed_content_filters = '%s',
+		return xDB::getDB()->query("UPDATE item_page_subtype SET description = '%s', allowed_content_filters = '%s',
 			default_published = %d,default_sticky = %d,default_accept_replies = %d,default_approved = %d
 			WHERE name = '%s'",$item_type->m_description,$item_type->m_name,$item_type->m_allowed_content_filters,
 			$item_type->m_default_published,$item_type->m_default_sticky,$item_type->m_default_accept_replies,
@@ -76,8 +77,8 @@ class xItemPageTypeDAO
 	function _itempagetypeFromRow($row_object)
 	{
 		return new xItemPageType($row_object->name,$row_object->description,$row_object->allowed_content_filters,
-		$row_object->default_published,$row_object->default_sticky,$row_object->default_accept_replies,
-		$row_object->default_approved);
+			$row_object->default_published,$row_object->default_sticky,$row_object->default_accept_replies,
+			$row_object->default_approved);
 	}
 	
 	

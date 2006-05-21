@@ -28,15 +28,13 @@ class xCathegoryDAO
 	 * Insert a new cathegory
 	 *
 	 * @param xCathegory $cathegory
-	 * @return int The new id
+	 * @return int The new id or FALSE on error
 	 * @static
 	 */
 	function insert($cathegory,$transaction = TRUE)
 	{
 		if($transaction)
-		{
 			xDB::getDB()->startTransaction();
-		}
 		
 		$id = xUniqueId::generate('cathegory');
 		$field_names = "id,name,type,description";
@@ -57,12 +55,11 @@ class xCathegoryDAO
 			$values[] = $cathegory->m_items_type;
 		}
 		
-		xDB::getDB()->query("INSERT INTO cathegory($field_names) VALUES($field_values)",$values);
+		if(! xDB::getDB()->query("INSERT INTO cathegory($field_names) VALUES($field_values)",$values))
+			return false;
 		
 		if($transaction)
-		{
 			xDB::getDB()->commit();
-		}
 		
 		return $id;
 	}
@@ -70,20 +67,20 @@ class xCathegoryDAO
 	/**
 	 * Deletes a cathegory
 	 *
-	 * 
 	 * @param int $catid
+	 * @return bool FALSE on error
 	 * @static
 	 */
 	function delete($catid)
 	{
-		xDB::getDB()->query("DELETE FROM cathegory WHERE id = %d",$catid);
+		return xDB::getDB()->query("DELETE FROM cathegory WHERE id = %d",$catid);
 	}
 	
 	/**
 	 * Updates a cathegory.
 	 *
-	 * 
 	 * @param xCathegory $cathegory
+	 * @return bool FALSE on error
 	 * @static
 	 */
 	function update($cathegory)
@@ -114,7 +111,7 @@ class xCathegoryDAO
 		
 		
 		$values[] = $cathegory->m_id;
-		xDB::getDB()->query("UPDATE cathegory SET $fields WHERE id = %d",$values);
+		return xDB::getDB()->query("UPDATE cathegory SET $fields WHERE id = %d",$values);
 	}
 	
 	/**

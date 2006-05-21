@@ -39,26 +39,32 @@ class xRole
 	
 	/**
 	 * Insert this xRole into database
+	 *
+	 * @return bool FALSE on error
 	 */ 
 	function dbInsert()
 	{
-		xRoleDAO::insert($this);
+		return xRoleDAO::insert($this);
 	}
 	
 	/**
 	 * Delete this xRole from db. Using name.
+	 *
+	 * @return bool FALSE on error
 	 */ 
 	function dbDelete()
 	{
-		xRoleDAO::delete($this->m_name);
+		return xRoleDAO::delete($this->m_name);
 	}
 	
 	/**
 	 * Update this xRole in database.
+	 *
+	 * @return bool FALSE on error
 	 */
 	function dbUpdate()
 	{
-		xRoleDAO::update($this);
+		return xRoleDAO::update($this);
 	}
 	
 	/**

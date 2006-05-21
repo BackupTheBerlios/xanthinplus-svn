@@ -58,19 +58,6 @@ class xDB
 		assert(FALSE);
 	}
 	
-	/**
-	* Execute a raw query on current selected database.
-	*
-	* @param string $query The query
-	* @access protected
-	* @abstract
-	*/
-	function _query($query)
-	{
-		//must override this function
-		assert(FALSE);
-	}
-	
 	
 	/**
 	 * Fetch one result row from the previous query as an object.
@@ -122,9 +109,19 @@ class xDB
 	 * @return int The error code
 	 * @abstract
 	 */
-	function lastError() 
+	function errno() 
 	{
-		//must override this function
+		assert(FALSE);
+	}
+	
+	/**
+	 * Returns the last error explanation
+	 *
+	 * @return string
+	 * @abstact
+	 */
+	function error() 
+	{
 		assert(FALSE);
 	}
 	

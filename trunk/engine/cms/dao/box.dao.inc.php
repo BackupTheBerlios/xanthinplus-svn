@@ -26,6 +26,7 @@ class xBoxDAO
 	* Insert a new box.
 	*
 	* @param xBox $box
+	* @return bool FALSE on error
 	* @static 
 	*/
 	function insert($box)
@@ -47,7 +48,7 @@ class xBoxDAO
 			$values[] = $box->m_filterset;
 		}
 		
-		xDB::getDB()->query("INSERT INTO box($field_names) VALUES($field_values)",$values);
+		return xDB::getDB()->query("INSERT INTO box($field_names) VALUES($field_values)",$values);
 	}
 	
 	
@@ -55,6 +56,7 @@ class xBoxDAO
 	 * Update an existing box.
 	 *
 	 * @param xBox $box
+	 * @return bool FALSE on error
 	 * @static 
 	 */
 	function update($box)
@@ -83,7 +85,7 @@ class xBoxDAO
 		}
 		
 		$values[] = $box->m_id;
-		xDB::getDB()->query("UPDATE box SET $fields WHERE name = '%s'",$values);
+		return xDB::getDB()->query("UPDATE box SET $fields WHERE name = '%s'",$values);
 	}
 	
 	
@@ -91,11 +93,12 @@ class xBoxDAO
 	* Delete an existing box. Based on key.
 	*
 	* @param xBox $box
+	* @return bool FALSE on error
 	* @static 
 	*/
 	function delete($box)
 	{
-		xDB::getDB()->query("DELETE FROM box WHERE name = '%s'",$box->m_name);
+		return xDB::getDB()->query("DELETE FROM box WHERE name = '%s'",$box->m_name);
 	}
 	
 	/**

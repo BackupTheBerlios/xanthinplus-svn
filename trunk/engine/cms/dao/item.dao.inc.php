@@ -28,26 +28,23 @@ class xItemDAO
 	 * Insert a new item
 	 *
 	 * @param xItem $item
-	 * @return int The new id
+	 * @return int The new id or FALSE on error
 	 * @static
 	 */
 	function insert($item,$transaction = TRUE)
 	{
 		if($transaction)
-		{
 			xDB::getDB()->startTransaction();
-		}
 		
 		$id = xUniqueId::generate('item');
 		
-		xDB::getDB()->query("INSERT INTO item(id,title,type,author,content,content_filter,creation_time) 
+		if( !xDB::getDB()->query("INSERT INTO item(id,title,type,author,content,content_filter,creation_time) 
 			VALUES (%d,'%s','%s','%s','%s','%s',NOW())",
-			$id,$item->m_title,$item->m_type,$item->m_author,$item->m_content,$item->m_content_filter);
+			$id,$item->m_title,$item->m_type,$item->m_author,$item->m_content,$item->m_content_filter))
+			return false;
 		
 		if($transaction)
-		{
 			xDB::getDB()->commit();
-		}
 		
 		return $id;
 	}
@@ -58,14 +55,21 @@ class xItemDAO
 	 * @param int $itemid
 	 * @static
 	 */
-	function delete($itemid)
+	function delete($itemid,$transaction = true)
 	{
-		xDB::getDB()->startTransaction();
+		if($transaction)
+			xDB::getDB()->startTransaction();
 		
-		xDB::getDB()->query("DELETE FROM item WHERE id = %d",$itemid);
-		xDB::getDB()->query("DELETE FROM item_replies WHERE parentid = %d",$itemid);
+		if(! xDB::getDB()->query("DELETE FROM item WHERE id = %d",$itemid))
+			return false;
 		
-		xDB::getDB()->commit();
+		if(! xDB::getDB()->query("DELETE FROM item_replies WHERE parentid = %d",$itemid))
+			return false;
+		
+		if($transaction)
+			xDB::getDB()->commit();
+		
+		return true;
 	}
 	
 	/**
@@ -73,11 +77,12 @@ class xItemDAO
 	 *
 	 * 
 	 * @param xItem $item
+	 * @return bool FALSE on error
 	 * @static
 	 */
 	function update($item)
 	{
-		xDB::getDB()->query("UPDATE item SET title = '%s',content = '%s',content_filter = '%s',lastedittime = NOW()",
+		return xDB::getDB()->query("UPDATE item SET title = '%s',content = '%s',content_filter = '%s',lastedittime = NOW()",
 			$item->m_title,$item->m_content,$item->m_content_filter);
 	}
 	

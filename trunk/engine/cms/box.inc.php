@@ -104,18 +104,22 @@ class xBox extends xElement
 	
 	/**
 	 * Delete this object from db
+	 *
+	 * @return bool FALSE on error
 	 */
 	function dbDelete()
 	{
-		xBoxDAO::delete($this);
+		return  xBoxDAO::delete($this);
 	}
 	
 	/**
 	 * Insert this object into db
+	 *
+	 * @return bool FALSE on error
 	 */
 	function dbInsert()
 	{
-		xBoxDAO::insert($this);
+		return xBoxDAO::insert($this);
 	}
 	
 	/**
@@ -231,10 +235,12 @@ class xBoxStatic extends xBox
 	
 	/**
 	 * Insert this object into db
+	 *
+	 * @return bool FALSE on error
 	 */
 	function dbInsert()
 	{
-		xBoxStaticDAO::insert($this);
+		return xBoxStaticDAO::insert($this);
 	}
 	
 	/**

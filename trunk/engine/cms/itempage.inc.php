@@ -93,26 +93,32 @@ class xItemPage extends xItem
 	
 	/** 
 	 * Inserts this into db
+	 *
+	 * @return bool FALSE on error
 	 */
 	function dbInsert()
 	{
-		xItemPageDAO::insert($this);
+		return xItemPageDAO::insert($this);
 	}
 	
 	/** 
 	 * Delete this from db
+	 *
+	 * @return bool FALSE on error
 	 */
 	function dbDelete()
 	{
-		xItemPageDAO::delete($this->m_id);
+		return xItemPageDAO::delete($this->m_id);
 	}
 	
 	/**
 	 * Update this in db
+	 *
+	 * @return bool FALSE on error
 	 */
 	function dbUpdate()
 	{
-		xItemPageDAO::update($this);
+		return xItemPageDAO::update($this);
 	}
 	
 	/**

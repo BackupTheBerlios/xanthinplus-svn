@@ -31,20 +31,29 @@ class xMenuDAO
 	 * Insert a new menu static.
 	 *
 	 * @param xMenuStatic $menu
+	 * @return bool FALSE on error
 	 * @static 
 	 */
-	function insert($menu)
+	function insert($menu,$transaction = TRUE)
 	{
-		xDB::getDB()->startTransaction();
-		xBoxDAO::insert($menu);
+		if($transaction)
+			xDB::getDB()->startTransaction();
 		
-		xMenuDAO::_insertItems($menu->m_name,$menu->m_items,0);
+		if(! xBoxDAO::insert($menu))
+			return false;
 		
-		xDB::getDB()->commit();
+		if(! xMenuDAO::_insertItems($menu->m_name,$menu->m_items,0))
+			return false;
+		
+		if($transaction)
+			xDB::getDB()->commit();
+		
+		return true;
 	}
 	
 	/**
 	 * @access private
+	 * @return bool FALSE on error
 	 * @static
 	 */
 	function _insertItems($menuname,$items,$parentid)
@@ -53,9 +62,10 @@ class xMenuDAO
 		{
 			foreach($items as $item)
 			{
-				$field_names = "box_name,label,link,weight";
-				$field_values = "'%s','%s','%s',%d";
-				$values = array($menuname,$item->m_label,$item->m_link,$item->m_weight);
+				$id = xUniqueId::generate('menu_items');
+				$field_names = "id,box_name,label,link,weight";
+				$field_values = "%d,'%s','%s','%s',%d";
+				$values = array($id,$menuname,$item->m_label,$item->m_link,$item->m_weight);
 				
 				if(!empty($parentid))
 				{
@@ -64,32 +74,45 @@ class xMenuDAO
 					$values[] = $parentid;
 				}
 				
-				xDB::getDB()->query("INSERT INTO menu_items($field_names) VALUES($field_values)",$values);
-				$newid = xDB::getDB()->getLastId();
 				
-				xMenuDAO::_insertItems($menuname,$item->m_subitems,$newid);
+				if(! xDB::getDB()->query("INSERT INTO menu_items($field_names) VALUES($field_values)",$values))
+					return false;
+				
+				if(! xMenuDAO::_insertItems($menuname,$item->m_subitems,$id))
+					return false;
 			}
 		}
+		
+		return true;
 	}
 	
 	/**
 	 * Update an existing static menu.
 	 *
 	 * @param xMenuStatic $menu
+	 * @return bool FALSE on error
 	 * @static 
 	 */
-	function update($menu)
+	function update($menu,$transaction = TRUE)
 	{
-		xDB::getDB()->startTransaction();
-		xBoxDAO::update($menu);
+		if($transaction)
+			xDB::getDB()->startTransaction();
+		
+		if(!xBoxDAO::update($menu))
+			return false;
 		
 		//clear all menu items
-		xDB::getDB()->query("DELETE FROM menu_items WHERE box_name = '%s')",$menu->m_name);
+		if(! xDB::getDB()->query("DELETE FROM menu_items WHERE box_name = '%s')",$menu->m_name))
+			return false;
 		
 		//insert new
-		xMenuDAO::_insertItems($menu->m_name,$menu->m_items,0);
+		if(! xMenuDAO::_insertItems($menu->m_name,$menu->m_items,0))
+			return false;
 		
-		xDB::getDB()->commit();
+		if($transaction)
+			xDB::getDB()->commit();
+		
+		return true;
 	}
 	
 	
@@ -97,11 +120,12 @@ class xMenuDAO
 	* Delete an existing static menu. Based on key.
 	*
 	* @param xMenuStatic $menu
+	* @return bool FALSE on error
 	* @static 
 	*/
 	function delete($menu)
 	{
-		xBoxDAO::delete($menu);
+		return xBoxDAO::delete($menu);
 	}
 	
 	

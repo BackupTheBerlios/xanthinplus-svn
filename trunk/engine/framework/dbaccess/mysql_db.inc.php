@@ -58,7 +58,7 @@ class xDBMysql extends xDB
 
 		if(mysql_errno())
 		{
-			trigger_error("(errno: ". mysql_errno() .")" . mysql_error() ."\nquery: ". $query, E_USER_WARNING);
+			trigger_error("(errno: ". $this->errno() .")" . $this->error()."\nquery: ". $query, E_USER_WARNING);
 			return FALSE;
 		}
 		
@@ -95,9 +95,15 @@ class xDBMysql extends xDB
 	}
 	
 	// DOCS INHERITHED  ========================================================
-	function lastError() 
+	function errno() 
 	{
-		return mysql_errno();
+		return mysql_errno($this->m_connection);
+	}
+	
+	// DOCS INHERITHED  ========================================================
+	function error() 
+	{
+		return mysql_error($this->m_connection);
 	}
 	
 	// DOCS INHERITHED  ========================================================
@@ -128,12 +134,14 @@ class xDBMysql extends xDB
 	function _commit()
 	{
 		$this->query('COMMIT');
+		$this->m_is_transaction_started = FALSE;
 	}
 
 	// DOCS INHERITHED  ========================================================
 	function _rollback()
 	{
 		$this->query('ROLLBACK');
+		$this->m_is_transaction_started = FALSE;
 	}
 
 	// DOCS INHERITHED  ========================================================
@@ -170,8 +178,8 @@ class xDBMysql extends xDB
 		
 		$args = func_get_args();
 		array_shift($args);
-		if(isset($args[0]) and is_array($args[0])) // 'All arguments in one array' syntax
-		{ 
+		if(isset($args[0]) && is_array($args[0])) // 'All arguments in one array' syntax
+		{
 			$args = $args[0];
 		}
 		
@@ -179,13 +187,12 @@ class xDBMysql extends xDB
 		$query = preg_replace_callback('/(%d|%s|%%|%f|%b)/', 'x_mysql_query_callback', $query);
 		$result = $this->_query($query);
 		
-		if($result == FALSE)
+		if($result === FALSE)
 		{
 			//rollback from transaction
 			if(! empty($this->m_is_transaction_started))
 			{
 				$this->_rollback();
-				$this->m_is_transaction_started = FALSE;
 			}
 		}
 

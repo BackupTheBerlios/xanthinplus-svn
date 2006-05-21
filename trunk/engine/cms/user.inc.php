@@ -55,28 +55,34 @@ class xUser
 	 * Insert this user in database
 	 *
 	 * @param string $password
+	 * @return bool FALSE on error
 	 */
 	function dbInsert($password)
 	{
 		$this->m_id = xUserDAO::insert($this,$password);
+		
+		return $this->m_id;
 	}
 	
 	/**
 	 * Delete this user from db. (based on username)
+	 *
+	 * @return bool FALSE on error
 	 */
 	function dbDelete()
 	{
-		xUserDAO::delete($this->m_username);
+		return xUserDAO::delete($this->m_username);
 	}
 	
 	/**
 	 * Update data of this user
 	 *
 	 * @param string $password
+	 * @return bool FALSE on error
 	 */
 	function dbUpdate($password)
 	{
-		 xUserDAO::update($this,$password);
+		 return xUserDAO::update($this,$password);
 	}
 	
 	
@@ -300,10 +306,11 @@ class xUser
 	 * Give a role to a user. Based on user id and role name.
 	 *
 	 * @param string $rolename
+	 * @return bool FALSE on error
 	 */
 	function giveRole($rolename)
 	{
-		xUserDAO::giveRole($this->m_id,$rolename);
+		return xUserDAO::giveRole($this->m_id,$rolename);
 	}
 	
 	
@@ -345,10 +352,11 @@ class xUser
 	 * Remove a user from a role. Based on user id and role name.
 	 *
 	 * @param string $rolename
+	 * @return bool FALSE on error
 	 */
 	function removeFromRole($rolename)
 	{
-		xUserDAO::removeFromRole($this->m_id,$rolename);
+		return xUserDAO::removeFromRole($this->m_id,$rolename);
 	}
 	
 	/**

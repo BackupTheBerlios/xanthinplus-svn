@@ -26,17 +26,25 @@ class xBoxStaticDAO
 	 * Insert a new static box.
 	 *
 	 * @param xBoxStatic $box
+	 * @return bool FALSE on error
 	 * @static 
 	 */
-	function insert($box)
+	function insert($box,$transaction = true)
 	{
-		xDB::getDB()->startTransaction();
-		xBoxDAO::insert($box);
+		if($transaction)
+			xDB::getDB()->startTransaction();
 		
-		xDB::getDB()->query("INSERT INTO box_static(box_name,content,content_filter) VALUES('%s','%s','%s')",
-			$box->m_name,$box->m_content,$box->m_content_filter);
+		if(! xBoxDAO::insert($box,false))
+			return FALSE;
 		
-		xDB::getDB()->commit();
+		if(! xDB::getDB()->query("INSERT INTO box_static(box_name,content,content_filter) VALUES('%s','%s','%s')",
+			$box->m_name,$box->m_content,$box->m_content_filter))
+			return FALSE;
+		
+		if($transaction)
+			xDB::getDB()->commit();
+		
+		return TRUE;
 	}
 	
 	
@@ -44,17 +52,25 @@ class xBoxStaticDAO
 	 * Update an existing static box.
 	 *
 	 * @param xBoxStatic $box
+	 * @return bool FALSE on error
 	 * @static 
 	 */
-	function update($box)
+	function update($box,$transaction = true)
 	{
-		xDB::getDB()->startTransaction();
-		xBoxDAO::update($box);
+		if($transaction)
+			xDB::getDB()->startTransaction();
 		
-		xDB::getDB()->query("UPDATE box_static SET content,content_filter WHERE box_name = '%s'",
-			$box->m_content,$box->m_content_filter,$box->m_name);
+		if(! xBoxDAO::update($box,false))
+			return FALSE;
 		
-		xDB::getDB()->commit();
+		if(! xDB::getDB()->query("UPDATE box_static SET content,content_filter WHERE box_name = '%s'",
+			$box->m_content,$box->m_content_filter,$box->m_name))
+			return FALSE;
+		
+		if($transaction)
+			xDB::getDB()->commit();
+		
+		return TRUE;
 	}
 	
 	
@@ -62,18 +78,19 @@ class xBoxStaticDAO
 	* Delete an existing static box. Based on key.
 	*
 	* @param xBoxStatic $box
+	* @return bool FALSE on error
 	* @static 
 	*/
 	function delete($box)
 	{
-		xBoxDAO::delete($box);
+		return xBoxDAO::delete($box);
 	}
 	
 	/**
 	 * Extract specific data for static box and build and return a new xBoxStatic
 	 *
 	 * @param xBox $box
-	 * @return xBoxStatic
+	 * @return xBoxStatic or NULL no error
 	 * @static
 	 */
 	function toSpecificBox($box)

@@ -28,35 +28,36 @@ class xRoleDAO
 	 * Insert a new role 
 	 *
 	 * @param xRole $role The role to insert
+	 * @return bool FALSE on error
 	 * @static
 	 */
 	function insert($role)
 	{
-		xDB::getDB()->query("INSERT INTO role(name,description) VALUES ('%s','%s')",$role->m_name,$role->m_description);
+		return xDB::getDB()->query("INSERT INTO role(name,description) VALUES ('%s','%s')",$role->m_name,$role->m_description);
 	}
 	
 	/**
 	 * Deletes a role. Based on key.
 	 *
-	 * 
 	 * @param string $rolename
+	 * @return bool FALSE on error
 	 * @static
 	 */
 	function delete($rolename)
 	{
-		xDB::getDB()->query("DELETE FROM role WHERE name = '%s'",$rolename);
+		return xDB::getDB()->query("DELETE FROM role WHERE name = '%s'",$rolename);
 	}
 	
 	/**
 	 * Updates a role.
 	 *
-	 * 
 	 * @param xRole $role The role to update
+	 * @return bool FALSE on error
 	 * @static
 	 */
 	function update($role)
 	{
-		xDB::getDB()->query("UPDATE role SET description = '%s' WHERE name = '%s')",$role->m_description,$role->m_name);
+		return xDB::getDB()->query("UPDATE role SET description = '%s' WHERE name = '%s')",$role->m_description,$role->m_name);
 	}
 	
 	

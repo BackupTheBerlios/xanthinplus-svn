@@ -89,6 +89,7 @@ class xInstallCMS
 			INDEX(username),
 			UNIQUE(email)
 			)TYPE=InnoDB");
+		xUniqueId::createNew('user');
 			
 		//User to role
 		xDB::getDB()->query("
@@ -105,12 +106,13 @@ class xInstallCMS
 		//access filter set
 		xDB::getDB()->query("
 			CREATE TABLE access_filter_set (
-			id INT UNSIGNED AUTO_INCREMENT NOT NULL,
+			id INT UNSIGNED NOT NULL,
 			name VARCHAR(32) NOT NULL,
 			description VARCHAR(256) NOT NULL,
 			PRIMARY KEY(id)
 			)TYPE=InnoDB"
 		);
+		xUniqueId::createNew('access_filter_set');
 		
 		//access filter role
 		xDB::getDB()->query("
@@ -188,8 +190,8 @@ class xInstallCMS
 		//menu_static_items
 		xDB::getDB()->query("
 			CREATE TABLE menu_items (
+			id INT UNSIGNED NOT NULL,
 			box_name VARCHAR(32) NOT NULL,
-			id INT UNSIGNED AUTO_INCREMENT NOT NULL,
 			label VARCHAR(128) NOT NULL,
 			link VARCHAR(128) NOT NULL,
 			weight TINYINT NOT NULL,
@@ -200,6 +202,7 @@ class xInstallCMS
 			FOREIGN KEY (box_name) REFERENCES box(name) ON DELETE CASCADE
 			)TYPE=InnoDB"
 		);
+		xUniqueId::createNew('menu_items');
 		
 		
 		//item type

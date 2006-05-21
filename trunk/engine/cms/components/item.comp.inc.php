@@ -147,14 +147,22 @@ class xModuleItem extends xModule
 					$ret->m_valid_data['body'],$ret->m_valid_data['filter'],NULL,NULL,$subtype,
 					$ret->m_valid_data['published'],$ret->m_valid_data['sticky'],$ret->m_valid_data['accept_replies'],
 					$ret->m_valid_data['approved'],0,$ret->m_valid_data['description'],$ret->m_valid_data['keywords']);
-				$item->dbInsert();
-				return new xContentSimple("Create new item page",'New item was created with id: ','','');
+				if($item->dbInsert())
+				{
+					xNotifications::add(NOTIFICATION_NOTICE,'New item successfully created');
+				}
+				else
+				{
+					xNotifications::add(NOTIFICATION_ERROR,'Error: Item was not created');
+				}
+				
+				return new xContentSimple("Create new item page",'','','');
 			}
 			else
 			{
 				foreach($ret->m_errors as $error)
 				{
-					xLog::log(LOG_LEVEL_USER_MESSAGE,$error);
+					xNotifications::add(NOTIFICATION_WARNING,$error);
 				}
 			}
 		}

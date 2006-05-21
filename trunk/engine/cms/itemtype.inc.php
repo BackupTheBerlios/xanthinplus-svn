@@ -46,18 +46,24 @@ class xItemType
 	
 	/** 
 	 * Inserts this into db
+	 *
+	 * @return bool FALSE on error
 	 */
 	function dbInsert()
 	{
 		$this->m_id = xItemTypeDAO::insert($this);
+		
+		return $this->m_id;
 	}
 	
 	/** 
 	 * Delete this from db
+	 *
+	 * @return bool FALSE on error
 	 */
 	function dbDelete()
 	{
-		xItemTypeDAO::delete($this->m_name);
+		return xItemTypeDAO::delete($this->m_name);
 	}
 	
 	
@@ -65,19 +71,22 @@ class xItemType
 	 * Delete an item type from db using its name
 	 *
 	 * @param int $typename
+	 * @return bool FALSE on error
 	 * @static
 	 */
 	function dbDeleteByName($typename)
 	{
-		xItemTypeDAO::delete($typename);
+		return xItemTypeDAO::delete($typename);
 	}
 	
 	/**
 	 * Update this in db
+	 *
+	 * @return bool FALSE on error
 	 */
 	function dbUpdate()
 	{
-		xItemTypeDAO::update($this);
+		return xItemTypeDAO::update($this);
 	}
 	
 	/**

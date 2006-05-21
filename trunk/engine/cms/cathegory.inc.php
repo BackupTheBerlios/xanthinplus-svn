@@ -82,18 +82,22 @@ class xCathegory extends xElement
 	
 	/** 
 	 * Inserts this into db
+	 *
+	 * @return bool FALSE on error
 	 */
 	function dbInsert()
 	{
-		xCathegoryDAO::insert($this);
+		return xCathegoryDAO::insert($this);
 	}
 	
 	/** 
 	 * Delete this cathegory from db
+	 *
+	 * @return bool FALSE on error
 	 */
 	function dbDelete()
 	{
-		xCathegoryDAO::delete($this->m_id);
+		return xCathegoryDAO::delete($this->m_id);
 	}
 	
 	
@@ -101,19 +105,22 @@ class xCathegory extends xElement
 	 * Delete a cathegory from db using its id
 	 *
 	 * @param int $catid
+	 * @return bool FALSE on error
 	 * @static
 	 */
 	function dbDeleteById($catid)
 	{
-		xCathegoryDAO::delete($catid);
+		return xCathegoryDAO::delete($catid);
 	}
 	
 	/**
 	 * Update this in db
+	 *
+	 * @return bool FALSE on error
 	 */
 	function dbUpdate()
 	{
-		xCathegoryDAO::update($this);
+		return xCathegoryDAO::update($this);
 	}
 	
 	/**

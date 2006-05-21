@@ -81,18 +81,24 @@ class xItemPageType
 	
 	/** 
 	 * Inserts this into db
+	 *
+	 * @return bool FALSE on error
 	 */
 	function dbInsert()
 	{
 		$this->m_id = xItemPageTypeDAO::insert($this);
+		
+		return $this->m_id;
 	}
 	
 	/** 
 	 * Delete this from db
+	 *
+	 * @return bool FALSE on error
 	 */
 	function dbDelete()
 	{
-		xItemPageTypeDAO::delete($this->m_name);
+		return xItemPageTypeDAO::delete($this->m_name);
 	}
 	
 	
@@ -100,19 +106,22 @@ class xItemPageType
 	 * Delete an item type from db using its name
 	 *
 	 * @param int $typename
+	 * @return bool FALSE on error
 	 * @static
 	 */
 	function dbDeleteById($typename)
 	{
-		xItemPageTypeDAO::delete($typename);
+		return xItemPageTypeDAO::delete($typename);
 	}
 	
 	/**
 	 * Update this in db
+	 *
+	 * @return bool FALSE on error
 	 */
 	function dbUpdate()
 	{
-		xItemPageTypeDAO::update($this);
+		return xItemPageTypeDAO::update($this);
 	}
 	
 	/**

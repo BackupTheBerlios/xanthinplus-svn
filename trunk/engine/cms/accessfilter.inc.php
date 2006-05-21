@@ -101,10 +101,13 @@ class xAccessFilterSet
 	
 	/**
 	 * Insert this object into db
+	 * @return bool FALSE on error
 	 */
 	function dbInsert()
 	{
 		$this->m_id = xAccessFilterSetDAO::insert($this);
+		
+		return $this->m_id;
 	}
 	
 	/**

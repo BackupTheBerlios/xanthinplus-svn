@@ -416,7 +416,8 @@ class xDefaultTheme extends xTheme
 		$output .= "<body>\n";
 		$output .= '<table id="page-table"><tr>' . "\n";
 		$output .= '<td id="left-sidebar">' . $left_area_out . '</td>';
-		$output .= '<td id="content">' . $content->render() . '</td>';
+		$output .= '<td id="content">';
+		$output .= xNotifications::render($output) . $content->render() . '</td>';
 		$output .= "</tr></table>\n";
 		$output .= '<div align="center"> Queries ' . xDB::getDB()->queryGetCount() . ', Execution time ' . xExecutionTime::onRender() . ' secs</div>';
 		$output .= xLogEntry::renderFromScreen();
@@ -470,7 +471,14 @@ class xDefaultTheme extends xTheme
 	 */
 	function renderNotifications($notifications)
 	{
+		$output = '';
+		foreach($notifications as $notification)
+		{
+			$output .= '<div class="notification"><div class="' . $notification['severity'] . '">' .
+				$notification['message'] . '</div></div>';
+		}
 		
+		return $output;
 	}
 };
 

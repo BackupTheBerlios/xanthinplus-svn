@@ -28,29 +28,27 @@ class xItemPageDAO
 	 * Insert a new item page
 	 *
 	 * @param xItemPage $item
-	 * @return int The new id
+	 * @return int The new id or FALSE on error
 	 * @static
 	 */
 	function insert($item,$transaction = TRUE)
 	{
 		if($transaction)
-		{
 			xDB::getDB()->startTransaction();
-		}
 		
 		$id = xItemDAO::insert($item,FALSE);
+		if($id == FALSE)
+			return false;
 		
-		xDB::getDB()->query("INSERT INTO item_page(itemid,subtype,sticky,accept_replies,published,approved,
+		if(! xDB::getDB()->query("INSERT INTO item_page(itemid,subtype,sticky,accept_replies,published,approved,
 			meta_description,meta_keywords) VALUES (%d,'%s',%d,%d,%d,%d,'%s','%s')",
 			$id,$item->m_subtype,$item->m_published,$item->m_sticky,$item->m_accept_replies,$item->m_published,
-			$item->m_approved,$item->m_meta_description,$item->m_meta_keywords);
+			$item->m_approved,$item->m_meta_description,$item->m_meta_keywords))
+			return false;
 			
 		
 		if($transaction)
-		{
 			xDB::getDB()->commit();
-		}
-		
 		
 		return $id;
 	}
@@ -59,11 +57,12 @@ class xItemPageDAO
 	 * Deletes an item and all its replies.
 	 * 
 	 * @param int $itemid
+	 * @return bool FALSE on error
 	 * @static
 	 */
-	function delete($itemid)
+	function delete($itemid,$transaction = true)
 	{
-		xItemDAO::delete($itemid);
+		return xItemDAO::delete($itemid,$transaction);
 	}
 	
 	/**
@@ -71,20 +70,27 @@ class xItemPageDAO
 	 *
 	 * 
 	 * @param xItemPage $item
+	 * @return bool FALSE on error
 	 * @static
 	 */
-	function update($item)
+	function update($item,$transaction = true)
 	{
-		xDB::getDB()->startTransaction();
+		if($transaction)
+			xDB::getDB()->startTransaction();
 		
-		xItemDAO::update($item);
+		if(! xItemDAO::update($item))
+			return false;
 		
-		xDB::getDB()->query("UPDATE item_page SET published = %d,sticky = %d,accept_replies = %d,published = %d,
+		if(! xDB::getDB()->query("UPDATE item_page SET published = %d,sticky = %d,accept_replies = %d,published = %d,
 			approved = %d,meta_description = '%s',meta_keywords = '%s' WHERE itemid = %d",
 			$item->m_published,$item->m_sticky,$item->m_accept_replies,$item->m_published,
-			$item->m_approved,$item->m_meta_description,$item->m_meta_keywords,$item->m_id);
+			$item->m_approved,$item->m_meta_description,$item->m_meta_keywords,$item->m_id))
+			return false;
 			
-		xDB::getDB()->commit();
+		if($transaction)
+			xDB::getDB()->commit();
+		
+		return true;
 	}
 	
 	

@@ -113,10 +113,12 @@ class xMenu extends xBox
 	
 	/**
 	 * Insert this object into db
+	 *
+	 * @return bool FALSE on error
 	 */
 	function dbInsert()
 	{
-		xMenuDAO::insert($this);
+		return xMenuDAO::insert($this);
 	}
 	
 	/**

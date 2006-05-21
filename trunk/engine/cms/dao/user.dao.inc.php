@@ -29,26 +29,34 @@ class xUserDAO
 	 *
 	 * @param xUser $user
 	 * @param string $password
-	 * @return int The new userid
+	 * @return int The new userid or FALSE on error
 	 * @static
 	 */
-	function insert($user,$password)
+	function insert($user,$password,$transaction = true)
 	{
-		xDB::getDB()->query("INSERT INTO user (username,password,email,cookie_token) VALUES ('%s','%s','%s','%s')",
-			$user->m_username,xUserDAO::_passwordHash($password),$user->m_email,md5(uniqid(rand(),true)));
+		if($transaction)
+			xDB::getDB()->startTransaction();
+			
+		$id = xUniqueId::generate('user');
+		xDB::getDB()->query("INSERT INTO user (id,username,password,email,cookie_token) VALUES (%d,'%s','%s','%s','%s')",
+			$id,$user->m_username,xUserDAO::_passwordHash($password),$user->m_email,md5(uniqid(rand(),true)));
 		
-		return xDB::getDB()->getLastId();
+		if($transaction)
+			xDB::getDB()->commit();
+			
+		return $id;
 	}
 	
 	/**
 	 * Deletes a user. Based on username.
 	 *
 	 * @param string $username
+	 * @return bool FALSE on error
 	 * @static
 	 */
 	function delete($username)
 	{
-		xDB::getDB()->query("DELETE FROM user WHERE username= '%s'",$username);
+		return xDB::getDB()->query("DELETE FROM user WHERE username= '%s'",$username);
 	}
 
 	/**
@@ -68,17 +76,18 @@ class xUserDAO
 	 *
 	 * @param xUser $user
 	 * @param string $password If NULL password will not be updated.
+	 * @return bool FALSE on error
 	 * @static
 	 */
 	function update($user,$password = NULL)
 	{
 		if(empty($password))
 		{
-			xDB::getDB()->query("UPDATE user SET email = '%s' WHERE username = '%s'",$user->m_email,$user->m_username);
+			return xDB::getDB()->query("UPDATE user SET email = '%s' WHERE username = '%s'",$user->m_email,$user->m_username);
 		}
 		else
 		{
-			xDB::getDB()->query("UPDATE user SET email = '%s',password= '%s' WHERE username = '%s'",
+			return xDB::getDB()->query("UPDATE user SET email = '%s',password= '%s' WHERE username = '%s'",
 				$user->m_email,xUserDAO::_passwordHash($password),$user->m_username);
 		}
 	}
@@ -106,11 +115,12 @@ class xUserDAO
 	 *
 	 * @param int $userid
 	 * @param string $rolename
+	 * @return bool FALSE on error
 	 * @static
 	 */
 	function giveRole($userid,$rolename)
 	{
-		xDB::getDB()->query("INSERT INTO user_to_role(userid,roleName) VALUES (%d,'%s')",$userid,$rolename);
+		return xDB::getDB()->query("INSERT INTO user_to_role(userid,roleName) VALUES (%d,'%s')",$userid,$rolename);
 	}
 	
 	
@@ -139,11 +149,12 @@ class xUserDAO
 	 *
 	 * @param int $userid
 	 * @param string $rolename
+	 * @return bool FALSE on error
 	 * @static
 	 */
 	function removeFromRole($userid,$rolename)
 	{
-		xDB::getDB()->query("DELETE FROM user_to_role WHERE userid = %d AND roleName = '%s'",$userid,$rolename);
+		return xDB::getDB()->query("DELETE FROM user_to_role WHERE userid = %d AND roleName = '%s'",$userid,$rolename);
 	}
 	
 	/**
@@ -226,6 +237,7 @@ class xUserDAO
 				return new xUser($row->id,$row->username,$row->email);
 			}
 		}
+		
 		return NULL;
 	}
 	

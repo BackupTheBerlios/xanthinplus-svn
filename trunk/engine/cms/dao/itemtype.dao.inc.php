@@ -28,11 +28,12 @@ class xItemTypeDAO
 	 * Insert a new item type
 	 *
 	 * @param xItemType $item_type
+	 * @return bool FALSE on error
 	 * @static
 	 */
 	function insert($item_type)
 	{
-		xDB::getDB()->query("INSERT INTO item_type (name,description) 
+		return xDB::getDB()->query("INSERT INTO item_type (name,description) 
 			VALUES ('%s','%s')",$item_type->m_name,$item_type->m_description);
 	}
 	
@@ -41,11 +42,12 @@ class xItemTypeDAO
 	 *
 	 * 
 	 * @param string $typename
+	 * @return bool FALSE on error
 	 * @static
 	 */
 	function delete($typename)
 	{
-		xDB::getDB()->query("DELETE FROM item_type WHERE name = '%s'",$typename);
+		return xDB::getDB()->query("DELETE FROM item_type WHERE name = '%s'",$typename);
 	}
 	
 	/**
@@ -53,11 +55,12 @@ class xItemTypeDAO
 	 *
 	 * 
 	 * @param xItemType $item_type
+	 * @return bool FALSE on error
 	 * @static
 	 */
 	function update($item_type)
 	{
-		xDB::getDB()->query("UPDATE item_type SET description = '%s' WHERE name = '%s'",
+		return xDB::getDB()->query("UPDATE item_type SET description = '%s' WHERE name = '%s'",
 			$item_type->m_description,$item_type->m_name);
 	}
 	

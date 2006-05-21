@@ -28,36 +28,37 @@ class xCathegoryTypeDAO
 	 * Insert a new cathegory type
 	 *
 	 * @param xCathegoryType $cathegory_type
+	 * @return bool FALSE on error
 	 * @static
 	 */
 	function insert($cathegory_type)
 	{
-		xDB::getDB()->query("INSERT INTO cathegory_type (name,description) 
+		return xDB::getDB()->query("INSERT INTO cathegory_type (name,description) 
 			VALUES ('%s','%s')",$cathegory_type->m_name,$cathegory_type->m_description);
 	}
 	
 	/**
 	 * Deletes a cathegory type.
 	 *
-	 * 
 	 * @param string $typename
+	 * @return bool FALSE on error
 	 * @static
 	 */
 	function delete($typename)
 	{
-		xDB::getDB()->query("DELETE FROM cathegory_type WHERE name = '%s'",$typename);
+		return xDB::getDB()->query("DELETE FROM cathegory_type WHERE name = '%s'",$typename);
 	}
 	
 	/**
 	 * Updates a cathegory type.
 	 *
-	 * 
 	 * @param xCathegoryType $item_type
+	 * @return bool FALSE on error
 	 * @static
 	 */
 	function update($cathegory_type)
 	{
-		xDB::getDB()->query("UPDATE cathegory_type SET description = '%s' WHERE name = '%s'",
+		return xDB::getDB()->query("UPDATE cathegory_type SET description = '%s' WHERE name = '%s'",
 			$cathegory_type->m_description,$cathegory_type->m_name);
 	}
 	
