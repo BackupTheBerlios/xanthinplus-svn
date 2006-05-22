@@ -81,8 +81,8 @@ class xAccessPermissionDAO
 	 */
 	function _accesspermissionFromRow($row_object)
 	{
-		return new xAccessPermission($row_object->resource,$row_object->resource_type,$row_object->operation,
-			$row_object->role);
+		return new xAccessPermission($row_object->resource,$row_object->operation,
+			$row_object->role,$row_object->resource_type);
 	}
 	
 	/**

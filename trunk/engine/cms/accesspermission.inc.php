@@ -48,7 +48,7 @@ class xAccessPermission
 	/**
 	 * Contructor
 	 */
-	function xAccessPermission($resource,$resource_type,$operation,$role)
+	function xAccessPermission($resource,$operation,$role,$resource_type = 'ALL')
 	{
 		$this->m_resource = $resource;
 		$this->m_resource_type = $resource_type;
@@ -105,7 +105,7 @@ class xAccessPermission
 	 * @return bool
 	 * @static
 	 */
-	function checkCurrentUserPermission($resource,$resource_type,$operation)
+	function checkCurrentUserPermission($resource,$operation,$resource_type = 'ALL')
 	{
 		$uid = xUser::getLoggedinUserid();
 		if($uid === 0)
@@ -152,7 +152,7 @@ class xAccessPermission
 /**
  * Represent a description of an access permission
  */
-class xPermissionDescriptor
+class xAccessPermissionDescriptor
 {
 	/**
 	 * @var string
@@ -179,7 +179,7 @@ class xPermissionDescriptor
 	var $m_description;
 	
 	
-	function xPermissionDescriptor($resource,$resource_type,$operation,$description)
+	function xAccessPermissionDescriptor($resource,$operation,$description,$resource_type = 'ALL')
 	{
 		$this->m_resource = $resource;
 		$this->m_resource_type = $resource_type;

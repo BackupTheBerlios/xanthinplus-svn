@@ -31,13 +31,13 @@ class xModuleItem extends xModule
 	 */ 
 	function getPermissionDescriptors()
 	{
-		$descr = array(new xAccessPermissionDescriptor('item',0,'create','Create item of any type'));
+		$descr = array(new xAccessPermissionDescriptor('item','create','Create item of any type'));
 		
-		$itemtypes = xItemType::fildAll();
+		$itemtypes = xItemType::findAll();
 		foreach($itemtypes as $itemtype)
 		{
-			$descr[] = new xAccessPermissionDescriptor('item',$itemtype->m_id,'create',
-				'Create item of type "'. $itemtype->m_name .'"');
+			$descr[] = new xAccessPermissionDescriptor('item','create',
+				'Create item of type "'. $itemtype->m_name .'"',$itemtype->m_name);
 		}
 		
 		return $descr;
@@ -77,7 +77,7 @@ class xModuleItem extends xModule
 			$subtype = $path->m_vars['subtype'];
 			$typecheck = 'page/'.$subtype;
 		}
-		if(!xAccessPermission::checkCurrentUserPermission('item',$typecheck,'create'))
+		if(!xAccessPermission::checkCurrentUserPermission('item','create',$typecheck))
 		{
 				return new xContentNotAuthorized();
 		}
@@ -88,7 +88,7 @@ class xModuleItem extends xModule
 		{
 			$cat = $path->m_vars['cathegory'];
 		}
-		if(!xAccessPermission::checkCurrentUserPermission('cathegory',$cat,'insert'))
+		if(!xAccessPermission::checkCurrentUserPermission('cathegory','insert',$cat))
 		{
 			return new xContentNotAuthorized();
 		}
@@ -176,7 +176,7 @@ class xModuleItem extends xModule
 	 */
 	function _getContentAdminItem()
 	{
-		if(!xAccessPermission::checkCurrentUserPermission('item',0,'admin'))
+		if(!xAccessPermission::checkCurrentUserPermission('item','admin'))
 		{
 			return new xContentNotAuthorized();
 		}
@@ -220,7 +220,7 @@ class xModuleItem extends xModule
 		}
 		
 		//check access
-		if(!xAccessPermission::checkCurrentUserPermission('item',$item->m_type . '/' . $item->m_subtype,'view'))
+		if(!xAccessPermission::checkCurrentUserPermission('item','view',$item->m_type . '/' . $item->m_subtype))
 		{
 			return new xContentNotAuthorized();
 		}
@@ -233,7 +233,7 @@ class xModuleItem extends xModule
 	 */
 	function _getContentAdminItemType()
 	{
-		if(!xAccessPermission::checkCurrentUserPermission('itemtype',0,'admin'))
+		if(!xAccessPermission::checkCurrentUserPermission('itemtype','admin'))
 		{
 			return new xContentNotAuthorized();
 		}

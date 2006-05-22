@@ -65,6 +65,15 @@ class xInstallCMS
 			PRIMARY KEY  (tablename)
 			)TYPE=InnoDB"
 		);
+		
+		//settings
+		xDB::getDB()->query("
+			CREATE TABLE settings (
+			name VARCHAR(32) NOT NULL,
+			value VARCHAR(512) NOT NULL,
+			PRIMARY KEY (name)
+			)TYPE=InnoDB"
+		);
 
 		
 		//Roles
@@ -312,6 +321,10 @@ class xInstallCMS
 		);
 		
 		
+		xSettings::insertNew('site_name','');
+		xSettings::insertNew('site_description','');
+		xSettings::insertNew('site_keywords','');
+		xSettings::insertNew('site_theme','');
 		
 		$role = new xRole('administrator','Administrator');
 		$role->dbInsert();
@@ -340,6 +353,9 @@ class xInstallCMS
 		$menuitem = new xMenuItem('Homepage','?',-1);
 		$menu->m_items[] = $menuitem;
 		
+		$menuitem = new xMenuItem('Settings','?p=admin/settings',0);
+		$menu->m_items[] = $menuitem;
+		
 		$menuitem = new xMenuItem('Manage Boxes','?p=admin/box',0);
 		$menu->m_items[] = $menuitem;
 		
@@ -352,9 +368,11 @@ class xInstallCMS
 		$menuitem->m_subitems[] = new xMenuItem('Create catheogry','?p=cathegory/create',0);
 		$menu->m_items[] = $menuitem;
 		
-		$menuitem = new xMenuItem('Manage Access Filters','?p=admin/accessfilters',0);
-		$menuitem->m_subitems[] = new xMenuItem('Manage Access Permission','?p=admin/accesspermissions',0);
+		$menuitem = new xMenuItem('Access Filters','?p=admin/accessfilters',0);
 		$menu->m_items[] = $menuitem;
+		$menuitem = new xMenuItem('Access Permissions','?p=admin/accesspermissions',0);
+		$menu->m_items[] = $menuitem;
+		
 		
 		$menu->dbInsert();
 		

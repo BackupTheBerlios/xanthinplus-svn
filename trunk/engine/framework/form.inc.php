@@ -244,7 +244,7 @@ class xInputValidatorInteger extends xInputValidator
 			return TRUE;
 		}
 		
-		if(!is_numeric($input))
+		if(! is_numeric($input))
 		{
 			$this->m_last_error = 'Field must contain a valid number';
 			return FALSE;
@@ -309,26 +309,68 @@ class xFormElement
 	 */
 	function getInputValueByName($name,$method)
 	{
+		$names = array();
+		//parse array structure
+		if(preg_match('#^([A-Z0-9_-]+)((\[[A-Z0-9_-]*\])*)$#i',$name,$pieces))
+		{
+			$names[] = $pieces[1];
+			if(!empty($pieces[2]))
+			{
+				if(preg_match_all('#\[([A-Z0-9_-]*)\]*#i',$pieces[2],$pieces))
+				{
+					array_unshift($pieces[1],$names[0]);
+					$names = $pieces[1];
+				}
+				else
+				{
+					//invalid variable name
+					assert(FALSE);
+				}
+			}
+		}
+		
 		if(strcasecmp($method,'POST') == 0)
 		{
-			if(isset($_POST[$name]))
-			{
-				return (string)$_POST[$name];
-			}
+			return xFormElement::_getInputValueFromRecurseArray($_POST,$names);
 		}
 		elseif(strcasecmp($method,'GET') == 0)
 		{		
-			if(isset($_GET[$name]))
-			{
-				return (string)$_GET[$name];
-			}
+			return xFormElement::_getInputValueFromRecurseArray($_GET,$names);
 		}
 		else
 		{
 			assert(FALSE);
 		}
 		
-		return '';
+		return NULL;
+	}
+	
+	
+	/**
+	 * @access private
+	 * @static
+	 */
+	function _getInputValueFromRecurseArray($array,$names)
+	{
+		$name = (string) $names[0];
+		if(is_numeric($names[0]))
+		{
+			$name = (int) $names[0];
+		}
+		
+		if(! isset($array[$name]))
+		{
+			return '';
+		}
+		elseif(! is_array($array[$name]))
+		{
+			return $array[$name];
+		}
+		else
+		{
+			array_shift($names);
+			return xFormElement::_getInputValueFromRecurseArray($array[$name],$names);
+		}
 	}
 	
 	/**
@@ -339,7 +381,6 @@ class xFormElement
 	 */
 	function isValid($method)
 	{
-		
 		$posted_value = $this->getInputValue($method);
 		if($posted_value === '')
 		{

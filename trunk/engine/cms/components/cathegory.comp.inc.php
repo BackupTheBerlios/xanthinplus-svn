@@ -45,7 +45,7 @@ class xModuleCathegory extends xModule
 	 */
 	function _getContentAdminCathegory()
 	{
-		if(!xAccessPermission::checkCurrentUserPermission('cathegory',0,'admin'))
+		if(!xAccessPermission::checkCurrentUserPermission('cathegory','admin'))
 		{
 			return new xContentNotAuthorized();
 		}
@@ -71,7 +71,7 @@ class xModuleCathegory extends xModule
 	 */
 	function _getContentCathegoryCreate()
 	{
-		if(!xAccessPermission::checkCurrentUserPermission('itemtype',0,'create'))
+		if(!xAccessPermission::checkCurrentUserPermission('itemtype','create'))
 		{
 			return new xContentNotAuthorized();
 		}

@@ -22,5 +22,6 @@ require_once('engine/cms/components/test.comp.inc.php');
 require_once('engine/cms/components/accesscontrol.comp.inc.php');
 require_once('engine/cms/components/item.comp.inc.php');
 require_once('engine/cms/components/cathegory.comp.inc.php');
+require_once('engine/cms/components/settings.comp.inc.php');
 
 ?>

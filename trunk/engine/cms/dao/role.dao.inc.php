@@ -82,7 +82,7 @@ class xRoleDAO
 	function findAll()
 	{
 		$roles = array();
-		$result = xDB::getDB()->query("SELECT * FROM roles");
+		$result = xDB::getDB()->query("SELECT * FROM role");
 		while($row = xDB::getDB()->fetchObject($result))
 		{
 			$roles[] = xRoleDAO::_roleFromRow($row);

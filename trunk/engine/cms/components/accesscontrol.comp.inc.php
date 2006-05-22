@@ -23,7 +23,7 @@ class xModuleAccessControl extends xModule
 {
 	function xModuleAccessControl()
 	{
-		$this->xModule('Access Control','engine/cms/components/');
+		$this->xModule();
 	}
 	
 	// DOCS INHERITHED  ========================================================
@@ -32,6 +32,10 @@ class xModuleAccessControl extends xModule
 		if($path->m_base_path == 'admin/accessfilters')
 		{
 			return $this->_getContentAdminAccessFilters();
+		}
+		elseif($path->m_base_path == 'admin/accesspermissions')
+		{
+			return $this->_getContentAdminAccesspermissions();
 		}
 		
 		return NULL;
@@ -86,6 +90,72 @@ class xModuleAccessControl extends xModule
 		$output .= "</table>\n";
 		
 		return new xContentSimple("Manage Access Filters",$output,'','');
+	}
+	
+	/**
+	 * @access private
+	 * @return array(resourcename(string) => array(typename(string) => array(array("operation" => string ,"description" => string)))
+	 */
+	function _accessPermissionGroupArray($permissions_not_grouped)
+	{
+		$ordered_permissions = array();
+		foreach($permissions_not_grouped as $perm1)
+		{
+			$ordered_permissions[$perm1->m_resource][$perm1->m_resource_type][] = 
+				array("operation" => $perm1->m_operation, "description" => $perm1->m_description);
+		}
+		
+		return $ordered_permissions;
+	}
+	
+	/**
+	 * @access private
+	 */
+	function _getContentAdminAccesspermissions()
+	{
+		//only if administrator!
+		if(!xUser::currentHaveRole('administrator'))
+		{
+			return new xContentNotAuthorized();
+		}
+		
+		$permissions = xModule::callWithArrayResult0('getPermissionDescriptors');
+		$permissions = xModuleAccessControl::_accessPermissionGroupArray($permissions);
+		$roles = xRole::findAll();
+		
+		$output = '<table>';
+		foreach($permissions as $perm_resource => $perm_types)
+		{
+			$output .= '<tr><td>Resource:' . $perm_resource . '</td>';
+			foreach($roles as $role)
+			{
+				$output .= '<td></td>';
+			}
+			
+			$output .= '</tr>';
+			foreach($perm_types as $perm_typename => $perm_ops)
+			{
+				$output .= '<tr><td>&nbsp;&nbsp;Resource Type: ' . $perm_typename . '</td>';
+				foreach($roles as $role)
+				{
+					$output .= '<td></td>';
+				}
+				$output .= '</tr>';
+				foreach($perm_ops as $perm_op)
+				{
+					$output .= '<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Operation: '.$perm_op['operation'].'</td>';
+					foreach($roles as $role)
+					{
+						$output .= '<td>'.$role->m_name.'</td>';
+					}
+					$output .= '</tr>';
+				}
+			}
+		}
+		$output .= '</table>';
+		
+		return new xContentSimple("Access Permissions",$output,'','');
+	
 	}
 
 };

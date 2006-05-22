@@ -42,6 +42,7 @@ require_once('engine/cms/itempagetype.inc.php');
 require_once('engine/cms/itemcomment.inc.php');
 require_once('engine/cms/cathegorytype.inc.php');
 require_once('engine/cms/notifications.inc.php');
+require_once('engine/cms/settings.inc.php');
 
 require_once('engine/cms/components/components.inc.php');
 
