@@ -60,16 +60,16 @@ class xXanthPath
 	 */
 	function getCurrent()
 	{
-			if(isset($_GET['p']))
-			{
-				$p = $_GET['p'];
-			}
-			else
-			{
-				return new xXanthPath();
-			}
-			
-			return xXanthPath::_parse($p);
+		if(isset($_GET['p']))
+		{
+			$p = $_GET['p'];
+		}
+		else
+		{
+			return new xXanthPath();
+		}
+		
+		return xXanthPath::_parse($p);
 	}
 
 

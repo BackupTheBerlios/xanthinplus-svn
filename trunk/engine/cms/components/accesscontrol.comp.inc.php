@@ -17,7 +17,9 @@
 
 
 /**
-* Module responsible of access filters and permission
+* Module responsible of access filters and permission+
+*
+* @todo optimize access permission
 */
 class xModuleAccessControl extends xModule
 {
@@ -35,7 +37,7 @@ class xModuleAccessControl extends xModule
 		}
 		elseif($path->m_base_path == 'admin/accesspermissions')
 		{
-			return $this->_getContentAdminAccesspermissions();
+			return $this->_getContentAdminAccesspermissions($path);
 		}
 		
 		return NULL;
@@ -94,6 +96,103 @@ class xModuleAccessControl extends xModule
 	
 	/**
 	 * @access private
+	 */
+	function _getContentAdminAccesspermissions($path)
+	{
+		//only if administrator!
+		if(!xUser::currentHaveRole('administrator'))
+		{
+			return new xContentNotAuthorized();
+		}
+		
+		//create form
+		$form = new xFormAccessPermission('?p=' . $path->m_full_path);
+		
+		$ret = $form->validate();
+		if(! $ret->isEmpty())
+		{
+			if(empty($ret->m_errors))
+			{
+				$walker = new xFormArrayInputWalker($ret->m_valid_data);
+				while($curr = $walker->next('permission'))
+				{
+					list($value,$resource,$operation,$type,$role) = $curr;
+					
+					$perm = new xAccessPermission($resource,$operation,$role,$type);
+					$perm_present = $perm->check();
+					if($value)
+					{
+						if(! $perm_present)
+						{
+							if($perm->dbInsert())
+							{
+								xNotifications::add(NOTIFICATION_NOTICE,'New item successfully created');
+							}
+							else
+							{
+								xNotifications::add(NOTIFICATION_ERROR,'Error: Item was not created');
+							}
+						}
+					}
+					else
+					{
+						if($perm_present)
+						{
+							if($perm->dbDelete())
+							{
+								xNotifications::add(NOTIFICATION_NOTICE,'New item successfully created');
+							}
+							else
+							{
+								xNotifications::add(NOTIFICATION_ERROR,'Error: Item was not created');
+							}
+						}
+					}
+				}
+				
+				
+				
+				return new xContentSimple("Access Permissions",'','','');
+			}
+			else
+			{
+				foreach($ret->m_errors as $error)
+				{
+					xNotifications::add(NOTIFICATION_WARNING,$error);
+				}
+			}
+		}
+		
+		
+		return new xContentSimple("Access Permissions",$form->render(),'','');
+	
+	}
+
+};
+
+xModule::registerDefaultModule(new xModuleAccessControl());
+
+
+class xFormAccessPermission extends xForm
+{
+	var $_m_permissions;
+	var $_m_roles;
+	
+	
+	function xFormAccessPermission($target)
+	{
+		xForm::xForm($target);
+		
+		$this->_m_permissions = xModule::callWithArrayResult0('getPermissionDescriptors');
+		$this->_m_permissions = xFormAccessPermission::_accessPermissionGroupArray($this->_m_permissions);
+		$this->_m_roles = xRole::findAll();
+		
+		//remove administrator
+		array_shift($this->_m_roles);
+	}
+	
+	/**
+	 * @access private
 	 * @return array(resourcename(string) => array(typename(string) => array(array("operation" => string ,"description" => string)))
 	 */
 	function _accessPermissionGroupArray($permissions_not_grouped)
@@ -108,26 +207,45 @@ class xModuleAccessControl extends xModule
 		return $ordered_permissions;
 	}
 	
-	/**
-	 * @access private
-	 */
-	function _getContentAdminAccesspermissions()
+	
+	// DOCS INHERITHED  ========================================================
+	function validate()
 	{
-		//only if administrator!
-		if(!xUser::currentHaveRole('administrator'))
+		foreach($this->_m_permissions as $perm_resource => $perm_types)
 		{
-			return new xContentNotAuthorized();
+			foreach($perm_types as $perm_typename => $perm_ops)
+			{
+				foreach($perm_ops as $perm_op)
+				{
+					foreach($this->_m_roles as $role)
+					{
+						$this->m_elements[] = new xFormElementCheckbox('permission['.$perm_resource.
+							']['.$perm_op['operation'].']['.$perm_typename.']['.$role->m_name.']'
+							,'','',1,FALSE,FALSE,new xInputValidatorInteger());
+					}
+				}
+			}
+		}
+	
+		return xForm::validate();
+	}
+	
+	
+
+	// DOCS INHERITHED  ========================================================
+	function render()
+	{
+		$output = xForm::_renderFormHeader();
+		$output .= '<table><tr><th></th>';
+		foreach($this->_m_roles as $role)
+		{
+			$output .= '<th>' . $role->m_name .'</th>';
 		}
 		
-		$permissions = xModule::callWithArrayResult0('getPermissionDescriptors');
-		$permissions = xModuleAccessControl::_accessPermissionGroupArray($permissions);
-		$roles = xRole::findAll();
-		
-		$output = '<table>';
-		foreach($permissions as $perm_resource => $perm_types)
+		foreach($this->_m_permissions as $perm_resource => $perm_types)
 		{
 			$output .= '<tr><td>Resource:' . $perm_resource . '</td>';
-			foreach($roles as $role)
+			foreach($this->_m_roles as $role)
 			{
 				$output .= '<td></td>';
 			}
@@ -136,7 +254,7 @@ class xModuleAccessControl extends xModule
 			foreach($perm_types as $perm_typename => $perm_ops)
 			{
 				$output .= '<tr><td>&nbsp;&nbsp;Resource Type: ' . $perm_typename . '</td>';
-				foreach($roles as $role)
+				foreach($this->_m_roles as $role)
 				{
 					$output .= '<td></td>';
 				}
@@ -144,24 +262,31 @@ class xModuleAccessControl extends xModule
 				foreach($perm_ops as $perm_op)
 				{
 					$output .= '<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Operation: '.$perm_op['operation'].'</td>';
-					foreach($roles as $role)
+					foreach($this->_m_roles as $role)
 					{
-						$output .= '<td>'.$role->m_name.'</td>';
+						$checked = xAccessPermission::checkPermission($perm_resource,$perm_typename,
+							$perm_op['operation'],$role->m_name);
+						$output .= '<td>';
+						$check = new xFormElementCheckbox('permission['.$perm_resource.
+							']['.$perm_op['operation'].']['.$perm_typename.']['.$role->m_name.']',
+							'','',1,$checked,FALSE,new xInputValidatorInteger());
+						$output .= $check->render();
+						$output .= '</td>';
 					}
 					$output .= '</tr>';
 				}
 			}
 		}
 		$output .= '</table>';
+		$sub = new xFormSubmit('submit','Save');
+		$output .= $sub->render();
+		$output .= '</form>';
 		
-		return new xContentSimple("Access Permissions",$output,'','');
-	
+		return $output;
 	}
+}
 
-};
 
-xModule::registerDefaultModule(new xModuleAccessControl());
 
-	
 ?>
 

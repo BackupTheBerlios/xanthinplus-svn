@@ -26,6 +26,17 @@ class xModuleCathegory extends xModule
 		$this->xModule();
 	}
 	
+	/**
+	 * @see xDummyModule::getPermissionDescriptors()
+	 */ 
+	function getPermissionDescriptors()
+	{
+		$descr = array(new xAccessPermissionDescriptor('cathegory','insert','Insert an item in any cathegory'));
+
+		return $descr;
+	}
+	
+	
 	// DOCS INHERITHED  ========================================================
 	function getContent($path)
 	{

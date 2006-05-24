@@ -1103,18 +1103,28 @@ class xForm
 	}
 	
 	/**
-	 * Render the whole form included its elements.
-	 *
-	 * @return string The renderized form.
+	 * @access protected
 	 */
-	function render()
+	function _renderFormHeader()
 	{
 		//set a token against "Cross-Site Request Forgeries" attacks
 		$token = xForm::_addFormToken();
 		
 		$output = '<form action="'. $this->m_action . '" method="'.$this->m_method.'">
 		<input type="hidden" name="form_token" value="'.$token.'" />';
-		$output .= "";
+		
+		return $output;
+	}
+	
+	
+	/**
+	 * Render the whole form included its elements.
+	 *
+	 * @return string The renderized form.
+	 */
+	function render()
+	{
+		$output = xForm::_renderFormHeader();
 		
 		foreach($this->m_elements as $element)
 		{
@@ -1167,8 +1177,64 @@ class xForm
 		
 		return $data;
 	}
-	
-	
 };
+
+
+
+
+
+/**
+ * A utility class for handling input variables sent as an array (ex. named in form "test[index]").
+ */
+class xFormArrayInputWalker
+{
+	var $m_valid_data;
+	
+	
+	function xFormArrayInputWalker($valid_data)
+	{
+		reset($valid_data);
+		$this->m_valid_data = $valid_data;
+	}
+	
+	
+	/**
+	 * Return the next array input with a specified name.
+	 * The return is an array containing in order
+	 * - Var value
+	 * - First index (The first string between [])
+	 * - Second index
+	 * - ...
+	 * You can use this in conjunction with the function list().
+	 * 
+	 * @return array(mixed) An array representing the next input array, or FALSE if no input remains to read.
+	 */
+	function next($name)
+	{
+		while(($value = current($this->m_valid_data)) !== FALSE)
+		{
+			$curr = key($this->m_valid_data);
+			if(preg_match('#^'.$name.'((\[[A-Z0-9_-]*\])*)$#i',$curr,$pieces))
+			{
+				if(isset($pieces[1]))
+				{
+					if(preg_match_all('#\[([A-Z0-9_-]*)\]*#i',$pieces[1],$pieces))
+					{
+						array_unshift($pieces[1],$value);
+						
+						next($this->m_valid_data);
+						return $pieces[1];
+					}
+				}
+		    }
+			
+			next($this->m_valid_data);
+		}
+		
+		return FALSE;
+	}
+
+}
+
 
 ?>

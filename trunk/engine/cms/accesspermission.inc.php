@@ -72,15 +72,15 @@ class xAccessPermission
 	{
 		return xAccessPermissionDAO::delete($this->m_resource,$this->m_resource_type,$this->m_operation,$this->m_role);
 	}
+
 	
 		
 	/**
-	 *
 	 * @return bool
 	 */
-	function checkPermissionForRole($role)
+	function check()
 	{
-		return checkPermission($this->m_resource,$this->m_resource_type,$this->m_operation,$role);
+		return xAccessPermission::checkPermission($this->m_resource,$this->m_resource_type,$this->m_operation,$this->m_role);
 	}
 	
 	/**

@@ -72,25 +72,41 @@ class xModuleItem extends xModule
 		//check for type permission
 		$subtype = NULL;
 		$typecheck = 'page';
-		if(isset($path->m_vars['subtype']))
+		
+		if(! xAccessPermission::checkCurrentUserPermission('item','create','page'))
 		{
-			$subtype = $path->m_vars['subtype'];
-			$typecheck = 'page/'.$subtype;
-		}
-		if(!xAccessPermission::checkCurrentUserPermission('item','create',$typecheck))
-		{
+			if(isset($path->m_vars['subtype']))
+			{
+				$subtype = $path->m_vars['subtype'];
+				
+				if(!xAccessPermission::checkCurrentUserPermission('item','create','page/'.$subtype))
+				{
+					return new xContentNotAuthorized();
+				}
+			}
+			else
+			{
 				return new xContentNotAuthorized();
+			}
 		}
-	
+		
 		//check for cathegory permission
-		$cat = 0;
-		if(isset($path->m_vars['cathegory']))
+		if(! xAccessPermission::checkCurrentUserPermission('cathegory','insert'))
 		{
-			$cat = $path->m_vars['cathegory'];
-		}
-		if(!xAccessPermission::checkCurrentUserPermission('cathegory','insert',$cat))
-		{
-			return new xContentNotAuthorized();
+			$cat = 0;
+			if(isset($path->m_vars['cathegory']))
+			{
+				$cat = $path->m_vars['cathegory'];
+				
+				if(! xAccessPermission::checkCurrentUserPermission('cathegory','insert',$cat))
+				{
+					return new xContentNotAuthorized();
+				}
+			}
+			else
+			{
+				return new xContentNotAuthorized();
+			}
 		}
 
 		
