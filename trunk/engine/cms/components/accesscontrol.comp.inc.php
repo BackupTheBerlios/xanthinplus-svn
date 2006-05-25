@@ -236,7 +236,7 @@ class xFormAccessPermission extends xForm
 	function render()
 	{
 		$output = xForm::_renderFormHeader();
-		$output .= '<table><tr><th></th>';
+		$output .= '<table><tr><th></th><th>Description</th>';
 		foreach($this->_m_roles as $role)
 		{
 			$output .= '<th>' . $role->m_name .'</th>';
@@ -244,7 +244,7 @@ class xFormAccessPermission extends xForm
 		
 		foreach($this->_m_permissions as $perm_resource => $perm_types)
 		{
-			$output .= '<tr><td>Resource:' . $perm_resource . '</td>';
+			$output .= '<tr><td>Resource: ' . $perm_resource . '</td>';
 			foreach($this->_m_roles as $role)
 			{
 				$output .= '<td></td>';
@@ -262,6 +262,7 @@ class xFormAccessPermission extends xForm
 				foreach($perm_ops as $perm_op)
 				{
 					$output .= '<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Operation: '.$perm_op['operation'].'</td>';
+					$output .= '<td>' . $perm_op['description'] . '</td>';
 					foreach($this->_m_roles as $role)
 					{
 						$checked = xAccessPermission::checkPermission($perm_resource,$perm_typename,
@@ -272,6 +273,7 @@ class xFormAccessPermission extends xForm
 							'','',1,$checked,FALSE,new xInputValidatorInteger());
 						$output .= $check->render();
 						$output .= '</td>';
+						
 					}
 					$output .= '</tr>';
 				}

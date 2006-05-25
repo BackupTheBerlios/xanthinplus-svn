@@ -366,11 +366,13 @@ class xFormElement
 		{
 			return $array[$name];
 		}
-		else
+		elseif(isset($names[1]))
 		{
 			array_shift($names);
 			return xFormElement::_getInputValueFromRecurseArray($array[$name],$names);
 		}
+		
+		return $array[$name];
 	}
 	
 	/**
@@ -691,13 +693,19 @@ class xFormElementOptions extends xFormElement
 	// DOCS INHERITHED  ========================================================
 	function isValid($method)
 	{
-		//check for mandatory
 		$posted_value = $this->getInputValue($method);
 		
-		if(! xFormElement::isValid($method))
+		//check for mandatory
+		if($posted_value === '')
 		{
-			return FALSE;
+			if($this->m_mandatory)
+			{
+				$this->m_last_error = 'Field '.$this->m_label.' is mandatory';
+				$this->m_invalid = TRUE;
+				return FALSE;
+			}
 		}
+		
 		
 		$elements_posted = array();
 		//array or sigle value
@@ -715,18 +723,27 @@ class xFormElementOptions extends xFormElement
 		}
 		else
 		{
-			$elements_posted = array($posted_value);
+			$elements_posted = array('' => $posted_value);
 		}
 		
 		
 		//check if all values corresponds to at least an option
 		$elements_posted_checked = array();
-		foreach($elements_posted as $element_posted)
+		foreach($elements_posted as $ignore => $element_posted)
 		{
 			$found = FALSE;
 			foreach($this->m_options as $opt_name => $opt_val)
 			{
-				if($opt_val === $element_posted)
+				//check validator
+				if(! $this->m_validator->isValid($opt_val))
+				{
+					$this->m_invalid = TRUE;
+					$this->m_last_error = $this->m_label . ': ' .$this->m_validator->m_last_error;
+					
+					return FALSE;
+				}
+				
+				if($opt_val == $element_posted)
 				{
 					$found = TRUE;
 					break;
@@ -735,7 +752,7 @@ class xFormElementOptions extends xFormElement
 			
 			if(! $found)
 			{
-				$this->m_last_error = 'You have selected an invalid option for input '.$this->m_label;
+				$this->m_last_error = 'You have selected an invalid option for input "'.$this->m_label.'"';
 				
 				return FALSE;
 			}
@@ -770,6 +787,7 @@ class xFormElementOptions extends xFormElement
 		{
 			$output .= ' form-element-invalid';
 		}
+		$output .= '"';
 		
 		$name = $this->m_name;
 		if($this->m_multi_select)

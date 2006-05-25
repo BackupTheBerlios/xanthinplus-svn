@@ -118,6 +118,33 @@ class xItemDAO
 	}
 	
 	/**
+	 * Insert an item in a list of cathegories
+	 *
+	 * @param int $itemid
+	 * @param array(int) $cathegories_id
+	 * @return bool FALSE on error
+	 * @static
+	 */
+	function insertInCathegories($itemid,$cathegories_id,$transaction = TRUE)
+	{
+		if($transaction)
+			xDB::getDB()->startTransaction();
+		
+		
+		foreach($cathegories_id as $cathegory_id)
+		{
+			if(! xDB::getDB()->query("INSERT INTO item_to_cathegory (itemid,catid) VALUES (%d,%d)",$itemid,$cathegories_id))
+				return false;
+		}
+		
+		if($transaction)
+			xDB::getDB()->commit();
+		
+		return true;
+	}
+	
+	
+	/**
 	 * Retrieves all replies associated with an items.
 	 *
 	 * @param int $parentid

@@ -158,6 +158,17 @@ class xItem extends xElement
 	}
 	
 	/**
+	 * Insert this item in a list of cathegories
+	 *
+	 * @param array(int) $cathegories_id
+	 * @return bool FALSE on error
+	 */
+	function insertInCathegories($cathegories_id)
+	{
+		return xItemDAO::insertInCathegories($this->m_id,$cathegories_id);
+	}
+	
+	/**
 	 * Retrieve a specific item from db.
 	 *
 	 * @return xItem

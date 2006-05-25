@@ -91,14 +91,14 @@ class xModuleItem extends xModule
 		}
 		
 		//check for cathegory permission
-		if(! xAccessPermission::checkCurrentUserPermission('cathegory','insert'))
+		$cathegory = NULL;
+		if(! xAccessPermission::checkCurrentUserPermission('cathegory','insert_item'))
 		{
-			$cat = 0;
 			if(isset($path->m_vars['cathegory']))
 			{
-				$cat = $path->m_vars['cathegory'];
+				$cathegory = $path->m_vars['cathegory'];
 				
-				if(! xAccessPermission::checkCurrentUserPermission('cathegory','insert',$cat))
+				if(! xAccessPermission::checkCurrentUserPermission('cathegory','insert_item',$cathegory))
 				{
 					return new xContentNotAuthorized();
 				}
@@ -118,6 +118,13 @@ class xModuleItem extends xModule
 			//item page subtype
 			$form->m_elements[] = xItemPageType::getFormItemPageTypeChooser('subtype','Choose subtype','','',TRUE);
 		}
+		
+		if($cathegory === NULL)
+		{
+			//parent cathegory
+			$form->m_elements[] = xCathegory::getFormCathegoryChooser('cathegory','Cathegories','','',TRUE,FALSE);
+		}
+		
 		
 		//item title
 		$form->m_elements[] = xItem::getFormTitleInput('title','',true);
@@ -159,6 +166,11 @@ class xModuleItem extends xModule
 					$subtype = $ret->m_valid_data['subtype'];
 				}
 				
+				if($cathegory === NULL)
+				{
+					$cathegory = $ret->m_valid_data['cathegory'];
+				}
+				
 				$item = new xItemPage(-1,$ret->m_valid_data['title'],'page','autore',
 					$ret->m_valid_data['body'],$ret->m_valid_data['filter'],NULL,NULL,$subtype,
 					$ret->m_valid_data['published'],$ret->m_valid_data['sticky'],$ret->m_valid_data['accept_replies'],
@@ -171,6 +183,16 @@ class xModuleItem extends xModule
 				{
 					xNotifications::add(NOTIFICATION_ERROR,'Error: Item was not created');
 				}
+				
+				if($item->insertInCathegories($cathegory))
+				{
+					xNotifications::add(NOTIFICATION_NOTICE,'New item successfully created');
+				}
+				else
+				{
+					xNotifications::add(NOTIFICATION_ERROR,'Error: Item was not created');
+				}
+				
 				
 				return new xContentSimple("Create new item page",'','','');
 			}

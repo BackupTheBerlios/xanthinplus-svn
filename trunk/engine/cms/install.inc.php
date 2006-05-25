@@ -383,6 +383,8 @@ class xInstallCMS
 		$item_type->dbInsert();
 		$item_type = new xItemPageType('page','Basic item type','html,bbcode,notags',true,false,false,true);
 		$item_type->dbInsert();
+		$cat_type = new xCathegoryType('basic','A basic cathegory');
+		$cat_type->dbInsert();
 	}
 };
 

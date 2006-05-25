@@ -155,7 +155,7 @@ class xCathegory extends xElement
 	 * @return xFormElement
 	 * @static
 	 */
-	function getFormCathegoryChooser($var_name,$value,$mandatory)
+	function getFormCathegoryChooser($var_name,$label,$description,$value,$multiple,$mandatory)
 	{
 		$cathegories = xCathegory::findAll();
 		
@@ -169,7 +169,7 @@ class xCathegory extends xElement
 			$options[$cathegory->m_name] = $cathegory->m_id;
 		}
 		
-		return new xFormElementOptions($var_name,'Select cathegory','',$value,$options,FALSE,$mandatory,
+		return new xFormElementOptions($var_name,$label,$description,$value,$options,$multiple,$mandatory,
 			new xInputValidatorInteger());
 	}
 	
@@ -183,9 +183,9 @@ class xCathegory extends xElement
 	 * @return xFormElement
 	 * @static
 	 */
-	function getFormNameInput($var_name,$value,$mandatory)
+	function getFormNameInput($var_name,$label,$description,$value,$mandatory)
 	{
-		return new xFormElementTextField($var_name,'Name','',$value,$mandatory,new xInputValidatorText(32));
+		return new xFormElementTextField($var_name,$label,$description,$value,$mandatory,new xInputValidatorText(32));
 	}
 	
 	/**
@@ -197,9 +197,9 @@ class xCathegory extends xElement
 	 * @return xFormElement
 	 * @static
 	 */
-	function getFormDescriptionInput($var_name,$value,$mandatory)
+	function getFormDescriptionInput($var_name,$label,$description,$value,$mandatory)
 	{
-		return new xFormElementTextField($var_name,'Description','',$value,$mandatory,new xInputValidatorText(32));
+		return new xFormElementTextField($var_name,$label,$description,$value,$mandatory,new xInputValidatorText(32));
 	}
 };
 

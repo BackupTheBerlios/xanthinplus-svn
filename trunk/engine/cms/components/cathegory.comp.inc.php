@@ -31,7 +31,27 @@ class xModuleCathegory extends xModule
 	 */ 
 	function getPermissionDescriptors()
 	{
-		$descr = array(new xAccessPermissionDescriptor('cathegory','insert','Insert an item in any cathegory'));
+		$descr = array(new xAccessPermissionDescriptor('cathegory','insert_item','Insert an item in any cathegory'));
+		$descr[] = new xAccessPermissionDescriptor('cathegory','create_inside','Create cathegory inside any other');
+		$descr[] = new xAccessPermissionDescriptor('cathegory','admin','View admin cathegory');
+				
+		$cathegories = xCathegory::findAll();
+		foreach($cathegories as $cathegory)
+		{
+			$descr[] = new xAccessPermissionDescriptor('cathegory','insert_item',
+				'Insert item in cathegory "'. $cathegory->m_name .'"',$cathegory->m_id);
+				
+			$descr[] = new xAccessPermissionDescriptor('cathegory','create_inside',
+				'Create cathegory inside "'. $cathegory->m_name .'"',$cathegory->m_id);
+		}
+		
+		$descr[] = new xAccessPermissionDescriptor('cathegory','create','Create cathegory of any type');
+		$types = xCathegoryType::findAll();
+		foreach($types as $type)
+		{
+			$descr[] = new xAccessPermissionDescriptor('cathegory','create',
+				'Create cathegory of type "'. $type->m_name .'"',$type->m_name);
+		}
 
 		return $descr;
 	}
@@ -45,7 +65,7 @@ class xModuleCathegory extends xModule
 			case 'admin/cathegory':
 				return $this->_getContentAdminCathegory();
 			case 'cathegory/create':
-				return $this->_getContentCathegoryCreate();
+				return $this->_getContentCathegoryCreate($path);
 		}
 		
 		return NULL;
@@ -65,11 +85,13 @@ class xModuleCathegory extends xModule
 		
 		$output = 
 		'<table class="admin-table">
-		<tr><th>id</th><th>Name</th><th>Operations</th></tr>
+		<tr><th>id</th><th>Name</th><th>Type</th><th>Parent</th><th>Operations</th></tr>
 		';
 		foreach($cathegories as $cathegory)
 		{
-			$output .= '<tr><td>' . $cathegory->m_id . '</td><td>' . $cathegory->m_name . '</td><td>Edit</td></tr>';
+			$output .= '<tr><td>' . $cathegory->m_id . '</td><td>' . $cathegory->m_name . 
+				'</td><td>' . $cathegory->m_type . '</td><td>' . $cathegory->m_parent_cathegory . 
+				'</td><td>Edit</td></tr>';
 		}
 		$output .= "</table>\n";
 		
@@ -77,24 +99,69 @@ class xModuleCathegory extends xModule
 	}
 	
 	
-		/**
+	/**
 	 * @access private
 	 */
-	function _getContentCathegoryCreate()
+	function _getContentCathegoryCreate($path)
 	{
-		if(!xAccessPermission::checkCurrentUserPermission('itemtype','create'))
+		//check for type permission
+		$type = NULL;
+		if(! xAccessPermission::checkCurrentUserPermission('cathegory','create'))
 		{
-			return new xContentNotAuthorized();
+			if(isset($path->m_vars['type']))
+			{
+				$type = $path->m_vars['type'];
+				
+				if(!xAccessPermission::checkCurrentUserPermission('cathegory','create',$type))
+				{
+					return new xContentNotAuthorized();
+				}
+			}
+			else
+			{
+				return new xContentNotAuthorized();
+			}
+		}
+		
+		
+		//check for parent permission
+		$parentcat = NULL;
+		if(! xAccessPermission::checkCurrentUserPermission('cathegory','create_inside'))
+		{
+			if(isset($path->m_vars['parentcat']))
+			{
+				$parentcat = $path->m_vars['parentcat'];
+				
+				if(!xAccessPermission::checkCurrentUserPermission('cathegory','create_inside',$parentcat))
+				{
+					return new xContentNotAuthorized();
+				}
+			}
+			else
+			{
+				return new xContentNotAuthorized();
+			}
 		}
 		
 		//create form
-		$form = new xForm('?p=cathegory/create');
+		$form = new xForm('?p=' . $path->m_full_path);
+		
+		if($type === NULL)
+		{
+			//type
+			$form->m_elements[] = xCathegoryType::getFormCathegoryTypeChooser('type','Type','','',TRUE);
+		}
+		
 		//name
-		$form->m_elements[] = xCathegory::getFormNameInput('name','',TRUE);
+		$form->m_elements[] = xCathegory::getFormNameInput('name','Name','','',TRUE);
 		//description
-		$form->m_elements[] = xCathegory::getFormDescriptionInput('description','',FALSE);
-		//parent cathegory
-		$form->m_elements[] = xCathegory::getFormCathegoryChooser('parent','',FALSE);
+		$form->m_elements[] = xCathegory::getFormDescriptionInput('description','Description','','',FALSE);
+		
+		if($parentcat === NULL)
+		{
+			//parent cathegory
+			$form->m_elements[] = xCathegory::getFormCathegoryChooser('parent','Parent Cathegory','','',FALSE,FALSE);
+		}
 		
 		//submit buttom
 		$form->m_elements[] = new xFormSubmit('submit','Create');
@@ -104,17 +171,36 @@ class xModuleCathegory extends xModule
 		{
 			if(empty($ret->m_errors))
 			{
-				$cat = new xCathegory(0,$ret->m_valid_data['name'],$ret->m_valid_data['description'],
-					$ret->m_valid_data['parent'],NULL,NULL);
-				$cat->dbInsert();
+				if($parentcat === NULL)
+				{
+					$parentcat = $ret->m_valid_data['parent'];
+				}
 				
-				return new xContentSimple("Create new item (generic)",'New cathegory was created with id: ','','');
+				if($type === NULL)
+				{
+					$type = $ret->m_valid_data['type'];
+				}
+				
+				
+				$cat = new xCathegory(0,$ret->m_valid_data['name'],$type,$ret->m_valid_data['description'],
+					$parentcat,NULL);
+					
+				if($cat->dbInsert())
+				{
+					xNotifications::add(NOTIFICATION_NOTICE,'New cathegory successfully created');
+				}
+				else
+				{
+					xNotifications::add(NOTIFICATION_ERROR,'Error: Cathegory was not created');
+				}
+				
+				return new xContentSimple("Create cathegory",'New cathegory was created with id: ','','');
 			}
 			else
 			{
 				foreach($ret->m_errors as $error)
 				{
-					xLog::log(LOG_LEVEL_USER_MESSAGE,$error);
+					xNotifications::add(NOTIFICATION_WARNING,$error);
 				}
 			}
 		}
