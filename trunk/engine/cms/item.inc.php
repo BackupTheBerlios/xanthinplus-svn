@@ -186,7 +186,7 @@ class xItem extends xElement
 		}
 		else
 		{
-			return xModule::callWithSingleResult1('loadSpecificItem',$type,$id);
+			return xModule::callWithSingleResult1('xm_loadSpecificItem',$type,$id);
 		}
 		
 		return array();
@@ -222,7 +222,7 @@ class xItem extends xElement
 			}
 			else
 			{
-				return xModule::callWithSingleResult1('findSpecificItems',$type,array($parentid,$title,$author,$content,$cathegory,$nelementpage,$npage));
+				return xModule::callWithSingleResult1('xm_findSpecificItems',$type,array($parentid,$title,$author,$content,$cathegory,$nelementpage,$npage));
 			}
 			
 			return array();

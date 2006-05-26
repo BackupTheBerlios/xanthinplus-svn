@@ -27,36 +27,49 @@ class xModuleHomepage extends xModule
 	}
 
 	// DOCS INHERITHED  ========================================================
-	function getContent($path)
+	function xm_contentFactory($path)
 	{
 		if($path->m_base_path == '')
 		{
-			return new xContentHomepage();
+			return new xContentHomepage($path);
 		}
 		
 		return NULL;
 	}
 };
 
+xModule::registerDefaultModule(new xModuleHomepage());
+
+
+
+
+
 /**
-*
-*/
+ * @internal
+ */
 class xContentHomepage extends xContent
-{
-	
-	function xContentHomepage()
+{	
+	function xContentHomepage($path)
 	{
-		$this->xContent('Home','description','keywords');
+		$this->xContent($path);
 	}
 
 	// DOCS INHERITHED  ========================================================
-	function onRender()
+	function onCheckPermission()
 	{
-		return 'Xanthin homepage test';
+		return TRUE;
+	}
+	
+	
+	// DOCS INHERITHED  ========================================================
+	function onCreate()
+	{
+		xContent::_set("Homepage",'Welcome to Xanthin+ CMS!','','');
+		return TRUE;
 	}
 };
 
 
-xModule::registerDefaultModule(new xModuleHomepage());
+
 	
 ?>

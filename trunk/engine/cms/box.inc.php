@@ -295,7 +295,7 @@ class xBoxDynamic extends xBox
 	function toSpecificBox($box)
 	{
 		//ask for box from module
-		$newbox = xModule::callWithSingleResult1('getDynamicBox',$box);
+		$newbox = xModule::callWithSingleResult1('xm_getDynamicBox',$box);
 		
 		if($newbox == NULL)
 		{

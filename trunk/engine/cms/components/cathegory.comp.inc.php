@@ -26,10 +26,25 @@ class xModuleCathegory extends xModule
 		$this->xModule();
 	}
 	
+	// DOCS INHERITHED  ========================================================
+	function xm_contentFactory($path)
+	{
+		switch($path->m_base_path)
+		{
+			case 'admin/cathegory':
+				return new xContentAdminCathegory($path);
+			case 'cathegory/create':
+				return new xContentCathegoryCreate($path);
+		}
+		
+		return NULL;
+	}
+	
+	
 	/**
 	 * @see xDummyModule::getPermissionDescriptors()
 	 */ 
-	function getPermissionDescriptors()
+	function xm_getPermissionDescriptors()
 	{
 		$descr = array(new xAccessPermissionDescriptor('cathegory','insert_item','Insert an item in any cathegory'));
 		$descr[] = new xAccessPermissionDescriptor('cathegory','create_inside','Create cathegory inside any other');
@@ -56,31 +71,41 @@ class xModuleCathegory extends xModule
 		return $descr;
 	}
 	
-	
-	// DOCS INHERITHED  ========================================================
-	function getContent($path)
+};
+
+xModule::registerDefaultModule(new xModuleCathegory());
+
+
+
+
+
+
+
+
+/**
+ *
+ *
+ * @internal
+ */
+class xContentAdminCathegory extends xContent
+{
+
+	function xContentAdminCathegory($path)
 	{
-		switch($path->m_base_path)
-		{
-			case 'admin/cathegory':
-				return $this->_getContentAdminCathegory();
-			case 'cathegory/create':
-				return $this->_getContentCathegoryCreate($path);
-		}
-		
-		return NULL;
+		xContent::xContent($path);
 	}
 	
-	/**
-	 * @access private
-	 */
-	function _getContentAdminCathegory()
+	
+	// DOCS INHERITHED  ========================================================
+	function onCheckPermission()
 	{
-		if(!xAccessPermission::checkCurrentUserPermission('cathegory','admin'))
-		{
-			return new xContentNotAuthorized();
-		}
-		
+		return xAccessPermission::checkCurrentUserPermission('cathegory','admin');
+	}
+	
+	
+	// DOCS INHERITHED  ========================================================
+	function onCreate()
+	{
 		$cathegories = xCathegory::findAll();
 		
 		$output = 
@@ -95,17 +120,32 @@ class xModuleCathegory extends xModule
 		}
 		$output .= "</table>\n";
 		
-		return new xContentSimple("Admin cathegories",$output,'','');
+		xContent::_set("Admin cathegories",$output,'','');
+		return TRUE;
+	}
+}
+
+
+
+
+/**
+ *
+ *
+ * @internal
+ */
+class xContentCathegoryCreate extends xContent
+{
+
+	function xContentCathegoryCreate($path)
+	{
+		xContent::xContent($path);
 	}
 	
 	
-	/**
-	 * @access private
-	 */
-	function _getContentCathegoryCreate($path)
+	// DOCS INHERITHED  ========================================================
+	function onCheckPermission()
 	{
 		//check for type permission
-		$type = NULL;
 		if(! xAccessPermission::checkCurrentUserPermission('cathegory','create'))
 		{
 			if(isset($path->m_vars['type']))
@@ -114,18 +154,17 @@ class xModuleCathegory extends xModule
 				
 				if(!xAccessPermission::checkCurrentUserPermission('cathegory','create',$type))
 				{
-					return new xContentNotAuthorized();
+					return FALSE;
 				}
 			}
 			else
 			{
-				return new xContentNotAuthorized();
+				return FALSE;
 			}
 		}
 		
 		
 		//check for parent permission
-		$parentcat = NULL;
 		if(! xAccessPermission::checkCurrentUserPermission('cathegory','create_inside'))
 		{
 			if(isset($path->m_vars['parentcat']))
@@ -134,17 +173,34 @@ class xModuleCathegory extends xModule
 				
 				if(!xAccessPermission::checkCurrentUserPermission('cathegory','create_inside',$parentcat))
 				{
-					return new xContentNotAuthorized();
+					return FALSE;
 				}
 			}
 			else
 			{
-				return new xContentNotAuthorized();
+				return FALSE;
 			}
 		}
 		
+		return TRUE;
+	}
+	
+	
+	// DOCS INHERITHED  ========================================================
+	function onCreate()
+	{
+		//check for type permission
+		$type = NULL;
+		if(isset($this->m_path->m_vars['type']))
+			$type = $this->m_path->m_vars['type'];
+		
+		//check for parent permission
+		$parentcat = NULL;
+		if(isset($this->m_path->m_vars['parentcat']))
+			$parentcat = $this->m_path->m_vars['parentcat'];
+			
 		//create form
-		$form = new xForm('?p=' . $path->m_full_path);
+		$form = new xForm('?p=' . $this->m_path->m_full_path);
 		
 		if($type === NULL)
 		{
@@ -194,7 +250,9 @@ class xModuleCathegory extends xModule
 					xNotifications::add(NOTIFICATION_ERROR,'Error: Cathegory was not created');
 				}
 				
-				return new xContentSimple("Create cathegory",'New cathegory was created with id: ','','');
+				
+				xContent::_set("Create cathegory",'New cathegory was created with id: ','','');
+				return TRUE;
 			}
 			else
 			{
@@ -204,13 +262,12 @@ class xModuleCathegory extends xModule
 				}
 			}
 		}
-		
-		return new xContentSimple("Create new cathegory",$form->render(),'','');
-	}
-	
-};
 
-xModule::registerDefaultModule(new xModuleCathegory());
+		xContent::_set("Create new cathegory",$form->render(),'','');
+		return TRUE;
+	}
+}
+
 
 	
 ?>

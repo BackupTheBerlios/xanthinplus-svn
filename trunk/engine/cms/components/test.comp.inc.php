@@ -23,41 +23,15 @@ class xModuleTest extends xModule
 {
 	function xModuleTest()
 	{
-		$this->xModule('Test','engine/cms/components/');
+		$this->xModule();
 	}
 
 	// DOCS INHERITHED  ========================================================
-	function getContent($path)
+	function xm_contentFactory($path)
 	{
 		if($path->m_base_path == 'test')
-		{	
-			//create form
-			$form = new xForm('?p=' . $path->m_full_path);
-			$form->m_elements[] = new xFormElementCheckbox('test[1][hello]','Label','',1,FALSE,FALSE,new xInputValidatorInteger());
-			$form->m_elements[] = new xFormElementTextField('void','Label','','',FALSE,new xInputValidatorText(0));
-			
-			//submit buttom
-			$form->m_elements[] = new xFormSubmit('submit','Create');
-			
-			$ret = $form->validate();
-			if(! $ret->isEmpty())
-			{
-				print_r($ret);
-				if(empty($ret->m_errors))
-				{
-					
-					return new xContentSimple("Create new item page",'','','');
-				}
-				else
-				{
-					foreach($ret->m_errors as $error)
-					{
-						xNotifications::add(NOTIFICATION_WARNING,$error);
-					}
-				}
-			}
-			
-			return new xContentSimple("Create new item page",$form->render(),'','');
+		{
+			return new xContentTest($path);
 		}
 		
 		return NULL;
@@ -65,5 +39,38 @@ class xModuleTest extends xModule
 };
 
 xModule::registerDefaultModule(new xModuleTest());
+
+
+
+
+
+
+
+/**
+ * @internal
+ */
+class xContentTest extends xContent
+{	
+	function xContentTest($path)
+	{
+		$this->xContent($path);
+	}
+
+	// DOCS INHERITHED  ========================================================
+	function onCheckPermission()
+	{
+		return TRUE;
+	}
+	
+	
+	// DOCS INHERITHED  ========================================================
+	function onCreate()
+	{
+		xContent::_set("TEST",'(TEST PAGE)','','');
+		return TRUE;
+	}
+};
+
+
 	
 ?>

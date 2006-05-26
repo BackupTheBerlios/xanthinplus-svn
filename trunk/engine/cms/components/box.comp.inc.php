@@ -23,30 +23,54 @@ class xModuleBox extends xModule
 {
 	function xModuleBox()
 	{
-		$this->xModule('Box','engine/cms/components/');
+		$this->xModule();
 	}
 	
+	
 	// DOCS INHERITHED  ========================================================
-	function getContent($path)
+	function xm_contentFactory($path)
 	{
 		if($path->m_base_path == 'admin/box')
 		{
-			return $this->_getContentAdminBox();
+			return new xContentAdminBox($path);
 		}
 		
 		return NULL;
 	}
-	
-	/**
-	 * @access private
-	 */
-	function _getContentAdminBox()
+};
+
+xModule::registerDefaultModule(new xModuleBox());
+
+
+
+
+
+
+
+/**
+ *
+ *
+ * @internal
+ */
+class xContentAdminBox extends xContent
+{
+
+	function xContentAdminBox($path)
 	{
-		if(!xAccessPermission::checkCurrentUserPermission('box','admin'))
-		{
-			return new xContentNotAuthorized();
-		}
-		
+		xContent::xContent($path);
+	}
+	
+	
+	// DOCS INHERITHED  ========================================================
+	function onCheckPermission()
+	{
+		return xAccessPermission::checkCurrentUserPermission('box','admin');
+	}
+	
+	
+	// DOCS INHERITHED  ========================================================
+	function onCreate()
+	{
 		$boxes = xBox::findAll();
 		
 		$output = 
@@ -70,11 +94,10 @@ class xModuleBox extends xModule
 		}
 		$output .= "</table>\n";
 		
-		return new xContentSimple("Manage box",$output,'','');
+		xContent::_set("Manage box",$output,'','');
+		return TRUE;
 	}
-};
-
-xModule::registerDefaultModule(new xModuleBox());
+}
 
 	
 ?>

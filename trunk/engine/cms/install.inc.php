@@ -359,9 +359,9 @@ class xInstallCMS
 		$menuitem = new xMenuItem('Manage Boxes','?p=admin/box',0);
 		$menu->m_items[] = $menuitem;
 		
-		$menuitem = new xMenuItem('Manage Items','?p=admin/item',0);
+		$menuitem = new xMenuItem('Manage Items','?p=admin/items',0);
 		$menuitem->m_subitems[] = new xMenuItem('Create Item page','?p=item/page/create',0);
-		$menuitem->m_subitems[] = new xMenuItem('Manage types','?p=admin/itemtype',0);
+		$menuitem->m_subitems[] = new xMenuItem('Manage types','?p=admin/itemtypes',0);
 		$menu->m_items[] = $menuitem;
 		
 		$menuitem = new xMenuItem('Manage Cathegories','?p=admin/cathegory',0);

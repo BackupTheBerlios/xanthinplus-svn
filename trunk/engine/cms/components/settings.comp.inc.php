@@ -27,26 +27,53 @@ class xModuleSettings extends xModule
 	}
 
 	// DOCS INHERITHED  ========================================================
-	function getContent($path)
+	function xm_contentFactory($path)
 	{
 		if($path->m_base_path == 'admin/settings')
 		{
-			return $this->_getContentAdminSettings();
+			return new xContentAdminSettings($path);
 		}
 		
 		return NULL;
 	}
 	
-	/**
-	 * @access private
-	 */
-	function _getContentAdminSettings()
+	
+	// DOCS INHERITHED  ========================================================
+	function xm_onPageCreation()
 	{
-		if(!xAccessPermission::checkCurrentUserPermission('settings','admin'))
-		{
-				return new xContentNotAuthorized();
-		}
-		
+		//load settings
+		xSettings::load();
+	}
+};
+
+xModule::registerDefaultModule(new xModuleSettings());
+
+
+
+
+
+
+
+/**
+ * @internal
+ */
+class xContentAdminSettings extends xContent
+{	
+	function xContentAdminSettings($path)
+	{
+		$this->xContent($path);
+	}
+
+	// DOCS INHERITHED  ========================================================
+	function onCheckPermission()
+	{
+		return xAccessPermission::checkCurrentUserPermission('settings','admin');
+	}
+	
+	
+	// DOCS INHERITHED  ========================================================
+	function onCreate()
+	{
 		//create form
 		$form = new xForm('?p=admin/settings');
 		
@@ -75,7 +102,8 @@ class xModuleSettings extends xModule
 
 				xNotifications::add(NOTIFICATION_NOTICE,'Settings saved');
 
-				return new xContentSimple("Admin settings",'','','');
+				xContent::_set("Admin settings",'','','');
+				return true;
 			}
 			else
 			{
@@ -86,18 +114,11 @@ class xModuleSettings extends xModule
 			}
 		}
 		
-		return new xContentSimple("Create new item page",$form->render(),'','');
-	}
-	
-	
-	// DOCS INHERITHED  ========================================================
-	function onPageCreation()
-	{
-		//load settings
-		xSettings::load();
+		xContent::_set("Create new item page",$form->render(),'','');
+		return TRUE;
 	}
 };
 
-xModule::registerDefaultModule(new xModuleSettings());
+
 	
 ?>

@@ -29,150 +29,34 @@ class xModuleAccessControl extends xModule
 	}
 	
 	// DOCS INHERITHED  ========================================================
-	function getContent($path)
+	function xm_contentFactory($path)
 	{
 		if($path->m_base_path == 'admin/accessfilters')
 		{
-			return $this->_getContentAdminAccessFilters();
+			return new xContentAdminAccessFilters($path);
 		}
 		elseif($path->m_base_path == 'admin/accesspermissions')
 		{
-			return $this->_getContentAdminAccesspermissions($path);
+			return new xContentAdminAccesspermissions($path);
 		}
 		
 		return NULL;
 	}
-	
-	/**
-	 * @access private
-	 */
-	function _getContentAdminAccessFilters()
-	{
-		//only if administrator!
-		if(!xUser::currentHaveRole('administrator'))
-		{
-			return new xContentNotAuthorized();
-		}
-		
-		$filtersets = xAccessFilterSet::findAll();
-		
-		$output = 
-		'<table class="admin-table">
-		<tr><th>Filter id</th><th>Name</th><th>Description</th><th>Filters</th><th>Operations</th></tr>
-		';
-		foreach($filtersets as $filterset)
-		{
-			$output .= '<tr><td>' . $filterset->m_id . '</td><td>' . $filterset->m_name . '</td><td>'.
-				$filterset->m_description . '</td><td>';
-
-			foreach($filterset->m_filters as $filter)
-			{
-				if(xanth_instanceof($filter,'xAccessFilterRole'))
-				{
-					$output .= 'Role Filter: ' . $filter->m_role_name;
-				}
-				elseif(xanth_instanceof($filter,'xAccessFilterPathExclude'))
-				{
-					$output .= 'Path Exclude Filter: ' . $filter->m_path;
-				}
-				elseif(xanth_instanceof($filter,'xAccessFilterPathInclude'))
-				{
-					$output .= 'Path Include Filter: ' . $filter->m_path;
-				}
-				else
-				{
-					$output .= 'Unknown filter type!';
-				}
-				
-				$output .= '<br/>';
-			}
-		
-			$output .= '</td><td>Edit</td></tr>';
-		}
-		$output .= "</table>\n";
-		
-		return new xContentSimple("Manage Access Filters",$output,'','');
-	}
-	
-	/**
-	 * @access private
-	 */
-	function _getContentAdminAccesspermissions($path)
-	{
-		//only if administrator!
-		if(!xUser::currentHaveRole('administrator'))
-		{
-			return new xContentNotAuthorized();
-		}
-		
-		//create form
-		$form = new xFormAccessPermission('?p=' . $path->m_full_path);
-		
-		$ret = $form->validate();
-		if(! $ret->isEmpty())
-		{
-			if(empty($ret->m_errors))
-			{
-				$walker = new xFormArrayInputWalker($ret->m_valid_data);
-				while($curr = $walker->next('permission'))
-				{
-					list($value,$resource,$operation,$type,$role) = $curr;
-					
-					$perm = new xAccessPermission($resource,$operation,$role,$type);
-					$perm_present = $perm->check();
-					if($value)
-					{
-						if(! $perm_present)
-						{
-							if($perm->dbInsert())
-							{
-								xNotifications::add(NOTIFICATION_NOTICE,'New item successfully created');
-							}
-							else
-							{
-								xNotifications::add(NOTIFICATION_ERROR,'Error: Item was not created');
-							}
-						}
-					}
-					else
-					{
-						if($perm_present)
-						{
-							if($perm->dbDelete())
-							{
-								xNotifications::add(NOTIFICATION_NOTICE,'New item successfully created');
-							}
-							else
-							{
-								xNotifications::add(NOTIFICATION_ERROR,'Error: Item was not created');
-							}
-						}
-					}
-				}
-				
-				
-				
-				return new xContentSimple("Access Permissions",'','','');
-			}
-			else
-			{
-				foreach($ret->m_errors as $error)
-				{
-					xNotifications::add(NOTIFICATION_WARNING,$error);
-				}
-			}
-		}
-		
-		
-		return new xContentSimple("Access Permissions",$form->render(),'','');
-	
-	}
-
 };
 
 xModule::registerDefaultModule(new xModuleAccessControl());
 
 
+
+
+
+
+
+
+
+/**
+ * @internal
+ */
 class xFormAccessPermission extends xForm
 {
 	var $_m_permissions;
@@ -183,7 +67,7 @@ class xFormAccessPermission extends xForm
 	{
 		xForm::xForm($target);
 		
-		$this->_m_permissions = xModule::callWithArrayResult0('getPermissionDescriptors');
+		$this->_m_permissions = xModule::callWithArrayResult0('xm_getPermissionDescriptors');
 		$this->_m_permissions = xFormAccessPermission::_accessPermissionGroupArray($this->_m_permissions);
 		$this->_m_roles = xRole::findAll();
 		
@@ -290,5 +174,169 @@ class xFormAccessPermission extends xForm
 
 
 
-?>
 
+
+
+
+/**
+ *
+ *
+ * @internal
+ */
+class xContentAdminAccessFilters extends xContent
+{
+
+	function xContentAdminAccessFilters($path)
+	{
+		xContent::xContent($path);
+	}
+	
+	
+	// DOCS INHERITHED  ========================================================
+	function onCheckPermission()
+	{
+		//only if administrator!
+		return xUser::currentHaveRole('administrator');
+	}
+	
+	
+	// DOCS INHERITHED  ========================================================
+	function onCreate()
+	{
+		$filtersets = xAccessFilterSet::findAll();
+		
+		$output = 
+		'<table class="admin-table">
+		<tr><th>Filter id</th><th>Name</th><th>Description</th><th>Filters</th><th>Operations</th></tr>
+		';
+		foreach($filtersets as $filterset)
+		{
+			$output .= '<tr><td>' . $filterset->m_id . '</td><td>' . $filterset->m_name . '</td><td>'.
+				$filterset->m_description . '</td><td>';
+
+			foreach($filterset->m_filters as $filter)
+			{
+				if(xanth_instanceof($filter,'xAccessFilterRole'))
+				{
+					$output .= 'Role Filter: ' . $filter->m_role_name;
+				}
+				elseif(xanth_instanceof($filter,'xAccessFilterPathExclude'))
+				{
+					$output .= 'Path Exclude Filter: ' . $filter->m_path;
+				}
+				elseif(xanth_instanceof($filter,'xAccessFilterPathInclude'))
+				{
+					$output .= 'Path Include Filter: ' . $filter->m_path;
+				}
+				else
+				{
+					$output .= 'Unknown filter type!';
+				}
+				
+				$output .= '<br/>';
+			}
+		
+			$output .= '</td><td>Edit</td></tr>';
+		}
+		$output .= "</table>\n";
+		
+		
+		xContent::_set("Manage Access Filters",$output,'','');
+		return TRUE;
+	}
+}
+
+
+
+
+/**
+ *
+ *
+ * @internal
+ */
+class xContentAdminAccesspermissions extends xContent
+{
+
+	function xContentAdminAccesspermissions($path)
+	{
+		xContent::xContent($path);
+	}
+	
+	
+	// DOCS INHERITHED  ========================================================
+	function onCheckPermission()
+	{
+		//only if administrator!
+		return xUser::currentHaveRole('administrator');
+	}
+	
+	
+	// DOCS INHERITHED  ========================================================
+	function onCreate()
+	{
+		//create form
+		$form = new xFormAccessPermission('?p=' . $this->m_path->m_full_path);
+		
+		$ret = $form->validate();
+		if(! $ret->isEmpty())
+		{
+			if(empty($ret->m_errors))
+			{
+				$walker = new xFormArrayInputWalker($ret->m_valid_data);
+				while($curr = $walker->next('permission'))
+				{
+					list($value,$resource,$operation,$type,$role) = $curr;
+					
+					$perm = new xAccessPermission($resource,$operation,$role,$type);
+					$perm_present = $perm->check();
+					if($value)
+					{
+						if(! $perm_present)
+						{
+							if($perm->dbInsert())
+							{
+								xNotifications::add(NOTIFICATION_NOTICE,'New item successfully created');
+							}
+							else
+							{
+								xNotifications::add(NOTIFICATION_ERROR,'Error: Item was not created');
+							}
+						}
+					}
+					else
+					{
+						if($perm_present)
+						{
+							if($perm->dbDelete())
+							{
+								xNotifications::add(NOTIFICATION_NOTICE,'New item successfully created');
+							}
+							else
+							{
+								xNotifications::add(NOTIFICATION_ERROR,'Error: Item was not created');
+							}
+						}
+					}
+				}
+				
+				
+				xContent::_set("Access Permissions",'','','');
+				return true;
+			}
+			else
+			{
+				foreach($ret->m_errors as $error)
+				{
+					xNotifications::add(NOTIFICATION_WARNING,$error);
+				}
+			}
+		}
+		
+		xContent::_set("Access Permissions",$form->render(),'','');
+		return true;
+	}
+	
+}
+
+
+?>

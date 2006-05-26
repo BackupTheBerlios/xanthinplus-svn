@@ -345,17 +345,19 @@ class xDummyModule extends xModule
 	/**
 	* This method should executes all sql queries needed to install a module in a mysql db.
 	*/
-	function installDBMySql()
+	function xm_installDBMySql()
 	{
 	}
 	
 	/**
-	* Returns a valid xContent for the passed path
+	* Returns a valid content for the given path. Note that you DO NOT need to call onCheckPermnission() or
+	* call onCreate() on the content object before you return it.
 	*
 	* @param xXanthPath $path
-	* @return xContent A valid xContent object if your module is the responsable of the given path, NULL otherwise.
+	* @return xContent A valid xContent object
+	* the responsable of the given path, NULL otherwise.
 	*/
-	function getContent($path)
+	function xm_contentFactory($path)
 	{
 	}
 	
@@ -365,7 +367,7 @@ class xDummyModule extends xModule
 	*
 	* @return xAccessPermissionDescriptor
 	*/
-	function getPermissionDescriptors()
+	function xm_getPermissionDescriptors()
 	{
 	}
 	
@@ -374,7 +376,7 @@ class xDummyModule extends xModule
 	*
 	* @param xXanthPath $path
 	*/
-	function onPageCreation($path)
+	function xm_onPageCreation($path)
 	{
 	}
 	
@@ -384,7 +386,7 @@ class xDummyModule extends xModule
 	* @param xBox $box
 	* @return xBoxDynamic
 	*/
-	function getDynamicBox($box)
+	function xm_getDynamicBox($box)
 	{
 	}
 	
@@ -394,7 +396,7 @@ class xDummyModule extends xModule
 	 * @param string $type
 	 * @param array($title,$author,$content,$cathegory,$nelementpage,$npage) $params
 	 */
-	function findSpecificItems($type,$params)
+	function xm_findSpecificItems($type,$params)
 	{
 	}
 	
@@ -405,7 +407,7 @@ class xDummyModule extends xModule
 	 * @param string $type
 	 * @param int $id
 	 */
-	function loadSpecificItem($type,$id)
+	function xm_loadSpecificItem($type,$id)
 	{
 	}
 }

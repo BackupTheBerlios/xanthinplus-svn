@@ -29,7 +29,7 @@ class xModuleItem extends xModule
 	/**
 	 * @see xDummyModule::getPermissionDescriptors()
 	 */ 
-	function getPermissionDescriptors()
+	function xm_getPermissionDescriptors()
 	{
 		$descr = array(new xAccessPermissionDescriptor('item','create','Create item of any type'));
 		
@@ -47,71 +47,106 @@ class xModuleItem extends xModule
 	/**
 	 * @see xDummyModule::getContent()
 	 */ 
-	function getContent($path)
+	function xm_contentFactory($path)
 	{
 		switch($path->m_base_path)
 		{
-			case 'admin/item':
-				return $this->_getContentAdminItem();
+			case 'admin/items':
+				return new xContentAdminItems($path);
 			case 'item/page/create':
-				return $this->_getContentItemPageCreate($path);
+				return new xContentItemPageCreate($path);
 			case 'item/page/view':
-				return $this->_getContentItemPageView($path);
-			case 'admin/itemtype':
-				return $this->_getContentAdminItemType();
+				return new xContentItemPageView($path);
+			case 'admin/itemtypes':
+				return new xContentAdminItemtypes($path);
 		}
 		
 		return NULL;
 	}
 	
-	/**
-	 * @access private
-	 */
-	function _getContentItemPageCreate($path)
+};
+
+xModule::registerDefaultModule(new xModuleItem());
+
+
+
+
+
+
+
+
+
+
+/**
+ * @internal
+ */
+class xContentItemPageCreate extends xContent
+{	
+	function xContentItemPageCreate($path)
 	{
-		//check for type permission
-		$subtype = NULL;
-		$typecheck = 'page';
-		
+		$this->xContent($path);
+	}
+
+	// DOCS INHERITHED  ========================================================
+	function onCheckPermission()
+	{
 		if(! xAccessPermission::checkCurrentUserPermission('item','create','page'))
 		{
-			if(isset($path->m_vars['subtype']))
+			if(isset($this->m_path->m_vars['subtype']))
 			{
-				$subtype = $path->m_vars['subtype'];
+				$subtype = $this->m_path->m_vars['subtype'];
 				
 				if(!xAccessPermission::checkCurrentUserPermission('item','create','page/'.$subtype))
 				{
-					return new xContentNotAuthorized();
+					return FALSE;
 				}
 			}
 			else
 			{
-				return new xContentNotAuthorized();
+				return FALSE;
 			}
 		}
 		
 		//check for cathegory permission
-		$cathegory = NULL;
 		if(! xAccessPermission::checkCurrentUserPermission('cathegory','insert_item'))
 		{
-			if(isset($path->m_vars['cathegory']))
+			if(isset($this->m_path->m_vars['cathegory']))
 			{
-				$cathegory = $path->m_vars['cathegory'];
+				$cathegory = $this->m_path->m_vars['cathegory'];
 				
 				if(! xAccessPermission::checkCurrentUserPermission('cathegory','insert_item',$cathegory))
 				{
-					return new xContentNotAuthorized();
+					return FALSE;
 				}
 			}
 			else
 			{
-				return new xContentNotAuthorized();
+				return FALSE;
 			}
 		}
-
+		return TRUE;
+	}
+	
+	
+	
+	// DOCS INHERITHED  ========================================================
+	function onCreate()
+	{
+		//check for type permission
+		$subtype = NULL;
 		
+		if(isset($this->m_path->m_vars['subtype']))
+			$subtype = $this->m_path->m_vars['subtype'];
+				
+		
+		//check for cathegory permission
+		$cathegory = NULL;
+		if(isset($this->m_path->m_vars['cathegory']))
+			$cathegory = $this->m_path->m_vars['cathegory'];
+				
+
 		//create form
-		$form = new xForm('?p=' . $path->m_full_path);
+		$form = new xForm('?p=' . $this->m_path->m_full_path);
 		
 		if($subtype === NULL)
 		{
@@ -194,7 +229,8 @@ class xModuleItem extends xModule
 				}
 				
 				
-				return new xContentSimple("Create new item page",'','','');
+				xContent::_set("Create new item page",'','','');
+				return TRUE;
 			}
 			else
 			{
@@ -204,21 +240,40 @@ class xModuleItem extends xModule
 				}
 			}
 		}
-		
-		return new xContentSimple("Create new item page",$form->render(),'','');
+
+		xContent::_set("Create new item page",$form->render(),'','');
+		return TRUE;
+	}
+};
+
+
+
+
+
+
+
+
+
+/**
+ * @internal
+ */
+class xContentAdminItems extends xContent
+{	
+	function xContentAdminItems($path)
+	{
+		$this->xContent($path);
+	}
+
+	// DOCS INHERITHED  ========================================================
+	function onCheckPermission()
+	{
+		return xAccessPermission::checkCurrentUserPermission('item','admin');
 	}
 	
 	
-	/**
-	 * @access private
-	 */
-	function _getContentAdminItem()
+	// DOCS INHERITHED  ========================================================
+	function onCreate()
 	{
-		if(!xAccessPermission::checkCurrentUserPermission('item','admin'))
-		{
-			return new xContentNotAuthorized();
-		}
-		
 		$items = xItem::find();
 		
 		$error = '';
@@ -235,66 +290,104 @@ class xModuleItem extends xModule
 		}
 		$output .= "</table>\n";
 		
-		return new xContentSimple("Admin items",$output,'','');
-		
+		xContent::_set("Admin items",$output,'','');
+		return TRUE;
+	}
+};
+
+
+
+
+
+
+
+
+/**
+ * @internal
+ */
+class xContentAdminItemtypes extends xContent
+{	
+	function xContentAdminItemtypes($path)
+	{
+		$this->xContent($path);
+	}
+
+	// DOCS INHERITHED  ========================================================
+	function onCheckPermission()
+	{
+		return xAccessPermission::checkCurrentUserPermission('itemtype','admin');
 	}
 	
 	
-	/**
-	 * @access private
-	 */
-	function _getContentItemPageView($path)
+	// DOCS INHERITHED  ========================================================
+	function onCreate()
 	{
-		if(!isset($path->m_vars['id']))
-		{
-			return new xContentNotFound();
-		}
-		
-		$item = xItemPage::dbLoad($path->m_vars['id']);
-		
-		if($item === NULL)
-		{
-			return new xContentNotFound();
-		}
-		
-		//check access
-		if(!xAccessPermission::checkCurrentUserPermission('item','view',$item->m_type . '/' . $item->m_subtype))
-		{
-			return new xContentNotAuthorized();
-		}
-		
-		return new xContentSimple($item->m_title,$item->render(),$item->m_meta_description,$item->m_meta_keywords);
-	}
-	
-	/**
-	 * @access private
-	 */
-	function _getContentAdminItemType()
-	{
-		if(!xAccessPermission::checkCurrentUserPermission('itemtype','admin'))
-		{
-			return new xContentNotAuthorized();
-		}
-		
 		$types = xItemType::findAll();
 		
 		$output = 
 		'<table class="admin-table">
-		<tr><th>Id</th><th>Name</th><th>Operations</th></tr>
+		<tr><th>Name</th><th>Operations</th></tr>
 		';
 		foreach($types as $type)
 		{
-			$output .= '<tr><td>' . $type->m_id . '</td><td>' . $type->m_name . '</td><td>Edit</td></tr>';
+			$output .= '<tr><td>' . $type->m_name . '</td><td>Edit</td></tr>';
 		}
 		$output .= "</table>\n";
 		
-		return new xContentSimple("Admin item types",$output,'','');
+		xContent::_set("Admin item types",$output,'','');
+		return TRUE;
+	}
+};
+
+
+
+
+/**
+ * @internal
+ */
+class xContentItemPageView extends xContent
+{	
+	var $m_item;
+	
+	
+	function xContentItemPageView($path)
+	{
+		$this->xContent($path);
+		$this->m_item = NULL;
+	}
+
+	// DOCS INHERITHED  ========================================================
+	function onCheckPermission()
+	{
+		$this->m_item = NULL;
+		if(isset($this->m_path->m_vars['id']))
+		{
+			$this->m_item = xItemPage::dbLoad($this->m_path->m_vars['id']);
+			
+			if($this->m_item != NULL)
+				return xAccessPermission::checkCurrentUserPermission('item','view',
+					$this->m_item->m_type . '/' . $this->m_item->m_subtype);
+		}
+		
+		return TRUE;
 	}
 	
 	
+	// DOCS INHERITHED  ========================================================
+	function onCreate()
+	{
+		if($this->m_item === NULL)
+		{
+			return new xContentNotFound();
+		}
+		
+		xContent::_set($this->m_item->m_title,$this->m_item->render(),$this->m_item->m_meta_description,
+			$this->m_item->m_meta_keywords);
+		return TRUE;
+	}
 };
 
-xModule::registerDefaultModule(new xModuleItem());
+
 
 	
 ?>

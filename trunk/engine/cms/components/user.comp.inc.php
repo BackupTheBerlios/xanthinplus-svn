@@ -23,11 +23,11 @@ class xModuleUser extends xModule
 {
 	function xModuleUser()
 	{
-		$this->xModule('User','engine/cms/components/');
+		$this->xModule();
 	}
 
 	// DOCS INHERITHED  ========================================================
-	function getDynamicBox($box)
+	function xm_getDynamicBox($box)
 	{
 		if($box->m_name == 'Login')
 		{
@@ -42,38 +42,15 @@ class xModuleUser extends xModule
 	 */
 	function _getContentLogin()
 	{
-		$form = new xForm('?p=user/login');
-		$form->m_elements[] = new xFormElementTextField('username','Username','','',TRUE,new xInputValidatorText(256));
-		$form->m_elements[] = new xFormElementPassword('password','Password','',TRUE,new xInputValidatorText(256));
-		$form->m_elements[] = new xFormSubmit('submit','login');
 		
-		$ret = $form->validate();
-		if(isset($ret->m_valid_data['submit']))
-		{
-			if(empty($ret->m_errors))
-			{
-				if($user = xUser::login($ret->m_valid_data['username'],$ret->m_valid_data['password'],TRUE) != NULL)
-				{
-					return new xContentSimple("User login",'Logged in','','');
-				}
-			}
-			else
-			{
-				foreach($ret->m_errors as $error)
-				{
-					xLog::log(LOG_LEVEL_USER_MESSAGE,$error);
-				}
-			}
-		}
-		return new xContentSimple("User login",$form->render(),'','');
 	}
 
 	// DOCS INHERITHED  ========================================================
-	function getContent($path)
+	function xm_contentFactory($path)
 	{
 		if($path->m_base_path == 'user/login')
 		{
-			return $this->_getContentLogin();
+			return new xContentUserLogin($path);
 		}
 		elseif($path->m_base_path == 'user/logout')
 		{
@@ -123,5 +100,63 @@ class xBoxLogin extends xBoxDynamic
 		return xTheme::render3('renderBox',$this->m_name,$this->m_title,$content);
 	}
 }
+
+
+
+
+
+
+/**
+ * @internal
+ */
+class xContentUserLogin extends xContent
+{	
+	function xContentUserLogin($path)
+	{
+		$this->xContent($path);
+	}
+
+	// DOCS INHERITHED  ========================================================
+	function onCheckPermission()
+	{
+		return TRUE;
+	}
+	
+	
+	// DOCS INHERITHED  ========================================================
+	function onCreate()
+	{
+		$form = new xForm('?p=user/login');
+		$form->m_elements[] = new xFormElementTextField('username','Username','','',TRUE,new xInputValidatorText(256));
+		$form->m_elements[] = new xFormElementPassword('password','Password','',TRUE,new xInputValidatorText(256));
+		$form->m_elements[] = new xFormSubmit('submit','login');
+		
+		$ret = $form->validate();
+		if(isset($ret->m_valid_data['submit']))
+		{
+			if(empty($ret->m_errors))
+			{
+				if($user = xUser::login($ret->m_valid_data['username'],$ret->m_valid_data['password'],TRUE) != NULL)
+				{
+					xContent::_set("User login",'Logged in','','');
+					return TRUE;
+				}
+			}
+			else
+			{
+				foreach($ret->m_errors as $error)
+				{
+					xNotifications::add(NOTIFICATION_WARNING,$error);
+				}
+			}
+		}
+
+		xContent::_set("User login",$form->render(),'','');
+		return TRUE;
+	}
+};
+
+
+
 	
 ?>

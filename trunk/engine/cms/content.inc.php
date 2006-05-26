@@ -17,8 +17,9 @@
 
 
 /**
-* Represent  a page content.
-*/
+ * Represent  a page content.
+ * @abstract
+ */
 class xContent extends xElement
 {
 	/**
@@ -26,6 +27,12 @@ class xContent extends xElement
 	* @access public
 	*/
 	var $m_title;
+	
+	/**
+	 * @var string
+	 * @access public
+	 */
+	var $m_content;
 	
 	/**
 	* @var string
@@ -39,28 +46,81 @@ class xContent extends xElement
 	*/
 	var $m_keywords;
 	
+	
+	var $m_path;
+	
 	/**
-	 * 
-	 *
+	 * Create an empty content. You call onCreate() to let the object fill itself with all data.
+	 * Do not forgive to check permission with onCheckPermission() method before you call onCreate(),
+	 * this is VERY IMPORTANT for security and correctness.
 	 */
-	function xContent($title,$description,$keywords)
+	function xContent($path)
 	{
 		$this->xElement();
 		
+		$this->m_title = '';
+		$this->m_description = '';
+		$this->m_keywords = '';
+		$this->m_content = '';
+		$this->m_path = $path;
+	}
+	
+	
+	/**
+	 * @access protected
+	 */
+	function _set($title,$content,$description,$keywords)
+	{
 		$this->m_title = $title;
 		$this->m_description = $description;
 		$this->m_keywords = $keywords;
+		$this->m_content = $content;
 	}
 	
-	// DOCS INHERITHED  ========================================================
+	/**
+	 * Simply return $this->m_content.
+	 */
 	function onRender()
+	{
+		return $this->m_content;
+	}
+
+	/**
+	 * After permissions were checked, the xContent will be filled with data created by the code contained
+	 * in this method.
+	 *
+	 * @return bool Return boolean TRUE if content was created successfully, otherwise it returns an alternative
+	 * xContentSimple object representing the error. 
+	 * Usually if the error is not critical (eg. a db insert failed) is better to return TRUE and
+	 * leave an user notification.
+	 * @abstract
+	 */
+	function onCreate()
 	{
 		//must override
 		assert(FALSE);
 	}
-
+	
 	/**
-	 * Gets the content.
+	 * Check if the content can be created.
+	 *
+	 * @return bool
+	 * @abstract
+	 */
+	function onCheckPermission()
+	{
+		//must override
+		assert(FALSE);
+	}
+	
+	
+	//----------------STATIC FUNCTIONS----------------------------------------------
+	//----------------STATIC FUNCTIONS----------------------------------------------
+	//----------------STATIC FUNCTIONS----------------------------------------------
+	
+	
+	/**
+	 * Get the content.
 	 *
 	 * @param xXanthPath $path
 	 * @return xContent
@@ -71,76 +131,82 @@ class xContent extends xElement
 		$content = NULL;
 		
 		//ask modules for a valid content for the current path.
-		$content = xModule::callWithSingleResult1('getContent',$path);
+		$content = xModule::callWithSingleResult1('xm_contentFactory',$path);
 		
 		//not found
 		if($content === NULL)
 		{
-			$content = new xContentSimple("Page not found",'The page you requested was not found','','');
+			$content = new xContentNotFound($path);
 		}
+		elseif($content->onCheckPermission())
+		{
+			$res = $content->onCreate();
+			if($res !== TRUE)
+			{
+				$content = $res;
+			}
+		}
+		else
+		{
+			$content = new xContentNotAuthorized($path);
+		}
+		
+		
 		
 		return $content;
 	}
 };
 
 
-
 /**
- * Represent a simple page content that can contain only statically renderizable data.
+ * Represent a simple content, with no permission check and immmediately created content.
  */
 class xContentSimple extends xContent
 {
+
 	/**
-	 * @var string
-	 * @access public
+	 * Create a simple content.
 	 */
-	var $m_content;
-	
-	/**
-	* 
-	*
-	*/
-	function xContentSimple($title,$content,$description,$keywords)
+	function xContentSimple($title,$content,$description,$keywords,$path)
 	{
-		$this->xContent($title,$description,$keywords);
+		xContent::_set($title,$content,$description,$keywords);
 		
-		$this->m_content = $content;
+		$this->m_path = $path;
 	}
 	
-	// DOCS INHERITHED  ========================================================
-	function render()
+	/**
+	 * Simply do nothing and returns true;
+	 */
+	function onCreate()
 	{
-		return $this->m_content;
+		return true;
+	}
+	
+	/**
+	 * Returns always TRUE.
+	 */
+	function onCheckPermission()
+	{
+		return TRUE;
 	}
 };
 
 
+
+
 /**
- * Represent an error page.
+ * Represent a generic error page.
  */
-class xContentError extends xContent
+class xContentError extends xContentSimple
 {
 	/**
-	 * @var string
-	 * @access public
-	 */
-	var $m_error;
-	
-	/**
 	 * 
-	 *
 	 */
-	function xContentError($error)
+	function xContentError($error,$path)
 	{
-		$this->xContent('Error','Error','');
+		$content = '<b>There was an error while creating the page content: ' . $error . '</b>';
 		
-		$this->m_error = $error;
-	}
-	
-	// DOCS INHERITHED  ========================================================
-	function render()
-	{
-		return '<b>There was an error while creating the page content: ' . $this->m_error . '</b>';
+		$this->xContentSimple('Error',$content,'','');
 	}
 };
 
@@ -150,15 +216,32 @@ class xContentError extends xContent
 /**
  * Represent a not authorized page.
  */
-class xContentNotAuthorized extends xContentError
+class xContentNotAuthorized extends xContentSimple
 {
 	/**
 	 * 
 	 */
-	function xContentNotAuthorized()
+	function xContentNotAuthorized($path)
 	{
-		$this->xContentError('You are not authorized to access this page');
+		$this->xContentSimple('Access Denied','You are not authorized to access this page','','',$path);
 	}
 };
+
+
+/**
+ * Represent a not found error page
+ */
+class xContentNotFound extends xContentSimple
+{
+	/**
+	 * 
+	 */
+	function xContentNotFound($path)
+	{
+		$this->xContentSimple('Page not found','The page you requested was not found','','',$path);
+	}
+};
+
+
 
 ?>
