@@ -37,10 +37,18 @@ class xItemDAO
 			xDB::getDB()->startTransaction();
 		
 		$id = xUniqueId::generate('item');
+		$field_names = "id,title,type,author,content,content_filter,creation_time";
+		$field_values = "%d,'%s','%s','%s','%s','%s',NOW()";
+		$values = array($id,$item->m_title,$item->m_type,$item->m_author,$item->m_content,$item->m_content_filter);
 		
-		if( !xDB::getDB()->query("INSERT INTO item(id,title,type,author,content,content_filter,creation_time) 
-			VALUES (%d,'%s','%s','%s','%s','%s',NOW())",
-			$id,$item->m_title,$item->m_type,$item->m_author,$item->m_content,$item->m_content_filter))
+		if(!empty($item->m_cathegory))
+		{
+			$field_names .= ',cathegory';
+			$field_values .= ",%d";
+			$values[] = $item->m_cathegory;
+		}
+		
+		if(! xDB::getDB()->query("INSERT INTO item($field_names) VALUES($field_values)",$values))
 			return false;
 		
 		if($transaction)
@@ -82,8 +90,23 @@ class xItemDAO
 	 */
 	function update($item)
 	{
-		return xDB::getDB()->query("UPDATE item SET title = '%s',content = '%s',content_filter = '%s',lastedittime = NOW()",
-			$item->m_title,$item->m_content,$item->m_content_filter);
+		$fields = "title = '%s',content = '%s',content_filter = '%s',lastedittime = NOW()";
+		$values = array($item->m_title,$item->m_content,$item->m_content_filter);
+
+		
+		if(!empty($item->m_cathegory))
+		{
+			$fields .= ",cathegory = %d";
+			$values[] = $item->m_cathegory;
+		}
+		else
+		{
+			$fields .= ",cathegory = NULL";
+		}
+		
+		
+		$values[] = $item->m_id;
+		return xDB::getDB()->query("UPDATE item SET $fields WHERE id = %d",$values);
 	}
 	
 	
@@ -96,7 +119,7 @@ class xItemDAO
 	function _itemFromRow($row_object)
 	{
 		return new xItem($row_object->id,$row_object->title,$row_object->type,$row_object->author,
-			$row_object->content,$row_object->content_filter,
+			$row_object->content,$row_object->content_filter,$row_object->cathegory,
 			$row_object->creation_time,$row_object->lastedit_time);
 	}
 	
@@ -115,31 +138,6 @@ class xItemDAO
 		}
 		
 		return NULL;
-	}
-	
-	/**
-	 * Insert an item in a list of cathegories
-	 *
-	 * @param int $itemid
-	 * @param array(int) $cathegories_id
-	 * @return bool FALSE on error
-	 * @static
-	 */
-	function insertInCathegories($itemid,$cathegories_id,$transaction = TRUE)
-	{
-		if($transaction)
-			xDB::getDB()->startTransaction();
-		
-		foreach($cathegories_id as $cathegory_id)
-		{
-			if(! xDB::getDB()->query("INSERT INTO item_to_cathegory (itemid,catid) VALUES (%d,%d)",$itemid,$cathegories_id))
-				return false;
-		}
-		
-		if($transaction)
-			xDB::getDB()->commit();
-		
-		return true;
 	}
 	
 	
@@ -226,8 +224,7 @@ class xItemDAO
 		
 		if($cathegory !== NULL)
 		{
-			$query_tables[] = "item_to_cathegory";
-			$query_where[] = "item_to_cathegory.catid = %d AND item.id = item_to_cathegory.itemid";
+			$query_where[] = "item.cathegory = %d";
 			$query_where_link[] = "AND";
 			$values[] = $cathegory;
 		}

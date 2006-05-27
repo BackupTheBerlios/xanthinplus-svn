@@ -24,9 +24,9 @@ class xItemComment extends xItem
 	/**
 	 *
 	 */
-	function xItemComment($id,$title,$type,$author,$content,$content_filter,$creation_time,$lastedit_time)
+	function xItemComment($id,$title,$type,$author,$content,$content_filter,$cathegory,$creation_time,$lastedit_time)
 	{
-		$this->xItem($id,$title,$type,$author,$content,$content_filter,$creation_time,$lastedit_time);
+		$this->xItem($id,$title,$type,$author,$content,$content_filter,$cathegory,$creation_time,$lastedit_time);
 	}
 	
 	

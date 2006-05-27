@@ -103,7 +103,7 @@ class xItemPageDAO
 	function _itempageFromRow($row_object)
 	{
 		return new xItemPage($row_object->id,$row_object->title,$row_object->type,$row_object->author,
-			$row_object->content,$row_object->content_filter,$row_object->creation_time,$row_object->lastedit_time,
+			$row_object->content,$row_object->content_filter,$row_object->cathegory,$row_object->creation_time,$row_object->lastedit_time,
 			$row_object->subtype,$row_object->published,$row_object->sticky,$row_object->accept_replies,
 			$row_object->published,$row_object->approved,$row_object->meta_description,$row_object->meta_keywords);
 	}
@@ -117,8 +117,8 @@ class xItemPageDAO
 		if($row = xDB::getDB()->fetchObject($result))
 		{
 			return new xItem($item->m_id,$item->m_title,$item->m_type,$item->m_author,
-				$item->m_content,$item->m_content_filter,$item->m_creation_time,$item->m_lastedit_time,
-				$row->subtype,$row->published,$row->sticky,$row->accept_replies,
+				$item->m_content,$item->m_content_filter,$item->m_cathegory,$item->m_creation_time,
+				$item->m_lastedit_time,$row->subtype,$row->published,$row->sticky,$row->accept_replies,
 				$row->published,$row->approved,$row->meta_description,$row->meta_keywords);
 		}
 		
@@ -195,8 +195,7 @@ class xItemPageDAO
 		
 		if($cathegory !== NULL)
 		{
-			$query_tables[] = "item_to_cathegory";
-			$query_where[] = "item_to_cathegory.catid = %d AND item.id = item_to_cathegory.itemid";
+			$query_where[] = "item.cathegory = %d";
 			$query_where_link[] = "AND";
 			$values[] = $cathegory;
 		}

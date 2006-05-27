@@ -67,10 +67,10 @@ class xItemPage extends xItem
 	/**
 	 *
 	 */
-	function xItemPage($id,$title,$type,$author,$content,$content_filter,$creation_time,$lastedit_time,
+	function xItemPage($id,$title,$type,$author,$content,$content_filter,$cathegory,$creation_time,$lastedit_time,
 		$subtype,$published,$sticky,$accept_replies,$approved,$meta_description,$meta_keywords)
 	{
-		$this->xItem($id,$title,$type,$author,$content,$content_filter,$creation_time,$lastedit_time);
+		$this->xItem($id,$title,$type,$author,$content,$content_filter,$cathegory,$creation_time,$lastedit_time);
 		
 		$this->m_subtype = $subtype;
 		$this->m_sticky = $sticky;

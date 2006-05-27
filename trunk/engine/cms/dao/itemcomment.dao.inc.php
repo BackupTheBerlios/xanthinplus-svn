@@ -71,7 +71,8 @@ class xItemCommentDAO
 	function _itemcommentFromRow($row_object)
 	{
 		return new xItemComment($row_object->id,$row_object->title,$row_object->type,$row_object->author,
-			$row_object->content,$row_object->content_filter,$row_object->creation_time,$row_object->lastedit_time);
+			$row_object->content,$row_object->content_filter,$row_object->cathegory,
+			$row_object->creation_time,$row_object->lastedit_time);
 	}
 	
 	/**
@@ -80,7 +81,7 @@ class xItemCommentDAO
 	function toSpecificItem($item)
 	{
 		return new xItemComment($item->m_id,$item->m_title,$item->m_type,$item->m_author,
-			$item->m_content,$item->m_ontent_filter,$item->m_creation_time,$item->m_lastedit_time);
+			$item->m_content,$item->m_ontent_filter,$item->cathegory,$item->m_creation_time,$item->m_lastedit_time);
 	}
 	
 	/**
@@ -156,8 +157,7 @@ class xItemCommentDAO
 		
 		if($cathegory !== NULL)
 		{
-			$query_tables[] = "item_to_cathegory";
-			$query_where[] = "item_to_cathegory.catid = %d AND item.id = item_to_cathegory.itemid";
+			$query_where[] = "item.cathegory = %d";
 			$query_where_link[] = "AND";
 			$values[] = $cathegory;
 		}

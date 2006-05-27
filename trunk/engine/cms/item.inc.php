@@ -58,6 +58,12 @@ class xItem extends xElement
 	var $m_content_filter;
 	
 	/**
+	 * @var int
+	 * @access public
+	 */
+	var $m_cathegory;
+	
+	/**
 	 * @var timestamp
 	 * @access public
 	 */
@@ -73,7 +79,7 @@ class xItem extends xElement
 	/**
 	 *
 	 */
-	function xItem($id,$title,$type,$author,$content,$content_filter,$creation_time = NULL,$lastedit_time = NULL)
+	function xItem($id,$title,$type,$author,$content,$content_filter,$cathegory = NULL,$creation_time = NULL,$lastedit_time = NULL)
 	{
 		$this->xElement();
 		
@@ -83,6 +89,7 @@ class xItem extends xElement
 		$this->m_author = $author;
 		$this->m_content = $content;
 		$this->m_content_filter = $content_filter;
+		$this->m_cathegory = $cathegory;
 		$this->m_creation_time = $creation_time;
 		$this->m_lastedit_time = $lastedit_time;
 	}
@@ -155,17 +162,6 @@ class xItem extends xElement
 	function dbLoad($id)
 	{
 		return xItemDAO::load($id);
-	}
-	
-	/**
-	 * Insert this item in a list of cathegories
-	 *
-	 * @param array(int) $cathegory_ids
-	 * @return bool FALSE on error
-	 */
-	function insertInCathegories($cathegory_ids)
-	{
-		return xItemDAO::insertInCathegories($this->m_id,$cathegory_ids);
 	}
 	
 	/**

@@ -78,7 +78,7 @@ class xContentFilterPhp extends xContentFilter
 	// DOCS INHERITHED  ========================================================
 	function filter($input)
 	{
-		$ret = eval($input);
+		$ret = @eval($input);
 		
 		if($ret === FALSE)
 		{

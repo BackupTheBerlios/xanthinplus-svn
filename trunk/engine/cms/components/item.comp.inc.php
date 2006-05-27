@@ -157,7 +157,7 @@ class xContentItemPageCreate extends xContent
 		if($cathegory === NULL)
 		{
 			//parent cathegory
-			$form->m_elements[] = xCathegory::getFormCathegoryChooser('cathegory','Cathegories','','',TRUE,FALSE);
+			$form->m_elements[] = xCathegory::getFormCathegoryChooser('cathegory','Cathegory','','',FALSE,FALSE);
 		}
 		
 		
@@ -207,7 +207,7 @@ class xContentItemPageCreate extends xContent
 				}
 				
 				$item = new xItemPage(-1,$ret->m_valid_data['title'],'page','autore',
-					$ret->m_valid_data['body'],$ret->m_valid_data['filter'],NULL,NULL,$subtype,
+					$ret->m_valid_data['body'],$ret->m_valid_data['filter'],$cathegory,NULL,NULL,$subtype,
 					$ret->m_valid_data['published'],$ret->m_valid_data['sticky'],$ret->m_valid_data['accept_replies'],
 					$ret->m_valid_data['approved'],0,$ret->m_valid_data['description'],$ret->m_valid_data['keywords']);
 				if($item->dbInsert())
@@ -218,16 +218,6 @@ class xContentItemPageCreate extends xContent
 				{
 					xNotifications::add(NOTIFICATION_ERROR,'Error: Item was not created');
 				}
-				
-				if($item->insertInCathegories(xanth_filter_empty_values($cathegory)))
-				{
-					xNotifications::add(NOTIFICATION_NOTICE,'New item successfully created');
-				}
-				else
-				{
-					xNotifications::add(NOTIFICATION_ERROR,'Error: Item was not created');
-				}
-				
 				
 				xContent::_set("Create new item page",'','','');
 				return TRUE;
