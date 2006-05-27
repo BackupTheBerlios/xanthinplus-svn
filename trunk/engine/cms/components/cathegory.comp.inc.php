@@ -35,6 +35,8 @@ class xModuleCathegory extends xModule
 				return new xContentAdminCathegory($path);
 			case 'cathegory/create':
 				return new xContentCathegoryCreate($path);
+			case 'cathegory_type/create':
+				return new xContentCathegoryTypeCreate($path);
 		}
 		
 		return NULL;
@@ -189,12 +191,12 @@ class xContentCathegoryCreate extends xContent
 	// DOCS INHERITHED  ========================================================
 	function onCreate()
 	{
-		//check for type permission
+		//check for type
 		$type = NULL;
 		if(isset($this->m_path->m_vars['type']))
 			$type = $this->m_path->m_vars['type'];
 		
-		//check for parent permission
+		//check for parent
 		$parentcat = NULL;
 		if(isset($this->m_path->m_vars['parentcat']))
 			$parentcat = $this->m_path->m_vars['parentcat'];
@@ -239,7 +241,7 @@ class xContentCathegoryCreate extends xContent
 				
 				
 				$cat = new xCathegory(0,$ret->m_valid_data['name'],$type,$ret->m_valid_data['description'],
-					$parentcat,NULL);
+					$parentcat);
 					
 				if($cat->dbInsert())
 				{
@@ -267,6 +269,85 @@ class xContentCathegoryCreate extends xContent
 		return TRUE;
 	}
 }
+
+
+
+
+/**
+ *
+ *
+ * @internal
+ */
+class xContentCathegoryTypeCreate extends xContent
+{
+
+	function xContentCathegoryTypeCreate($path)
+	{
+		xContent::xContent($path);
+	}
+	
+	
+	// DOCS INHERITHED  ========================================================
+	function onCheckPermission()
+	{
+		//check for type permission
+		return xAccessPermission::checkCurrentUserPermission('cathegory_type','create');
+	}
+	
+	
+	// DOCS INHERITHED  ========================================================
+	function onCreate()
+	{
+		//create form
+		$form = new xForm('?p=' . $this->m_path->m_full_path);
+		
+		//name
+		$form->m_elements[] = xCathegoryType::getFormNameInput('name','Name','','',TRUE);
+		//description
+		$form->m_elements[] = xCathegoryType::getFormDescriptionInput('description','Description','','',FALSE);
+		//item types
+		$form->m_elements[] = xItemType::getFormTypeChooser('item_types','Item types','','',TRUE,TRUE);
+		
+		//submit buttom
+		$form->m_elements[] = new xFormSubmit('submit','Create');
+		
+		$ret = $form->validate();
+		if(isset($ret->m_valid_data['submit']))
+		{
+			if(empty($ret->m_errors))
+			{
+				
+				$cattype = new xCathegoryType($ret->m_valid_data['name'],$ret->m_valid_data['description'],
+					$ret->m_valid_data['item_types']);
+					
+				if($cattype->dbInsert())
+				{
+					xNotifications::add(NOTIFICATION_NOTICE,'New cathegory type successfully created');
+				}
+				else
+				{
+					xNotifications::add(NOTIFICATION_ERROR,'Error: Cathegory type was not created');
+				}
+				
+				
+				xContent::_set("Create cathegory type",'','','');
+				return TRUE;
+			}
+			else
+			{
+				foreach($ret->m_errors as $error)
+				{
+					xNotifications::add(NOTIFICATION_WARNING,$error);
+				}
+			}
+		}
+
+		xContent::_set("Create new cathegory type",$form->render(),'','');
+		return TRUE;
+	}
+}
+
+
 
 
 	

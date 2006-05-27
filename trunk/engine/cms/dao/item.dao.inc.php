@@ -130,7 +130,6 @@ class xItemDAO
 		if($transaction)
 			xDB::getDB()->startTransaction();
 		
-		
 		foreach($cathegories_id as $cathegory_id)
 		{
 			if(! xDB::getDB()->query("INSERT INTO item_to_cathegory (itemid,catid) VALUES (%d,%d)",$itemid,$cathegories_id))

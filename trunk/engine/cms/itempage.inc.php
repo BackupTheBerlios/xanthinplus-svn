@@ -98,7 +98,8 @@ class xItemPage extends xItem
 	 */
 	function dbInsert()
 	{
-		return xItemPageDAO::insert($this);
+		$this->m_id = xItemPageDAO::insert($this);
+		return $this->m_id;
 	}
 	
 	/** 

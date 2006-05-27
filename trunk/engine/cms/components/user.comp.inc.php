@@ -64,7 +64,7 @@ class xModuleUser extends xModule
 	
 	
 	// DOCS INHERITHED  ========================================================
-	function onPageCreation()
+	function xm_onPageCreation()
 	{
 		//check the login
 		xUser::checkUserLogin();

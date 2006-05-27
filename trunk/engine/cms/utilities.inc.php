@@ -31,6 +31,26 @@ function _objWeightCompare($a, $b)
 
 
 /**
+ * Filter all empty values from an array
+ *
+ * @param array(mixed) $in_array
+ * @return array(mixed)
+ */
+function xanth_filter_empty_values($in_array)
+{
+	$ret = array();
+	
+	foreach($in_array as $elem)
+	{
+		if(!empty($elem))
+			$ret[] = $elem;
+	}
+	
+	return $ret;
+}
+
+
+/**
 * An element to count the exexution time of the script. Render it at the foot of your page.
 */
 class xExecutionTime extends xElement

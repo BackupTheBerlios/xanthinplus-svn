@@ -48,13 +48,6 @@ class xCathegoryDAO
 			$values[] = $cathegory->m_parent_cathegory;
 		}
 		
-		if(!empty($cathegory->m_items_type))
-		{
-			$field_names .= ',items_type';
-			$field_values .= ",'%s'";
-			$values[] = $cathegory->m_items_type;
-		}
-		
 		if(! xDB::getDB()->query("INSERT INTO cathegory($field_names) VALUES($field_values)",$values))
 			return false;
 		
@@ -99,16 +92,6 @@ class xCathegoryDAO
 			$fields .= ",parent_cathegory = NULL";
 		}
 		
-		if(!empty($cathegory->m_items_type))
-		{
-			$fields .= ",items_type = '%s'";
-			$values[] = $cathegory->m_items_type;
-		}
-		else
-		{
-			$fields .= ",items_type = NULL";
-		}
-		
 		
 		$values[] = $cathegory->m_id;
 		return xDB::getDB()->query("UPDATE cathegory SET $fields WHERE id = %d",$values);
@@ -123,7 +106,7 @@ class xCathegoryDAO
 	function _cathegoryFromRow($row_object)
 	{
 		return new xCathegory($row_object->id,$row_object->name,$row_object->type,$row_object->description,
-			$row_object->parent_cathegory,$row_object->items_type);
+			$row_object->parent_cathegory);
 	}
 	
 	/**

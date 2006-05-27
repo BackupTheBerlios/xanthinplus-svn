@@ -17,7 +17,7 @@
 
 
 /**
- * An item type.
+ * A cathegory type.
  */
 class xCathegoryType
 {
@@ -33,14 +33,20 @@ class xCathegoryType
 	 */
 	var $m_description;
 	
+	/**
+	 * @var array(string)
+	 * @access public
+	 */
+	var $m_item_types;
 
 	/**
 	 *
 	 */
-	function xCathegoryType($name,$description)
+	function xCathegoryType($name,$description,$item_types = array())
 	{
 		$this->m_name = $name;
 		$this->m_description = $description;
+		$this->m_item_types = $item_types;
 	}
 	
 	
@@ -137,6 +143,44 @@ class xCathegoryType
 		return new xFormElementOptions($var_name,$label,$description,$value,$options,FALSE,$mandatory,
 			new xInputValidatorTextNameId(32));
 	}
+	
+	
+	/**
+	 * Return a form element for asking for name input
+	 *
+	 * @param string $var_name The name of the form element
+	 * @param string $value
+	 * @param string $label
+	 * @param string $description
+	 * @param bool $mandatory True if this input is manadtory
+	 * @return xFormElement
+	 * @static
+	 */
+	function getFormNameInput($var_name,$label,$description,$value,$mandatory)
+	{
+		return new xFormElementTextField($var_name,$label,$description,$value,$mandatory,
+			new xInputValidatorTextNameId(32));
+	}
+	
+	
+	/**
+	 * Return a form element for asking for description input
+	 *
+	 * @param string $var_name The name of the form element
+	 * @param string $value
+	 * @param string $label
+	 * @param string $description
+	 * @param bool $mandatory True if this input is manadtory
+	 * @return xFormElement
+	 * @static
+	 */
+	function getFormDescriptionInput($var_name,$label,$description,$value,$mandatory)
+	{
+		return new xFormElementTextField($var_name,$label,$description,$value,$mandatory,
+			new xInputValidatorText(256));
+	}
+	
+	
 };
 
 

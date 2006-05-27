@@ -233,6 +233,19 @@ class xInstallCMS
 			)TYPE=InnoDB"
 		);
 		
+		
+		//cathegory type to item type
+		xDB::getDB()->query("
+			CREATE TABLE cathegory_type_to_item_types (
+			cattype VARCHAR(32) NOT NULL,
+			itemtype VARCHAR(32) NOT NULL,
+			UNIQUE (cattype,itemtype),
+			FOREIGN KEY (cattype) REFERENCES cathegory_type(name) ON DELETE CASCADE,
+			FOREIGN KEY (itemtype) REFERENCES item_type(name) ON DELETE CASCADE
+			)TYPE=InnoDB"
+		);
+		
+		
 		//item cathegory
 		xDB::getDB()->query("
 			CREATE TABLE cathegory (
@@ -241,11 +254,9 @@ class xInstallCMS
 			type VARCHAR(32) NOT NULL,
 			description TEXT NOT NULL,
 			parent_cathegory INT UNSIGNED,
-			items_type VARCHAR(32),
 			PRIMARY KEY (id),
 			UNIQUE(name),
 			FOREIGN KEY (parent_cathegory) REFERENCES cathegory(id) ON DELETE CASCADE,
-			FOREIGN KEY (items_type) REFERENCES item_type(name) ON DELETE SET NULL,
 			FOREIGN KEY (type) REFERENCES cathegory_type(name) ON DELETE RESTRICT
 			)TYPE=InnoDB"
 		);
@@ -315,6 +326,7 @@ class xInstallCMS
 			CREATE TABLE item_to_cathegory (
 			itemid INT UNSIGNED NOT NULL,
 			catid INT UNSIGNED NOT NULL,
+			UNIQUE(itemid,catid),
 			FOREIGN KEY (itemid) REFERENCES item(id) ON DELETE CASCADE,
 			FOREIGN KEY (catid) REFERENCES cathegory(id) ON DELETE CASCADE
 			)TYPE=InnoDB"
@@ -365,7 +377,8 @@ class xInstallCMS
 		$menu->m_items[] = $menuitem;
 		
 		$menuitem = new xMenuItem('Manage Cathegories','?p=admin/cathegory',0);
-		$menuitem->m_subitems[] = new xMenuItem('Create catheogry','?p=cathegory/create',0);
+		$menuitem->m_subitems[] = new xMenuItem('Create cathegory','?p=cathegory/create',0);
+		$menuitem->m_subitems[] = new xMenuItem('Create cathegory type','?p=cathegory_type/create',0);
 		$menu->m_items[] = $menuitem;
 		
 		$menuitem = new xMenuItem('Access Filters','?p=admin/accessfilters',0);
@@ -383,7 +396,7 @@ class xInstallCMS
 		$item_type->dbInsert();
 		$item_type = new xItemPageType('page','Basic item type','html,bbcode,notags',true,false,false,true);
 		$item_type->dbInsert();
-		$cat_type = new xCathegoryType('basic','A basic cathegory');
+		$cat_type = new xCathegoryType('basic','A basic cathegory',array('page'));
 		$cat_type->dbInsert();
 	}
 };

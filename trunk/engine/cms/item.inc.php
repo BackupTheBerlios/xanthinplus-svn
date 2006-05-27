@@ -160,12 +160,12 @@ class xItem extends xElement
 	/**
 	 * Insert this item in a list of cathegories
 	 *
-	 * @param array(int) $cathegories_id
+	 * @param array(int) $cathegory_ids
 	 * @return bool FALSE on error
 	 */
-	function insertInCathegories($cathegories_id)
+	function insertInCathegories($cathegory_ids)
 	{
-		return xItemDAO::insertInCathegories($this->m_id,$cathegories_id);
+		return xItemDAO::insertInCathegories($this->m_id,$cathegory_ids);
 	}
 	
 	/**

@@ -120,7 +120,7 @@ class xItemType
 	 * @return xFormElement
 	 * @static
 	 */
-	function getFormTypeChooser($var_name,$value,$mandatory)
+	function getFormTypeChooser($var_name,$label,$description,$value,$mandatory,$multiple)
 	{
 		$types = xItemType::findAll();
 		$options = array();
@@ -128,8 +128,8 @@ class xItemType
 		{
 			$options[$type->m_name] = $type->m_name;
 		}
-		return new xFormElementOptions($var_name,'Select item type','',$value,$options,FALSE,$mandatory,
-			new xInputValidatorInteger());
+		return new xFormElementOptions($var_name,$label,$description,$value,$options,$multiple,$mandatory,
+			new xInputValidatorTextNameId(32));
 	}
 };
 

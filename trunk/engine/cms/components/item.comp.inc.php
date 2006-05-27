@@ -219,7 +219,7 @@ class xContentItemPageCreate extends xContent
 					xNotifications::add(NOTIFICATION_ERROR,'Error: Item was not created');
 				}
 				
-				if($item->insertInCathegories($cathegory))
+				if($item->insertInCathegories(xanth_filter_empty_values($cathegory)))
 				{
 					xNotifications::add(NOTIFICATION_NOTICE,'New item successfully created');
 				}
