@@ -253,7 +253,8 @@ class xItemManagerPage extends xItemManager
 		if($cathegory === NULL)
 		{
 			//parent cathegory
-			$form->m_elements[] = xCathegory::getFormCathegoryChooser('cathegory','Cathegory','','',FALSE,FALSE);
+			$form->m_elements[] = xCathegory::getFormCathegoryChooser('cathegory','Cathegory','','',FALSE,FALSE,
+				$path->m_vars['type']);
 		}
 		
 		
@@ -297,7 +298,7 @@ class xItemManagerPage extends xItemManager
 					$cathegory = $ret->m_valid_data['cathegory'];
 				}
 				
-				$item = new xItemPage(-1,$ret->m_valid_data['title'],'page','autore',
+				$item = new xItemPage(-1,$ret->m_valid_data['title'],$path->m_vars['type'],'autore',
 					$ret->m_valid_data['body'],$ret->m_valid_data['filter'],$cathegory,NULL,NULL,
 					$ret->m_valid_data['published'],$ret->m_valid_data['sticky'],$ret->m_valid_data['accept_replies'],
 					$ret->m_valid_data['approved'],0,$ret->m_valid_data['description'],$ret->m_valid_data['keywords']);

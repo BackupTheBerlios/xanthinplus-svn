@@ -234,11 +234,10 @@ class xItemManager
 	function xItemManager()
 	{}
 	
-		/**
-	 * Register an item class as the class in charge of managing create,view,edit,permission, delete of a specific 
-	 * item type.
+	/**
+	 * Register an object in charge of managing create,view,edit,permission, delete of a specific item type.
 	 *
-	 * @param string $classname
+	 * @param xItemManager $manager
 	 * @param string $item_type
 	 * @static
 	 */
@@ -251,7 +250,7 @@ class xItemManager
 	
 	
 	/**
-	 * Gets the class in charge of managing create,view,edit,permission, delete of a specific 
+	 * Gets the object in charge of managing create,view,edit,permission, delete of a specific 
 	 * item type.
 	 *
 	 * @param string $item_type
@@ -282,6 +281,47 @@ class xItemManager
 	}
 	
 	/**
+	 * Check permission for creating an item. 
+	 *
+	 * @param xXanthPath $path
+	 * @return bool
+	 */
+	function onContentCheckPermissionCreate($path)
+	{
+		if(isset($path->m_vars['type']))
+		{
+			$type = $path->m_vars['type'];
+			
+			if(!xAccessPermission::checkCurrentUserPermission('item','create',$type))
+			{
+				return FALSE;
+			}
+		}
+		
+		//check for cathegory permission
+		if(isset($path->m_vars['cathegory']))
+		{
+			$cathegory = $path->m_vars['cathegory'];
+			
+			//check if cathegory supports an item type
+			if(isset($path->m_vars['type']))
+			{
+				$ret = xCathegory::cathegorySupportItemType($path->m_vars['cathegory'],$path->m_vars['type']);
+				if(!$ret)
+					return FALSE;
+			}
+			
+			if(! xAccessPermission::checkCurrentUserPermission('cathegory','insert_item',$cathegory))
+			{
+				return FALSE;
+			}
+		}
+		
+		return TRUE;
+	}
+	
+	
+	/**
 	 * Create content to fill the item/create page. You need to fill the provided $content
 	 * object with your data.
 	 *
@@ -302,12 +342,12 @@ class xItemManager
 				
 
 		//create form
-		$form = new xForm('?p=' . $this->m_path->m_full_path);
+		$form = new xForm('?p=' . $path->m_full_path);
 		
 		if($cathegory === NULL)
 		{
 			//parent cathegory
-			$form->m_elements[] = xCathegory::getFormCathegoryChooser('cathegory','Cathegory','','',FALSE,FALSE);
+			$form->m_elements[] = xCathegory::getFormCathegoryChooser('cathegory','Cathegory','','',FALSE,FALSE,$type);
 		}
 		
 		
@@ -358,38 +398,7 @@ class xItemManager
 		$content->_set("Create new item",$form->render(),'','');
 		return TRUE;
 	}
-	
-	/**
-	 * Check permission for creating an item. 
-	 *
-	 * @param xXanthPath $path
-	 * @return bool
-	 */
-	function onContentCheckPermissionCreate($path)
-	{
-		if(isset($path->m_vars['type']))
-		{
-			$type = $path->m_vars['type'];
-			
-			if(!xAccessPermission::checkCurrentUserPermission('item','create',$type))
-			{
-				return FALSE;
-			}
-		}
-		
-		//check for cathegory permission
-		if(isset($path->m_vars['cathegory']))
-		{
-			$cathegory = $path->m_vars['cathegory'];
-			
-			if(! xAccessPermission::checkCurrentUserPermission('cathegory','insert_item',$cathegory))
-			{
-				return FALSE;
-			}
-		}
-		
-		return TRUE;
-	}
+
 	
 	/**
 	 * Create content to fill the item/view page. You need to fill the provided $content

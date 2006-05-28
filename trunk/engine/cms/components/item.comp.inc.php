@@ -153,10 +153,7 @@ class xContentItemCreate extends xContent
 	function onCheckPermission()
 	{
 		if(! isset($this->m_path->m_vars['type']))
-		{
-			xLog::log(LOG_LEVEL_ERROR,'Item type not specified, access denied');
-			return FALSE;
-		}
+			return TRUE;
 		
 		$manager = xItemManager::getItemManager($this->m_path->m_vars['type']);
 		
@@ -168,13 +165,25 @@ class xContentItemCreate extends xContent
 	{
 		if(! isset($this->m_path->m_vars['type']))
 		{
-			xLog::log(LOG_LEVEL_ERROR,'Item type not specified, access denied');
-			return FALSE;
+			//let user to choose the item type from a list
+			$types = xItemType::findAll();
+			
+			$output = 'Choose an item type: 
+			<ul>';
+			foreach($types as $type)
+			{
+				$output .= '<li><a href="?p=item/create//type['.$type->m_name.']">'.$type->m_name.'</a></li>';
+			}
+			$output .= '</ul>';
+			
+			$this->_set('Create item: choose a type',$output,'','');
+			return true;
 		}
-		
-		$manager = xItemManager::getItemManager($this->m_path->m_vars['type']);
-		
-		return $manager->onContentCreate($this->m_path,$this);
+		else
+		{
+			$manager = xItemManager::getItemManager($this->m_path->m_vars['type']);
+			return $manager->onContentCreate($this->m_path,$this);
+		}
 	}
 };
 

@@ -347,7 +347,7 @@ class xInstallCMS
 		$menu->m_items[] = $menuitem;
 		
 		$menuitem = new xMenuItem('Manage Items','?p=admin/items',0);
-		$menuitem->m_subitems[] = new xMenuItem('Create Item page','?p=item/page/create',0);
+		$menuitem->m_subitems[] = new xMenuItem('Create Item','?p=item/create',0);
 		$menuitem->m_subitems[] = new xMenuItem('Manage types','?p=admin/itemtypes',0);
 		$menu->m_items[] = $menuitem;
 		

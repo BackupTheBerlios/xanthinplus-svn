@@ -147,126 +147,39 @@ class xContentCathegoryCreate extends xContent
 	// DOCS INHERITHED  ========================================================
 	function onCheckPermission()
 	{
-		//check for type permission
-		if(! xAccessPermission::checkCurrentUserPermission('cathegory','create'))
-		{
-			if(isset($path->m_vars['type']))
-			{
-				$type = $path->m_vars['type'];
-				
-				if(!xAccessPermission::checkCurrentUserPermission('cathegory','create',$type))
-				{
-					return FALSE;
-				}
-			}
-			else
-			{
-				return FALSE;
-			}
-		}
+		if(! isset($this->m_path->m_vars['type']))
+			return true;
 		
+		$manager = xCathegoryManager::getCathegoryManager($this->m_path->m_vars['type']);
 		
-		//check for parent permission
-		if(! xAccessPermission::checkCurrentUserPermission('cathegory','create_inside'))
-		{
-			if(isset($path->m_vars['parentcat']))
-			{
-				$parentcat = $path->m_vars['parentcat'];
-				
-				if(!xAccessPermission::checkCurrentUserPermission('cathegory','create_inside',$parentcat))
-				{
-					return FALSE;
-				}
-			}
-			else
-			{
-				return FALSE;
-			}
-		}
-		
-		return TRUE;
+		return $manager->onContentCheckPermissionCreate($this->m_path);
 	}
 	
 	
 	// DOCS INHERITHED  ========================================================
 	function onCreate()
 	{
-		//check for type
-		$type = NULL;
-		if(isset($this->m_path->m_vars['type']))
-			$type = $this->m_path->m_vars['type'];
-		
-		//check for parent
-		$parentcat = NULL;
-		if(isset($this->m_path->m_vars['parentcat']))
-			$parentcat = $this->m_path->m_vars['parentcat'];
+		if(! isset($this->m_path->m_vars['type']))
+		{
+			//let user to choose the cathegory type from a list
+			$types = xCathegoryType::findAll();
 			
-		//create form
-		$form = new xForm('?p=' . $this->m_path->m_full_path);
-		
-		if($type === NULL)
-		{
-			//type
-			$form->m_elements[] = xCathegoryType::getFormCathegoryTypeChooser('type','Type','','',TRUE);
-		}
-		
-		//name
-		$form->m_elements[] = xCathegory::getFormNameInput('name','Name','','',TRUE);
-		//description
-		$form->m_elements[] = xCathegory::getFormDescriptionInput('description','Description','','',FALSE);
-		
-		if($parentcat === NULL)
-		{
-			//parent cathegory
-			$form->m_elements[] = xCathegory::getFormCathegoryChooser('parent','Parent Cathegory','','',FALSE,FALSE);
-		}
-		
-		//submit buttom
-		$form->m_elements[] = new xFormSubmit('submit','Create');
-		
-		$ret = $form->validate();
-		if(isset($ret->m_valid_data['submit']))
-		{
-			if(empty($ret->m_errors))
+			$output = 'Choose a cathegory type: 
+			<ul>';
+			foreach($types as $type)
 			{
-				if($parentcat === NULL)
-				{
-					$parentcat = $ret->m_valid_data['parent'];
-				}
-				
-				if($type === NULL)
-				{
-					$type = $ret->m_valid_data['type'];
-				}
-				
-				
-				$cat = new xCathegory(0,$ret->m_valid_data['name'],$type,$ret->m_valid_data['description'],
-					$parentcat);
-					
-				if($cat->dbInsert())
-				{
-					xNotifications::add(NOTIFICATION_NOTICE,'New cathegory successfully created');
-				}
-				else
-				{
-					xNotifications::add(NOTIFICATION_ERROR,'Error: Cathegory was not created');
-				}
-				
-				
-				xContent::_set("Create cathegory",'New cathegory was created with id: ','','');
-				return TRUE;
+				$output .= '<li><a href="?p=cathegory/create//type['.$type->m_name.']">'.$type->m_name.'</a></li>';
 			}
-			else
-			{
-				foreach($ret->m_errors as $error)
-				{
-					xNotifications::add(NOTIFICATION_WARNING,$error);
-				}
-			}
+			$output .= '</ul>';
+			
+			$this->_set('Create cathegory: choose a type',$output,'','');
+			return true;
 		}
-
-		xContent::_set("Create new cathegory",$form->render(),'','');
-		return TRUE;
+		else
+		{
+			$manager = xCathegoryManager::getCathegoryManager($this->m_path->m_vars['type']);
+			return $manager->onContentCreate($this->m_path,$this);
+		}
 	}
 }
 
@@ -306,7 +219,7 @@ class xContentCathegoryTypeCreate extends xContent
 		//description
 		$form->m_elements[] = xCathegoryType::getFormDescriptionInput('description','Description','','',FALSE);
 		//item types
-		$form->m_elements[] = xItemType::getFormTypeChooser('item_types','Item types','','',TRUE,TRUE);
+		$form->m_elements[] = xItemType::getFormItemTypeChooser('item_types','Item types','','',TRUE,TRUE);
 		
 		//submit buttom
 		$form->m_elements[] = new xFormSubmit('submit','Create');

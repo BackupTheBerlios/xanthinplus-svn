@@ -97,6 +97,27 @@ class xCathegoryDAO
 		return xDB::getDB()->query("UPDATE cathegory SET $fields WHERE id = %d",$values);
 	}
 	
+	
+	/**
+	 * Check if a cathegory supports an item type
+	 *
+	 * @return bool
+	 * @static
+	 */
+	function cathegorySupportItemType($catid,$item_type)
+	{
+		$result = xDB::getDB()->query("SELECT cathegory.id FROM cathegory,cathegory_type_to_item_types 
+			WHERE cathegory.id = %d AND cathegory_type_to_item_types.itemtype = '%s' AND 
+			cathegory.type = cathegory_type_to_item_types.cattype",$catid,$item_type);
+		if($row = xDB::getDB()->fetchObject($result))
+		{
+			return TRUE;
+		}
+		
+		return FALSE;
+	}
+	
+	
 	/**
 	 *
 	 * @return xCathegory
@@ -136,6 +157,25 @@ class xCathegoryDAO
 	{
 		$cats = array();
 		$result = xDB::getDB()->query("SELECT * FROM cathegory");
+		while($row = xDB::getDB()->fetchObject($result))
+		{
+			$cats[] = xCathegoryDAO::_cathegoryFromRow($row);
+		}
+		return $cats;
+	}
+	
+	/**
+	 * Retrieves all cathegories that supports a specific item type
+	 *
+	 * @return array(xCathegory)
+	 * @static
+	 */
+	function findBySupportedItemType($item_type)
+	{
+		$cats = array();
+		$result = xDB::getDB()->query("SELECT cathegory.id,cathegory.name,cathegory.type,cathegory.description,cathegory.parent_cathegory
+			FROM cathegory,cathegory_type_to_item_types WHERE cathegory_type_to_item_types.itemtype = '%s' AND 
+			cathegory.type = cathegory_type_to_item_types.cattype",$item_type);
 		while($row = xDB::getDB()->fetchObject($result))
 		{
 			$cats[] = xCathegoryDAO::_cathegoryFromRow($row);
