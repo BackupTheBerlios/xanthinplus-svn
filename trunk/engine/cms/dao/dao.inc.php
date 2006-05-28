@@ -26,8 +26,6 @@ require_once('engine/cms/dao/item.dao.inc.php');
 require_once('engine/cms/dao/itemtype.dao.inc.php');
 require_once('engine/cms/dao/cathegory.dao.inc.php');
 require_once('engine/cms/dao/itempage.dao.inc.php');
-require_once('engine/cms/dao/itempagetype.dao.inc.php');
-require_once('engine/cms/dao/itemcomment.dao.inc.php');
 require_once('engine/cms/dao/cathegory.dao.inc.php');
 require_once('engine/cms/dao/cathegorytype.dao.inc.php');
 

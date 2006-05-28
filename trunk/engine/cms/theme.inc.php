@@ -307,14 +307,14 @@ class xDummyTheme extends xTheme
 	}
 	
 	/**
-	 * Render an item page
+	 * Render an item
 	 *
 	 * @param string $subtype
 	 * @param string $title
 	 * @param string $content
 	 * @return string the renderized element.
 	 */
-	function renderItemPage($subtype,$title,$content)
+	function renderItem($type,$title,$content)
 	{
 	}
 	
@@ -458,7 +458,7 @@ class xDefaultTheme extends xTheme
 	/**
 	 * @see xDummyModule::renderItemPage()
 	 */
-	function renderItemPage($subtype,$title,$content)
+	function renderItem($type,$title,$content)
 	{
 		$output = '<div class="item-title">' . $title . '</div>
 		<div class="item-content">' . $content . '</div>';

@@ -117,10 +117,11 @@ class xItemType
 	 * @param string $var_name The name of the form element
 	 * @param string $value
 	 * @param bool $mandatory True if this input is manadtory
+	 * @param array(resource(string),op(string)) $permission_filter A permission for filtering results or NULL for no filtering
 	 * @return xFormElement
 	 * @static
 	 */
-	function getFormTypeChooser($var_name,$label,$description,$value,$mandatory,$multiple)
+	function getFormItemTypeChooser($var_name,$label,$description,$value,$mandatory,$multiple,$permission_filter = NULL)
 	{
 		$types = xItemType::findAll();
 		$options = array();

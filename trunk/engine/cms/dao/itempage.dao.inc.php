@@ -40,9 +40,9 @@ class xItemPageDAO
 		if($id == FALSE)
 			return false;
 		
-		if(! xDB::getDB()->query("INSERT INTO item_page(itemid,subtype,sticky,accept_replies,published,approved,
-			meta_description,meta_keywords) VALUES (%d,'%s',%d,%d,%d,%d,'%s','%s')",
-			$id,$item->m_subtype,$item->m_published,$item->m_sticky,$item->m_accept_replies,$item->m_published,
+		if(! xDB::getDB()->query("INSERT INTO item_page(itemid,sticky,accept_replies,published,approved,
+			meta_description,meta_keywords) VALUES (%d,%d,%d,%d,%d,'%s','%s')",
+			$id,$item->m_published,$item->m_sticky,$item->m_accept_replies,$item->m_published,
 			$item->m_approved,$item->m_meta_description,$item->m_meta_keywords))
 			return false;
 			
@@ -103,26 +103,9 @@ class xItemPageDAO
 	function _itempageFromRow($row_object)
 	{
 		return new xItemPage($row_object->id,$row_object->title,$row_object->type,$row_object->author,
-			$row_object->content,$row_object->content_filter,$row_object->cathegory,$row_object->creation_time,$row_object->lastedit_time,
-			$row_object->subtype,$row_object->published,$row_object->sticky,$row_object->accept_replies,
+			$row_object->content,$row_object->content_filter,$row_object->cathegory,$row_object->creation_time,
+			$row_object->lastedit_time,$row_object->published,$row_object->sticky,$row_object->accept_replies,
 			$row_object->published,$row_object->approved,$row_object->meta_description,$row_object->meta_keywords);
-	}
-	
-	/**
-	 *
-	 */
-	function toSpecificItem($item)
-	{
-		$result = xDB::getDB()->query("SELECT * FROM item_page WHERE itemid = %d",$item->m_id);
-		if($row = xDB::getDB()->fetchObject($result))
-		{
-			return new xItem($item->m_id,$item->m_title,$item->m_type,$item->m_author,
-				$item->m_content,$item->m_content_filter,$item->m_cathegory,$item->m_creation_time,
-				$item->m_lastedit_time,$row->subtype,$row->published,$row->sticky,$row->accept_replies,
-				$row->published,$row->approved,$row->meta_description,$row->meta_keywords);
-		}
-		
-		return NULL;
 	}
 	
 	/**
@@ -156,7 +139,7 @@ class xItemPageDAO
 	 * @return array(xItem)
 	 * @static
 	 */
-	function find($subtype,$title,$author,$content,$cathegory,$nelementpage = 0,$npage = 0)
+	function find($title,$author,$content,$cathegory,$nelementpage = 0,$npage = 0)
 	{
 		$items = array();
 		
@@ -164,13 +147,6 @@ class xItemPageDAO
 		$values = array();
 		$query_where = array();
 		$query_where_link = array();
-		
-		if($subtype !== NULL)
-		{
-			$query_where[] = "item_page.subtype = '%s'";
-			$query_where_link[] = "AND";
-			$values[] = $subtype;
-		}
 		
 		if($title !== NULL)
 		{

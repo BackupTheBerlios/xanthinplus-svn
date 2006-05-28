@@ -282,25 +282,10 @@ class xInstallCMS
 		);
 		xUniqueId::createNew('item');
 		
-		
-		xDB::getDB()->query("
-			CREATE TABLE item_page_subtype (
-			name VARCHAR(32) NOT NULL,
-			description VARCHAR(256) NOT NULL,
-			allowed_content_filters VARCHAR(64) NOT NULL,
-			default_published TINYINT NOT NULL,
-			default_sticky TINYINT NOT NULL,
-			default_accept_replies TINYINT NOT NULL,
-			default_approved TINYINT NOT NULL,
-			PRIMARY KEY (name)
-			)TYPE=InnoDB"
-		);
-		
 		//pageitem
 		xDB::getDB()->query("
 			CREATE TABLE item_page (
 			itemid INT UNSIGNED NOT NULL,
-			subtype VARCHAR(32) NOT NULL,
 			published TINYINT NOT NULL,
 			sticky TINYINT NOT NULL,
 			accept_replies TINYINT NOT NULL,
@@ -308,8 +293,7 @@ class xInstallCMS
 			meta_description VARCHAR(128) NOT NULL,
 			meta_keywords VARCHAR(128) NOT NULL,
 			UNIQUE(itemid),
-			FOREIGN KEY (itemid) REFERENCES item(id) ON DELETE CASCADE,
-			FOREIGN KEY (subtype) REFERENCES item_page_subtype(name) ON DELETE RESTRICT
+			FOREIGN KEY (itemid) REFERENCES item(id) ON DELETE CASCADE
 			)TYPE=InnoDB"
 		);
 		
@@ -385,9 +369,7 @@ class xInstallCMS
 		$item_type->dbInsert();
 		$item_type = new xItemType('comment','A comment');
 		$item_type->dbInsert();
-		$item_type = new xItemPageType('page','Basic item type','html,bbcode,notags',true,false,false,true);
-		$item_type->dbInsert();
-		$cat_type = new xCathegoryType('basic','A basic cathegory',array('page'));
+		$cat_type = new xCathegoryType('page_cathegory','A basic cathegory for containing page item type',array('page'));
 		$cat_type->dbInsert();
 	}
 };

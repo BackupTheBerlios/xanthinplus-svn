@@ -22,12 +22,6 @@
 class xItemPage extends xItem
 {
 	/**
-	 * @var string
-	 * @access public
-	 */
-	var $m_subtype;
-	
-	/**
 	 * @var bool
 	 * @access public
 	 */
@@ -68,27 +62,16 @@ class xItemPage extends xItem
 	 *
 	 */
 	function xItemPage($id,$title,$type,$author,$content,$content_filter,$cathegory,$creation_time,$lastedit_time,
-		$subtype,$published,$sticky,$accept_replies,$approved,$meta_description,$meta_keywords)
+		$published,$sticky,$accept_replies,$approved,$meta_description,$meta_keywords)
 	{
 		$this->xItem($id,$title,$type,$author,$content,$content_filter,$cathegory,$creation_time,$lastedit_time);
 		
-		$this->m_subtype = $subtype;
 		$this->m_sticky = $sticky;
 		$this->m_accept_replies = $accept_replies;
 		$this->m_published = $published;
 		$this->m_approved = $approved;
 		$this->m_meta_description = $meta_description;
 		$this->m_meta_keywords = $meta_keywords;
-	}
-	
-	
-	// DOCS INHERITHED  ========================================================
-	function onRender()
-	{
-		$error = '';
-		$content = xContentFilterController::applyFilter($this->m_content_filter,$this->m_content,$error);
-		$title = xContentFilterController::applyFilter('notags',$this->m_title,$error);
-		return xTheme::render3('renderItemPage',$this->m_subtype,$title,$content);
 	}
 	
 	/** 
@@ -134,15 +117,6 @@ class xItemPage extends xItem
 	}
 	
 	/**
-	 *
-	 */
-	function toSpecificItem($item)
-	{
-		return xItemPageDAO::toSpecificItem($item);
-	}
-	
-	
-	/**
 	 * Retrieves all items.
 	 *
 	 * @param string $type Exact search
@@ -155,9 +129,9 @@ class xItemPage extends xItem
 	 * @return array(xItem)
 	 * @static
 	 */
-	function find($subtype = NULL,$title = NULL,$author = NULL,$content = NULL,$cathegory = NULL,$nelementpage = 0,$npage = 0)
+	function find($title = NULL,$author = NULL,$content = NULL,$cathegory = NULL,$nelementpage = 0,$npage = 0)
 	{
-		return xItemPageDAO::find($subtype,$title,$author,$content,$cathegory,$nelementpage,$npage);
+		return xItemPageDAO::find($title,$author,$content,$cathegory,$nelementpage,$npage);
 	}
 	
 	
@@ -256,5 +230,116 @@ class xItemPage extends xItem
 	}
 };
 
+/**
+ * Root class of a hieararchy that manage view,creation,deletion,modification of item types.
+ */
+class xItemManagerPage extends xItemManager
+{
+	function xItemManagerPage()
+	{}
+	
+	// DOCS INHERITHED  ========================================================
+	function onContentCreate($path,&$content)
+	{
+		//check for cathegory permission
+		$cathegory = NULL;
+		if(isset($path->m_vars['cathegory']))
+			$cathegory = $path->m_vars['cathegory'];
+				
+
+		//create form
+		$form = new xForm('?p=' . $path->m_full_path);
+		
+		if($cathegory === NULL)
+		{
+			//parent cathegory
+			$form->m_elements[] = xCathegory::getFormCathegoryChooser('cathegory','Cathegory','','',FALSE,FALSE);
+		}
+		
+		
+		//item title
+		$form->m_elements[] = xItem::getFormTitleInput('title','',true);
+		//item body
+		$form->m_elements[] = xItem::getFormBodyInput('body','Body','','',true,
+			new xInputValidatorDynamicContentFilter(0,'filter'));
+		//item filter
+		$form->m_elements[] = xContentFilterController::getFormContentFilterChooser('filter','html',TRUE);
+		
+		
+		$group = new xFormGroup('Parameters');
+		//item published
+		$group->m_elements[] = xItemPage::getFormPublishedCheck('published','Published','',false);
+		//item approved
+		$group->m_elements[] = xItemPage::getFormApprovedCheck('approved','Approved','',false);
+		//item sticky
+		$group->m_elements[] = xItemPage::getFormStickyCheck('sticky','Sticky','',false);
+		//item accept replies
+		$group->m_elements[] = xItemPage::getFormAcceptRepliesCheck('accept_replies','Accept Replies','',false);
+		$form->m_elements[] = $group;
+		
+		$group = new xFormGroup('Metadata');
+		//item description
+		$group->m_elements[] = xItemPage::getFormDescriptionInput('description','Description','','',false);
+		//item keywords
+		$group->m_elements[] = xItemPage::getFormKeywordsInput('keywords','Keywords','','',false);
+		$form->m_elements[] = $group;
+		
+		//submit buttom
+		$form->m_elements[] = new xFormSubmit('submit','Create');
+		
+		$ret = $form->validate();
+		if(! $ret->isEmpty())
+		{
+			if(empty($ret->m_errors))
+			{
+				if($cathegory === NULL)
+				{
+					$cathegory = $ret->m_valid_data['cathegory'];
+				}
+				
+				$item = new xItemPage(-1,$ret->m_valid_data['title'],'page','autore',
+					$ret->m_valid_data['body'],$ret->m_valid_data['filter'],$cathegory,NULL,NULL,
+					$ret->m_valid_data['published'],$ret->m_valid_data['sticky'],$ret->m_valid_data['accept_replies'],
+					$ret->m_valid_data['approved'],0,$ret->m_valid_data['description'],$ret->m_valid_data['keywords']);
+				if($item->dbInsert())
+				{
+					xNotifications::add(NOTIFICATION_NOTICE,'New item successfully created');
+				}
+				else
+				{
+					xNotifications::add(NOTIFICATION_ERROR,'Error: Item was not created');
+				}
+				
+				$content->_set("Create new item page",'','','');
+				return TRUE;
+			}
+			else
+			{
+				foreach($ret->m_errors as $error)
+				{
+					xNotifications::add(NOTIFICATION_WARNING,$error);
+				}
+			}
+		}
+
+		$content->_set("Create new item page",$form->render(),'','');
+		return TRUE;
+	}
+	
+	
+	/**
+	 * Retrieve a specific item from db.
+	 *
+	 * @return xItem
+	 * @static
+	 */
+	function dbLoad($id)
+	{
+		return xItemPage::dbLoad($id);
+	}
+}
+
+
+xItemManager::registerItemManager(new xItemManagerPage(),'page');
 
 ?>
