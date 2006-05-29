@@ -36,7 +36,7 @@ class xItemPageDAO
 		if($transaction)
 			xDB::getDB()->startTransaction();
 		
-		$id = xItemDAO::insert($item,FALSE);
+		$id = xItemCathegorizableDAO::insert($item,FALSE);
 		if($id == FALSE)
 			return false;
 		
@@ -78,7 +78,7 @@ class xItemPageDAO
 		if($transaction)
 			xDB::getDB()->startTransaction();
 		
-		if(! xItemDAO::update($item))
+		if(! xItemCathegorizableDAO::update($item,false))
 			return false;
 		
 		if(! xDB::getDB()->query("UPDATE item_page SET published = %d,sticky = %d,accept_replies = %d,published = %d,
@@ -103,9 +103,9 @@ class xItemPageDAO
 	function _itempageFromRow($row_object)
 	{
 		return new xItemPage($row_object->id,$row_object->title,$row_object->type,$row_object->author,
-			$row_object->content,$row_object->content_filter,$row_object->cathegory,$row_object->creation_time,
-			$row_object->lastedit_time,$row_object->published,$row_object->sticky,$row_object->accept_replies,
-			$row_object->published,$row_object->approved,$row_object->meta_description,$row_object->meta_keywords);
+			$row_object->content,$row_object->content_filter,$row_object->creation_time,$row_object->cathegory,
+			$row_object->published,$row_object->sticky,$row_object->accept_replies,
+			$row_object->approved,$row_object->meta_description,$row_object->meta_keywords,$row_object->last_edit_time);
 	}
 	
 	/**
@@ -116,7 +116,8 @@ class xItemPageDAO
 	 */
 	function load($id)
 	{
-		$result = xDB::getDB()->query("SELECT * FROM item,item_page WHERE item.id = %d AND item_page.itemid = item.id",$id);
+		$result = xDB::getDB()->query("SELECT * FROM item,item_cathegorizable,item_page WHERE 
+			item.id = %d AND item_cathegorizable.itemid = item.id AND item_page.itemid = item_cathegorizable.itemid",$id);
 		if($row = xDB::getDB()->fetchObject($result))
 		{
 			return xItemPageDAO::_itempageFromRow($row);
@@ -171,7 +172,8 @@ class xItemPageDAO
 		
 		if($cathegory !== NULL)
 		{
-			$query_where[] = "item.cathegory = %d";
+			$query_tables[] = "item_cathegorizable";
+			$query_where[] = "item_cathegorizable.catid = %d AND item_cathegorizable.itemid = item.id";
 			$query_where_link[] = "AND";
 			$values[] = $cathegory;
 		}

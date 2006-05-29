@@ -37,16 +37,10 @@ class xItemDAO
 			xDB::getDB()->startTransaction();
 		
 		$id = xUniqueId::generate('item');
-		$field_names = "id,title,type,author,content,content_filter,creation_time";
-		$field_values = "%d,'%s','%s','%s','%s','%s',NOW()";
-		$values = array($id,$item->m_title,$item->m_type,$item->m_author,$item->m_content,$item->m_content_filter);
-		
-		if(!empty($item->m_cathegory))
-		{
-			$field_names .= ',cathegory';
-			$field_values .= ",%d";
-			$values[] = $item->m_cathegory;
-		}
+		$field_names = "id,title,type,author,content,content_filter,cathegory,creation_time";
+		$field_values = "%d,'%s','%s','%s','%s','%s',%d,NOW()";
+		$values = array($id,$item->m_title,$item->m_type,$item->m_author,$item->m_content,$item->m_cathegory,
+			$item->m_content_filter);
 		
 		if(! xDB::getDB()->query("INSERT INTO item($field_names) VALUES($field_values)",$values))
 			return false;
@@ -90,20 +84,8 @@ class xItemDAO
 	 */
 	function update($item)
 	{
-		$fields = "title = '%s',content = '%s',content_filter = '%s',lastedittime = NOW()";
-		$values = array($item->m_title,$item->m_content,$item->m_content_filter);
-
-		
-		if(!empty($item->m_cathegory))
-		{
-			$fields .= ",cathegory = %d";
-			$values[] = $item->m_cathegory;
-		}
-		else
-		{
-			$fields .= ",cathegory = NULL";
-		}
-		
+		$fields = "title = '%s',content = '%s',content_filter = '%s',cathegory = %d,lastedittime = NOW()";
+		$values = array($item->m_title,$item->m_content,$item->m_content_filter,$item->m_cathegory);
 		
 		$values[] = $item->m_id;
 		return xDB::getDB()->query("UPDATE item SET $fields WHERE id = %d",$values);

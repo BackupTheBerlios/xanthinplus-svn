@@ -55,6 +55,12 @@ class xContentHomepage extends xContent
 	}
 
 	// DOCS INHERITHED  ========================================================
+	function onCheckPreconditions()
+	{
+		return TRUE;
+	}
+	
+	// DOCS INHERITHED  ========================================================
 	function onCheckPermission()
 	{
 		return TRUE;

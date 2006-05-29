@@ -70,6 +70,12 @@ class xContentAdminSettings extends xContent
 		return xAccessPermission::checkCurrentUserPermission('settings','admin');
 	}
 	
+	// DOCS INHERITHED  ========================================================
+	function onCheckPreconditions()
+	{
+		return TRUE;
+	}
+	
 	
 	// DOCS INHERITHED  ========================================================
 	function onCreate()

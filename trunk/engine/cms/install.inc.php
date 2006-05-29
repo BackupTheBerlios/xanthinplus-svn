@@ -272,15 +272,23 @@ class xInstallCMS
 			author VARCHAR(64) NOT NULL,
 			content TEXT NOT NULL,
 			content_filter VARCHAR(64) NOT NULL,
-			cathegory INT UNSIGNED,
 			creation_time DATETIME NOT NULL,
-			lastedit_time DATETIME,
 			PRIMARY KEY (id),
-			FOREIGN KEY (type) REFERENCES item_type(name) ON DELETE RESTRICT,
-			FOREIGN KEY (cathegory) REFERENCES cathegory(id) ON DELETE CASCADE
+			FOREIGN KEY (type) REFERENCES item_type(name) ON DELETE RESTRICT
 			)TYPE=InnoDB"
 		);
 		xUniqueId::createNew('item');
+		
+		//item with cathegory
+		xDB::getDB()->query("
+			CREATE TABLE item_cathegorizable (
+			itemid INT UNSIGNED NOT NULL,
+			catid INT UNSIGNED NOT NULL,
+			PRIMARY KEY (itemid),
+			FOREIGN KEY (itemid) REFERENCES item(id) ON DELETE CASCADE,
+			FOREIGN KEY (catid) REFERENCES cathegory(id) ON DELETE CASCADE
+			)TYPE=InnoDB"
+		);
 		
 		//pageitem
 		xDB::getDB()->query("
@@ -292,8 +300,9 @@ class xInstallCMS
 			approved TINYINT NOT NULL,
 			meta_description VARCHAR(128) NOT NULL,
 			meta_keywords VARCHAR(128) NOT NULL,
-			UNIQUE(itemid),
-			FOREIGN KEY (itemid) REFERENCES item(id) ON DELETE CASCADE
+			last_edit_time DATETIME,
+			PRIMARY KEY (itemid),
+			FOREIGN KEY (itemid) REFERENCES item_cathegorizable(itemid) ON DELETE CASCADE
 			)TYPE=InnoDB"
 		);
 		

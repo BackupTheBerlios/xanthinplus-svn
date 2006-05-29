@@ -60,28 +60,16 @@ class xItem extends xElement
 	var $m_content_filter;
 	
 	/**
-	 * @var int
-	 * @access public
-	 */
-	var $m_cathegory;
-	
-	/**
 	 * @var timestamp
 	 * @access public
 	 */
 	var $m_creation_time;
-			
-	/**
-	 * @var timestamp Can be NULL
-	 * @access public
-	 */
-	var $m_lastedit_time;
 	
 	
 	/**
 	 *
 	 */
-	function xItem($id,$title,$type,$author,$content,$content_filter,$cathegory = NULL,$creation_time = NULL,$lastedit_time = NULL)
+	function xItem($id,$title,$type,$author,$content,$content_filter,$creation_time = NULL)
 	{
 		$this->xElement();
 		
@@ -91,9 +79,7 @@ class xItem extends xElement
 		$this->m_author = $author;
 		$this->m_content = $content;
 		$this->m_content_filter = $content_filter;
-		$this->m_cathegory = $cathegory;
 		$this->m_creation_time = $creation_time;
-		$this->m_lastedit_time = $lastedit_time;
 	}
 	
 	
@@ -280,6 +266,17 @@ class xItemManager
 		return xItem::dbLoad($id);
 	}
 	
+	
+	/**
+	 * Check preconditions to create an item.
+	 */
+	function onContentPreconditionsCreate($path)
+	{
+		return TRUE;
+	}
+	
+	
+	
 	/**
 	 * Check permission for creating an item. 
 	 *
@@ -288,34 +285,9 @@ class xItemManager
 	 */
 	function onContentCheckPermissionCreate($path)
 	{
-		if(isset($path->m_vars['type']))
-		{
-			$type = $path->m_vars['type'];
-			
-			if(!xAccessPermission::checkCurrentUserPermission('item','create',$type))
-			{
-				return FALSE;
-			}
-		}
-		
-		//check for cathegory permission
-		if(isset($path->m_vars['cathegory']))
-		{
-			$cathegory = $path->m_vars['cathegory'];
-			
-			//check if cathegory supports an item type
-			if(isset($path->m_vars['type']))
-			{
-				$ret = xCathegory::cathegorySupportItemType($path->m_vars['cathegory'],$path->m_vars['type']);
-				if(!$ret)
-					return FALSE;
-			}
-			
-			if(! xAccessPermission::checkCurrentUserPermission('cathegory','insert_item',$cathegory))
-			{
-				return FALSE;
-			}
-		}
+		$type = $path->m_vars['type'];
+		if(!xAccessPermission::checkCurrentUserPermission('item','create',$type))
+			return FALSE;
 		
 		return TRUE;
 	}
@@ -347,7 +319,7 @@ class xItemManager
 		if($cathegory === NULL)
 		{
 			//parent cathegory
-			$form->m_elements[] = xCathegory::getFormCathegoryChooser('cathegory','Cathegory','','',FALSE,FALSE,$type);
+			$form->m_elements[] = xCathegory::getFormCathegoryChooser('cathegory','Cathegory','','',FALSE,TRUE,$type);
 		}
 		
 		
@@ -369,11 +341,14 @@ class xItemManager
 			{
 				if($cathegory === NULL)
 				{
+					if(! xCathegory::cathegorySupportItemType($path->m_vars['cathegory'],$path->m_vars['type']))
+						return FALSE;
+						
 					$cathegory = $ret->m_valid_data['cathegory'];
 				}
 				
-				$item = new xItem(-1,$ret->m_valid_data['title'],'page','autore',
-					$ret->m_valid_data['body'],$ret->m_valid_data['filter'],$cathegory,NULL,NULL);
+				$item = new xItem(-1,$ret->m_valid_data['title'],$type,'autore',
+					$ret->m_valid_data['body'],$ret->m_valid_data['filter'],NULL);
 				if($item->dbInsert())
 				{
 					xNotifications::add(NOTIFICATION_NOTICE,'New item successfully created');
@@ -399,6 +374,27 @@ class xItemManager
 		return TRUE;
 	}
 
+		
+	/**
+	 * Check permission for viewing an item. 
+	 *
+	 * @param xItem $item
+	 * @return bool
+	 */
+	function onContentCheckPermissionView($path,$item)
+	{
+		return xAccessPermission::checkCurrentUserPermission('item','view',$item->m_type);
+	}
+	
+	
+	/**
+	 * Check preconditions to view an item.
+	 */
+	function onContentPreconditionsView($path)
+	{
+		return TRUE;
+	}
+	
 	
 	/**
 	 * Create content to fill the item/view page. You need to fill the provided $content
@@ -413,17 +409,6 @@ class xItemManager
 	{
 		$content->_set($item->m_title,$item->render(),'','');
 		return TRUE;
-	}
-	
-	/**
-	 * Check permission for viewing an item. 
-	 *
-	 * @param xItem $item
-	 * @return bool
-	 */
-	function onContentCheckPermissionView($path,$item)
-	{
-		return xAccessPermission::checkCurrentUserPermission('item','view',$item->m_type);
 	}
 }
 

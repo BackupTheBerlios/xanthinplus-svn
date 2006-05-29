@@ -781,6 +781,10 @@ class xFormElementOptions extends xFormElement
 	{
 		$output = '<div class="form-element" '.$this->m_invalid.'>'. "\n";
 		$output .= '<label for="id-'.$this->m_name.'">'.$this->m_label;
+		if($this->m_mandatory)
+		{
+			$output .= '<b>*</b>';
+		}
 		$output .= '</label>' . "\n";
 		$output .= '<select class="form-options';
 		if($this->m_invalid)

@@ -104,6 +104,11 @@ class xContentAdminCathegory extends xContent
 		return xAccessPermission::checkCurrentUserPermission('cathegory','admin');
 	}
 	
+	// DOCS INHERITHED  ========================================================
+	function onCheckPreconditions()
+	{
+		return TRUE;
+	}
 	
 	// DOCS INHERITHED  ========================================================
 	function onCreate()
@@ -155,6 +160,11 @@ class xContentCathegoryCreate extends xContent
 		return $manager->onContentCheckPermissionCreate($this->m_path);
 	}
 	
+	// DOCS INHERITHED  ========================================================
+	function onCheckPreconditions()
+	{
+		return TRUE;
+	}
 	
 	// DOCS INHERITHED  ========================================================
 	function onCreate()
@@ -207,6 +217,11 @@ class xContentCathegoryTypeCreate extends xContent
 		return xAccessPermission::checkCurrentUserPermission('cathegory_type','create');
 	}
 	
+	// DOCS INHERITHED  ========================================================
+	function onCheckPreconditions()
+	{
+		return TRUE;
+	}
 	
 	// DOCS INHERITHED  ========================================================
 	function onCreate()

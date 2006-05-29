@@ -37,6 +37,7 @@ require_once('engine/cms/contentfiltercontroller.inc.php');
 require_once('engine/cms/item.inc.php');
 require_once('engine/cms/itemtype.inc.php');
 require_once('engine/cms/cathegory.inc.php');
+require_once('engine/cms/itemcathegorizable.inc.php');
 require_once('engine/cms/itempage.inc.php');
 require_once('engine/cms/cathegorytype.inc.php');
 require_once('engine/cms/notifications.inc.php');

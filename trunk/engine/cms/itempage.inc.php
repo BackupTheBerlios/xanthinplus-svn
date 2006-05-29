@@ -19,7 +19,7 @@
 /**
  * Represent the simplest item in xanthin+
  */
-class xItemPage extends xItem
+class xItemPage extends xItemCathegorizable
 {
 	/**
 	 * @var bool
@@ -57,14 +57,19 @@ class xItemPage extends xItem
 	 */
 	var $m_meta_keywords;
 	
+	/**
+	 * @var bool
+	 * @access public
+	 */
+	var $m_last_edit_time;
 	
 	/**
 	 *
 	 */
-	function xItemPage($id,$title,$type,$author,$content,$content_filter,$cathegory,$creation_time,$lastedit_time,
-		$published,$sticky,$accept_replies,$approved,$meta_description,$meta_keywords)
+	function xItemPage($id,$title,$type,$author,$content,$content_filter,$creation_time,$cathegory,
+		$published,$sticky,$accept_replies,$approved,$meta_description,$meta_keywords,$last_edit_time)
 	{
-		$this->xItem($id,$title,$type,$author,$content,$content_filter,$cathegory,$creation_time,$lastedit_time);
+		$this->xItemCathegorizable($id,$title,$type,$author,$content,$content_filter,$creation_time,$cathegory);
 		
 		$this->m_sticky = $sticky;
 		$this->m_accept_replies = $accept_replies;
@@ -72,6 +77,7 @@ class xItemPage extends xItem
 		$this->m_approved = $approved;
 		$this->m_meta_description = $meta_description;
 		$this->m_meta_keywords = $meta_keywords;
+		$this->m_last_edit_time = $last_edit_time;
 	}
 	
 	/** 
@@ -83,16 +89,6 @@ class xItemPage extends xItem
 	{
 		$this->m_id = xItemPageDAO::insert($this);
 		return $this->m_id;
-	}
-	
-	/** 
-	 * Delete this from db
-	 *
-	 * @return bool FALSE on error
-	 */
-	function dbDelete()
-	{
-		return xItemPageDAO::delete($this->m_id);
 	}
 	
 	/**
@@ -233,14 +229,15 @@ class xItemPage extends xItem
 /**
  * Root class of a hieararchy that manage view,creation,deletion,modification of item types.
  */
-class xItemManagerPage extends xItemManager
+class xItemPageManager extends xItemCathegorizableManager
 {
-	function xItemManagerPage()
+	function xItemPageManager()
 	{}
 	
 	// DOCS INHERITHED  ========================================================
 	function onContentCreate($path,&$content)
 	{
+		$type = $path->m_vars['type'];
 		//check for cathegory permission
 		$cathegory = NULL;
 		if(isset($path->m_vars['cathegory']))
@@ -252,9 +249,8 @@ class xItemManagerPage extends xItemManager
 		
 		if($cathegory === NULL)
 		{
-			//parent cathegory
-			$form->m_elements[] = xCathegory::getFormCathegoryChooser('cathegory','Cathegory','','',FALSE,FALSE,
-				$path->m_vars['type']);
+			$form->m_elements[] = xCathegory::getFormCathegoryChooser('cathegory','Cathegory','','',FALSE,TRUE,
+				$type);
 		}
 		
 		
@@ -295,13 +291,17 @@ class xItemManagerPage extends xItemManager
 			{
 				if($cathegory === NULL)
 				{
+					if(! xCathegory::cathegorySupportItemType($path->m_vars['cathegory'],$path->m_vars['type']))
+						return FALSE;
+					
 					$cathegory = $ret->m_valid_data['cathegory'];
 				}
 				
 				$item = new xItemPage(-1,$ret->m_valid_data['title'],$path->m_vars['type'],'autore',
-					$ret->m_valid_data['body'],$ret->m_valid_data['filter'],$cathegory,NULL,NULL,
+					$ret->m_valid_data['body'],$ret->m_valid_data['filter'],NULL,$cathegory,
 					$ret->m_valid_data['published'],$ret->m_valid_data['sticky'],$ret->m_valid_data['accept_replies'],
-					$ret->m_valid_data['approved'],0,$ret->m_valid_data['description'],$ret->m_valid_data['keywords']);
+					$ret->m_valid_data['approved'],0,$ret->m_valid_data['description'],$ret->m_valid_data['keywords'],
+					NULL);
 				if($item->dbInsert())
 				{
 					xNotifications::add(NOTIFICATION_NOTICE,'New item successfully created');
@@ -341,6 +341,6 @@ class xItemManagerPage extends xItemManager
 }
 
 
-xItemManager::registerItemManager(new xItemManagerPage(),'page');
+xItemManager::registerItemManager(new xItemPageManager(),'page');
 
 ?>

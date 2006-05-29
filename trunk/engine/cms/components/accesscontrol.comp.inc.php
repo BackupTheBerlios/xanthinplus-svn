@@ -199,6 +199,12 @@ class xContentAdminAccessFilters extends xContent
 		return xUser::currentHaveRole('administrator');
 	}
 	
+	// DOCS INHERITHED  ========================================================
+	function onCheckPreconditions()
+	{
+		return TRUE;
+	}
+	
 	
 	// DOCS INHERITHED  ========================================================
 	function onCreate()
@@ -270,6 +276,11 @@ class xContentAdminAccesspermissions extends xContent
 		return xUser::currentHaveRole('administrator');
 	}
 	
+	// DOCS INHERITHED  ========================================================
+	function onCheckPreconditions()
+	{
+		return TRUE;
+	}
 	
 	// DOCS INHERITHED  ========================================================
 	function onCreate()

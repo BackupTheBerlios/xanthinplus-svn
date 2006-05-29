@@ -113,6 +113,18 @@ class xContent extends xElement
 		assert(FALSE);
 	}
 	
+	/**
+	 * Check thare are the preconditions from creating object.
+	 *
+	 * @return bool
+	 * @abstract
+	 */
+	function onCheckPreconditions()
+	{
+		//must override
+		assert(FALSE);
+	}
+	
 	
 	//----------------STATIC FUNCTIONS----------------------------------------------
 	//----------------STATIC FUNCTIONS----------------------------------------------
@@ -138,12 +150,16 @@ class xContent extends xElement
 		{
 			$content = new xContentNotFound($path);
 		}
+		elseif(! $content->onCheckPreconditions())
+		{
+			$content = new xContentNotFound($path);
+		}
 		elseif($content->onCheckPermission())
 		{
 			$res = $content->onCreate();
 			if($res !== TRUE)
 			{
-				$content = $res;
+				$content = new xContentError('Unspecified error during content creation');
 			}
 		}
 		else

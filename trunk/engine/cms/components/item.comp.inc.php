@@ -71,6 +71,11 @@ class xContentAdminItems extends xContent
 		return xAccessPermission::checkCurrentUserPermission('item','admin');
 	}
 	
+	// DOCS INHERITHED  ========================================================
+	function onCheckPreconditions()
+	{
+		return TRUE;
+	}
 	
 	// DOCS INHERITHED  ========================================================
 	function onCreate()
@@ -117,6 +122,11 @@ class xContentAdminItemtypes extends xContent
 		return xAccessPermission::checkCurrentUserPermission('itemtype','admin');
 	}
 	
+	// DOCS INHERITHED  ========================================================
+	function onCheckPreconditions()
+	{
+		return TRUE;
+	}
 	
 	// DOCS INHERITHED  ========================================================
 	function onCreate()
@@ -150,10 +160,21 @@ class xContentItemCreate extends xContent
 	}
 
 	// DOCS INHERITHED  ========================================================
-	function onCheckPermission()
+	function onCheckPreconditions()
 	{
 		if(! isset($this->m_path->m_vars['type']))
-			return TRUE;
+			return FALSE;
+			
+		$manager = xItemManager::getItemManager($this->m_path->m_vars['type']);
+		
+		return $manager->onContentPreconditionsCreate($this->m_path);
+	}
+	
+	
+	// DOCS INHERITHED  ========================================================
+	function onCheckPermission()
+	{
+		
 		
 		$manager = xItemManager::getItemManager($this->m_path->m_vars['type']);
 		
@@ -205,41 +226,33 @@ class xContentItemView extends xContent
 	}
 
 	// DOCS INHERITHED  ========================================================
-	function onCheckPermission()
+	function onCheckPreconditions()
 	{
 		$this->m_item = NULL;
-		if(isset($this->m_path->m_vars['id']))
-		{
-			$type = '';
-			if(isset($this->m_path->m_vars['type']))
-				$type = $this->m_path->m_vars['type'];
-				
-			$manager = xItemManager::getItemManager($type);
-			
-			$this->m_item = $manager->dbLoad($this->m_path->m_vars['id']);
-			
-			if($this->m_item !== NULL)
-			{
-				return $manager->onContentCheckPermissionView($this->m_path,$this->m_item);
-			}
-		}
 		
-		return TRUE;
+		if((! isset($this->m_path->m_vars['type'])) || (! isset($this->m_path->m_vars['id'])))
+			return FALSE;
+		
+		$this->m_item = $manager->dbLoad($this->m_path->m_vars['id']);
+		if($this->m_item === NULL)
+			return FALSE;
+		
+		$manager = xItemManager::getItemManager($this->m_path->m_vars['type']);
+		return $manager->onContentPreconditionsCreate($this->m_path);
+	}
+	
+	// DOCS INHERITHED  ========================================================
+	function onCheckPermission()
+	{
+		$manager = xItemManager::getItemManager($this->m_path->m_vars['type']);
+		return $manager->onContentCheckPermissionView($this->m_path,$this->m_item);
 	}
 	
 	
 	// DOCS INHERITHED  ========================================================
 	function onCreate()
 	{
-		if($this->m_item === NULL)
-		{
-			return new xContentNotFound($this->m_path);
-		}
-		
-		$type = '';
-		if(isset($this->m_path->m_vars['type']))
-			$type = $this->m_path->m_vars['type'];
-			
+		$type = $this->m_path->m_vars['type'];
 		$manager = xItemManager::getItemManager($type);
 		
 		return $manager->onContentView($this->m_path,$this->m_item,$this);

@@ -62,6 +62,12 @@ class xContentTest extends xContent
 		return TRUE;
 	}
 	
+	// DOCS INHERITHED  ========================================================
+	function onCheckPreconditions()
+	{
+		return TRUE;
+	}
+	
 	
 	// DOCS INHERITHED  ========================================================
 	function onCreate()

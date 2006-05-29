@@ -60,6 +60,12 @@ class xContentAdminBox extends xContent
 		xContent::xContent($path);
 	}
 	
+	// DOCS INHERITHED  ========================================================
+	function onCheckPreconditions()
+	{
+		return TRUE;
+	}
+	
 	
 	// DOCS INHERITHED  ========================================================
 	function onCheckPermission()

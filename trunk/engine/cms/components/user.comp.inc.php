@@ -115,6 +115,13 @@ class xContentUserLogin extends xContent
 	{
 		$this->xContent($path);
 	}
+	
+	// DOCS INHERITHED  ========================================================
+	function onCheckPreconditions()
+	{
+		return TRUE;
+	}
+	
 
 	// DOCS INHERITHED  ========================================================
 	function onCheckPermission()
