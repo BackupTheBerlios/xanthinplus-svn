@@ -15,15 +15,7 @@
 * PURPOSE ARE DISCLAIMED.SEE YOUR CHOOSEN LICENSE FOR MORE DETAILS.
 */
 
+require_once('engine/cms/components/admin.comp.inc.php');
 
-require_once('engine/framework/base.inc.php');
-require_once('engine/framework/log.inc.php');
-require_once('engine/framework/session.inc.php');
-require_once('engine/framework/form.inc.php');
-require_once('engine/framework/dbaccess/db.inc.php');
-require_once('engine/framework/dbaccess/mysql_db.inc.php');
-require_once('engine/framework/bbcode.inc.php');
-require_once('engine/framework/contentfilter.inc.php');
-require_once('engine/framework/uniqueid.inc.php');
 
 ?>

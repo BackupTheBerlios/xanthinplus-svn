@@ -16,14 +16,35 @@
 */
 
 
-require_once('engine/framework/base.inc.php');
-require_once('engine/framework/log.inc.php');
-require_once('engine/framework/session.inc.php');
-require_once('engine/framework/form.inc.php');
-require_once('engine/framework/dbaccess/db.inc.php');
-require_once('engine/framework/dbaccess/mysql_db.inc.php');
-require_once('engine/framework/bbcode.inc.php');
-require_once('engine/framework/contentfilter.inc.php');
-require_once('engine/framework/uniqueid.inc.php');
+/**
+* A module for tests
+*/
+class xModuleAdmin extends xModule
+{
+	function xModuleAdmin()
+	{
+		$this->xModule();
+	}
 
+
+	// DOCS INHERITHED  ========================================================
+	function xm_fetchContent($resource,$action,$path)
+	{
+		if($resource === "admin")
+		{
+			return new xPageContentSimple("Xanthin+ Administration Area",'Test',
+				'','',$path);
+		}
+		
+		return NULL;
+	}
+};
+
+xModule::registerDefaultModule(new xModuleAdmin());
+
+
+
+
+
+	
 ?>

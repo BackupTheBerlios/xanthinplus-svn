@@ -177,6 +177,35 @@ class xModule
 	}
 	
 	/**
+	 * Make a method call to all modules and return the first result !== NULL (3 argument version).
+	 *
+	 * @param string $function The method to call
+	 * @return mixed
+	 */
+	function callWithSingleResult3($function,&$arg1,&$arg2,&$arg3)
+	{
+		//first to user modules then default
+		$all_modules = array(xModule::getModules(),xModule::getDefaultModules());
+		foreach($all_modules as $modules)
+		{
+			foreach($modules as $module)
+			{
+				if(method_exists($module,$function))
+				{
+					
+					$result = $module->$function($arg1,$arg2,$arg3);
+					if($result !== NULL)
+					{
+						return $result;
+					}
+				}
+			}
+		}
+		
+		return NULL;
+	}
+	
+	/**
 	 * Make a method call to all modules and return an array that is the union
 	 * of all results != NULL returned. (0 argument version).
 	 *
@@ -250,7 +279,7 @@ class xModule
 	
 	/**
 	 * Make a method call to all modules and return an array that is the union
-	 * of all results != NULL returned. (0 argument version).
+	 * of all results != NULL returned. (2 argument version).
 	 *
 	 * @param string $function The method to call
 	 * @return array(mixed)
@@ -264,6 +293,42 @@ class xModule
 			if(method_exists($module,$function))
 			{
 				$result = $module->$function($arg1,$arg2);
+				if($result !== NULL)
+				{
+					if(is_array($result))
+					{
+						foreach($result as $one_result)
+						{
+							$array_result[] = $one_result;
+						}
+					}
+					else
+					{
+						$array_result[] = $result;
+					}
+				}
+			}
+		}
+		
+		return $array_result;
+	}
+	
+	/**
+	 * Make a method call to all modules and return an array that is the union
+	 * of all results != NULL returned. (3 argument version).
+	 *
+	 * @param string $function The method to call
+	 * @return array(mixed)
+	 */
+	function callWithArrayResult3($function,&$arg1,&$arg2,&$arg3)
+	{
+		$array_result = array();
+		$modules = array_merge(xModule::getModules(),xModule::getDefaultModules());
+		foreach($modules as $module)
+		{
+			if(method_exists($module,$function))
+			{
+				$result = $module->$function($arg1,$arg2,$arg3);
 				if($result !== NULL)
 				{
 					if(is_array($result))
@@ -350,15 +415,26 @@ class xDummyModule extends xModule
 	}
 	
 	/**
-	* Returns a valid content for the given path. Note that you DO NOT need to call onCheckPermnission() or
+	* Returns a valid content for the given path. Note that you SHOULD NOT call onCheckPrecontitions() or
 	* call onCreate() on the content object before you return it.
 	*
 	* @param string $resource
-	* @param string $resource_type
 	* @param string $action
-	* @return xContent A valid xPageContent object for the given resource/type/action, NULL otherwise.
+	* @param xPath $path
+	* @return xPageContent A valid xPageContent object for the given resource/action/id, NULL otherwise.
 	*/
-	function xm_contentFactory($resource,$resource_type,$action)
+	function xm_fetchContent($resource,$action,$path)
+	{
+	}
+	
+	/**
+	* Returns a valid content for the given alias path. Note that you SHOULD NOT call onCheckPrecontitions() or
+	* call onCreate() on the content object before you return it.
+	*
+	* @param xPath $path
+	* @return xPageContent A valid xPageContent object for the given resource/action/id, NULL otherwise.
+	*/
+	function xm_fetchAliasContent($path)
 	{
 	}
 	

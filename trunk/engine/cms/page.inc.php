@@ -28,13 +28,13 @@ class xPage extends xElement
 	
 	
 	/**
-	 * @var array(xArea)
+	 * @var array(xBoxGroup)
 	 * @access public
 	 */
-	var $m_areas;
+	var $m_box_groups;
 	
 	/**
-	 * @var xContent
+	 * @var xPageContent
 	 * @access public
 	 */
 	var $m_content;
@@ -42,29 +42,29 @@ class xPage extends xElement
 	/**
 	 *
 	 */
-	function xPage($path,$content,$areas)
+	function xPage($path,$content,$box_groups)
 	{
 		$this->xElement();
 		
 		$this->m_path = $path;
-		$this->m_areas = $areas;
+		$this->m_box_groups = $box_groups;
 		$this->m_content = $content;
 	}
 	
 	
 	// DOCS INHERITHED  ========================================================
-	function onRender()
+	function render()
 	{
-		return xTheme::render2('renderPage',$this->m_content,$this->m_areas);
+		return xTheme::render2('renderPage',$this->m_content,$this->m_box_groups);
 	}
 	
 	/**
 	 * Retrieve the page that correnspond to a path.
 	 *
-	 * @param xXanthPath $path
+	 * @param xPath $path
 	 * @static
 	 */
-	function getPage($path)
+	function fetchPage($path)
 	{
 		//broadcast onPageCreation event
 		xModule::callWithNoResult1('xm_onPageCreation',$path);
@@ -72,17 +72,17 @@ class xPage extends xElement
 		if($path !== NULL)
 		{
 			//ask for content
-			$content = xContent::getContent($path);
+			$content = xPageContent::fetchContent($path);
 		}
 		else
 		{
-			$content = new xContentSimple('Error','ERROR: Invalid path','','');
+			$content = new xPageContentSimple('Error','ERROR: Invalid path','','');
 		}
 		
 		//ask for areas
-		$areas = xArea::getAreas();
+		$box_groups = NULL;
 		
-		return new xPage($path,$content,$areas);
+		return new xPage($path,$content,$box_groups);
 	}
 };
 

@@ -116,52 +116,6 @@ class xInstallCMS
 			FOREIGN KEY (roleName) REFERENCES role(name) ON DELETE CASCADE
 			)TYPE=InnoDB");
 		
-		//access filter set
-		xDB::getDB()->query("
-			CREATE TABLE access_filter_set (
-			id INT UNSIGNED NOT NULL,
-			name VARCHAR(32) NOT NULL,
-			description VARCHAR(256) NOT NULL,
-			PRIMARY KEY(id)
-			)TYPE=InnoDB"
-		);
-		xUniqueId::createNew('access_filter_set');
-		
-		//access filter role
-		xDB::getDB()->query("
-			CREATE TABLE access_filter_role (
-			filterid INT UNSIGNED NOT NULL,
-			roleName VARCHAR(32) NOT NULL,
-			UNIQUE(filterid,roleName),
-			INDEX(filterid),
-			INDEX(roleName),
-			FOREIGN KEY (filterid) REFERENCES access_filter_set(id) ON DELETE CASCADE,
-			FOREIGN KEY (roleName) REFERENCES role(name) ON DELETE CASCADE
-			)TYPE=InnoDB"
-		);
-		
-		//access filter path include
-		xDB::getDB()->query("
-			CREATE TABLE access_filter_path_include (
-			filterid INT UNSIGNED NOT NULL,
-			incpath VARCHAR(128) NOT NULL,
-			UNIQUE(filterid),
-			INDEX(filterid),
-			FOREIGN KEY (filterid) REFERENCES access_filter_set(id) ON DELETE CASCADE
-			)TYPE=InnoDB"
-		);
-		
-		//access filter path exclude
-		xDB::getDB()->query("
-			CREATE TABLE access_filter_path_exclude (
-			filterid INT UNSIGNED NOT NULL,
-			excpath VARCHAR(128) NOT NULL,
-			UNIQUE(filterid),
-			INDEX(filterid),
-			FOREIGN KEY (filterid) REFERENCES access_filter_set(id) ON DELETE CASCADE
-			)TYPE=InnoDB"
-		);
-		
 		//access permission
 		xDB::getDB()->query("
 			CREATE TABLE access_permission (
@@ -183,10 +137,7 @@ class xInstallCMS
 			content_filter VARCHAR(64) NOT NULL,
 			type VARCHAR(32) NOT NULL,
 			weight TINYINT NOT NULL,
-			filterset INT UNSIGNED,
-			PRIMARY KEY(name),
-			INDEX(filterset),
-			FOREIGN KEY (filterset) REFERENCES access_filter_set(id) ON DELETE SET NULL
+			PRIMARY KEY(name)
 			)TYPE=InnoDB"
 		);
 		
@@ -213,14 +164,14 @@ class xInstallCMS
 		xDB::getDB()->query("
 			CREATE TABLE menu_item (
 			id INT UNSIGNED NOT NULL,
-			box_name VARCHAR(32) NOT NULL,
+			box_name VARCHAR(64) NOT NULL,
 			label VARCHAR(128) NOT NULL,
 			link VARCHAR(128) NOT NULL,
 			weight TINYINT NOT NULL,
 			parent INT UNSIGNED,
 			PRIMARY KEY(id),
 			INDEX(box_name),
-			FOREIGN KEY (parent) REFERENCES menu_items(id) ON DELETE CASCADE,
+			FOREIGN KEY (parent) REFERENCES menu_item(id) ON DELETE CASCADE,
 			FOREIGN KEY (box_name) REFERENCES box(name) ON DELETE CASCADE
 			)TYPE=InnoDB"
 		);
@@ -276,7 +227,7 @@ class xInstallCMS
 			CREATE TABLE node_to_cathegory (
 			nodeid INT UNSIGNED NOT NULL,
 			catid INT UNSIGNED NOT NULL,
-			UNIQUE (itemid,catid),
+			UNIQUE (nodeid,catid),
 			FOREIGN KEY (nodeid) REFERENCES node(id) ON DELETE CASCADE,
 			FOREIGN KEY (catid) REFERENCES cathegory(id) ON DELETE CASCADE
 			)TYPE=InnoDB"
@@ -286,7 +237,7 @@ class xInstallCMS
 		xDB::getDB()->query("
 			CREATE TABLE node_simple (
 			nodeid INT UNSIGNED NOT NULL,
-			alias VARCHAR(256),
+			alias VARCHAR(255),
 			published TINYINT NOT NULL,
 			sticky TINYINT NOT NULL,
 			accept_replies TINYINT NOT NULL,
@@ -307,16 +258,16 @@ class xInstallCMS
 			parentid INT UNSIGNED NOT NULL,
 			approved TINYINT NOT NULL,
 			PRIMARY KEY (nodeid),
-			FOREIGN KEY (parentid) REFERENCES node(id) ON DELETE CASCADE,,
+			FOREIGN KEY (parentid) REFERENCES node(id) ON DELETE CASCADE,
 			FOREIGN KEY (nodeid) REFERENCES node(id) ON DELETE CASCADE
 			)TYPE=InnoDB"
 		);
 		
 		
-		xSettings::insertNew('site_name','');
-		xSettings::insertNew('site_description','');
-		xSettings::insertNew('site_keywords','');
-		xSettings::insertNew('site_theme','');
+		//xSettings::insertNew('site_name','');
+		//xSettings::insertNew('site_description','');
+		//xSettings::insertNew('site_keywords','');
+		//xSettings::insertNew('site_theme','');
 		
 		$role = new xRole('administrator','Administrator');
 		$role->dbInsert();
@@ -331,13 +282,10 @@ class xInstallCMS
 		$user->giveRole('administrator');
 		
 		
-		$acc_filter = new xAccessFilterSet(-1,'Default admin sections','',array(new xAccessFilterRole('administrator')));
-		$acc_filter->dbInsert();
-		
-		$item_type = new xNodeCathegoryType('page','Basic node type');
-		$item_type->dbInsert();
-		$item_type = new xNodeCathegoryType('reply','A reply');
-		$item_type->dbInsert();
+		//$item_type = new xNodeCathegoryType('page','Basic node type');
+		//$item_type->dbInsert();
+		//$item_type = new xNodeCathegoryType('reply','A reply');
+		//$item_type->dbInsert();
 	}
 };
 

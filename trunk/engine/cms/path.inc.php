@@ -97,7 +97,7 @@ class xPath
 	*/
 	function _parse($path) 
 	{
-	    if(!preg_match('#^([A-Z][A-Z0-9_-]*(/[A-Z][A-Z0-9_-]*)+)((/[0-9]+){0,2})$#i',$path,$pieces))
+	    if(!preg_match('#^([A-Z][A-Z0-9_-]*(/[A-Z][A-Z0-9_-]*)*)((/[0-9]+){0,2})$#i',$path,$pieces))
 		{
 	        return NULL;
 	    }
@@ -107,13 +107,13 @@ class xPath
 			$path->m_full_path = $pieces[0];
 			$path->m_base_path = explode('/',$pieces[1]);
 			
-			if(isSet($pieces[3]))
+			if(!empty($pieces[3]))
 			{
 				$tmp = explode('/',$pieces[3]);
 				$path->m_resource_id = $tmp[1];
 				$path->m_resource_page_number = $tmp[2];
 			}
-			print_r($path);
+
 			return $path;
 	    }
 	}

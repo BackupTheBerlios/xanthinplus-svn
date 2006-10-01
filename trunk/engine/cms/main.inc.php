@@ -53,7 +53,7 @@ function xanth_main()
 	session_start();
 	
 	//extract current path
-	$path = s
+	$path = xPath::getCurrent();
 	
 	//start execution	
 	$page = xPage::fetchPage($path);
