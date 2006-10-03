@@ -140,4 +140,37 @@ function xanth_valid_email($email)
    return FALSE;
 }
 
+
+/**
+ * @internal
+ */
+function _fix_gpc_magic(&$item)
+{
+	if (is_array($item)) 
+	{
+    	array_walk($item, '_fix_gpc_magic');
+	}
+	else 
+	{
+		$item = stripslashes($item);
+	}
+}
+
+/**
+ * Correct double-escaping problems caused by "magic quotes".
+ */
+function xanth_fix_gpc_magic()
+{
+	static $fixed = false;
+	if (@get_magic_quotes_gpc ( ) == 1)
+	{
+		array_walk($_GET, '_fix_gpc_magic');
+		array_walk($_POST, '_fix_gpc_magic');
+		array_walk($_COOKIE, '_fix_gpc_magic');
+		array_walk($_REQUEST, '_fix_gpc_magic');
+		$fixed = true;
+	}
+}
+
+
 ?>

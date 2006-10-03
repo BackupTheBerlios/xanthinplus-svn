@@ -195,7 +195,7 @@ class xUser
 	{
 		if(isset($_COOKIE[XANTH_LOGIN_COOKIE_NAME]))
 		{
-			list($username, $cookie_token) = @unserialize($_COOKIE[XANTH_LOGIN_COOKIE_NAME]);
+			list($username, $cookie_token) = unserialize($_COOKIE[XANTH_LOGIN_COOKIE_NAME]);
 			if(!empty($username) && !empty($cookie_token))
 			{
 				$user = xUserDAO::checkCookieToken($username,$cookie_token);

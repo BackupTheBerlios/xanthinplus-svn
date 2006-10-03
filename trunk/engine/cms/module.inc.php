@@ -448,12 +448,12 @@ class xDummyModule extends xModule
 	}
 	
 	/**
-	* Returns a dinamic box.
+	* Returns a single permission descriptor or array of permission descriptor that corresponds to
+	* all access permissions that a module uses.
 	*
-	* @param string $name
-	* @return xBoxDynamic
+	* @return xAccessPermissionDescriptor
 	*/
-	function xm_getDynamicBox($name)
+	function xm_fetchPermissionDescriptors()
 	{
 	}
 }

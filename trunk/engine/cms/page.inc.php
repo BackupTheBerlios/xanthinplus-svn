@@ -66,17 +66,17 @@ class xPage extends xElement
 	 */
 	function fetchPage($path)
 	{
-		//broadcast onPageCreation event
-		xModule::callWithNoResult1('xm_onPageCreation',$path);
-		
 		if($path !== NULL)
 		{
+			//broadcast onPageCreation event
+			xModule::callWithNoResult1('xm_onPageCreation',$path);
+		
 			//ask for content
 			$content = xPageContent::fetchContent($path);
 		}
 		else
 		{
-			$content = new xPageContentSimple('Error','ERROR: Invalid path','','');
+			$content = new xPageContentSimple('Error','ERROR: Invalid path','','',$path);
 		}
 		
 		//ask for areas

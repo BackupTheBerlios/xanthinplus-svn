@@ -48,6 +48,8 @@ function xanth_main()
 	//error handler
 	set_error_handler('xanth_php_error_handler');
 	
+	xanth_fix_gpc_magic();
+	
 	//session
 	session_set_save_handler("on_session_start","on_session_end","on_session_read","on_session_write","on_session_destroy","on_session_gc");
 	session_start();

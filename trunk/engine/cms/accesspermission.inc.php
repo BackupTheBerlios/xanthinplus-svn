@@ -99,6 +99,22 @@ class xAccessPermission
 		return TRUE;
 	}
 	
+	/**
+	 *
+	 * @return bool
+	 * @static
+	 */
+	function checkRolePermission($resource,$resource_type,$action,$role)
+	{
+		$perm = xAccessPermissionDAO::load($resource,$resource_type,$action,$role);
+		if($perm === NULL)
+		{
+			return FALSE;
+		}
+		
+		return TRUE;
+	}
+	
 	
 	/**
 	 *

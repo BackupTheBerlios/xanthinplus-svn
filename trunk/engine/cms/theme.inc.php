@@ -381,7 +381,7 @@ class xDefaultTheme extends xTheme
 				assert(FALSE);
 			}
 		}*/
-		
+
 		$output = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 		<html>
 		<head>
@@ -396,7 +396,7 @@ class xDefaultTheme extends xTheme
 		<td id="content">
 		' . xNotifications::render($output) . $content->render() . '
 		</td></tr></table>
-		<div align="center"> Queries ' . xDB::getDB()->queryGetCount() . ', Execution time ' . xExecutionTime::onRender() . ' secs</div>
+		<div align="center"> Queries ' . xDB::getDB()->queryGetCount() . ', Execution time ' . xExecutionTime::render() . ' secs</div>
 		' . xLogEntry::renderFromScreen() . '
 		</body>
 		</html>';

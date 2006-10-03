@@ -46,6 +46,13 @@ class xPageContent extends xElement
 	*/
 	var $m_meta_keywords;
 	
+	/**
+	* @var array(string)
+	* @access public
+	*/
+	var $m_headers;
+	
+	
 	
 	var $m_path;
 	
@@ -54,7 +61,7 @@ class xPageContent extends xElement
 	 * Do not forgive to check permission with onCheckPermission() method before you call onCreate(),
 	 * this is VERY IMPORTANT for security and correctness.
 	 */
-	function xContent($path)
+	function xPageContent($path)
 	{
 		$this->xElement();
 		
@@ -62,6 +69,7 @@ class xPageContent extends xElement
 		$this->m_meta_description = '';
 		$this->m_meta_keywords = '';
 		$this->m_content = '';
+		$this->m_headers = array();
 		$this->m_path = $path;
 	}
 	
@@ -69,12 +77,13 @@ class xPageContent extends xElement
 	/**
 	 * @access protected
 	 */
-	function _set($title,$content,$meta_description,$meta_keywords)
+	function _set($title,$content,$meta_description,$meta_keywords,$headers = array())
 	{
 		$this->m_title = $title;
 		$this->m_meta_description = $meta_description;
 		$this->m_meta_keywords = $meta_keywords;
 		$this->m_content = $content;
+		$this->m_headers = $headers;
 	}
 	
 	/**
@@ -82,6 +91,12 @@ class xPageContent extends xElement
 	 */
 	function render()
 	{
+		//output headers
+		foreach($this->m_headers as $header)
+		{
+			header($header);
+		}
+		
 		return $this->m_content;
 	}
 
@@ -146,16 +161,16 @@ class xPageContent extends xElement
 			$tmp = $path->m_base_path;
 			$action = array_pop($tmp);
 			$resource = implode("/",$tmp);
+			
 			$content = xModule::callWithSingleResult3('xm_fetchContent',$resource,$action,$path);
 		}
 		
 		//search for automatic or full aliasing
-		if($content !== NULL)
+		if($content === NULL)
 		{
-			return $content;
+			$content = xModule::callWithSingleResult1('xm_fetchAliasContent',$path);
 		}
 		
-		$content = xModule::callWithSingleResult1('xm_fetchAliasContent',$path);
 		//not found
 		if($content === NULL)
 		{
@@ -163,20 +178,35 @@ class xPageContent extends xElement
 		}
 		
 		$res = $content->onCheckPreconditions();
-		$content = new xPageContentNotFound($path);
-			
 		if($res !== TRUE)
 		{
-			return $res;
+			if(xanth_instanceof($res,'xPageContent'))
+			{
+				return $res;
+			}
+			else
+			{
+				assert('FALSE');
+			}
 		}
-
-		$res = $content->onCreate();
-		if($res !== TRUE)
+		else
 		{
-			return new xContentError('Unspecified error during content creation');
+			$res = $content->onCreate();
+			if($res !== TRUE)
+			{
+				if(xanth_instanceof($res,'xPageContent'))
+				{
+					return $res;
+				}
+				else
+				{
+					assert('FALSE');
+				}
+			}
 		}
 		
-		return $res;
+		
+		return $content;
 	}
 };
 
@@ -190,9 +220,9 @@ class xPageContentSimple extends xPageContent
 	/**
 	 * Create a simple content.
 	 */
-	function xPageContentSimple($title,$content,$meta_description,$meta_keywords,$path)
+	function xPageContentSimple($title,$content,$meta_description,$meta_keywords,$path,$headers = array())
 	{
-		xPageContent::_set($title,$content,$meta_description,$meta_keywords);
+		xPageContent::_set($title,$content,$meta_description,$meta_keywords,$headers);
 		
 		$this->m_path = $path;
 	}
@@ -225,11 +255,11 @@ class xPageContentError extends xPageContentSimple
 	/**
 	 * 
 	 */
-	function xPageContentError($error,$path)
+	function xPageContentError($error,$path,$headers = array())
 	{
 		$content = '<b>There was an error while creating the page content: ' . $error . '</b>';
 		
-		$this->xPageContentSimple('Error',$content,'','');
+		$this->xPageContentSimple('Error',$content,'','',$headers);
 	}
 };
 
@@ -244,9 +274,10 @@ class xPageContentNotAuthorized extends xPageContentSimple
 	/**
 	 * 
 	 */
-	function xPageContentNotAuthorized($path)
+	function xPageContentNotAuthorized($path,$extra_content = '',$headers = array())
 	{
-		$this->xPageContentSimple('Access Denied','You are not authorized to access this page','','',$path);
+		$this->xPageContentSimple('Access Denied','You are not authorized to access this page' . $extra_content,
+			'','',$path,$headers);
 	}
 };
 
@@ -259,9 +290,10 @@ class xPageContentNotFound extends xPageContentSimple
 	/**
 	 * 
 	 */
-	function xPageContentNotFound($path)
+	function xPageContentNotFound($path,$extra_content = '',$headers = array())
 	{
-		$this->xPageContentSimple('Page not found','The page you requested was not found','','',$path);
+		$this->xPageContentSimple('Page not found','The page you requested was not found' . $extra_content,
+			'','',$path,$headers);
 	}
 };
 

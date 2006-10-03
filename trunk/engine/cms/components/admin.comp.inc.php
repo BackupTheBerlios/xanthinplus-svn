@@ -30,21 +30,62 @@ class xModuleAdmin extends xModule
 	// DOCS INHERITHED  ========================================================
 	function xm_fetchContent($resource,$action,$path)
 	{
-		if($resource === "admin")
+		if($resource === "admin" && empty($action))
 		{
-			return new xPageContentSimple("Xanthin+ Administration Area",'Test',
-				'','',$path);
+			return new xPageContentAdmin($path);
 		}
 		
 		return NULL;
 	}
+	
+	/**
+	 * @see xDummyModule::fetchPermissionDescriptors()
+	 */ 
+	function xm_fetchPermissionDescriptors()
+	{
+		return new xAccessPermissionDescriptor('admin','view','View administration area');
+	}
+	
 };
 
 xModule::registerDefaultModule(new xModuleAdmin());
 
 
+/**
+ *
+ *
+ * @internal
+ */
+class xPageContentAdmin extends xPageContent
+{
 
-
-
+	function xPageContentAdmin($path)
+	{
+		xPageContent::xPageContent($path);
+	}
+	
+	// DOCS INHERITHED  ========================================================
+	function onCheckPreconditions()
+	{
+		//only if administrator!
+		if(xUser::currentHaveRole('administrator'))
+		{
+			return TRUE;
+		}
+		
+		$redirect = new xJavaScriptRedirect('user/login',true,3);
+		$extra_out = $redirect->render() . '<br>Redirecting in 3 seconds';
+		return new xPageContentNotAuthorized($this->m_path,$extra_out);
+	}
+	
+	// DOCS INHERITHED  ========================================================
+	function onCreate()
+	{
+		$content = '<a href="?p=admin/accesspermissions/view">Access Permissions</a>';
+		xPageContent::_set("Xanthin+ Administration Area",$content,'','');
+		return true;
+	}
+	
+}
 	
 ?>

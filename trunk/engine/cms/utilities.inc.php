@@ -31,7 +31,7 @@ class xExecutionTime extends xElement
 	}
 	
 	// DOCS INHERITHED  ========================================================
-	function onRender()
+	function render()
 	{
 		global $g_execution_started;
 		return '' . xExecutionTime::_getmicrotime() - $g_execution_started;
@@ -57,6 +57,62 @@ class xExecutionTime extends xElement
 	{
 	   list($usec, $sec) = explode(' ', microtime());
 	   return ((float)$usec + (float)$sec);
+	}
+};
+
+
+/**
+* Redirect to a new web page
+*/
+class xJavaScriptRedirect extends xElement
+{
+	/**
+	 * @var strnig
+	 */
+	var $m_location;
+	
+	/**
+	 * @var bool
+	 */
+	var $m_isPath;
+	
+	/**
+	 * @var int
+	 */
+	var $m_delay;
+	
+	
+	/**
+	* Contructor
+	*/
+	function xJavaScriptRedirect($location,$isPath,$delay)
+	{
+		$this->xElement();
+		
+		$this->m_location = $location;
+		$this->m_isPath = $isPath;
+		$this->m_delay = $delay;
+	}
+	
+	// DOCS INHERITHED  ========================================================
+	function render()
+	{
+		$location = $this->m_location;
+		if($this->m_isPath)
+		{
+			$location = 'http://' . $_SERVER['HTTP_HOST'] . rtrim(dirname($_SERVER['PHP_SELF']), '/\\') .
+			'/?p=' . $location;
+		}
+
+		return 
+		'<script type="text/javascript">
+		<!--
+		function delayer(){
+			window.location = "' . $location . '"
+		}
+		setTimeout(\'delayer()\','. $this->m_delay * 1000 . ')
+		//-->
+		</script>';
 	}
 };
 
