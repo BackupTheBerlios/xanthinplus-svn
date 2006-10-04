@@ -101,7 +101,7 @@ class xPageContent extends xElement
 	}
 
 	/**
-	 * After permissions were checked, the xContent will be filled with data created by the code contained
+	 * After permissions were checked, this xPageContent will be filled with data created by the code contained
 	 * in this method.
 	 *
 	 * @return bool Return boolean TRUE if content was created successfully, otherwise it returns an alternative
