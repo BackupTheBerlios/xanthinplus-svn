@@ -92,6 +92,50 @@ class xUserDAO
 		}
 	}
 	
+	
+	/**
+	 * @access private
+	 */
+	function _userFromRow($row)
+	{
+		return new xUser($row->id,$row->username,$row->email);
+	}
+	
+	
+	/**
+	 * Load a user by id
+	 *
+	 * @return xUser
+	 * @static
+	 */
+	function loadByUid($uid)
+	{
+		$result = xDB::getDB()->query("SELECT * FROM user WHERE id = '%d'",$uid);
+		if($row = xDB::getDB()->fetchObject($result))
+		{
+			return xUserDAO::_userFromRow($row);
+		}
+		
+		return NULL;
+	}
+	
+	/**
+	 * Load a user by username
+	 *
+	 * @return xUser
+	 * @static
+	 */
+	function loadByUsername($username)
+	{
+		$result = xDB::getDB()->query("SELECT * FROM user WHERE username = '%s'",$username);
+		if($row = xDB::getDB()->fetchObject($result))
+		{
+			return xUserDAO::_userFromRow($row);
+		}
+		
+		return NULL;
+	}
+	
 	/**
 	 * Retrieves all users
 	 *

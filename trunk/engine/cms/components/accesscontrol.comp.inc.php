@@ -185,7 +185,7 @@ class xPageContentAdminAccesspermissions extends xPageContent
 	// DOCS INHERITHED  ========================================================
 	function onCheckPreconditions()
 	{
-		if(xAccessPermission::checkCurrentUserPermission('admin/accesspermissions','view'))
+		if(xAccessPermission::checkCurrentUserPermission('admin/accesspermissions',NULL,NULL,'view'))
 		{
 			return TRUE;
 		}

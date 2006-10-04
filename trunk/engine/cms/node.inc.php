@@ -147,6 +147,16 @@ class xNode extends xElement
 	{
 		return xNodeDAO::load($id);
 	}
+	
+	
+	/**
+	 * Check a permission for an action relative to a node. In Xanthin+ permissions on nodes are
+	 * relative to parent cathegories and type/cathegory type.
+	 */
+	function checkCurrentUserNodePermissionRecursively($nodeid,$action)
+	{
+	
+	}
 };
 
 

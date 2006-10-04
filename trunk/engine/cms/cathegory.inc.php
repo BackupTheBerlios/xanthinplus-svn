@@ -45,6 +45,12 @@ class xCathegory extends xElement
 	 * @var string
 	 * @access public
 	 */
+	var $m_title;
+	
+	/**
+	 * @var string
+	 * @access public
+	 */
 	var $m_description;
 	
 	/**
@@ -56,13 +62,14 @@ class xCathegory extends xElement
 	/**
 	 *
 	 */
-	function xCathegory($id,$name,$type,$description,$parent_cathegory)
+	function xCathegory($id,$name,$title,$type,$description,$parent_cathegory)
 	{
 		$this->xElement();
 		
 		$this->m_id = $id;
 		$this->m_type = $type;
 		$this->m_name = $name;
+		$this->m_title = $title;
 		$this->m_description = $description;
 		$this->m_parent_cathegory = $parent_cathegory;
 	}

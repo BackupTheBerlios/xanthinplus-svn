@@ -37,9 +37,9 @@ class xCathegoryDAO
 			xDB::getDB()->startTransaction();
 		
 		$id = xUniqueId::generate('cathegory');
-		$field_names = "id,name,type,description";
-		$field_values = "%d,'%s','%s','%s'";
-		$values = array($id,$cathegory->m_name,$cathegory->m_type,$cathegory->m_description);
+		$field_names = "id,name,title,type,description";
+		$field_values = "%d,'%s','%s','%s','%s'";
+		$values = array($id,$cathegory->m_name,$cathegory->m_title,$cathegory->m_type,$cathegory->m_description);
 		
 		if(!empty($cathegory->m_parent_cathegory))
 		{
@@ -78,8 +78,8 @@ class xCathegoryDAO
 	 */
 	function update($cathegory)
 	{
-		$fields = "name = '%s',description = '%s'";
-		$values = array($item_type->m_name,$item_type->m_description);
+		$fields = "name = '%s',title = '%s',description = '%s'";
+		$values = array($item_type->m_name,$item_type->m_title,$item_type->m_description);
 
 		
 		if(!empty($cathegory->m_parent_cathegory))
@@ -99,26 +99,6 @@ class xCathegoryDAO
 	
 	
 	/**
-	 * Check if a cathegory supports an item type
-	 *
-	 * @return bool
-	 * @static
-	 */
-	function cathegorySupportItemType($catid,$item_type)
-	{
-		$result = xDB::getDB()->query("SELECT cathegory.id FROM cathegory,cathegory_type_to_item_types 
-			WHERE cathegory.id = %d AND cathegory_type_to_item_types.itemtype = '%s' AND 
-			cathegory.type = cathegory_type_to_item_types.cattype",$catid,$item_type);
-		if($row = xDB::getDB()->fetchObject($result))
-		{
-			return TRUE;
-		}
-		
-		return FALSE;
-	}
-	
-	
-	/**
 	 *
 	 * @return xCathegory
 	 * @static
@@ -126,8 +106,8 @@ class xCathegoryDAO
 	 */
 	function _cathegoryFromRow($row_object)
 	{
-		return new xCathegory($row_object->id,$row_object->name,$row_object->type,$row_object->description,
-			$row_object->parent_cathegory);
+		return new xCathegory($row_object->id,$row_object->name,$row_object->title,$row_object->type,
+			$row_object->description,$row_object->parent_cathegory);
 	}
 	
 	/**
@@ -157,25 +137,6 @@ class xCathegoryDAO
 	{
 		$cats = array();
 		$result = xDB::getDB()->query("SELECT * FROM cathegory");
-		while($row = xDB::getDB()->fetchObject($result))
-		{
-			$cats[] = xCathegoryDAO::_cathegoryFromRow($row);
-		}
-		return $cats;
-	}
-	
-	/**
-	 * Retrieves all cathegories that supports a specific item type
-	 *
-	 * @return array(xCathegory)
-	 * @static
-	 */
-	function findBySupportedItemType($item_type)
-	{
-		$cats = array();
-		$result = xDB::getDB()->query("SELECT cathegory.id,cathegory.name,cathegory.type,cathegory.description,cathegory.parent_cathegory
-			FROM cathegory,cathegory_type_to_item_types WHERE cathegory_type_to_item_types.itemtype = '%s' AND 
-			cathegory.type = cathegory_type_to_item_types.cattype",$item_type);
 		while($row = xDB::getDB()->fetchObject($result))
 		{
 			$cats[] = xCathegoryDAO::_cathegoryFromRow($row);

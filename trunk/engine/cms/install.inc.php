@@ -116,14 +116,16 @@ class xInstallCMS
 			FOREIGN KEY (roleName) REFERENCES role(name) ON DELETE CASCADE
 			)TYPE=InnoDB");
 		
+		
 		//access permission
 		xDB::getDB()->query("
 			CREATE TABLE access_permission (
 			resource VARCHAR(64) NOT NULL,
-			resource_type VARCHAR(64) NOT NULL,
+			resource_type VARCHAR(64),
+			resource_id INT UNSIGNED,
 			action VARCHAR(32) NOT NULL,
 			role VARCHAR(32) NOT NULL,
-			PRIMARY KEY(resource,resource_type,action,role),
+			PRIMARY KEY(resource,resource_type,resource_id,action,role),
 			FOREIGN KEY (role) REFERENCES role(name) ON DELETE CASCADE
 			)TYPE=InnoDB"
 		);

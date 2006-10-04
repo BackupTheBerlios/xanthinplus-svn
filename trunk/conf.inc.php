@@ -20,7 +20,8 @@ $g_xanth_conf['db_type'] = 'mysql';
 $g_xanth_conf['db_host'] = 'localhost';
 $g_xanth_conf['db_name'] = 'xanthin';
 $g_xanth_conf['db_user'] = 'root';
-$g_xanth_conf['db_pass'] = 'dkiqe2e3';
+$g_xanth_conf['db_pass'] = 'pass';
+//$g_xanth_conf['db_pass'] = 'dkiqe2e3';
 $g_xanth_conf['db_port'] = '';
 $g_xanth_conf['db_doc_path'] = 'xanthinplus/';
 

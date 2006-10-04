@@ -87,6 +87,22 @@ class xUser
 	
 	
 	/**
+	 * Load a user from db by providing uid or username
+	 *
+	 * @param mixed $usr
+	 * @return bool FALSE on error
+	 */
+	function dbLoad($usr)
+	{
+		if(is_int($usr))
+		{
+			return xUserDAO::loadByUid($usr);
+		}
+		
+		return xUserDAO::loadByUsername($usr);
+	}
+	
+	/**
 	 * Check and executes a user login.
 	 *
 	 * @param string $username

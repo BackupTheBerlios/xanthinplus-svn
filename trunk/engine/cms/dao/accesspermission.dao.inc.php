@@ -34,10 +34,28 @@ class xAccessPermissionDAO
 	 */
 	function insert($access_permission)
 	{
-		return xDB::getDB()->query("INSERT INTO access_permission(resource,resource_type,action,role) 
-			VALUES ('%s','%s','%s','%s')",
-			$access_permission->m_resource,(string) $access_permission->m_resource_type,$access_permission->m_action,
-			$access_permission->m_role);
+		$field_names = "resource,action,role";
+		$field_values = "'%s','%s','%s'";
+		$values = array($access_permission->m_resource,$access_permission->m_action,$access_permission->m_role);
+		
+		if(!empty($access_permission->m_resource_type))
+		{
+			$field_names .= ',resource_type';
+			$field_values .= ",'%s'";
+			$values[] = $access_permission->m_resource_type;
+		}
+		
+		if(!empty($access_permission->m_resource_id))
+		{
+			$field_names .= ',resource_id';
+			$field_values .= ",%d";
+			$values[] = $access_permission->m_resource_id;
+		}
+		
+		if(! xDB::getDB()->query("INSERT INTO access_permission($field_names) VALUES($field_values)",$values))
+			return false;
+		
+		return true;
 	}
 	
 	/**
@@ -45,10 +63,35 @@ class xAccessPermissionDAO
 	 * @return bool FALSE on error
 	 * @static
 	 */
-	function delete($resource,$resource_type,$action,$role)
+	function delete($resource,$resource_type,$resource_id,$action,$role)
 	{
-		return xDB::getDB()->query("DELETE FROM access_permission WHERE resource = '%s' AND resource_type = '%s' 
-			AND action = '%s' AND role = '%s'",$resource,(string) $resource_type,$action,$role);
+		$fields = "resource = '%s' AND action = '%s' AND role = '%s' ";
+		$values = array($resource,$action,$role);
+		
+		if(!empty($resource_type))
+		{
+			$fields .= 'AND resource_type IS NULL ';
+		}
+		else
+		{
+			$fields .= "AND resource_type = '%s' ";
+			$values[] = $resource_type;
+		}
+		
+		if(!empty($resource_id))
+		{
+			$fields .= 'AND resource_id IS NULL ';
+		}
+		else
+		{
+			$fields .= "AND resource_id = %d ";
+			$values[] = $resource_id;
+		}
+		
+		if(! xDB::getDB()->query("DELETE FROM access_permission WHERE $fields",$values))
+			return false;
+		
+		return true;
 	}
 	
 	
@@ -57,12 +100,34 @@ class xAccessPermissionDAO
 	 * @param string $name
 	 * @static
 	 */
-	function checkUserPermission($resource,$resource_type,$action,$uid)
+	function checkUserPermission($resource,$resource_type,$resource_id,$action,$uid)
 	{
+		$fields = "access_permission.resource = '%s' AND access_permission.action = '%s' ";
+		$values = array($uid,$resource,$action);
+		
+		if(!empty($resource_type))
+		{
+			$fields .= 'AND access_permission.resource_type IS NULL ';
+		}
+		else
+		{
+			$fields .= "AND access_permission.resource_type = '%s' ";
+			$values[] = $resource_type;
+		}
+		
+		if(!empty($resource_id))
+		{
+			$fields .= 'AND access_permission.resource_id IS NULL ';
+		}
+		else
+		{
+			$fields .= "AND access_permission.resource_id = %d ";
+			$values[] = $resource_id;
+		}
+		
+		
 		$result = xDB::getDB()->query("SELECT access_permission.resource FROM access_permission,user_to_role 
-			WHERE user_to_role.userid = %d AND access_permission.role = user_to_role.roleName 
-			AND access_permission.resource = '%s' AND access_permission.resource_type = '%s' 
-			AND access_permission.action = '%s'",$uid,$resource,(string) $resource_type,$action);
+			WHERE user_to_role.userid = %d AND access_permission.role = user_to_role.roleName $fields",$values);
 			
 		if($row = xDB::getDB()->fetchObject($result))
 		{
@@ -81,8 +146,8 @@ class xAccessPermissionDAO
 	 */
 	function _accesspermissionFromRow($row_object)
 	{
-		return new xAccessPermission($row_object->resource,$row_object->action,
-			$row_object->role,$row_object->resource_type);
+		return new xAccessPermission($row_object->resource,$row_object->resource_type,$row_object->resource_id,
+			$row_object->action,$row_object->role);
 	}
 	
 	/**
@@ -92,11 +157,32 @@ class xAccessPermissionDAO
 	 * @return xAccessPermission The loaded object or NULL if not found
 	 * @static
 	 */
-	function load($resource,$resource_type,$action,$role)
+	function load($resource,$resource_type,$resource_id,$action,$role)
 	{
-		$result = xDB::getDB()->query("SELECT * FROM access_permission WHERE resource = '%s' AND resource_type = '%s' 
-			AND action = '%s' AND role = '%s'",$resource,(string) $resource_type,$action,$role);
+		$fields = "resource = '%s' AND action = '%s' AND role = '%s'";
+		$values = array($resource,$action,$role);
 		
+		if(!empty($resource_type))
+		{
+			$fields .= 'AND resource_type IS NULL ';
+		}
+		else
+		{
+			$fields .= "AND resource_type = '%s' ";
+			$values[] = $resource_type;
+		}
+		
+		if(!empty($resource_id))
+		{
+			$fields .= 'AND resource_id IS NULL ';
+		}
+		else
+		{
+			$fields .= "AND  resource_id = %d ";
+			$values[] = $resource_id;
+		}
+		
+		$result = xDB::getDB()->query("SELECT * FROM access_permission WHERE $fields",$values);
 		if($row = xDB::getDB()->fetchObject($result))
 		{
 			return xAccessPermissionDAO::_accesspermissionFromRow($row);

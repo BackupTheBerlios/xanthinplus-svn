@@ -15,8 +15,12 @@
 * PURPOSE ARE DISCLAIMED.SEE YOUR CHOOSEN LICENSE FOR MORE DETAILS.
 */
 
+require_once('engine/cms/dao/accesspermission.dao.inc.php');
+require_once('engine/cms/dao/cathegory.dao.inc.php');
+require_once('engine/cms/dao/node.dao.inc.php');
+require_once('engine/cms/dao/nodetype.dao.inc.php');
 require_once('engine/cms/dao/role.dao.inc.php');
 require_once('engine/cms/dao/user.dao.inc.php');
-require_once('engine/cms/dao/accesspermission.dao.inc.php');
+
 
 ?>

@@ -183,8 +183,8 @@ class xDBMysql extends xDB
 			$args = $args[0];
 		}
 		
-		x_mysql_query_callback($args, TRUE);
-		$query = preg_replace_callback('/(%d|%s|%%|%f|%b)/', 'x_mysql_query_callback', $query);
+		xanth_mysql_query_callback($args, TRUE);
+		$query = preg_replace_callback('/(%d|%s|%%|%f|%b)/', 'xanth_mysql_query_callback', $query);
 		$result = $this->_query($query);
 		
 		if($result === FALSE)
@@ -208,7 +208,7 @@ class xDBMysql extends xDB
  * @access private
  * @static
  */
-function x_mysql_query_callback($match, $init = FALSE) 
+function xanth_mysql_query_callback($match, $init = FALSE) 
 {
 	static $args = NULL;
 	if($init) 
@@ -216,10 +216,10 @@ function x_mysql_query_callback($match, $init = FALSE)
 		$args = $match;
 		return;
 	}
-
-	switch($match[1]) 
+	
+	switch($match[1])
 	{
-	case '%d': 
+	case '%d':
 		return (int) array_shift($args);
 	case '%s':
 		return xDBMysql::escapeString(array_shift($args));

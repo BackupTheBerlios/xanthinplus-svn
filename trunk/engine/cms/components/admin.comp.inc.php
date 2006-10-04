@@ -43,7 +43,7 @@ class xModuleAdmin extends xModule
 	 */ 
 	function xm_fetchPermissionDescriptors()
 	{
-		return new xAccessPermissionDescriptor('admin','view','View administration area');
+		return new xAccessPermissionDescriptor('admin',NULL,NULL,'view','View administration area');
 	}
 	
 };

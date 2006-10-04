@@ -28,10 +28,17 @@ class xAccessPermission
 	var $m_resource;
 	
 	/**
-	 * @var mixed
+	 * @var string
 	 * @access public
 	 */
 	var $m_resource_type;
+	
+	/**
+	 * @var int
+	 * @access public
+	 */
+	var $m_resource_id;
+	
 	
 	/**
 	 * @var string
@@ -47,11 +54,18 @@ class xAccessPermission
 	
 	/**
 	 * Contructor
+	 *
+	 * @param string $resource
+	 * @param string $resource_type Can be NULL
+	 * @param int $resource_id Can be NULL
+	 * @param string $action
+	 * @param string $role
 	 */
-	function xAccessPermission($resource,$action,$role,$resource_type = 'ALL')
+	function xAccessPermission($resource,$resource_type,$resource_id,$action,$role)
 	{
 		$this->m_resource = $resource;
 		$this->m_resource_type = $resource_type;
+		$this->m_resource_id = $resource_id;
 		$this->m_action = $action;
 		$this->m_role = $role;
 	}
@@ -70,7 +84,8 @@ class xAccessPermission
 	 */
 	function dbDelete()
 	{
-		return xAccessPermissionDAO::delete($this->m_resource,$this->m_resource_type,$this->m_action,$this->m_role);
+		return xAccessPermissionDAO::delete($this->m_resource,$this->m_resource_type,$this->m_resource_id,
+			$this->m_action,$this->m_role);
 	}
 
 	
@@ -80,7 +95,8 @@ class xAccessPermission
 	 */
 	function check()
 	{
-		return xAccessPermission::checkPermission($this->m_resource,$this->m_resource_type,$this->m_action,$this->m_role);
+		return xAccessPermission::checkPermission($this->m_resource,$this->m_resource_type,$this->m_resource_id,
+			$this->m_action,$this->m_role);
 	}
 	
 	/**
@@ -88,9 +104,9 @@ class xAccessPermission
 	 * @return bool
 	 * @static
 	 */
-	function checkPermission($resource,$resource_type,$action,$role)
+	function checkPermission($resource,$resource_type,$resource_id,$action,$role)
 	{
-		$perm = xAccessPermissionDAO::load($resource,$resource_type,$action,$role);
+		$perm = xAccessPermissionDAO::load($resource,$resource_type,$resource_id,$action,$role);
 		if($perm === NULL)
 		{
 			return FALSE;
@@ -98,21 +114,16 @@ class xAccessPermission
 		
 		return TRUE;
 	}
+
 	
 	/**
 	 *
 	 * @return bool
 	 * @static
 	 */
-	function checkRolePermission($resource,$resource_type,$action,$role)
+	function checkUserPermission($resource,$resource_type,$resource_id,$action,$uid)
 	{
-		$perm = xAccessPermissionDAO::load($resource,$resource_type,$action,$role);
-		if($perm === NULL)
-		{
-			return FALSE;
-		}
-		
-		return TRUE;
+		return xAccessPermissionDAO::checkUserPermission($resource,$resource_type,$resource_id,$action,$uid);
 	}
 	
 	
@@ -121,12 +132,12 @@ class xAccessPermission
 	 * @return bool
 	 * @static
 	 */
-	function checkCurrentUserPermission($resource,$action,$resource_type = 'ALL')
+	function checkCurrentUserPermission($resource,$resource_type,$resource_id,$action)
 	{
 		$uid = xUser::getLoggedinUserid();
 		if($uid === 0)
 		{
-			return xAccessPermission::checkPermission($resource,$resource_type,$action,'anonymous');
+			return xAccessPermission::checkPermission($resource,$resource_type,$resource_id,$action,'anonymous');
 		}
 		else
 		{
@@ -137,14 +148,14 @@ class xAccessPermission
 			}
 			
 			//check for authenticated role
-			$perm = xAccessPermission::checkPermission($resource,$resource_type,$action,'authenticated');
+			$perm = xAccessPermission::checkPermission($resource,$resource_type,$resource_id,$action,'authenticated');
 			if($perm)
 			{
 				return TRUE;
 			}
 			
 			//check for other roles
-			return xAccessPermission::checkUserPermission($resource,$resource_type,$action,$uid);
+			return xAccessPermission::checkUserPermission($resource,$resource_type,$resource_id,$action,$uid);
 		}
 		
 		return FALSE;
@@ -177,10 +188,16 @@ class xAccessPermissionDescriptor
 	var $m_resource;
 	
 	/**
-	 * @var mixed
+	 * @var string
 	 * @access public
 	 */
 	var $m_resource_type;
+	
+	/**
+	 * @var int
+	 * @access public
+	 */
+	var $m_resource_id;
 	
 	/**
 	 * @var string
@@ -195,10 +212,11 @@ class xAccessPermissionDescriptor
 	var $m_description;
 	
 	
-	function xAccessPermissionDescriptor($resource,$action,$description,$resource_type = 'ALL')
+	function xAccessPermissionDescriptor($resource,$resource_type,$resource_id,$action,$description)
 	{
 		$this->m_resource = $resource;
 		$this->m_resource_type = $resource_type;
+		$this->m_resource_id = $resource_id;
 		$this->m_action = $action;
 		$this->m_description = $description;
 	}

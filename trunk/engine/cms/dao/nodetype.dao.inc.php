@@ -16,24 +16,24 @@
 */
 
 
-class xItemTypeDAO
+class xNodeTypeDAO
 {
-	function xItemTypeDAO()
+	function xNodeTypeDAO()
 	{
 		//non instaltiable
 		assert(FALSE);
 	}
 	
 	/**
-	 * Insert a new item type
+	 * Insert a new node type
 	 *
-	 * @param xItemType $item_type
+	 * @param xNodeType $node_type
 	 * @return bool FALSE on error
 	 * @static
 	 */
-	function insert($item_type)
+	function insert($node_type)
 	{
-		return xDB::getDB()->query("INSERT INTO item_type (name,description) 
+		return xDB::getDB()->query("INSERT INTO node_and_cathegory_type (name,description) 
 			VALUES ('%s','%s')",$item_type->m_name,$item_type->m_description);
 	}
 	
@@ -47,47 +47,47 @@ class xItemTypeDAO
 	 */
 	function delete($typename)
 	{
-		return xDB::getDB()->query("DELETE FROM item_type WHERE name = '%s'",$typename);
+		return xDB::getDB()->query("DELETE FROM node_and_cathegory_type WHERE name = '%s'",$typename);
 	}
 	
 	/**
 	 * Updates an item type.
 	 *
 	 * 
-	 * @param xItemType $item_type
+	 * @param xNodeType $node_type
 	 * @return bool FALSE on error
 	 * @static
 	 */
-	function update($item_type)
+	function update($node_type)
 	{
-		return xDB::getDB()->query("UPDATE item_type SET description = '%s' WHERE name = '%s'",
+		return xDB::getDB()->query("UPDATE node_and_cathegory_type SET description = '%s' WHERE name = '%s'",
 			$item_type->m_description,$item_type->m_name);
 	}
 	
 	/**
 	 *
-	 * @return xItemType
+	 * @return xNodeType
 	 * @static
 	 * @access private
 	 */
 	function _itemtypeFromRow($row_object)
 	{
-		return new xItemType($row_object->name,$row_object->description);
+		return new xNodeType($row_object->name,$row_object->description);
 	}
 	
 	
 	/**
 	 * Load an Item type from db.
 	 *
-	 * @return xItemType
+	 * @return xNodeType
 	 * @static
 	 */
 	function load($typename)
 	{
-		$result = xDB::getDB()->query("SELECT * FROM item_type WHERE name = '%s'",$typename);
+		$result = xDB::getDB()->query("SELECT * FROM node_and_cathegory_type WHERE name = '%s'",$typename);
 		if($row = xDB::getDB()->fetchObject($result))
 		{
-			return xItemTypeDAO::_itemtypeFromRow($row);
+			return xNodeTypeDAO::_itemtypeFromRow($row);
 		}
 		
 		return NULL;
@@ -102,10 +102,10 @@ class xItemTypeDAO
 	function findAll()
 	{
 		$types = array();
-		$result = xDB::getDB()->query("SELECT * FROM item_type");
+		$result = xDB::getDB()->query("SELECT * FROM node_and_cathegory_type");
 		while($row = xDB::getDB()->fetchObject($result))
 		{
-			$types[] = xItemTypeDAO::_itemtypeFromRow($row);
+			$types[] = xNodeTypeDAO::_itemtypeFromRow($row);
 		}
 		
 		return $types;

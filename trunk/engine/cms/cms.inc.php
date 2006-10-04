@@ -17,11 +17,15 @@
 
 require_once('engine/cms/dao/dao.inc.php');
 
-require_once('engine/cms/accesspermission.inc.php');
 require_once('engine/cms/element.inc.php');
+require_once('engine/cms/accesspermission.inc.php');
+require_once('engine/cms/cathegory.inc.php');
+require_once('engine/cms/contentfiltercontroller.inc.php');
 require_once('engine/cms/install.inc.php');
 require_once('engine/cms/main.inc.php');
 require_once('engine/cms/module.inc.php');
+require_once('engine/cms/node.inc.php');
+require_once('engine/cms/nodetype.inc.php');
 require_once('engine/cms/notifications.inc.php');
 require_once('engine/cms/page.inc.php');
 require_once('engine/cms/pagecontent.inc.php');
