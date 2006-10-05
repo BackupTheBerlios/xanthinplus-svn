@@ -128,6 +128,18 @@ class xNodeDAO
 		return true;
 	}
 	
+	/**
+	 * @return string NULL on error
+	 */
+	function getNodeTypeById($id)
+	{
+		$result = xDB::getDB()->query("SELECT type FROM node WHERE id = %d",$id);
+		if($row = xDB::getDB()->fetchObject($result))
+		{
+			return $row->type;
+		}
+		return NULL;
+	}
 	
 	/**
 	 *

@@ -36,13 +36,17 @@ class xModuleNode extends xModule
 		}
 		elseif($resource === 'node' && $action === 'view')
 		{
-			return new xPageContentNodeView($path);
+			//get node type
+			$type = xNode::getNodeTypeById($path->m_resource_id);
+			if($type == NULL)
+				return NULL;
+			
+			return xModule::callWithSingleResult3('xm_fetchContent','node/'.$type,$action,$path);
 		}
 		
 		return NULL;
 	}
 };
-
 xModule::registerDefaultModule(new xModuleNode());
 
 
@@ -53,22 +57,57 @@ xModule::registerDefaultModule(new xModuleNode());
  */
 class xPageContentNodeCreate extends xPageContent
 {	
-	function xPageContentNodeCreate($path)
+	/**
+	 * @var string
+	 */
+	var $m_type;
+	
+	/**
+	 * @var string
+	 */
+	var $m_parent_cathegory;
+	
+	function xPageContentNodeCreate($path,$type,$parent_cathegory)
 	{
 		$this->xPageContent($path);
+		$this->m_type = $type;
+		$this->m_parent_cathegory = $parent_cathegory;
 	}
 	
-	// DOCS INHERITHED  ========================================================
+	/**
+	 * checks cathegory and type view permission.
+	 * If you inherit the xPageContentNodeView clas and override this member, remember
+	 * to call the xPageContentNodeCreate::onCheckPreconditions() before your checks.
+	 */
 	function onCheckPreconditions()
 	{
+		assert($this->m_type != NULL);
+		
+		//check type permission
+		if(!xAccessPermission::checkCurrentUserPermission('node',$this->m_type,NULL,'create'))
+			return new xPageContentNotAuthorized($this->m_path);
+		
+		if($this->m_parent_cathegory != NULL)
+		{
+			$cathegory = xCathegory::dbLoad($this->m_parent_cathegory);
+			if($cathegory == NULL)
+				return new xPageContentNotFound($this->m_path);
+		}
+		
+		//check cathegories permission
+		if(! $cathegory->checkCurrentUserPermissionRecursive('create_node_inside'))
+				return new xPageContentNotAuthorized($this->m_path);
+		
 		return TRUE;
 	}
 	
 	
-	// DOCS INHERITHED  ========================================================
+	/**
+	 * Do nothing
+	 */
 	function onCreate()
 	{
-		return new xPageContentSimple('Create Node','Choose node type:','','',$this->m_path);
+		return new xPageContentNotFound($this->m_path);
 	}
 };
 
@@ -78,27 +117,57 @@ class xPageContentNodeCreate extends xPageContent
  */
 class xPageContentNodeView extends xPageContent
 {	
-	function xPageContentNodeView($path)
+	/**
+	 * @var xNode
+	 */
+	var $m_node;
+	
+	function xPageContentNodeView($path,$node)
 	{
 		$this->xPageContent($path);
+		$this->m_node = $node;
 	}
 	
 	/**
 	 * Checks that node exists, checks cathegory and type view permission.
+	 * If you inherit the xPageContentNodeView clas and override this member, remember
+	 * to call the xPageContentNodeView::onCheckPreconditions() before your checks.
 	 */
 	function onCheckPreconditions()
 	{
-		//return xAccessPermission::checkCurrentUserPermission('node',NULL,NULL,'view');
+		assert($this->m_node != NULL);
+		
+		//check type permission
+		if(!xAccessPermission::checkCurrentUserPermission('node',$this->m_node->m_type,NULL,'view'))
+			return new xPageContentNotAuthorized($this->m_path);
+		
+		//check cathegories permission
+		foreach($this->m_node->m_cathegories as $cathegory)
+		{
+			if(! $cathegory->checkCurrentUserPermissionRecursive('view'))
+				return new xPageContentNotAuthorized($this->m_path);
+		}
+		
+		return TRUE;
 	}
 	
 	
 	/**
-	 * Do nothing, must override.
+	 * Fill this object with node properties by calling xNode->render(). Only metadata are not filled-id, 
+	 * so override this funciton in your node type implementation.
 	 */
 	function onCreate()
 	{
+		assert($this->m_node != NULL);
+		
+		$error = '';
+		$title = xContentFilterController::applyFilter('notags',$m_node->m_title,&$error);
+		
+		xPageContent::_set($title,$item->render(),'','');
 		return true;
 	}
+	
+
 };
 	
 ?>

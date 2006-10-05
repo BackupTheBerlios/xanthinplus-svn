@@ -54,7 +54,7 @@ class xCathegory extends xElement
 	var $m_description;
 	
 	/**
-	 * @var string
+	 * @var int
 	 * @access public
 	 */
 	var $m_parent_cathegory;
@@ -126,7 +126,12 @@ class xCathegory extends xElement
 	 */
 	function dbLoad($id)
 	{
-		return xCathegoryDAO::load($id);
+		if(is_integer($id))
+		{
+			return xCathegoryDAO::load($id);
+		}
+		
+		return xCathegoryDAO::loadByName($id);
 	}
 	
 	/**
@@ -139,6 +144,30 @@ class xCathegory extends xElement
 	{
 		return xCathegoryDAO::findAll();
 	}
+	
+	/**
+	 * Check recursively an access permission relative to this cathegory
+	 *
+	 * @return bool
+	 */
+	function checkCurrentUserPermissionRecursive($action)
+	{
+		//first check permission in this cathegory
+		if(!xAccessPermission::checkCurrentUserPermission('cathegory',$this->m_type,$this->m_id,'view'))
+			return FALSE;
+		
+		//now load parent and check parent
+		if($this->m_parent != NULL)
+		{
+			$parent = xCathegory::dbLoad($this->m_parent);
+			if(! $parent->checkCurrentUserPermissionRecursive($action))
+				return false;
+		}
+		
+		return true;
+	}
+	
+	
 };
 
 

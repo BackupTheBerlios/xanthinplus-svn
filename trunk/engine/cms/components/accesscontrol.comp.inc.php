@@ -78,8 +78,11 @@ class xFormAccessPermission extends xForm
 		$ordered_permissions = array();
 		foreach($permissions_not_grouped as $perm1)
 		{
-			$ordered_permissions[$perm1->m_resource][$perm1->m_resource_type][] = 
-				array("action" => $perm1->m_action, "description" => $perm1->m_description);
+			if($perm1->m_resource_id == NULL)
+			{
+				$ordered_permissions[$perm1->m_resource][$perm1->m_resource_type][] = 
+					array("action" => $perm1->m_action, "description" => $perm1->m_description);
+			}
 		}
 		
 		return $ordered_permissions;
@@ -97,9 +100,14 @@ class xFormAccessPermission extends xForm
 				{
 					foreach($this->_m_roles as $role)
 					{
-						$this->m_elements[] = new xFormElementCheckbox('permission['.$perm_resource.
-							']['.$perm_act['action'].']['.$perm_typename.']['.$role->m_name.']'
-							,'','',1,FALSE,FALSE,new xInputValidatorInteger());
+						$input_name = 'permission['.$perm_resource.']['.$perm_act['action'].']['.$role->m_name.']';
+						if($perm_typename != NULL)
+						{
+							$input_name .= '['.$perm_typename.']';
+						}
+						
+						$this->m_elements[] = new xFormElementCheckbox($input_name,'','',1,FALSE,FALSE,
+							new xInputValidatorInteger());
 					}
 				}
 			}
@@ -143,12 +151,18 @@ class xFormAccessPermission extends xForm
 					$output .= '<td>' . $perm_act['description'] . '</td>';
 					foreach($this->_m_roles as $role)
 					{
-						$checked = xAccessPermission::checkPermission($perm_resource,$perm_typename,
+						$checked = xAccessPermission::checkPermission($perm_resource,$perm_typename,NULL,
 							$perm_act['action'],$role->m_name);
 						$output .= '<td>';
-						$check = new xFormElementCheckbox('permission['.$perm_resource.
-							']['.$perm_act['action'].']['.$perm_typename.']['.$role->m_name.']',
-							'','',1,$checked,FALSE,new xInputValidatorInteger());
+						
+						$input_name = 'permission['.$perm_resource.']['.$perm_act['action'].']['.$role->m_name.']';
+						if($perm_typename != NULL)
+						{
+							$input_name .= '['.$perm_typename.']';
+						}
+						
+						$check = new xFormElementCheckbox($input_name,'','',1,$checked,FALSE,new xInputValidatorInteger());
+						
 						$output .= $check->render();
 						$output .= '</td>';
 						
@@ -207,9 +221,17 @@ class xPageContentAdminAccesspermissions extends xPageContent
 				$walker = new xFormArrayInputWalker($ret->m_valid_data);
 				while($curr = $walker->next('permission'))
 				{
-					list($value,$resource,$operation,$type,$role) = $curr;
+					if(count($curr) == 4)
+					{
+						list($value,$resource,$action,$role) = $curr;
+						$type = NULL;
+					}
+					else
+					{
+						list($value,$resource,$action,$role,$type) = $curr;
+					}
 					
-					$perm = new xAccessPermission($resource,$operation,$role,$type);
+					$perm = new xAccessPermission($resource,$type,NULL,$action,$role);
 					$perm_present = $perm->check();
 					if($value)
 					{

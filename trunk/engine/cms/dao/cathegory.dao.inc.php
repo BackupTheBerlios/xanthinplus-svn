@@ -127,6 +127,24 @@ class xCathegoryDAO
 		return NULL;
 	}
 	
+	
+	/**
+	 * Load an cathegory from db by name
+	 *
+	 * @return xCathegory
+	 * @static
+	 */
+	function loadByName($catname)
+	{
+		$result = xDB::getDB()->query("SELECT * FROM cathegory WHERE name = '%s'",$catname);
+		if($row = xDB::getDB()->fetchObject($result))
+		{
+			return xCathegoryDAO::_cathegoryFromRow($row);
+		}
+		
+		return NULL;
+	}
+	
 	/**
 	 * Retrieves all cathegories.
 	 *

@@ -136,6 +136,13 @@ class xNode extends xElement
 		return xNodeDAO::delete($id);
 	}
 	
+	/**
+	 * @return string NULL on error
+	 */
+	function getNodeTypeById($id)
+	{
+		return xNodeDAO::getNodeTypeById($id);
+	}
 	
 	/**
 	 * Retrieve a node from db.

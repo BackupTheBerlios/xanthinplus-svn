@@ -456,6 +456,16 @@ class xDummyModule extends xModule
 	function xm_fetchPermissionDescriptors()
 	{
 	}
+	
+	
+	/**
+	* Fetch a specific node object corresponding to given type and id.
+	*
+	* @return xNode
+	*/
+	function xm_fetchSingleNode($type,$id)
+	{
+	}
 }
 
 
