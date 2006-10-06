@@ -28,13 +28,15 @@ class xModuleNode extends xModule
 
 
 	// DOCS INHERITHED  ========================================================
-	function xm_fetchContent($resource,$action,$path)
+	function xm_fetchContent($path)
 	{
-		if($resource === 'node' && $action === 'create')
+		if($path->m_resource === 'node' && $path->m_action === 'create')
 		{
+			//necessità di creare un parser degli indirizzi prima di arrivare qui con cathegory e type
+		
 			return new xPageContentNodeCreate($path);
 		}
-		elseif($resource === 'node' && $action === 'view')
+		elseif($path->m_resource === 'node' && $path->m_action === 'view')
 		{
 			//get node type
 			$type = xNode::getNodeTypeById($path->m_resource_id);

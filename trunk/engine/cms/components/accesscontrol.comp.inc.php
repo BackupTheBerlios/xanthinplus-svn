@@ -29,9 +29,9 @@ class xModuleAccessControl extends xModule
 	}
 	
 	// DOCS INHERITHED  ========================================================
-	function xm_fetchContent($resource,$action,$path)
+	function xm_fetchContent($path)
 	{
-		if($resource === 'admin/accesspermissions' && $action === 'view')
+		if($path->m_resource === 'admin/accesspermissions' && $path->m_action === 'view')
 		{
 			return new xPageContentAdminAccesspermissions($path);
 		}

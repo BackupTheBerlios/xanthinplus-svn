@@ -145,25 +145,7 @@ class xPageContent extends xElement
 	{
 		$content = NULL;
 		$emptystr = '';
-
-		//try to extract resource and action
-		$count = count($path->m_base_path);
-		if($count === 0)
-		{
-			$content = xModule::callWithSingleResult3('xm_fetchContent',$emptystr,$emptystr,$path);
-		}
-		elseif($count === 1)
-		{
-			$content = xModule::callWithSingleResult3('xm_fetchContent',$path->m_base_path[0],$emptystr,$path);
-		}
-		else
-		{
-			$tmp = $path->m_base_path;
-			$action = array_pop($tmp);
-			$resource = implode("/",$tmp);
-			
-			$content = xModule::callWithSingleResult3('xm_fetchContent',$resource,$action,$path);
-		}
+		$content = xModule::callWithSingleResult1('xm_fetchContent',$path);
 		
 		//search for automatic or full aliasing
 		if($content === NULL)

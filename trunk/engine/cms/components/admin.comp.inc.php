@@ -28,9 +28,9 @@ class xModuleAdmin extends xModule
 
 
 	// DOCS INHERITHED  ========================================================
-	function xm_fetchContent($resource,$action,$path)
+	function xm_fetchContent($path)
 	{
-		if($resource === "admin" && empty($action))
+		if($path->m_resource === "admin")
 		{
 			return new xPageContentAdmin($path);
 		}

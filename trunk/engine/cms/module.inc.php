@@ -418,12 +418,10 @@ class xDummyModule extends xModule
 	* Returns a valid content for the given path. Note that you SHOULD NOT call onCheckPrecontitions() or
 	* call onCreate() on the content object before you return it.
 	*
-	* @param string $resource
-	* @param string $action
 	* @param xPath $path
-	* @return xPageContent A valid xPageContent object for the given resource/action/id, NULL otherwise.
+	* @return xPageContent A valid xPageContent object for the given path, NULL otherwise.
 	*/
-	function xm_fetchContent($resource,$action,$path)
+	function xm_fetchContent($path)
 	{
 	}
 	

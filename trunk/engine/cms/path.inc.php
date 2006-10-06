@@ -22,31 +22,51 @@
 class xPath
 {
 	/**
-	* @var array(string)
-	*/
-	var $m_base_path;
-	
-	/**
-	* @var int
-	*/
-	var $m_resource_id;
-	
-	/**
-	* @var int
-	*/
-	var $m_resource_page_number;
-	
-	/**
 	* @var string
 	*/
 	var $m_full_path;
 	
+	/**
+	* @var string
+	*/
+	var $m_resource;
+	
+	/**
+	* @var string
+	*/
+	var $m_action;
+	
+	/**
+	* @var string
+	*/
+	var $m_type;
+	
+	/**
+	* @var string
+	*/
+	var $m_parent_cat;
+	
+	/**
+	* @var mixed
+	*/
+	var $m_id;
+	
+	/**
+	* @var int
+	*/
+	var $m_page;
+	
+	
 	function xPath()
 	{
-		$this->m_base_path = array();
-		$this->m_resource_id = NULL;
-		$this->m_resource_page_number = NULL;
 		$this->m_full_path = NULL;
+		
+		$this->m_resource = NULL;
+		$this->m_action = NULL;
+		$this->m_type = NULL;
+		$this->m_parent_cat = NULL;
+		$this->m_id = NULL;
+		$this->m_page = NULL;
 	}
 	
 	/**
@@ -86,7 +106,40 @@ class xPath
 		
 		return xPath::_parse($p);
 	}
-
+	
+	
+	/**
+	 * @access private
+	 * @return bool 
+	 */
+	function _isSpecialResource($res)
+	{
+		switch($res)
+		{
+			case 'admin':
+			case 'user':
+			return true;
+		}
+		
+		return false;
+	}
+	
+	/**
+	 * @access private
+	 * @return bool 
+	 */
+	function _isActionWithId($act)
+	{
+		switch($act)
+		{
+			case 'view':
+			case 'edit':
+			return true;
+		}
+		
+		return false;
+	}
+	
 
 	/**
 	* Return NULL if fails to parse, otherwise a xXanthPath object
@@ -97,7 +150,7 @@ class xPath
 	*/
 	function _parse($path) 
 	{
-	    if(!preg_match('#^([A-Z][A-Z0-9_-]*(/[A-Z][A-Z0-9_-]*)*)((/[0-9]+){0,2})$#i',$path,$pieces))
+	    if(!preg_match('#^[A-Z][A-Z0-9_-]*(/[A-Z0-9_-]+)*$#i',$path,$pieces))
 		{
 	        return NULL;
 	    }
@@ -105,15 +158,46 @@ class xPath
 		{
 			$path = new xPath();
 			$path->m_full_path = $pieces[0];
-			$path->m_base_path = explode('/',$pieces[1]);
+			$exploded = explode('/',$pieces[0]);
 			
-			if(!empty($pieces[3]))
+			$i = 0;
+			if(! isset($exploded[$i]))
+				return $path;
+			$path->m_resource = $exploded[$i++];
+			
+			if(xPath::_isSpecialResource($path->m_resource))
 			{
-				$tmp = explode('/',$pieces[3]);
-				$path->m_resource_id = $tmp[1];
-				$path->m_resource_page_number = $tmp[2];
+				if(! isset($exploded[$i]))
+					return $path;
+				$path->m_resource .= '/' . $exploded[$i++];
 			}
-
+			
+			if(! isset($exploded[$i]))
+				return $path;
+			$path->m_action .= $exploded[$i++];
+			
+			
+			if(xPath::_isActionWithId($path->m_action))
+			{
+				if(! isset($exploded[$i]))
+					return $path;
+				$path->m_id = $exploded[$i++];
+				
+				if(! isset($exploded[$i]))
+					return $path;
+				$path->m_page = $exploded[$i];
+			}
+			else
+			{
+				if(! isset($exploded[$i]))
+					return $path;
+				$path->m_type = $exploded[$i++];
+				
+				if(! isset($exploded[$i]))
+					return $path;
+				$path->m_parent_cat = $exploded[$i++];
+			}
+			
 			return $path;
 	    }
 	}

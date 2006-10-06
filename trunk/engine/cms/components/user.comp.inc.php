@@ -28,13 +28,13 @@ class xModuleUser extends xModule
 
 
 	// DOCS INHERITHED  ========================================================
-	function xm_fetchContent($resource,$action,$path)
+	function xm_fetchContent($path)
 	{
-		if($resource === 'user' && $action === 'login')
+		if($path->m_resource === 'user/login')
 		{
 			return new xPageContentUserLogin($path);
 		}
-		elseif($resource === 'user' && $action === 'logout')
+		elseif($path->m_resource === 'user/logout')
 		{
 			xUser::logout();
 			return new xContentSimple("User logout",'Logged out','','');
