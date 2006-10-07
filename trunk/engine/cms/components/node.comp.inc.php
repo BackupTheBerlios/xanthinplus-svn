@@ -30,13 +30,7 @@ class xModuleNode extends xModule
 	// DOCS INHERITHED  ========================================================
 	function xm_fetchContent($path)
 	{
-		if($path->m_resource === 'node' && $path->m_action === 'create')
-		{
-			//necessità di creare un parser degli indirizzi prima di arrivare qui con cathegory e type
-		
-			return new xPageContentNodeCreate($path);
-		}
-		elseif($path->m_resource === 'node' && $path->m_action === 'view')
+		if($path->m_resource === 'node' && $path->m_action === 'view')
 		{
 			//get node type
 			$type = xNode::getNodeTypeById($path->m_resource_id);
@@ -45,6 +39,16 @@ class xModuleNode extends xModule
 			
 			return xModule::callWithSingleResult3('xm_fetchContent','node/'.$type,$action,$path);
 		}
+		elseif($path->m_resource === 'node' && $path->m_action === 'create' && $path->m_action === NULL)
+		{
+			//todo
+			return new xPageContentNodeCreateChooseType($path);
+		}
+		elseif($path->m_resource === 'node' && $path->m_type === 'page' && $path->m_action === 'create')
+		{
+			return new xPageContentNodePageCreate($path);
+		}
+		
 		
 		return NULL;
 	}
@@ -59,46 +63,41 @@ xModule::registerDefaultModule(new xModuleNode());
  */
 class xPageContentNodeCreate extends xPageContent
 {	
-	/**
-	 * @var string
-	 */
-	var $m_type;
-	
-	/**
-	 * @var string
-	 */
-	var $m_parent_cathegory;
-	
-	function xPageContentNodeCreate($path,$type,$parent_cathegory)
+	function xPageContentNodeCreate($path)
 	{
 		$this->xPageContent($path);
-		$this->m_type = $type;
-		$this->m_parent_cathegory = $parent_cathegory;
 	}
 	
 	/**
-	 * checks cathegory and type view permission.
+	 * Checks cathegory and type create permission.
 	 * If you inherit the xPageContentNodeView clas and override this member, remember
 	 * to call the xPageContentNodeCreate::onCheckPreconditions() before your checks.
 	 */
 	function onCheckPreconditions()
 	{
-		assert($this->m_type != NULL);
+		assert($this->m_path->m_type != NULL);
 		
 		//check type permission
-		if(!xAccessPermission::checkCurrentUserPermission('node',$this->m_type,NULL,'create'))
+		if(!xAccessPermission::checkCurrentUserPermission('node',$this->m_path->m_type,NULL,'create'))
 			return new xPageContentNotAuthorized($this->m_path);
 		
-		if($this->m_parent_cathegory != NULL)
+		$cathegory = NULL;
+		if($this->m_path->m_parent_cathegory != NULL)
 		{
-			$cathegory = xCathegory::dbLoad($this->m_parent_cathegory);
+			$cathegory = xCathegory::dbLoad($this->m_path->m_parent_cathegory);
 			if($cathegory == NULL)
 				return new xPageContentNotFound($this->m_path);
+			
+			//check for matching node type and cathegory type
+			if($this->m_path->m_type !== $cathegory->m_type)
+				return new xPageContentError($this->m_path,'Node type and parent cathegory type does not match');
+			
+			//check cathegories permission
+			if(! $cathegory->checkCurrentUserPermissionRecursive('create_node_inside'))
+				return new xPageContentNotAuthorized($this->m_path);
 		}
 		
-		//check cathegories permission
-		if(! $cathegory->checkCurrentUserPermissionRecursive('create_node_inside'))
-				return new xPageContentNotAuthorized($this->m_path);
+		
 		
 		return TRUE;
 	}
@@ -112,6 +111,7 @@ class xPageContentNodeCreate extends xPageContent
 		return new xPageContentNotFound($this->m_path);
 	}
 };
+
 
 
 /**
@@ -143,7 +143,7 @@ class xPageContentNodeView extends xPageContent
 		if(!xAccessPermission::checkCurrentUserPermission('node',$this->m_node->m_type,NULL,'view'))
 			return new xPageContentNotAuthorized($this->m_path);
 		
-		//check cathegories permission
+		//check cathegory permission
 		foreach($this->m_node->m_cathegories as $cathegory)
 		{
 			if(! $cathegory->checkCurrentUserPermissionRecursive('view'))
@@ -163,13 +163,149 @@ class xPageContentNodeView extends xPageContent
 		assert($this->m_node != NULL);
 		
 		$error = '';
-		$title = xContentFilterController::applyFilter('notags',$m_node->m_title,&$error);
+		$title = xContentFilterController::applyFilter('notags',$m_node->m_title,$error);
 		
 		xPageContent::_set($title,$item->render(),'','');
 		return true;
 	}
-	
 
+};
+
+
+
+
+
+/**
+ * 
+ */
+class xPageContentNodePageCreate extends xPageContentNodeCreate
+{	
+	
+	function xPageContentNodePageCreate($path)
+	{
+		$this->xPageContentNodeCreate($path);
+	}
+	
+	/**
+	 * Nothing else to check here in addition to standard checks
+	 */
+	function onCheckPreconditions()
+	{
+		return xPageContentNodeCreate::onCheckPreconditions();
+	}
+	
+	
+	/**
+	 * Create and outputs node creation form
+	 */
+	function onCreate()
+	{
+		//create form
+		$form = new xForm(xanth_relative_path($this->m_path->m_full_path));
+		
+		//no cathegory in path so let user choose according to its permissions
+		if($this->m_path->m_parent_cathegory == NULL)
+		{
+
+			$cathegories = xCathegory::find(NULL,$this->m_path->m_type);
+			
+			$options = array();
+			foreach($cathegories as $cathegory)
+			{
+				$options[$cathegory->m_name] = $cathegory->m_id;
+			}
+			
+			$form->m_elements[] = new xFormElementOptions('cathegory','Cathegories','','',$options,TRUE,TRUE,
+				new xCreateNodeIntoCathegoryValidator($this->m_path->m_type));
+		}
+		
+		
+		//item title
+		$form->m_elements[] = new xFormElementTextField('title','Title','','',true,new xInputValidatorText(256));
+		
+		
+		
+		//item body
+		$form->m_elements[] = new xFormElementTextArea('body','Body','','',true,
+			new xDynamicInputValidatorApplyContentFilter(0,'filter'));
+			
+			
+			
+			
+		//item filter
+		$filters = xContentFilterController::getCurrentUserAvailableFilters();
+		$content_filter_radio_group = new xFormRadioGroup('Content filter');
+		foreach($filters as $filter)
+		{
+			$content_filter_radio_group->m_elements[] = new xFormElementRadio('filter',$filter['name'],
+				$filter['description'],$filter['name'],false,TRUE,new xInputValidatorContentFilter(64));
+		}
+		$form->m_elements[] = $content_filter_radio_group;
+		
+		
+		
+		$group = new xFormGroup('Parameters');
+		//item published
+		$group->m_elements[] = new xFormElementCheckbox('published','Published','',1,FALSE,FALSE,new xInputValidatorInteger());
+		//item approved
+		$group->m_elements[] = new xFormElementCheckbox('approved','Approved','',1,FALSE,FALSE,new xInputValidatorInteger());
+		//item sticky
+		$group->m_elements[] = new xFormElementCheckbox('sticky','Sticky','',1,FALSE,FALSE,new xInputValidatorInteger());
+		//item accept replies
+		$group->m_elements[] = new xFormElementCheckbox('accept_replies','Accept Replies','',1,FALSE,FALSE,new xInputValidatorInteger());
+		$form->m_elements[] = $group;
+		
+		$group = new xFormGroup('Metadata');
+		//item description
+		$group->m_elements[] = new xFormElementTextField('meta_description','Description','','',false,new xInputValidatorText(128));
+		//item keywords
+		$group->m_elements[] = new xFormElementTextField('meta_keywords','Keywords','','',false,new xInputValidatorText(128));
+		$form->m_elements[] = $group;
+		
+		//submit buttom
+		$form->m_elements[] = new xFormSubmit('submit','Create');
+		
+		$ret = $form->validate();
+		if(! $ret->isEmpty())
+		{
+			if(empty($ret->m_errors))
+			{
+				$cathegories = array();
+				if($this->m_path->m_parent_cathegory != NULL)
+					$cathegories[] = $this->m_path->m_parent_cathegory;
+				else
+					$cathegories = $ret->m_valid_data['cathegory'];
+					
+				$node = new xNodePage(-1,$ret->m_valid_data['title'],NULL,$this->m_path->m_type,xUser::getLoggedinUsername(),
+					$ret->m_valid_data['body'],$ret->m_valid_data['filter'],$cathegories,NULL,NULL,
+					$ret->m_valid_data['published'],$ret->m_valid_data['sticky'],$ret->m_valid_data['accept_replies'],
+					$ret->m_valid_data['approved'],0,$ret->m_valid_data['meta_description'],
+					$ret->m_valid_data['meta_keywords']);
+				
+				if($node->dbInsert())
+				{
+					xNotifications::add(NOTIFICATION_NOTICE,'New node successfully created');
+				}
+				else
+				{
+					xNotifications::add(NOTIFICATION_ERROR,'Error: node was not created');
+				}
+				
+				$this->_set("Create new node page",'','','');
+				return TRUE;
+			}
+			else
+			{
+				foreach($ret->m_errors as $error)
+				{
+					xNotifications::add(NOTIFICATION_WARNING,$error);
+				}
+			}
+		}
+
+		$this->_set("Create new node page",$form->render(),'','');
+		return TRUE;
+	}
 };
 	
 ?>

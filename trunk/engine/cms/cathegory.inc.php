@@ -126,23 +126,23 @@ class xCathegory extends xElement
 	 */
 	function dbLoad($id)
 	{
-		if(is_integer($id))
+		if(is_numeric($id))
 		{
-			return xCathegoryDAO::load($id);
+			return xCathegoryDAO::load((int) $id);
 		}
 		
 		return xCathegoryDAO::loadByName($id);
 	}
 	
 	/**
-	 * Retrieves all cathegories.
+	 * Retrieves cathegories by different search parameters
 	 *
 	 * @return array(xCathegory)
 	 * @static
 	 */
-	function findAll()
+	function find($title = NULL,$type = NULL,$description = NULL,$parent_cathegory = NULL,$inf_limit = 0,$sup_limit = 0)
 	{
-		return xCathegoryDAO::findAll();
+		return xCathegoryDAO::find($title,$type,$description,$parent_cathegory,$inf_limit,$sup_limit);
 	}
 	
 	/**
@@ -157,9 +157,9 @@ class xCathegory extends xElement
 			return FALSE;
 		
 		//now load parent and check parent
-		if($this->m_parent != NULL)
+		if($this->m_parent_cathegory != NULL)
 		{
-			$parent = xCathegory::dbLoad($this->m_parent);
+			$parent = xCathegory::dbLoad($this->m_parent_cathegory);
 			if(! $parent->checkCurrentUserPermissionRecursive($action))
 				return false;
 		}

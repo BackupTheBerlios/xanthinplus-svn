@@ -33,7 +33,7 @@ class xNodeDAO
 	{
 		foreach($cathegories as $cathegory)
 		{
-			if(! xDB::getDB()->query("INSERT INTO node_to_cathegory(nodeid,catid) VALUES('%d','%d')",
+			if(! xDB::getDB()->query("INSERT INTO node_to_cathegory(nodeid,catid) VALUES(%d,%d)",
 					$nodeid,$cathegory->m_id));
 				return false;
 		}
@@ -54,19 +54,26 @@ class xNodeDAO
 			xDB::getDB()->startTransaction();
 		
 		$id = xUniqueId::generate('node');
-		$field_names = "id,title,alias,type,author,content,content_filter,creation_time";
-		$field_values = "%d,'%s','%s','%s','%s','%s',%d,NOW()";
-		$values = array($id,$node->m_title,$node->m_alias,$node->m_type,$node->m_author,$node->m_content,
+
+		$field_names = "id,title,type,author,content,content_filter,creation_time";
+		$field_values = "%d,'%s','%s','%s','%s','%s',NOW()";
+		$values = array($id,$node->m_title,$node->m_type,$node->m_author,$node->m_content,
 			$node->m_content_filter);
+		
+		if($node->m_alias != NULL)
+		{
+			$field_names .= ",alias";
+			$values[] = $node->m_alias;
+		}
+		
 		
 		if(! xDB::getDB()->query("INSERT INTO node($field_names) VALUES($field_values)",$values))
 			return false;
 		
-		
 		//now cathegory link
-		if(! xNodeDAO::_linkToCathegories($id,$node->m_cathegories))
+		if(! xNodeDAO::_linkToCathegories($id,$node->m_parent_cathegories))
 			return false;
-		
+
 		if($transaction)
 			xDB::getDB()->commit();
 		
@@ -108,9 +115,19 @@ class xNodeDAO
 		if($transaction)
 			xDB::getDB()->startTransaction();
 			
-		$fields = "title = '%s',alias = '%s',content = '%s',content_filter = '%s',edit_time = NOW()";
-		$values = array($node->m_title,$node->m_alias,$node->m_content,$node->m_content_filter,
+		$fields = "title = '%s',content = '%s',content_filter = '%s',edit_time = NOW()";
+		$values = array($node->m_title,$node->m_content,$node->m_content_filter,
 			$node->m_cathegory);
+		
+		if($node->alias != NULL)
+		{
+			$fields .= ",alias = '%s'";
+			$values[] = $node->alias;
+		}
+		else
+		{
+			$fields .= ",alias = NULL";
+		}
 		
 		$values[] = $node->m_id;
 		if(! xDB::getDB()->query("UPDATE node SET $fields WHERE id = %d",$values))

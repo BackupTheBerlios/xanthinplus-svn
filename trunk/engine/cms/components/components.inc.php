@@ -18,5 +18,6 @@
 require_once('engine/cms/components/admin.comp.inc.php');
 require_once('engine/cms/components/user.comp.inc.php');
 require_once('engine/cms/components/accesscontrol.comp.inc.php');
+require_once('engine/cms/components/node.comp.inc.php');
 
 ?>

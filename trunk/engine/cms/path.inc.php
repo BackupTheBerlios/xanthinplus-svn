@@ -44,7 +44,7 @@ class xPath
 	/**
 	* @var string
 	*/
-	var $m_parent_cat;
+	var $m_parent_cathegory;
 	
 	/**
 	* @var mixed
@@ -64,7 +64,7 @@ class xPath
 		$this->m_resource = NULL;
 		$this->m_action = NULL;
 		$this->m_type = NULL;
-		$this->m_parent_cat = NULL;
+		$this->m_parent_cathegory = NULL;
 		$this->m_id = NULL;
 		$this->m_page = NULL;
 	}
@@ -195,7 +195,7 @@ class xPath
 				
 				if(! isset($exploded[$i]))
 					return $path;
-				$path->m_parent_cat = $exploded[$i++];
+				$path->m_parent_cathegory = $exploded[$i++];
 			}
 			
 			return $path;

@@ -16,6 +16,18 @@
 */
 
 
+/**
+ * Analyze the type of the current path alias/no alias and format properly the provided relative path
+ *
+ * @param string $path
+ * @return string
+ */
+function xanth_relative_path($path)
+{
+	//todo
+	return '?p='.$path;
+}
+
 
 /**
 * An element to count the exexution time of the script. Render it at the foot of your page.

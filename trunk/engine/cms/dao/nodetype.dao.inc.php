@@ -34,7 +34,7 @@ class xNodeTypeDAO
 	function insert($node_type)
 	{
 		return xDB::getDB()->query("INSERT INTO node_and_cathegory_type (name,description) 
-			VALUES ('%s','%s')",$item_type->m_name,$item_type->m_description);
+			VALUES ('%s','%s')",$node_type->m_name,$node_type->m_description);
 	}
 	
 	/**
@@ -61,7 +61,7 @@ class xNodeTypeDAO
 	function update($node_type)
 	{
 		return xDB::getDB()->query("UPDATE node_and_cathegory_type SET description = '%s' WHERE name = '%s'",
-			$item_type->m_description,$item_type->m_name);
+			$node_type->m_description,$node_type->m_name);
 	}
 	
 	/**

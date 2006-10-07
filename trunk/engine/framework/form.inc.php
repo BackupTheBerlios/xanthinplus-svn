@@ -43,6 +43,35 @@ class xInputValidator
 }
 
 /**
+ * An object for validate user input by providing a dinamyc "post" or "get" variable
+ * representing a content filter.
+ */
+class xDynamicInputValidator extends xInputValidator
+{
+	var $m_method;
+	
+	function xDynamicInputValidator($method = 'POST')
+	{
+		xInputValidator::xInputValidator();
+		
+		$this->m_method = $method;
+	}
+	
+	/**
+	 * Validate the user input.
+	 *
+	 * @param mixed $input The input to validate
+	 * @return bool
+	 */
+	function isValid($input)
+	{
+		return xInputValidator::isValid($input);
+	}
+}
+
+
+
+/**
  * A simple validator that checks only for a valid text lenght.
  */
 class xInputValidatorText extends xInputValidator
@@ -541,10 +570,13 @@ class xFormElementTextArea extends xFormElement
 		{
 			$output .= ' form-element-invalid';
 		}
-		$output .= '" name="' . $this->m_name .'" '; 
-		if($this->m_validator->m_maxlength > 0 )
+		$output .= '" name="' . $this->m_name .'" ';
+		if(isset($this->m_validator->m_maxlength))
 		{
-			$output .= ' maxlength="' . $this->m_validator->m_maxlength . '" ';
+			if($this->m_validator->m_maxlength > 0 )
+			{
+				$output .= ' maxlength="' . $this->m_validator->m_maxlength . '" ';
+			}
 		}
 		$output .= ' id="id-' . $this->m_name . '" rows="8" cols="50">'. $this->m_value . '</textarea>'."\n";
 		$output .= '</div>'. "\n";

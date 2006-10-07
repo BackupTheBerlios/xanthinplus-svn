@@ -212,12 +212,14 @@ class xInstallCMS
 			CREATE TABLE node (
 			id INT UNSIGNED NOT NULL,
 			title VARCHAR(256) NOT NULL,
+			alias VARCHAR(255),
 			type VARCHAR(32) NOT NULL,
 			author VARCHAR(64) NOT NULL,
 			content TEXT NOT NULL,
 			content_filter VARCHAR(64) NOT NULL,
 			creation_time DATETIME NOT NULL,
 			edit_time DATETIME NOT NULL,
+			UNIQUE (alias),
 			PRIMARY KEY (id),
 			FOREIGN KEY (type) REFERENCES node_and_cathegory_type(name) ON DELETE RESTRICT
 			)TYPE=InnoDB"
@@ -237,16 +239,14 @@ class xInstallCMS
 		
 		//pageitem
 		xDB::getDB()->query("
-			CREATE TABLE node_simple (
+			CREATE TABLE node_page (
 			nodeid INT UNSIGNED NOT NULL,
-			alias VARCHAR(255),
 			published TINYINT NOT NULL,
 			sticky TINYINT NOT NULL,
 			accept_replies TINYINT NOT NULL,
 			approved TINYINT NOT NULL,
 			meta_description VARCHAR(128) NOT NULL,
 			meta_keywords VARCHAR(128) NOT NULL,
-			UNIQUE (alias),
 			PRIMARY KEY (nodeid),
 			FOREIGN KEY (nodeid) REFERENCES node(id) ON DELETE CASCADE
 			)TYPE=InnoDB"
@@ -284,10 +284,11 @@ class xInstallCMS
 		$user->giveRole('administrator');
 		
 		
-		//$item_type = new xNodeCathegoryType('page','Basic node type');
-		//$item_type->dbInsert();
-		//$item_type = new xNodeCathegoryType('reply','A reply');
-		//$item_type->dbInsert();
+		$node_type = new xNodeType('page','Basic node type');
+		$node_type->dbInsert();
+		
+		$cat = new xCathegory(-1,'page_root','Root cathegory','page','',NULL);
+		$cat->dbInsert();
 	}
 };
 

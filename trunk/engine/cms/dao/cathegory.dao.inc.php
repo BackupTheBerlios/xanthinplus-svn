@@ -146,21 +146,96 @@ class xCathegoryDAO
 	}
 	
 	/**
-	 * Retrieves all cathegories.
+	 * Retrieves cathegories by search parameters
 	 *
 	 * @return array(xCathegory)
 	 * @static
 	 */
-	function findAll()
+	function find($title = NULL,$type = NULL,$description = NULL,$parent_cathegory = NULL,$inf_limit = 0,$sup_limit = 0)
 	{
+		assert($inf_limit >= 0 && $sup_limit >= 0 && $inf_limit <= $sup_limit);
+		
+		$query_tables = array("cathegory");
+		$values = array();
+		$query_where = array();
+		$query_where_link = array();
+		
+		if($title !== NULL)
+		{
+			$query_where[] = "cathegory.title LIKE '%s'";
+			$query_where_link[] = "AND";
+			$values[] = $title;
+		}
+		
+		if($type !== NULL)
+		{
+			$query_where[] = "cathegory.type = '%s'";
+			$query_where_link[] = "AND";
+			$values[] = $type;
+		}
+		
+		if($description !== NULL)
+		{
+			$query_where[] = "cathegory.description LIKE '%s'";
+			$query_where_link[] = "AND";
+			$values[] = $description;
+		}
+		
+		if($parent_cathegory !== NULL)
+		{
+			$query_where[] = "cathegory.parent_cathegory = '%d'";
+			$query_where_link[] = "AND";
+			$values[] = $parent_cathegory;
+		}
+		
+		if($inf_limit != 0 || $sup_limit != 0)
+		{
+			$query_where[] .= "LIMIT %d,%d";
+			$query_where_link[] = "";
+			$values[] = $inf_limit;
+			$values[] = $sup_limit;
+		}
+		
+		//now construct the query
+		$query = "SELECT * FROM ";
+		$i = 0;
+		foreach($query_tables as $query_table)
+		{
+			if($i === 0) //not adding link string
+			{
+				$query .= $query_table;
+			}
+			else
+			{
+				$query .= "," . $query_table;
+			}
+			$i++;
+		}
+		
+		$query .= " ";
+		for($i = 0;$i < count($query_where);$i++)
+		{
+			if($i === 0) //not adding link string
+			{
+				$query .= "WHERE ";
+				$query .= $query_where[$i];
+			}
+			else
+			{
+				$query .= " " . $query_where_link[$i] . " ";
+				$query .= $query_where[$i];
+			}
+		}
+		$result = xDB::getDB()->query($query,$values);
+		
 		$cats = array();
-		$result = xDB::getDB()->query("SELECT * FROM cathegory");
 		while($row = xDB::getDB()->fetchObject($result))
 		{
 			$cats[] = xCathegoryDAO::_cathegoryFromRow($row);
 		}
 		return $cats;
 	}
+	
 }
 
 ?>

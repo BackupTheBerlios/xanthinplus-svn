@@ -67,37 +67,40 @@ class xContentFilterController
 	
 	
 	/**
-	 * Return a form element for asking for contentn filter chooser
+	 * Return all available filters.
 	 *
-	 * @param string $var_name The name of the form element
-	 * @param string $value
-	 * @param bool $mandatory True if this input is manadtory
-	 * @return xFormElement
+	 * @return array(array(name -> string,description-> string))
 	 * @static
 	 */
-	function getFormContentFilterChooser($var_name,$value,$mandatory)
+	function getAllFilters()
 	{
-		$content_filter_radio_group = new xFormRadioGroup('Content filter');
-		
 		$filters = array();
 		$filters[] = array('name' => 'html','description' => 'Full HTML');
 		$filters[] = array('name' => 'php','description' => 'PHP code');
 		$filters[] = array('name' => 'bbcode','description' => 'BBCode');
 		$filters[] = array('name' => 'notags','description' => 'Tags are stripped');
 		
+		return $filters;
+	}
+	
+	/**
+	 * Return all filters usable by the current user.
+	 *
+	 * @return array(array(name -> string,description-> string))
+	 * @static
+	 */
+	function getCurrentUserAvailableFilters()
+	{
+		$filters = xContentFilterController::getAllFilters();
+		
+		$avail_filters = array();
 		foreach($filters as $filter)
 		{
-			$checked = FALSE;
-			if($value === $filter['name'])
-			{
-				$checked = TRUE;
-			}
-			
-			$content_filter_radio_group->m_elements[] = new xFormElementRadio($var_name,$filter['name'],
-				$filter['description'],$filter['name'],$checked,$mandatory,	new xInputValidatorTextNameId(64));
+			if(xAccessPermission::checkCurrentUserPermission('filter',$filter['name'],NULL,'use'))
+				$avail_filters[] = $filter;
 		}
 		
-		return $content_filter_radio_group;
+		return $avail_filters;
 	}
 }
 
@@ -106,29 +109,31 @@ class xContentFilterController
  * A validator that checks dinamically the content, by providing a dinamyc "post" or "get" variable
  * representing a content filter.
  */
-class xInputValidatorDynamicContentFilter extends xInputValidatorText
+class xDynamicInputValidatorApplyContentFilter extends xDynamicInputValidator
 {
 	var $m_variable_name;
-	var $m_method;
 	
+	var $m_maxlength;
 	/**
 	 * Contructor.
 	 *
 	 * @param int $maxlenght The max lenght of the text to be considered valid.
 	 */
-	function xInputValidatorDynamicContentFilter($maxlength,$variable_name,$method = 'POST')
+	function xDynamicInputValidatorApplyContentFilter($maxlength,$variable_name,$method = 'POST')
 	{
-		xInputValidatorText::xInputValidatorText($maxlength);
+		xDynamicInputValidator::xDynamicInputValidator($method);
 		
 		$this->m_variable_name = $variable_name;
-		$this->m_method = $method;
+		$this->m_maxlength = $maxlength;
 	}
 	
 	// DOCS INHERITHED  ========================================================
 	function isValid($input)
 	{
-		if( ! xInputValidatorText::isValid($input))
+		$text_validator = new xInputValidatorText($this->m_maxlength );
+		if( ! $text_validator->isValid($input))
 		{
+			$this->m_last_error = $text_validator->m_last_error;
 			return FALSE;
 		}
 		
@@ -141,6 +146,39 @@ class xInputValidatorDynamicContentFilter extends xInputValidatorText
 		}
 		
 		return TRUE;
+	}
+}
+
+
+
+/**
+ * A validator that checks if filter is valid and usable by current user
+ */
+class xInputValidatorContentFilter extends xInputValidatorTextNameId
+{
+	/**
+	 * Contructor.
+	 *
+	 * @param int $maxlenght The max lenght of the text to be considered valid.
+	 */
+	function xInputValidatorDynamicContentFilter($maxlength)
+	{
+		xInputValidatorTextNameId::xInputValidatorTextNameId($method);
+	}
+	
+	// DOCS INHERITHED  ========================================================
+	function isValid($input)
+	{
+		if( ! xInputValidatorTextNameId::isValid($input))
+			return FALSE;
+		
+		if(! xAccessPermission::checkCurrentUserPermission('filter',$input,NULL,'use'))
+		{
+			$this->m_last_error = 'You are not authorized to use such filter';
+			return false;
+		}
+		
+		return true;
 	}
 }
 
