@@ -34,8 +34,10 @@ class xNodeDAO
 		foreach($cathegories as $cathegory)
 		{
 			if(! xDB::getDB()->query("INSERT INTO node_to_cathegory(nodeid,catid) VALUES(%d,%d)",
-					$nodeid,$cathegory->m_id));
+					$nodeid,$cathegory->m_id))
+			{
 				return false;
+			}
 		}
 		
 		return true;

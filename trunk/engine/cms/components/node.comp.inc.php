@@ -30,14 +30,24 @@ class xModuleNode extends xModule
 	// DOCS INHERITHED  ========================================================
 	function xm_fetchContent($path)
 	{
-		if($path->m_resource === 'node' && $path->m_action === 'view')
+		if($path->m_resource === 'node' && $path->m_action === 'view' && $path->m_type === NULL)
 		{
 			//get node type
-			$type = xNode::getNodeTypeById($path->m_resource_id);
+			$type = xNode::getNodeTypeById($path->m_id);
 			if($type == NULL)
 				return NULL;
 			
-			return xModule::callWithSingleResult3('xm_fetchContent','node/'.$type,$action,$path);
+			$path->m_type = $type;
+			return xModule::callWithSingleResult1('xm_fetchContent',$path);
+		}
+		elseif($path->m_resource === 'node' && $path->m_action === 'view' && $path->m_type === 'page')
+		{
+			$node = xNodePage::dbLoad($path->m_id);
+			if($node === NULL)
+			{
+				return xPageContentNotFound($path);
+			}
+			return new xPageContentNodePageView($path,$node);
 		}
 		elseif($path->m_resource === 'node' && $path->m_action === 'create' && $path->m_action === NULL)
 		{
@@ -142,9 +152,9 @@ class xPageContentNodeView extends xPageContent
 		//check type permission
 		if(!xAccessPermission::checkCurrentUserPermission('node',$this->m_node->m_type,NULL,'view'))
 			return new xPageContentNotAuthorized($this->m_path);
-		
+			
 		//check cathegory permission
-		foreach($this->m_node->m_cathegories as $cathegory)
+		foreach($this->m_node->m_parent_cathegories as $cathegory)
 		{
 			if(! $cathegory->checkCurrentUserPermissionRecursive('view'))
 				return new xPageContentNotAuthorized($this->m_path);
@@ -163,9 +173,9 @@ class xPageContentNodeView extends xPageContent
 		assert($this->m_node != NULL);
 		
 		$error = '';
-		$title = xContentFilterController::applyFilter('notags',$m_node->m_title,$error);
+		$title = xContentFilterController::applyFilter('notags',$this->m_node->m_title,$error);
 		
-		xPageContent::_set($title,$item->render(),'','');
+		xPageContent::_set($title,$this->m_node->render(),'','');
 		return true;
 	}
 
@@ -307,5 +317,46 @@ class xPageContentNodePageCreate extends xPageContentNodeCreate
 		return TRUE;
 	}
 };
+
+
+
+/**
+ * 
+ */
+class xPageContentNodePageView extends xPageContentNodeView
+{	
+	function xPageContentNodePageView($path,$node)
+	{
+		xPageContentNodeView::xPageContentNodeView($path,$node);
+	}
 	
+	/**
+	 * Only basic checks.No additional checks here.
+	 */
+	function onCheckPreconditions()
+	{
+		//todo check approved,sticky,published ecc...
+		return xPageContentNodeView::onCheckPreconditions();
+	}
+	
+	
+	/**
+	 * Fill this object with node properties by calling xNode->render(). Only metadata are not filled-id, 
+	 * so override this funciton in your node type implementation.
+	 */
+	function onCreate()
+	{
+		$res = xPageContentNodeView::onCreate();
+		if($res !== TRUE)
+			return $res;
+		
+		$this->m_meta_description = $this->m_node->m_meta_description;
+		$this->m_meta_keywords = $this->m_node->m_meta_keywords;
+		
+		return true;
+	}
+};
+
+
+
 ?>

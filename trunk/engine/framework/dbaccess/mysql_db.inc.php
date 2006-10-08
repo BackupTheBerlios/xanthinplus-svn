@@ -56,7 +56,7 @@ class xDBMysql extends xDB
 	{
 		$result = mysql_query($query,$this->m_connection);
 
-		if(mysql_errno())
+		if($result === FALSE)
 		{
 			trigger_error("(errno: ". $this->errno() .")" . $this->error()."\nquery: ". $query, E_USER_WARNING);
 			return FALSE;
@@ -195,7 +195,6 @@ class xDBMysql extends xDB
 				$this->_rollback();
 			}
 		}
-
 		return $result;
 	}
 	

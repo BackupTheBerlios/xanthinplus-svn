@@ -111,6 +111,25 @@ class xCathegoryDAO
 	}
 	
 	/**
+	 *
+	 * @return array(xCathegory)
+	 */
+	function findNodeCathegories($id)
+	{
+		$cats = array();
+		$result = xDB::getDB()->query("SELECT * FROM cathegory,node_to_cathegory WHERE node_to_cathegory.catid = %d 
+			AND cathegory.id = node_to_cathegory.catid",
+			$id);
+		if($row = xDB::getDB()->fetchObject($result))
+		{
+			$cats[] = xCathegoryDAO::_cathegoryFromRow($row);
+		}
+		
+		return $cats;
+	}
+	
+	
+	/**
 	 * Load an cathegory from db.
 	 *
 	 * @return xCathegory

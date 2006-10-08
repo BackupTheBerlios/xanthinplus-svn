@@ -101,7 +101,7 @@ class xNode extends xElement
 		$this->m_creation_time = $creation_time;
 		$this->m_edit_time = $edit_time;
 		
-		if(!empty($parent_cathegories))
+		if(count($parent_cathegories) > 0)
 		{
 			if(is_numeric($parent_cathegories[0]))
 			{
@@ -116,6 +116,10 @@ class xNode extends xElement
 			{
 				$this->m_parent_cathegories = $parent_cathegories;
 			}
+		}
+		else
+		{
+			$this->m_parent_cathegories =  array();
 		}
 	}
 	

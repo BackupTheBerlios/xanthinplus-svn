@@ -100,12 +100,13 @@ class xNodePageDAO
 	 * @static
 	 * @access private
 	 */
-	function _nodepageFromRow($row_object)
+	function _nodepageFromRow($row_object,$cathegories)
 	{
-		return new xNodePage($row_object->id,$row_object->title,$row_object->type,$row_object->author,
-			$row_object->content,$row_object->content_filter,$row_object->creation_time,$row_object->cathegory,
-			$row_object->published,$row_object->sticky,$row_object->accept_replies,
-			$row_object->approved,$row_object->meta_description,$row_object->meta_keywords,$row_object->last_edit_time);
+		return new xNodePage($row_object->id,$row_object->title,$row_object->alias,$row_object->type,
+			$row_object->author,$row_object->content,$row_object->content_filter,$cathegories,
+			$row_object->creation_time,$row_object->edit_time,$row_object->published,$row_object->sticky,
+			$row_object->accept_replies,
+			$row_object->approved,$row_object->meta_description,$row_object->meta_keywords);
 	}
 	
 	/**
@@ -117,10 +118,10 @@ class xNodePageDAO
 	function load($id)
 	{
 		$result = xDB::getDB()->query("SELECT * FROM node,node_page WHERE 
-			node.id = %d AND node_page.itemid = node.id",$id);
+			node.id = %d AND node_page.nodeid = node.id",$id);
 		if($row = xDB::getDB()->fetchObject($result))
 		{
-			return xItemPageDAO::_nodepageFromRow($row);
+			return xNodePageDAO::_nodepageFromRow($row,xCathegoryDAO::findNodeCathegories($id));
 		}
 		
 		return NULL;
