@@ -27,7 +27,9 @@ class xModuleAdmin extends xModule
 	}
 
 
-	// DOCS INHERITHED  ========================================================
+	/**
+	 * @see xDummyModule::xm_fetchContent()
+	 */ 
 	function xm_fetchContent($path)
 	{
 		if($path->m_resource === "admin")
@@ -39,11 +41,20 @@ class xModuleAdmin extends xModule
 	}
 	
 	/**
-	 * @see xDummyModule::fetchPermissionDescriptors()
+	 * @see xDummyModule::xm_fetchPermissionDescriptors()
 	 */ 
 	function xm_fetchPermissionDescriptors()
 	{
-		return new xAccessPermissionDescriptor('admin',NULL,NULL,'view','View administration area');
+		$descrs = array();
+		$descrs[] = new xAccessPermissionDescriptor('admin',NULL,NULL,'view','View administration area');
+		
+		$filters = xContentFilterController::getAllFilters();
+		foreach($filters as $filter)
+		{
+			$descrs[] = new xAccessPermissionDescriptor('filter',$filter["name"],NULL,'use','Use "'.$filter["name"].'" content filter');
+		}
+		
+		return $descrs;
 	}
 	
 };
@@ -51,10 +62,11 @@ class xModuleAdmin extends xModule
 xModule::registerDefaultModule(new xModuleAdmin());
 
 
+
+
+
 /**
  *
- *
- * @internal
  */
 class xPageContentAdmin extends xPageContent
 {
@@ -81,7 +93,9 @@ class xPageContentAdmin extends xPageContent
 	// DOCS INHERITHED  ========================================================
 	function onCreate()
 	{
-		$content = '<a href="?p=admin/accesspermissions/view">Access Permissions</a>';
+		$content = '<a href="'.xanth_relative_path('admin/accesspermissions/view').'">Access Permissions</a>
+			<br><a href="'.xanth_relative_path('node/create').'">Create node</a>';
+			
 		xPageContent::_set("Xanthin+ Administration Area",$content,'','');
 		return true;
 	}

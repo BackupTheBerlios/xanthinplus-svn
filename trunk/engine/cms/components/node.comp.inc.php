@@ -27,7 +27,9 @@ class xModuleNode extends xModule
 	}
 
 
-	// DOCS INHERITHED  ========================================================
+	/**
+	 * @see xDummyModule::xm_fetchContent()
+	 */ 
 	function xm_fetchContent($path)
 	{
 		if($path->m_resource === 'node' && $path->m_action === 'view' && $path->m_type === NULL)
@@ -49,7 +51,7 @@ class xModuleNode extends xModule
 			}
 			return new xPageContentNodePageView($path,$node);
 		}
-		elseif($path->m_resource === 'node' && $path->m_action === 'create' && $path->m_action === NULL)
+		elseif($path->m_resource === 'node' && $path->m_action === 'create' && $path->m_type === NULL)
 		{
 			//todo
 			return new xPageContentNodeCreateChooseType($path);
@@ -62,8 +64,80 @@ class xModuleNode extends xModule
 		
 		return NULL;
 	}
+	
+	
+	/**
+	 * @see xDummyModule::xm_fetchContent()
+	 */
+	function xm_fetchPermissionDescriptors()
+	{
+		$descr = array();
+		
+		//extract types
+		$types = xNodeType::findAll();
+		foreach($types as $type)
+		{
+			$descr[] = new xAccessPermissionDescriptor('node',$type->m_name,NULL,'view','View node '.$type->m_name);
+		}
+		
+		foreach($types as $type)
+		{
+			$descr[] = new xAccessPermissionDescriptor('node',$type->m_name,NULL,'create','Create node '.$type->m_name);
+		}
+		
+		//todo insert permission for cathegory in cat.comp
+		
+		return $descr;
+	}
+	
 };
 xModule::registerDefaultModule(new xModuleNode());
+
+
+
+
+
+/**
+ * 
+ */
+class xPageContentNodeCreateChooseType extends xPageContent
+{	
+	function xPageContentNodeCreateChooseType($path)
+	{
+		$this->xPageContent($path);
+	}
+	
+	/**
+	 * No checks here
+	 */
+	function onCheckPreconditions()
+	{
+		return TRUE;
+	}
+	
+	
+	/**
+	 * Do nothing
+	 */
+	function onCreate()
+	{
+		$types = xNodeType::findAll();
+		
+		$out = "Choose type:\n <ul>\n";
+		foreach($types as $type)
+		{
+			$out .= "<li><a href=\"".xanth_relative_path('node/create/'.$type->m_name)."\">" . $type->m_name . "</a></li>\n";
+		}
+		
+		$out  .= "</ul>\n";
+		
+		xPageContent::_set("Create node: choose type",$out,'','');
+		return true;
+	}
+};
+
+
+
 
 
 
