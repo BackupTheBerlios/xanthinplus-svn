@@ -66,10 +66,10 @@ class xNodePage extends xNode
 	/**
 	 *
 	 */
-	function xNodePage($id,$title,$alias,$type,$author,$content,$content_filter,$parent_cathegories,$creation_time,
+	function xNodePage($id,$title,$type,$author,$content,$content_filter,$parent_cathegories,$creation_time,
 		$edit_time,$published,$sticky,$accept_replies,$approved,$meta_description,$meta_keywords)
 	{
-		xNode::xNode($id,$title,$alias,$type,$author,$content,$content_filter,$parent_cathegories,
+		xNode::xNode($id,$title,$type,$author,$content,$content_filter,$parent_cathegories,
 			$creation_time,$edit_time);
 			
 		$this->m_sticky = $sticky;

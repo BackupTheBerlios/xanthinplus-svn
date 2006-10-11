@@ -247,29 +247,18 @@ class xDummyTheme extends xTheme
 	* @param string $content
 	* @return string the renderized element.
 	*/
-	function renderBox($id,$title,$content)
+	function renderBox($name,$title,$content)
 	{
 	}
 	
 	/**
-	* Render the area element.
+	* Render the boxgroup element.
 	* 
-	* @param string $id
-	* @param array(xBox) $boxes
-	* @param xContent $content
+	* @param string $group name
+	* @param array(string) $boxes
 	* @return string the renderized element.
 	*/
-	function renderArea($id,$boxes)
-	{
-	}
-	
-	
-	/**
-	* Should return an array of strings representing the names of the areas in the page.
-	*
-	* @return array(string) Area names
-	*/
-	function declareAreas()
+	function renderBoxGroup($group_name,$boxes)
 	{
 	}
 	
@@ -341,7 +330,7 @@ class xDefaultTheme extends xTheme
 	/**
 	 * @see xDummyModule
 	 */
-	function renderBox($id,$title,$content)
+	function renderBox($name,$title,$content)
 	{
 		$output = 
 		'<div class="box"><div class="title">' . $title . '</div>
@@ -354,9 +343,14 @@ class xDefaultTheme extends xTheme
 	/**
 	 * @see xDummyModule
 	 */
-	function renderBoxGroup($id,$boxes)
+	function renderBoxGroup($group_name,$boxes)
 	{
 		$output = '';
+		
+		foreach($boxes as $box)
+		{
+			$output .= $box;
+		}
 		
 		return $output;
 	}

@@ -38,12 +38,6 @@ class xNode extends xElement
 	 * @var string
 	 * @access public
 	 */
-	var $m_alias;
-	
-	/**
-	 * @var string
-	 * @access public
-	 */
 	var $m_type;
 	
 	/**
@@ -86,14 +80,13 @@ class xNode extends xElement
 	 *
 	 * @param array(mixed) $parent_cathegories An array of xCathegory objects or an array of cathegories ids
 	 */
-	function xNode($id,$title,$alias,$type,$author,$content,$content_filter,$parent_cathegories = array(),
+	function xNode($id,$title,$type,$author,$content,$content_filter,$parent_cathegories = array(),
 		$creation_time = NULL,$edit_time = NULL)
 	{
 		$this->xElement();
 		
 		$this->m_id = (int) $id;
 		$this->m_title = $title;
-		$this->m_alias = $alias;
 		$this->m_type = $type;
 		$this->m_author = $author;
 		$this->m_content = $content;

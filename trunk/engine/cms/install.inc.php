@@ -130,22 +130,63 @@ class xInstallCMS
 			)TYPE=InnoDB"
 		);
 		
-		//box
+		//item type
 		xDB::getDB()->query("
-			CREATE TABLE box(
-			name VARCHAR(64) NOT NULL,
-			title VARCHAR(255) NOT NULL,
-			content TEXT NOT NULL,
-			content_filter VARCHAR(64) NOT NULL,
-			type VARCHAR(32) NOT NULL,
-			weight TINYINT NOT NULL,
-			PRIMARY KEY(name)
+			CREATE TABLE box_type (
+			name VARCHAR(32) NOT NULL,
+			description VARCHAR(256) NOT NULL,
+			PRIMARY KEY (name)
 			)TYPE=InnoDB"
 		);
 		
+		//box
+		xDB::getDB()->query("
+			CREATE TABLE box(
+			name VARCHAR(32) NOT NULL,
+			type VARCHAR(32) NOT NULL,
+			weight TINYINT NOT NULL,
+			show_filters_type TINYINT NOT NULL,
+			show_filters TEXT NOT NULL,
+			PRIMARY KEY(name),
+			FOREIGN KEY (type) REFERENCES box_type(name) ON DELETE RESTRICT
+			)TYPE=InnoDB"
+		);
+		
+		
+		//static box
+		xDB::getDB()->query("
+			CREATE TABLE box_custom(
+			box_name VARCHAR(64) NOT NULL,
+			title VARCHAR(128) NOT NULL,
+			content TEXT NOT NULL,
+			content_filter VARCHAR(64) NOT NULL,
+			PRIMARY KEY (box_name),
+			FOREIGN KEY (box_name) REFERENCES box(name) ON DELETE CASCADE
+			)TYPE=InnoDB"
+		);
+		
+		
+		//menu_static_items
+		xDB::getDB()->query("
+			CREATE TABLE menu_items (
+			id INT UNSIGNED NOT NULL,
+			box_name VARCHAR(32) NOT NULL,
+			label VARCHAR(128) NOT NULL,
+			link VARCHAR(128) NOT NULL,
+			weight TINYINT NOT NULL,
+			parent INT UNSIGNED,
+			PRIMARY KEY(id),
+			INDEX(box_name),
+			FOREIGN KEY (parent) REFERENCES menu_items(id) ON DELETE CASCADE,
+			FOREIGN KEY (box_name) REFERENCES box(name) ON DELETE CASCADE
+			)TYPE=InnoDB"
+		);
+		xUniqueId::createNew('menu_items');
+		
+		
 		xDB::getDB()->query("
 			CREATE TABLE box_group(
-			name VARCHAR(64) NOT NULL,
+			name VARCHAR(32) NOT NULL,
 			PRIMARY KEY(name)
 			)TYPE=InnoDB"
 		);
@@ -212,14 +253,12 @@ class xInstallCMS
 			CREATE TABLE node (
 			id INT UNSIGNED NOT NULL,
 			title VARCHAR(256) NOT NULL,
-			alias VARCHAR(255),
 			type VARCHAR(32) NOT NULL,
 			author VARCHAR(64) NOT NULL,
 			content TEXT NOT NULL,
 			content_filter VARCHAR(64) NOT NULL,
 			creation_time DATETIME NOT NULL,
 			edit_time DATETIME NOT NULL,
-			UNIQUE (alias),
 			PRIMARY KEY (id),
 			FOREIGN KEY (type) REFERENCES node_and_cathegory_type(name) ON DELETE RESTRICT
 			)TYPE=InnoDB"

@@ -153,7 +153,7 @@ class xCathegory extends xElement
 	function checkCurrentUserPermissionRecursive($action)
 	{
 		//first check permission in this cathegory
-		if(!xAccessPermission::checkCurrentUserPermission('cathegory',$this->m_type,$this->m_id,'view'))
+		if(!xAccessPermission::checkCurrentUserPermission('cathegory',NULL,$this->m_id,'view'))
 			return FALSE;
 		
 		//now load parent and check parent

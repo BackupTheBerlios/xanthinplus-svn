@@ -42,20 +42,29 @@ class xModuleNode extends xModule
 			$path->m_type = $type;
 			return xModule::callWithSingleResult1('xm_fetchContent',$path);
 		}
+		
+		
+		
 		elseif($path->m_resource === 'node' && $path->m_action === 'view' && $path->m_type === 'page')
 		{
 			$node = xNodePage::dbLoad($path->m_id);
 			if($node === NULL)
 			{
-				return xPageContentNotFound($path);
+				return new xPageContentNotFound($path);
 			}
 			return new xPageContentNodePageView($path,$node);
 		}
+		
+		
+		
 		elseif($path->m_resource === 'node' && $path->m_action === 'create' && $path->m_type === NULL)
 		{
 			//todo
 			return new xPageContentNodeCreateChooseType($path);
 		}
+		
+		
+		
 		elseif($path->m_resource === 'node' && $path->m_type === 'page' && $path->m_action === 'create')
 		{
 			return new xPageContentNodePageCreate($path);
@@ -360,7 +369,7 @@ class xPageContentNodePageCreate extends xPageContentNodeCreate
 				else
 					$cathegories = $ret->m_valid_data['cathegory'];
 					
-				$node = new xNodePage(-1,$ret->m_valid_data['title'],NULL,$this->m_path->m_type,xUser::getLoggedinUsername(),
+				$node = new xNodePage(-1,$ret->m_valid_data['title'],$this->m_path->m_type,xUser::getLoggedinUsername(),
 					$ret->m_valid_data['body'],$ret->m_valid_data['filter'],$cathegories,NULL,NULL,
 					$ret->m_valid_data['published'],$ret->m_valid_data['sticky'],$ret->m_valid_data['accept_replies'],
 					$ret->m_valid_data['approved'],0,$ret->m_valid_data['meta_description'],

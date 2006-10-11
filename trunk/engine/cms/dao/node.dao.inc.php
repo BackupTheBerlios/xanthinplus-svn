@@ -62,12 +62,6 @@ class xNodeDAO
 		$values = array($id,$node->m_title,$node->m_type,$node->m_author,$node->m_content,
 			$node->m_content_filter);
 		
-		if($node->m_alias != NULL)
-		{
-			$field_names .= ",alias";
-			$values[] = $node->m_alias;
-		}
-		
 		
 		if(! xDB::getDB()->query("INSERT INTO node($field_names) VALUES($field_values)",$values))
 			return false;
@@ -121,16 +115,6 @@ class xNodeDAO
 		$values = array($node->m_title,$node->m_content,$node->m_content_filter,
 			$node->m_cathegory);
 		
-		if($node->alias != NULL)
-		{
-			$fields .= ",alias = '%s'";
-			$values[] = $node->alias;
-		}
-		else
-		{
-			$fields .= ",alias = NULL";
-		}
-		
 		$values[] = $node->m_id;
 		if(! xDB::getDB()->query("UPDATE node SET $fields WHERE id = %d",$values))
 			return false;
@@ -168,7 +152,7 @@ class xNodeDAO
 	 */
 	function _nodeFromRow($row_object,$cathegories)
 	{
-		return new xNode($row_object->id,$row_object->alias,$row_object->title,$row_object->type,$row_object->author,
+		return new xNode($row_object->id,$row_object->title,$row_object->type,$row_object->author,
 			$row_object->content,$row_object->content_filter,$cathegories,
 			$row_object->creation_time,$row_object->edit_time);
 	}

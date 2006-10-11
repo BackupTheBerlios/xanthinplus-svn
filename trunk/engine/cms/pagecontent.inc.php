@@ -133,6 +133,49 @@ class xPageContent extends xElement
 	//----------------STATIC FUNCTIONS----------------------------------------------
 	//----------------STATIC FUNCTIONS----------------------------------------------
 	
+	/**
+	 * @access private
+	 *
+	 * @return mixed
+	 */
+	function  _processContent($content)
+	{
+		//not found
+		if($content === NULL)
+		{
+			return new xPageContentNotFound($path);
+		}
+		
+		$res = $content->onCheckPreconditions();
+		if($res !== TRUE)
+		{
+			if(xanth_instanceof($res,'xPageContent'))
+			{
+				return xPageContent::_processContent($res);
+			}
+			else
+			{
+				assert('FALSE');
+			}
+		}
+		else
+		{
+			$res = $content->onCreate();
+			if($res !== TRUE)
+			{
+				if(xanth_instanceof($res,'xPageContent'))
+				{
+					return xPageContent::_processContent($res);
+				}
+				else
+				{
+					assert('FALSE');
+				}
+			}
+		}
+		
+		return $content;
+	}
 	
 	/**
 	 * Get the content.
@@ -153,42 +196,7 @@ class xPageContent extends xElement
 			$content = xModule::callWithSingleResult1('xm_fetchAliasContent',$path);
 		}
 		
-		//not found
-		if($content === NULL)
-		{
-			return new xPageContentNotFound($path);
-		}
-		
-		$res = $content->onCheckPreconditions();
-		if($res !== TRUE)
-		{
-			if(xanth_instanceof($res,'xPageContent'))
-			{
-				return $res;
-			}
-			else
-			{
-				assert('FALSE');
-			}
-		}
-		else
-		{
-			$res = $content->onCreate();
-			if($res !== TRUE)
-			{
-				if(xanth_instanceof($res,'xPageContent'))
-				{
-					return $res;
-				}
-				else
-				{
-					assert('FALSE');
-				}
-			}
-		}
-		
-		
-		return $content;
+		return xPageContent::_processContent($content);
 	}
 };
 
@@ -220,7 +228,7 @@ class xPageContentSimple extends xPageContent
 	/**
 	 * Returns always TRUE.
 	 */
-	function onCheckPrecontitions()
+	function onCheckPreconditions()
 	{
 		return TRUE;
 	}
@@ -241,7 +249,7 @@ class xPageContentError extends xPageContentSimple
 	{
 		$content = '<b>There was an error while creating the page content: ' . $error . '</b>';
 		
-		$this->xPageContentSimple('Error',$content,'','',$headers);
+		xPageContentSimple::xPageContentSimple('Error',$content,'','',$headers);
 	}
 };
 
@@ -258,7 +266,7 @@ class xPageContentNotAuthorized extends xPageContentSimple
 	 */
 	function xPageContentNotAuthorized($path,$extra_content = '',$headers = array())
 	{
-		$this->xPageContentSimple('Access Denied','You are not authorized to access this page' . $extra_content,
+		xPageContentSimple::xPageContentSimple('Access Denied','You are not authorized to access this page' . $extra_content,
 			'','',$path,$headers);
 	}
 };
@@ -274,7 +282,7 @@ class xPageContentNotFound extends xPageContentSimple
 	 */
 	function xPageContentNotFound($path,$extra_content = '',$headers = array())
 	{
-		$this->xPageContentSimple('Page not found','The page you requested was not found' . $extra_content,
+		xPageContentSimple::xPageContentSimple('Page not found','The page you requested was not found' . $extra_content,
 			'','',$path,$headers);
 	}
 };

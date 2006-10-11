@@ -102,7 +102,7 @@ class xNodePageDAO
 	 */
 	function _nodepageFromRow($row_object,$cathegories)
 	{
-		return new xNodePage($row_object->id,$row_object->title,$row_object->alias,$row_object->type,
+		return new xNodePage($row_object->id,$row_object->title,$row_object->type,
 			$row_object->author,$row_object->content,$row_object->content_filter,$cathegories,
 			$row_object->creation_time,$row_object->edit_time,$row_object->published,$row_object->sticky,
 			$row_object->accept_replies,
