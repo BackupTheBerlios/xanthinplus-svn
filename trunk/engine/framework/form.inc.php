@@ -87,7 +87,7 @@ class xInputValidatorText extends xInputValidator
 	 *
 	 * @param int $maxlenght The max lenght of the text to be considered valid.
 	 */
-	function xInputValidatorText($maxlength)
+	function xInputValidatorText($maxlength = 0)
 	{
 		xInputValidator::xInputValidator();
 		$this->m_maxlength = $maxlength;
@@ -259,10 +259,17 @@ class xInputValidatorTextNameId extends xInputValidatorText
  * A validator that checks if the input is a valid integer number.
  */
 class xInputValidatorInteger extends xInputValidator
-{	
-	function xInputValidatorInteger()
+{
+	var $m_min_value;
+	var $m_max_value;
+	
+	
+	function xInputValidatorInteger($min_value = NULL,$max_value = NULL)
 	{
 		xInputValidator::xInputValidator();
+		
+		$this->m_min_value = $min_value;
+		$this->m_max_value = $max_value;
 	}
 	
 	// DOCS INHERITHED  ========================================================
@@ -277,6 +284,24 @@ class xInputValidatorInteger extends xInputValidator
 		{
 			$this->m_last_error = 'Field must contain a valid number';
 			return FALSE;
+		}
+		
+		if($this->m_min_value !== NULL)
+		{
+			if($input < $this->m_min_value)
+			{
+				$this->m_last_error = 'Minimum value for field is ' . $this->m_min_value;
+				return FALSE;
+			}
+		}
+		
+		if($this->m_max_value !== NULL)
+		{
+			if($input > $this->m_max_value)
+			{
+				$this->m_last_error = 'Maximum value for field is ' . $this->m_min_value;
+				return FALSE;
+			}
 		}
 		
 		
@@ -1026,7 +1051,7 @@ class xFormRadioGroup extends xFormGroup
 		$in_array_elem = NULL;
 		foreach($this->m_elements as $element)
 		{
-			if($element->m_value === $element->getInputValue($method))
+			if($element->m_value == $element->getInputValue($method))
 			{
 				$in_array_elem = $element;
 				break;

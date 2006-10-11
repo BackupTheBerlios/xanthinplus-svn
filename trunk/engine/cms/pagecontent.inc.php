@@ -138,7 +138,7 @@ class xPageContent extends xElement
 	 *
 	 * @return mixed
 	 */
-	function  _processContent($content)
+	function  _processContent($content,$path)
 	{
 		//not found
 		if($content === NULL)
@@ -151,7 +151,7 @@ class xPageContent extends xElement
 		{
 			if(xanth_instanceof($res,'xPageContent'))
 			{
-				return xPageContent::_processContent($res);
+				return xPageContent::_processContent($res,$path);
 			}
 			else
 			{
@@ -165,7 +165,7 @@ class xPageContent extends xElement
 			{
 				if(xanth_instanceof($res,'xPageContent'))
 				{
-					return xPageContent::_processContent($res);
+					return xPageContent::_processContent($res,$path);
 				}
 				else
 				{
@@ -196,7 +196,7 @@ class xPageContent extends xElement
 			$content = xModule::callWithSingleResult1('xm_fetchAliasContent',$path);
 		}
 		
-		return xPageContent::_processContent($content);
+		return xPageContent::_processContent($content,$path);
 	}
 };
 

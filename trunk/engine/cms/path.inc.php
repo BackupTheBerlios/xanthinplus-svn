@@ -140,6 +140,23 @@ class xPath
 		return false;
 	}
 	
+	
+	/**
+	 * @access private
+	 * @return bool 
+	 */
+	function _isActionWithoutId($act)
+	{
+		switch($act)
+		{
+			case 'view_all':
+			case 'create':
+			return true;
+		}
+		
+		return false;
+	}
+	
 
 	/**
 	* Return NULL if fails to parse, otherwise a xXanthPath object

@@ -103,14 +103,14 @@ class xBox extends xElement
 	}
 	
 	/**
-	 * Fetch a box given a name.
+	 * Fetch a specific box object given the name and type
 	 *
 	 * @return xBox A specific xBox child object or NULL if not found.
 	 * @static
 	 */
-	function fetchBox($box)
+	function fetchBox($boxname,$type)
 	{
-		
+		return xModule::callWithSingleResult2('xm_fetchBox',$boxname,$type);
 	}
 	
 	/**

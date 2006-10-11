@@ -32,7 +32,7 @@ class xModuleAdmin extends xModule
 	 */ 
 	function xm_fetchContent($path)
 	{
-		if($path->m_resource === "admin")
+		if($path->m_resource === "admin" && $path->m_type == NULL && $path->m_type == NULL)
 		{
 			return new xPageContentAdmin($path);
 		}
@@ -93,8 +93,10 @@ class xPageContentAdmin extends xPageContent
 	// DOCS INHERITHED  ========================================================
 	function onCreate()
 	{
-		$content = '<a href="'.xanth_relative_path('admin/accesspermissions/view').'">Access Permissions</a>
-			<br><a href="'.xanth_relative_path('node/create').'">Create node</a>';
+		$content = 
+			'<a href="'.xanth_relative_path('admin/accesspermissions/view').'">Access Permissions</a>
+			<br/><a href="'.xanth_relative_path('node/create').'">Create node</a>
+			<br/><a href="'.xanth_relative_path('admin/box/create/custom').'">Create custom box</a>';
 			
 		xPageContent::_set("Xanthin+ Administration Area",$content,'','');
 		return true;

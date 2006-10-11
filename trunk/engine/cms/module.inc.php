@@ -425,6 +425,17 @@ class xDummyModule extends xModule
 	{
 	}
 	
+	
+	/**
+	* Returns a valid box corresponding to the given name/type
+	*
+	* @param xPath $path
+	* @return xPageContent A valid xPageContent object for the given path, NULL otherwise.
+	*/
+	function xm_fetchBox($box_name,$box_type)
+	{
+	}
+	
 	/**
 	* Returns a valid content for the given alias path. Note that you SHOULD NOT call onCheckPrecontitions() or
 	* call onCreate() on the content object before you return it.

@@ -33,7 +33,8 @@ class xBoxDAO
 	{
 		$field_names = "name,type,weight,show_filters_type,show_filters";
 		$field_values = "'%s','%s',%d,'%s','%s'";
-		$values = array($box->m_name,$box->m_type,$box->m_weight,$box->m_show_filters_type,$box->m_show_filters);
+		$values = array($box->m_name,$box->m_type,$box->m_weight,
+			$box->m_show_filter->m_type,$box->m_show_filter->m_filters);
 		
 		return xDB::getDB()->query("INSERT INTO box($field_names) VALUES($field_values)",$values);
 	}
@@ -49,7 +50,7 @@ class xBoxDAO
 	function update($box)
 	{
 		$fields = "weight = %d, show_filters_type = '%s',show_filter = '%s'";
-		$values = array($box->m_weight,$box->m_show_filters_type,$box->m_show_filter);
+		$values = array($box->m_weight,$box->m_show_filter->m_type,$box->m_show_filter->m_filters);
 		
 		$values[] = $box->m_name;
 		return xDB::getDB()->query("UPDATE box SET $fields WHERE name = '%s'",$values);
@@ -59,13 +60,13 @@ class xBoxDAO
 	/**
 	* Delete an existing box. Based on key.
 	*
-	* @param xBox $box
+	* @param string $box_name
 	* @return bool FALSE on error
 	* @static 
 	*/
-	function delete($box)
+	function delete($box_name)
 	{
-		return xDB::getDB()->query("DELETE FROM box WHERE name = '%s'",$box->m_name);
+		return xDB::getDB()->query("DELETE FROM box WHERE name = '%s'",$box_name);
 	}
 	
 	

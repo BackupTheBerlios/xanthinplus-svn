@@ -134,6 +134,7 @@ class xInstallCMS
 		xDB::getDB()->query("
 			CREATE TABLE box_type (
 			name VARCHAR(32) NOT NULL,
+			user_editable TINYINT NOT NULL,
 			description VARCHAR(256) NOT NULL,
 			PRIMARY KEY (name)
 			)TYPE=InnoDB"
@@ -164,24 +165,6 @@ class xInstallCMS
 			FOREIGN KEY (box_name) REFERENCES box(name) ON DELETE CASCADE
 			)TYPE=InnoDB"
 		);
-		
-		
-		//menu_static_items
-		xDB::getDB()->query("
-			CREATE TABLE menu_items (
-			id INT UNSIGNED NOT NULL,
-			box_name VARCHAR(32) NOT NULL,
-			label VARCHAR(128) NOT NULL,
-			link VARCHAR(128) NOT NULL,
-			weight TINYINT NOT NULL,
-			parent INT UNSIGNED,
-			PRIMARY KEY(id),
-			INDEX(box_name),
-			FOREIGN KEY (parent) REFERENCES menu_items(id) ON DELETE CASCADE,
-			FOREIGN KEY (box_name) REFERENCES box(name) ON DELETE CASCADE
-			)TYPE=InnoDB"
-		);
-		xUniqueId::createNew('menu_items');
 		
 		
 		xDB::getDB()->query("
@@ -328,6 +311,9 @@ class xInstallCMS
 		
 		$cat = new xCathegory(-1,'page_root','Root cathegory','page','',NULL);
 		$cat->dbInsert();
+		
+		$box_type = new xBoxType('custom','A user custom box',TRUE);
+		$box_type->dbInsert();
 	}
 };
 
