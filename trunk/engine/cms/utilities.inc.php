@@ -17,6 +17,20 @@
 
 
 /**
+ * 
+ */
+function _objWeightCompare($a, $b)
+{
+    if ($a->m_weight == $b->m_weight) 
+	{
+        return 0;
+    }
+	
+    return ($a->m_weight < $b->m_weight) ? -1 : 1;
+}
+
+
+/**
  * Analyze the type of the current path alias/no alias and format properly the provided relative path
  *
  * @param string $path

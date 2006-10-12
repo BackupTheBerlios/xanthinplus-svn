@@ -29,6 +29,13 @@ class xBox extends xElement
 	var $m_name;
 	
 	/**
+	 * @var string
+	 * @access public
+	 */
+	var $m_title;
+	
+	
+	/**
 	 * The type of the box
 	 *
 	 * @var string
@@ -52,12 +59,13 @@ class xBox extends xElement
 	/**
 	* Contructor
 	*/
-	function xBox($name,$type,$weight,$show_filter)
+	function xBox($name,$title,$type,$weight,$show_filter)
 	{
 		$this->xElement();
 		
 		$this->m_weight = $weight;
 		$this->m_name = $name;
+		$this->m_title = $title;
 		$this->m_type = $type;
 		$this->m_show_filter = $show_filter;
 	}
@@ -135,13 +143,6 @@ class xBoxCustom extends xBox
 	 * @var string
 	 * @access public
 	 */
-	var $m_title;
-	
-	
-	/**
-	 * @var string
-	 * @access public
-	 */
 	var $m_content;
 	
 	/**
@@ -160,13 +161,12 @@ class xBoxCustom extends xBox
 	* @param string $content_filter
 	* @param string $area
 	*/
-	function xBoxCustom($name,$type,$weight,$show_filter,$title,$content,$content_filter)
+	function xBoxCustom($name,$title,$type,$weight,$show_filter,$content,$content_filter)
 	{
-		xBox::xBox($name,$type,$weight,$show_filter);
+		xBox::xBox($name,$title,$type,$weight,$show_filter);
 		
 		$this->m_content = $content;
 		$this->m_content_filter = $content_filter;
-		$this->m_title = $title;
 	}
 	
 	
@@ -212,80 +212,9 @@ class xBoxDynamic extends xBox
 	/**
 	 * Contructor
 	 */
-	function xBoxStatic($name,$type,$weight,$show_filter)
+	function xBoxStatic($name,$title,$type,$weight,$show_filter)
 	{
-		xBox::xBox($name,$type,$weight,$show_filter);
-	}
-};
-
-
-
-/**
- * Represent a group of boxes
- */
-class xBoxGroup extends xElement
-{
-	/**
-	 * @var string
-	 */
-	var $m_name;
-	
-	/**
-	 * @var array(xBox)
-	 */
-	var $m_boxes;
-	
-	/**
-	 * Contructor
-	 */
-	function xBoxGroup($name,$boxes)
-	{
-		xElement::xElement();
-		
-		$this->m_name = $name;
-		$this->m_boxes = $boxes;
-	}
-	
-	/**
-	 * Render this box group
-	 */
-	function render()
-	{
-		$rendered_boxes = array();
-		foreach($this->m_boxes as $box)
-		{
-			if($box->onCheckPreconditions())
-				$rendered_boxes[] = $box->render();
-		}
-		
-		return xTheme::render3('renderBoxGroup',$this->m_name,$rendered_boxes);
-	}
-	
-	/**
-	 * @return bool FALSE on error.
-	 * @static
-	 */
-	function dbLoad($name)
-	{
-	
-	}
-	
-	/**
-	 * @return bool TRUE on success
-	 * @static
-	 */
-	function dbDelete($name)
-	{
-	
-	}
-	
-	/**
-	 *
-	 * @return bool TRUE on success
-	 */
-	function dbUpdate()
-	{
-		
+		xBox::xBox($name,$title,$type,$weight,$show_filter);
 	}
 };
 

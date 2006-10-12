@@ -254,11 +254,11 @@ class xDummyTheme extends xTheme
 	/**
 	* Render the boxgroup element.
 	* 
-	* @param string $group name
-	* @param array(string) $boxes
+	* @param string $group_name
+	* @param array(string) $rendered_boxes
 	* @return string the renderized element.
 	*/
-	function renderBoxGroup($group_name,$boxes)
+	function renderBoxGroup($group_name,$rendered_boxes)
 	{
 	}
 	
@@ -286,24 +286,9 @@ class xDummyTheme extends xTheme
 	
 	
 	/**
-	 * Render a list of menu items
-	 * 
-	 * @param array(xMenuItem) $items
-	 * @return string the renderized element.
+	 * @see xDummyModule
 	 */
 	function renderMenuItems($items)
-	{
-	}
-	
-	/**
-	 * Render an item
-	 *
-	 * @param string $subtype
-	 * @param string $title
-	 * @param string $content
-	 * @return string the renderized element.
-	 */
-	function renderItem($type,$title,$content)
 	{
 	}
 	
@@ -314,7 +299,8 @@ class xDummyTheme extends xTheme
 	 * @return string the renderized element.
 	 */
 	function renderNotifications($notifications)
-	{}
+	{
+	}
 }
 
 
@@ -343,11 +329,11 @@ class xDefaultTheme extends xTheme
 	/**
 	 * @see xDummyModule
 	 */
-	function renderBoxGroup($group_name,$boxes)
+	function renderBoxGroup($group_name,$rendered_boxes)
 	{
 		$output = '';
 		
-		foreach($boxes as $box)
+		foreach($rendered_boxes as $box)
 		{
 			$output .= $box;
 		}
@@ -360,22 +346,6 @@ class xDefaultTheme extends xTheme
 	 */
 	function renderPage($content,$groups)
 	{
-		//first render areas for later use
-		/*$left_area_out = '';
-		foreach($areas as $area)
-		{
-			switch($area->m_name)
-			{
-			case 'leftArea':
-				$left_area_out .= $area->render();
-				break;
-				
-			default:
-				//area not declared
-				assert(FALSE);
-			}
-		}*/
-
 		$output = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 		<html>
 		<head>
@@ -386,7 +356,7 @@ class xDefaultTheme extends xTheme
 		</head>
 		<body>
 		<table id="page-table"><tr>
-		<td id="left-sidebar"> Left area </td>
+		<td id="left-sidebar">'. $groups['left_group']->render() .'</td>
 		<td id="content">
 		' . xNotifications::render($output) . $content->render() . '
 		</td></tr></table>

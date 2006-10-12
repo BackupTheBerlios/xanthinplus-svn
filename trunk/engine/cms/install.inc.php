@@ -144,6 +144,7 @@ class xInstallCMS
 		xDB::getDB()->query("
 			CREATE TABLE box(
 			name VARCHAR(32) NOT NULL,
+			title VARCHAR(128) NOT NULL,
 			type VARCHAR(32) NOT NULL,
 			weight TINYINT NOT NULL,
 			show_filters_type TINYINT NOT NULL,
@@ -158,7 +159,6 @@ class xInstallCMS
 		xDB::getDB()->query("
 			CREATE TABLE box_custom(
 			box_name VARCHAR(64) NOT NULL,
-			title VARCHAR(128) NOT NULL,
 			content TEXT NOT NULL,
 			content_filter VARCHAR(64) NOT NULL,
 			PRIMARY KEY (box_name),
@@ -170,6 +170,7 @@ class xInstallCMS
 		xDB::getDB()->query("
 			CREATE TABLE box_group(
 			name VARCHAR(32) NOT NULL,
+			render TINYINT NOT NULL,
 			PRIMARY KEY(name)
 			)TYPE=InnoDB"
 		);
@@ -314,6 +315,19 @@ class xInstallCMS
 		
 		$box_type = new xBoxType('custom','A user custom box',TRUE);
 		$box_type->dbInsert();
+		$box_type = new xBoxType('menu','a Menu',TRUE);
+		$box_type->dbInsert();
+		
+		//menus
+		$menu = new xMenu('admin','Admin','menu',0,new xShowFilter(XANTH_SHOW_FILTER_EXCLUSIVE,''));
+	
+		$menuitem = new xMenuItem(-1,'Homepage','?',-1);
+		$menu->m_items[] = $menuitem;
+		
+		$menu->dbInsert();
+		
+		$group = new xBoxGroup('left_group',true,array($menu));
+		$group->dbInsert();
 	}
 };
 

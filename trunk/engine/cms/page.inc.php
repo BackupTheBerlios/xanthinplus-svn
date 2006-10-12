@@ -26,7 +26,6 @@ class xPage extends xElement
 	 */
 	var $m_path;
 	
-	
 	/**
 	 * @var array(xBoxGroup)
 	 * @access public
@@ -80,9 +79,14 @@ class xPage extends xElement
 		}
 		
 		//ask for areas
-		$box_groups = NULL;
+		$box_groups = xBoxGroup::find(TRUE);
+		$groups = array();
+		foreach($box_groups as $group)
+		{
+			$groups[$group->m_name] = $group;
+		}
 		
-		return new xPage($path,$content,$box_groups);
+		return new xPage($path,$content,$groups);
 	}
 };
 

@@ -43,36 +43,44 @@ class xShowFilter
 	 */
 	function check($path)
 	{
-		if($this->m_type === XANTH_SHOW_FILTER_INCLUSIVE)
+		if($this->m_type == XANTH_SHOW_FILTER_INCLUSIVE)
 		{
 			$filters = explode('\n',$this->m_filters);
 			foreach($filters as $filter)
 			{
-				if(preg_match($filter,$path->m_full_path))
+				if($filter != NULL)
 				{
-					return true;
+					if(preg_match($filter,$path->m_full_path))
+					{
+						return true;
+					}
 				}
 			}
 			
 			return false;
 		}
-		elseif($this->m_type === XANTH_SHOW_FILTER_EXCLUSIVE)
+		elseif($this->m_type == XANTH_SHOW_FILTER_EXCLUSIVE)
 		{
 			$filters = explode('\n',$this->m_filters);
 			foreach($filters as $filter)
 			{
-				if(preg_match($filter,$path->m_full_path))
+				if($filter != NULL)
 				{
-					return false;
+					if(preg_match($filter,$path->m_full_path))
+					{
+						return false;
+					}
 				}
 			}
-			
 			return true;
 		}
-		elseif($this->m_type === XANTH_SHOW_FILTER_PHP)
+		elseif($this->m_type == XANTH_SHOW_FILTER_PHP)
 		{
-			if(eval($this->m_filters))
-				return true;
+			if($this->m_filters != NULL)
+			{
+				if(eval($this->m_filters))
+					return true;
+			}
 				
 			return false;
 		}

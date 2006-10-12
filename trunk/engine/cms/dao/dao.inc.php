@@ -25,5 +25,7 @@ require_once('engine/cms/dao/nodepage.dao.inc.php');
 require_once('engine/cms/dao/box.dao.inc.php');
 require_once('engine/cms/dao/boxcustom.dao.inc.php');
 require_once('engine/cms/dao/boxtype.dao.inc.php');
+require_once('engine/cms/dao/menu.dao.inc.php');
+require_once('engine/cms/dao/boxgroup.dao.inc.php');
 
 ?>
