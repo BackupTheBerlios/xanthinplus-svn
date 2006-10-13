@@ -171,50 +171,5 @@ class xNode extends xElement
 };
 
 
-/**
- * Checks for cathegory existence, for permissions and for type matching.
- */
-class xCreateNodeIntoCathegoryValidator extends xInputValidatorInteger
-{
-	var $m_node_type;
-	
-	function xCreateNodeIntoCathegoryValidator($node_type)
-	{
-		xInputValidatorInteger::xInputValidatorInteger();
-		$this->m_node_type = $node_type;
-	}
-	
-	// DOCS INHERITHED  ========================================================
-	function isValid($input)
-	{
-		if(empty($input))
-			return true;
-			
-		if(!xInputValidatorInteger::isValid($input))
-			return FALSE;
-		
-		$cathegory = xCathegory::dbLoad($input);
-		if($cathegory === NULL)
-		{
-			echo "here";
-			$this->m_last_error = 'Cathegory not found';
-			return false;
-		}
-		if($cathegory->m_type != $this->m_node_type)
-		{
-			$this->m_last_error = 'Node type and parent cathegory type does not match';
-			return false;
-		}
-		if(! $cathegory->checkCurrentUserPermissionRecursive('create_node_inside'))
-		{
-			$this->m_last_error = 'You are not authorized to insert a node in this cathegory';
-			return false;
-		}
-		
-		return true;
-	}
-}
-
-
 
 ?>

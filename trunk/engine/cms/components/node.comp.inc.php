@@ -186,7 +186,7 @@ class xPageContentNodeCreate extends xPageContent
 				return new xPageContentError($this->m_path,'Node type and parent cathegory type does not match');
 			
 			//check cathegories permission
-			if(! $cathegory->checkCurrentUserPermissionRecursive('create_node_inside'))
+			if(! $cathegory->checkCurrentUserPermissionRecursive('create_inside'))
 				return new xPageContentNotAuthorized($this->m_path);
 		}
 		
@@ -299,7 +299,6 @@ class xPageContentNodePageCreate extends xPageContentNodeCreate
 		//no cathegory in path so let user choose according to its permissions
 		if($this->m_path->m_parent_cathegory == NULL)
 		{
-
 			$cathegories = xCathegory::find(NULL,$this->m_path->m_type);
 			
 			$options = array();
@@ -309,7 +308,7 @@ class xPageContentNodePageCreate extends xPageContentNodeCreate
 			}
 			
 			$form->m_elements[] = new xFormElementOptions('cathegory','Cathegories','','',$options,TRUE,TRUE,
-				new xCreateNodeIntoCathegoryValidator($this->m_path->m_type));
+				new xCreateIntoCathegoryValidator($this->m_path->m_type));
 		}
 		
 		

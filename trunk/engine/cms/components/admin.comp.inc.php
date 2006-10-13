@@ -32,7 +32,7 @@ class xModuleAdmin extends xModule
 	 */ 
 	function xm_fetchContent($path)
 	{
-		if($path->m_resource === "admin" && $path->m_type == NULL && $path->m_type == NULL)
+		if($path->m_resource === "admin" && $path->m_type == NULL && $path->m_action == NULL)
 		{
 			return new xPageContentAdmin($path);
 		}

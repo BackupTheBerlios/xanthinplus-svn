@@ -437,6 +437,17 @@ class xDummyModule extends xModule
 	}
 	
 	/**
+	* Returns a valid cathegory corresponding to the given name/type
+	*
+	* @param xPath $path
+	* @return xCathegory A valid xCathegory object for the given path, NULL otherwise.
+	*/
+	function xm_fetchCathegory($cat_id,$cat_type)
+	{
+	}
+	
+	
+	/**
 	* Returns a valid content for the given alias path. Note that you SHOULD NOT call onCheckPrecontitions() or
 	* call onCreate() on the content object before you return it.
 	*

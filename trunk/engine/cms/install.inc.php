@@ -219,7 +219,7 @@ class xInstallCMS
 			CREATE TABLE cathegory (
 			id INT UNSIGNED NOT NULL,
 			name VARCHAR(32) NOT NULL,
-			title VARCHAR(64) NOT NULL,
+			title VARCHAR(128) NOT NULL,
 			type VARCHAR(32) NOT NULL,
 			description TEXT NOT NULL,
 			parent_cathegory INT UNSIGNED,
@@ -294,6 +294,7 @@ class xInstallCMS
 		//xSettings::insertNew('site_keywords','');
 		//xSettings::insertNew('site_theme','');
 		
+		//roles
 		$role = new xRole('administrator','Administrator');
 		$role->dbInsert();
 		$role = new xRole('authenticated','Authenticated user');
@@ -301,18 +302,20 @@ class xInstallCMS
 		$role = new xRole('anonymous','Anonymous visitor');
 		$role->dbInsert();
 		
-		
+		//user
 		$user = new xUser('','admin','root@localhost.com');
 		$user->dbInsert('pass');
 		$user->giveRole('administrator');
 		
-		
+		//not type
 		$node_type = new xNodeType('page','Basic node type');
 		$node_type->dbInsert();
 		
+		//root cathegory
 		$cat = new xCathegory(-1,'page_root','Root cathegory','page','',NULL);
 		$cat->dbInsert();
 		
+		//box types
 		$box_type = new xBoxType('custom','A user custom box',TRUE);
 		$box_type->dbInsert();
 		$box_type = new xBoxType('menu','a Menu',TRUE);
@@ -326,6 +329,7 @@ class xInstallCMS
 		
 		$menu->dbInsert();
 		
+		//box group
 		$group = new xBoxGroup('left_group',true,array($menu));
 		$group->dbInsert();
 	}

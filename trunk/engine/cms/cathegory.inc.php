@@ -135,7 +135,16 @@ class xCathegory extends xElement
 	}
 	
 	/**
-	 * Retrieves cathegories by different search parameters
+	 *
+	 */
+	function fetchCathegory($cat_id,$cat_type)
+	{
+		return xModule::callWithSingleResult2('xm_fetchCathegory',$cat_id,$cat_type);
+	}
+	
+	
+	/**
+	 * Retrieves generic xCathegory objects by different search parameters
 	 *
 	 * @return array(xCathegory)
 	 * @static
@@ -169,6 +178,53 @@ class xCathegory extends xElement
 	
 	
 };
+
+
+
+/**
+ * Checks for cathegory existence, for permissions and for type matching.
+ */
+class xCreateIntoCathegoryValidator extends xInputValidatorInteger
+{
+	var $m_type;
+	
+	function xCreateIntoCathegoryValidator($type)
+	{
+		xInputValidatorInteger::xInputValidatorInteger();
+		$this->m_type = $type;
+	}
+	
+	// DOCS INHERITHED  ========================================================
+	function isValid($input)
+	{
+		if(empty($input))
+			return true;
+			
+		if(!xInputValidatorInteger::isValid($input))
+			return FALSE;
+		
+		$cathegory = xCathegory::dbLoad($input);
+		if($cathegory === NULL)
+		{
+			echo "here";
+			$this->m_last_error = 'Cathegory not found';
+			return false;
+		}
+		if($cathegory->m_type != $this->m_type)
+		{
+			$this->m_last_error = 'Child and parent type does not match';
+			return false;
+		}
+		if(! $cathegory->checkCurrentUserPermissionRecursive('create_inside'))
+		{
+			$this->m_last_error = 'You are not authorized to insert inside this cathegory';
+			return false;
+		}
+		
+		return true;
+	}
+}
+
 
 
 ?>
