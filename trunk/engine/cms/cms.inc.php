@@ -40,6 +40,7 @@ require_once('engine/cms/showfilter.inc.php');
 require_once('engine/cms/boxtype.inc.php');
 require_once('engine/cms/boxgroup.inc.php');
 require_once('engine/cms/menu.inc.php');
+require_once('engine/cms/settings.inc.php');
 
 require_once('engine/cms/components/components.inc.php');
 ?>

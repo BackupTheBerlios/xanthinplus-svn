@@ -288,11 +288,11 @@ class xInstallCMS
 			)TYPE=InnoDB"
 		);
 		
-		
-		//xSettings::insertNew('site_name','');
-		//xSettings::insertNew('site_description','');
-		//xSettings::insertNew('site_keywords','');
-		//xSettings::insertNew('site_theme','');
+		//settings
+		xSettings::dbInsert('site_name','');
+		xSettings::dbInsert('site_description','');
+		xSettings::dbInsert('site_keywords','');
+		xSettings::dbInsert('site_theme','');
 		
 		//roles
 		$role = new xRole('administrator','Administrator');
@@ -325,6 +325,27 @@ class xInstallCMS
 		$menu = new xMenu('admin','Admin','menu',0,new xShowFilter(XANTH_SHOW_FILTER_EXCLUSIVE,''));
 	
 		$menuitem = new xMenuItem(-1,'Homepage','?',-1);
+		$menu->m_items[] = $menuitem;
+		
+		$menuitem = new xMenuItem(-1,'Create cathegory','?p=cathegory/create',-1);
+		$menu->m_items[] = $menuitem;
+		
+		$menuitem = new xMenuItem(-1,'Create node','?p=node/create',-1);
+		$menu->m_items[] = $menuitem;
+		
+		$menuitem = new xMenuItem(-1,'Access permissions','?p=admin/accesspermissions',-1);
+		$menu->m_items[] = $menuitem;
+		
+		$menuitem = new xMenuItem(-1,'Create custom box','?p=admin/box/create/custom',-1);
+		$menu->m_items[] = $menuitem;
+		
+		$menuitem = new xMenuItem(-1,'Login','?p=user/login',-1);
+		$menu->m_items[] = $menuitem;
+		
+		$menuitem = new xMenuItem(-1,'Logout','?p=user/logout',-1);
+		$menu->m_items[] = $menuitem;
+		
+		$menuitem = new xMenuItem(-1,'Settings','?p=admin/settings',-1);
 		$menu->m_items[] = $menuitem;
 		
 		$menu->dbInsert();

@@ -37,7 +37,7 @@ class xModuleUser extends xModule
 		elseif($path->m_resource === 'user/logout')
 		{
 			xUser::logout();
-			return new xContentSimple("User logout",'Logged out','','');
+			return new xPageContentSimple("User logout",'Logged out','','',$path);
 		}
 		
 		return NULL;

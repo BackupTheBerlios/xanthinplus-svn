@@ -37,6 +37,11 @@ class xModuleAdmin extends xModule
 			return new xPageContentAdmin($path);
 		}
 		
+		if($path->m_resource === "admin" && $path->m_type == NULL && $path->m_action == NULL)
+		{
+			return new xPageContentAdmin($path);
+		}
+		
 		return NULL;
 	}
 	

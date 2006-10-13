@@ -32,13 +32,13 @@ class xModuleCathegory extends xModule
 	 */ 
 	function xm_fetchContent($path)
 	{
-		if($path->m_resource === "admin/cathegory" && $path->m_type == NULL && $path->m_action == 'create')
+		if($path->m_resource === "cathegory" && $path->m_type == NULL && $path->m_action == 'create')
 		{
-			//todo let choose type
+			return new xPageContentCathegoryCreateChooseType($path);
 		}
-		elseif($path->m_resource === "admin/cathegory" && $path->m_type == 'page' && $path->m_action == 'create')
+		elseif($path->m_resource === "cathegory" && $path->m_type == 'page' && $path->m_action == 'create')
 		{
-			return new xPageContentAdminCathegoryCreatePage($path);
+			return new xPageContentCathegoryCreatePage($path);
 		}
 		
 		return NULL;
@@ -89,19 +89,58 @@ xModule::registerDefaultModule(new xModuleCathegory());
 
 
 
-
 /**
  *
  */
-class xPageContentAdminCathegoryCreatePage extends xPageContent
+class xPageContentCathegoryCreateChooseType extends xPageContent
 {
 
-	function xPageContentAdminCathegoryCreatePage($path)
+	function xPageContentCathegoryCreateChooseType($path)
 	{
 		xPageContent::xPageContent($path);
 	}
 	
 	// DOCS INHERITHED  ========================================================
+	function onCheckPreconditions()
+	{
+		return TRUE;
+	}
+	
+	// DOCS INHERITHED  ========================================================
+	function onCreate()
+	{
+		$types = xNodeType::findAll();
+		
+		$out = "Choose type:\n <ul>\n";
+		foreach($types as $type)
+		{
+			$out .= "<li><a href=\"".xanth_relative_path('cathegory/create/'.$type->m_name)."\">" . $type->m_name . "</a></li>\n";
+		}
+		
+		$out  .= "</ul>\n";
+		
+		xPageContent::_set("Create cathegory: choose type",$out,'','');
+		return true;
+	}
+}
+
+
+/**
+ * Base class for all cathegory creation pages
+ */
+class xPageContentCathegoryCreate extends xPageContent
+{
+
+	function xPageContentCathegoryCreate($path)
+	{
+		xPageContent::xPageContent($path);
+	}
+	
+	/**
+	 * Checks parent cathegory and type create permission.
+	 * If you inherit the xPageContentCathegoryCreate class and override this member, remember
+	 * to call the xPageContentNodeCreate::onCheckPreconditions() before your checks.
+	 */
 	function onCheckPreconditions()
 	{
 		if(!xAccessPermission::checkCurrentUserPermission('cathegory',$this->m_path->m_type,NULL,'create'))
@@ -124,6 +163,29 @@ class xPageContentAdminCathegoryCreatePage extends xPageContent
 		}
 		
 		return TRUE;
+	}
+	
+	/**
+	 * @abstract
+	 */
+	function onCreate()
+	{
+		assert(false);
+	}
+}
+
+
+
+
+/**
+ *
+ */
+class xPageContentCathegoryCreatePage extends xPageContentCathegoryCreate
+{
+
+	function xPageContentCathegoryCreatePage($path)
+	{
+		xPageContentCathegoryCreate::xPageContentCathegoryCreate($path);
 	}
 	
 	// DOCS INHERITHED  ========================================================
@@ -198,7 +260,6 @@ class xPageContentAdminCathegoryCreatePage extends xPageContent
 		$this->_set("Create new cathegory page",$form->render(),'','');
 		return TRUE;
 	}
-	
 }
 	
 ?>
