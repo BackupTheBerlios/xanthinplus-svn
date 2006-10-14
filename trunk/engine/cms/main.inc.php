@@ -54,11 +54,14 @@ function xanth_main()
 	session_set_save_handler("on_session_start","on_session_end","on_session_read","on_session_write","on_session_destroy","on_session_gc");
 	session_start();
 	
+	
+	
 	//extract current path
 	$path = xPath::getCurrent();
 	
 	//start execution	
 	$page = xPage::fetchPage($path);
+	xTheme::load(xSettings::get('site_theme',''));
 	echo $page->render();
 	
 	session_write_close();

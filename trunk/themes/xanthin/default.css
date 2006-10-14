@@ -7,10 +7,79 @@ body
 	font-family: sans-serif ;
 }
 
+#page
+{
+	/*width: 100%;*/
+}
+
+#page 
+{
+	vertical-align: top;
+	padding: 10px;
+}
+
+
+#contents
+{
+	margin-left: 210px;
+	vertical-align: top;
+}
+
+
+#left-sidebar
+{
+	position: absolute;
+	left:1em;
+	padding: 10px;
+	vertical-align: top;
+	width: 184px;
+}
+
+#logo
+{
+	background: url(images/logo.png) no-repeat;
+	width: 20em;
+	height: 4em;
+}
+
+
+
+#footer
+{
+	
+	vertical-align: bottom;
+}
+
 /*___________ITEM_________________ */
-.node-title
+.item-title
 {
 	font-weight: bold;
+}
+
+
+
+/*___________ BOX & C._________________ */
+
+.box
+{
+	font-size: 0.8em;
+	background: url(images/menu_middle.png) repeat-y;
+	margin-top: 0.3em;
+}
+
+.box .content
+{
+	background: url(images/menu_down.png) no-repeat bottom;
+	padding: 0 0 0.3em 0;
+}
+
+.box .title
+{
+	padding: 0.7em 0 0 0;
+	color: #fff;
+	text-align: center;
+	background: url(images/menu_up.png) no-repeat;
+	height: 30px;
 }
 
 /*___________ ADMIN PAGES_________________ */

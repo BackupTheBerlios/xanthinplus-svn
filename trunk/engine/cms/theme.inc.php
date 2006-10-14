@@ -33,6 +33,55 @@ class xTheme
 	//----------------STATIC FUNCTIONS----------------------------------------------
 	//----------------STATIC FUNCTIONS----------------------------------------------
 	
+	
+	/**
+	 * Load the specificed theme
+	 */
+	function load($name)
+	{
+		if(empty($name))
+			return;
+		
+		if($handle = opendir('themes/'.$name.'/')) 
+		{
+		    while(false !== ($file = readdir($handle))) 
+			{
+		        if($file != "." && $file != ".." && is_file('themes/'.$name.'/'.$file)) 
+				{
+					$pieces = explode('.',$file);
+					if(array_pop($pieces) == 'php')
+					{
+						include_once('themes/'.$name.'/'.$file);
+					}
+		        }
+		    }
+		    closedir($handle);
+		}
+		else
+		{
+			xNotifications::add(NOTIFICATION_ERROR,'Selected theme does not exists');
+		}
+	}
+	
+	
+	/**
+	 * 
+	 * @static
+	 */
+	function renderAllCss()
+	{
+		$csses = xTheme::callWithArrayResult0('getCss');
+		
+		$output = '';
+		foreach($csses as $css)
+		{
+			$output .= '<style type="text/css" media="all">@import "'.$css.'";</style>';
+		}
+		
+		return $output;
+	}
+	
+	
 	/**
 	* Register a theme.
 	*
@@ -84,6 +133,44 @@ class xTheme
 		global $g_xanth_themes;
 		return $g_xanth_themes;
 	}
+	
+	
+	/**
+	 * Make a method call to all themes and return an array that is the union
+	 * of all results != NULL returned. (0 argument version).
+	 *
+	 * @param string $function The method to call
+	 * @return array(mixed)
+	 */
+	function callWithArrayResult0($function)
+	{
+		$array_result = array();
+		$themes = array_merge(xTheme::getThemes(),xTheme::getDefaultThemes());
+		foreach($themes as $theme)
+		{
+			if(method_exists($theme,$function))
+			{
+				$result = $theme->$function();
+				if($result !== NULL)
+				{
+					if(is_array($result))
+					{
+						foreach($result as $one_result)
+						{
+							$array_result[] = $one_result;
+						}
+					}
+					else
+					{
+						$array_result[] = $result;
+					}
+				}
+			}
+		}
+		
+		return $array_result;
+	}
+	
 	
 	/**
 	 * Make a method call to all themes and return the first result !== NULL (0 argument version).
@@ -301,6 +388,16 @@ class xDummyTheme extends xTheme
 	function renderNotifications($notifications)
 	{
 	}
+	
+	
+	/**
+	 * Return the path to theme css file or an array of it.
+	 *
+	 * @return mixed
+	 */
+	function getCss()
+	{
+	}
 }
 
 
@@ -309,9 +406,18 @@ class xDummyTheme extends xTheme
  */
 class xDefaultTheme extends xTheme
 {
-	
 	function xDefaultTheme()
 	{}
+	
+	
+	/**
+	 * @see xDummyModule
+	 */
+	function getCss()
+	{
+		return "engine/cms/default.css";
+	}
+	
 	
 	/**
 	 * @see xDummyModule
@@ -352,7 +458,7 @@ class xDefaultTheme extends xTheme
 		<title>' . $content->m_title . '</title>
 		<meta name="keywords" content="' . $content->m_meta_keywords . '" />
 		<meta name="description" content="' . $content->m_meta_description . '" />
-		<style type="text/css" media="all">@import "engine/cms/default.css";</style>
+		'. xTheme::renderAllCss() .'
 		</head>
 		<body>
 		<table id="page-table"><tr>
@@ -407,6 +513,7 @@ class xDefaultTheme extends xTheme
 		return $output;
 	}
 	
+	
 	/**
 	 * @see xDummyModule::renderNotifications()
 	 */
@@ -422,8 +529,6 @@ class xDefaultTheme extends xTheme
 		return $output;
 	}
 };
-
-
 xTheme::registerDefaultTheme(new xDefaultTheme());
 
 
