@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 /*
 * This file is part of the xanthin+ project.
 *
@@ -23,5 +23,6 @@ require_once('engine/cms/components/box.comp.inc.php');
 require_once('engine/cms/components/menu.comp.inc.php');
 require_once('engine/cms/components/cathegory.comp.inc.php');
 require_once('engine/cms/components/settings.comp.inc.php');
+require_once('engine/cms/components/nodepage.comp.inc.php');
 
 ?>

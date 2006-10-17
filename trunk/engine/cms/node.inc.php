@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 /*
 * This file is part of the xanthin+ project.
 *
@@ -150,6 +150,7 @@ class xNode extends xElement
 		return xNodeDAO::delete($id);
 	}
 	
+	
 	/**
 	 * @return string NULL on error
 	 */
@@ -157,6 +158,7 @@ class xNode extends xElement
 	{
 		return xNodeDAO::getNodeTypeById($id);
 	}
+	
 	
 	/**
 	 * Retrieve a node from db.
@@ -167,6 +169,12 @@ class xNode extends xElement
 	function dbLoad($id)
 	{
 		return xNodeDAO::load($id);
+	}
+	
+	
+	function findAll()
+	{
+		return xNodeDAO::findAll($id);
 	}
 };
 

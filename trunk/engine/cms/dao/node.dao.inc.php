@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 /*
 * This file is part of the xanthin+ project.
 *
@@ -158,7 +158,7 @@ class xNodeDAO
 	}
 	
 	/**
-	 * Retrieve a specific item
+	 * Retrieve a specific node
 	 *
 	 * @return xNode
 	 * @static
@@ -173,6 +173,24 @@ class xNodeDAO
 		return NULL;
 	}
 	
+	
+	/**
+	 * Retrieve all nodes
+	 *
+	 * @return xNode
+	 * @static
+	 */
+	function findAll()
+	{
+		$nodes = array();
+		$result = xDB::getDB()->query("SELECT * FROM node WHERE");
+		while($row = xDB::getDB()->fetchObject($result))
+		{
+			$nodes[] = xNodeDAO::_nodeFromRow($row,xCathegoryDAO::findNodeCathegories($id));
+		}
+		
+		return $nodes;
+	}
 };
 
 ?>

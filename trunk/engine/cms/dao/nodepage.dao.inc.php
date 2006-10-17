@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 /*
 * This file is part of the xanthin+ project.
 *
@@ -126,6 +126,102 @@ class xNodePageDAO
 		
 		return NULL;
 	}
-};
+	
+	
+	/**
+	 *
+	 * @static
+	 */
+	function find($title = NULL,$author = NULL,
+		$parent_cathegory = NULL,$creation_time = NULL, $edit_time = NULL, $published, 
+		$sticky = NULL, $accept_replies = NULL, $approved = NULL, $meta_description = NULL,$meta_keywords = NULL, 
+		$inf_limit = 0,$sup_limit = 0,$order_by = 0)
+	{
+		assert($inf_limit >= 0 && $sup_limit >= 0 && $inf_limit <= $sup_limit);
+		
+		$query_tables = array("node","node_page");
+		$query_where = array('node.id = node_page.nodeid');
+		$query_where_link = array('AND');
+		$order = '';
+		$values = array();
+		
+		if($title !== NULL)
+		{
+			$query_where[] = "node.title LIKE '%s'";
+			$query_where_link[] = "AND";
+			$values[] = $title;
+		}
+		
+		if($author !== NULL)
+		{
+			$query_where[] = "node.author = '%s'";
+			$query_where_link[] = "AND";
+			$values[] = $author;
+		}
+		
+		if($parent_cathegory !== NULL)
+		{
+			$query_tables[] = 'node_to_cathegory';
+			$query_where[] = "node_to_cathegory.nodeid = node.id AND node_to_cathegory.catid = %d";
+			$query_where_link[] = "AND";
+			$values[] = $parent_cathegory;
+		}
+		
+		if($parent_cathegory !== NULL)
+		{
+			$query_where[] = "cathegory.parent_cathegory = '%d'";
+			$query_where_link[] = "AND";
+			$values[] = $parent_cathegory;
+		}
+		
+		if($inf_limit != 0 || $sup_limit != 0)
+		{
+			$query_where[] .= "LIMIT %d,%d";
+			$query_where_link[] = "";
+			$values[] = $inf_limit;
+			$values[] = $sup_limit;
+		}
+		
+		//now construct the query
+		$query = "SELECT * FROM ";
+		$i = 0;
+		foreach($query_tables as $query_table)
+		{
+			if($i === 0) //not adding link string
+			{
+				$query .= $query_table;
+			}
+			else
+			{
+				$query .= "," . $query_table;
+			}
+			$i++;
+		}
+		
+		$query .= " ";
+		for($i = 0;$i < count($query_where);$i++)
+		{
+			if($i === 0) //not adding link string
+			{
+				$query .= "WHERE ";
+				$query .= $query_where[$i];
+			}
+			else
+			{
+				$query .= " " . $query_where_link[$i] . " ";
+				$query .= $query_where[$i];
+			}
+		}
+		$result = xDB::getDB()->query($query,$values);
+		
+		$cats = array();
+		while($row = xDB::getDB()->fetchObject($result))
+		{
+			$cats[] = xCathegoryDAO::_cathegoryFromRow($row);
+		}
+		return $cats;
+	}
+	
+}
 
 ?>

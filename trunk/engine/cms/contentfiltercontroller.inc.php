@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 /*
 * This file is part of the xanthin+ project.
 *
@@ -119,7 +119,7 @@ class xDynamicInputValidatorApplyContentFilter extends xDynamicInputValidator
 	 *
 	 * @param int $maxlenght The max lenght of the text to be considered valid.
 	 */
-	function xDynamicInputValidatorApplyContentFilter($maxlength,$variable_name,$method = 'POST')
+	function xDynamicInputValidatorApplyContentFilter($maxlength,$variable_name,$method = 'post')
 	{
 		xDynamicInputValidator::xDynamicInputValidator($method);
 		

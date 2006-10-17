@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 /*
 * This file is part of the xanthin+ project.
 *
@@ -50,7 +50,7 @@ class xDynamicInputValidator extends xInputValidator
 {
 	var $m_method;
 	
-	function xDynamicInputValidator($method = 'POST')
+	function xDynamicInputValidator($method = 'post')
 	{
 		xInputValidator::xInputValidator();
 		
@@ -72,7 +72,7 @@ class xDynamicInputValidator extends xInputValidator
 
 
 /**
- * A simple validator that checks only for a valid text lenght.
+ * A simple validator that checks for valid text lenght and UTF-8 well formed string.
  */
 class xInputValidatorText extends xInputValidator
 {
@@ -102,7 +102,9 @@ class xInputValidatorText extends xInputValidator
 			return TRUE;
 		}
 		
-		if($this->m_maxlength > 0 && strlen($input) > $this->m_maxlength)
+		
+		
+		if($this->m_maxlength > 0 && xUTF8::strlen($input) > $this->m_maxlength)
 		{
 			$this->m_last_error = 'Field contains too much characters (max is '.$this->m_maxlength.')';
 			return FALSE;
@@ -383,11 +385,11 @@ class xFormElement
 			}
 		}
 		
-		if(strcasecmp($method,'POST') == 0)
+		if(strcasecmp($method,'post') == 0)
 		{
 			return xFormElement::_getInputValueFromRecurseArray($_POST,$names);
 		}
-		elseif(strcasecmp($method,'GET') == 0)
+		elseif(strcasecmp($method,'get') == 0)
 		{		
 			return xFormElement::_getInputValueFromRecurseArray($_GET,$names);
 		}
@@ -495,7 +497,7 @@ class xFormElementTextField extends xFormElement
 	// DOCS INHERITHED  ========================================================
 	function render()
 	{
-		$output = '<div class="form-element" '.$this->m_invalid.'>'. "\n";
+		$output = '<div class="form-element">'. "\n";
 		$output .= '<label for="id-'.$this->m_name.'">'.$this->m_label;
 		if($this->m_mandatory)
 		{
@@ -856,7 +858,7 @@ class xFormElementOptions extends xFormElement
 			$name = $this->m_name.'[]';
 			$output .= 'multiple="multiple" size=5';
 		}
-		$output .= '" name="' . $name .'" ';
+		$output .= ' name="' . $name .'" ';
 		$output .= ' id="id-' . $this->m_name . '">'."\n";
 		
 		//extract options 
@@ -1103,7 +1105,7 @@ class xForm
 	 */
 	var $m_method;
 	
-	function xForm($action,$method = 'POST',$elements = array())
+	function xForm($action,$method = 'post',$elements = array())
 	{
 		$this->m_method = $method;
 		$this->m_action = $action;
@@ -1132,7 +1134,7 @@ class xForm
 			return FALSE;
 		}
 		
-		if(strcasecmp($method,'POST') == 0)
+		if(strcasecmp($method,'post') == 0)
 		{
 			if(!isset($_POST['form_token']))
 			{

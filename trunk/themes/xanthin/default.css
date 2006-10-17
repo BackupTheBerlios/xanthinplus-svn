@@ -1,4 +1,4 @@
-
+﻿
 /*___________ TOP LAYOUT_________________ */
 
 body
@@ -106,7 +106,7 @@ body
 
 .form-element .form-element-invalid
 {
-	border: 2px solid red;
+	border: 2px solid red !important;
 }
 
 .form-element label 
