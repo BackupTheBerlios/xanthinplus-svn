@@ -132,7 +132,7 @@ class xContentFilterNoTags extends xContentFilter
 	// DOCS INHERITHED  ========================================================
 	function filter($input)
 	{
-		return htmlspecialchars($input);
+		return htmlentities($input,ENT_QUOTES,'UTF-8');
 	}
 };
 

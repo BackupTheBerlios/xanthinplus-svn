@@ -37,6 +37,7 @@ class xBBTag
 	}
 }
 
+
 /**
  * A BBCode parser
  */
@@ -58,7 +59,7 @@ class xBBCodeParser
 		$this->m_curr_pos = 0;
 		$this->m_tag_stack = array();
 		$this->m_last_tag_content = '';
-		$this->m_last_error = '';
+		$this->m_last_error = NULL;
 	}
 	
 	/**
@@ -67,7 +68,7 @@ class xBBCodeParser
 	function _print_debug_info($function_name,$local_pos,$current_char,$other = '')
 	{
 		echo "Func: $function_name, Pos: $local_pos, CurrChar: $current_char, Other: $other ,HtmlOut: " 
-		. htmlspecialchars($this->m_htmltext) . "<br>";
+		. htmlentities($this->m_htmltext,ENT_QUOTES,'UTF-8') . "<br>";
 	}
 	
 	/**
@@ -77,7 +78,7 @@ class xBBCodeParser
 	{
 		//$text = preg_replace('#(script|about|applet|activex|chrome):#is', "&#058;", $text);
 		
-		return preg_match("#^(http|ftp)://[\w\#$%&~/.\-;:=,?@\[\]+]*$#is", $url);
+		return preg_match("#^(http|ftp|https|ftps)://[\w\#$%&~/.\-;:=,?@\[\]+]*$#is", $url);
 	}
 	
 	/**
@@ -520,7 +521,7 @@ class xBBCodeParser
 		$this->error = '';
 		
 		//do some pre-processing
-		$this->m_bbtext = htmlspecialchars($this->m_bbtext);
+		$this->m_bbtext = htmlentities($this->m_bbtext,ENT_QUOTES,'UTF-8');
 		$this->m_bbtext = nl2br($this->m_bbtext);
 		$this->m_txt_len = strlen($this->m_bbtext);
 		
@@ -528,7 +529,7 @@ class xBBCodeParser
 		if($res == XBB_RET_ERROR)
 		{
 			$this->m_last_error = "BBCode parsing error: ".$this->m_last_error. ",while parsing \"".
-				htmlspecialchars(substr($this->m_bbtext,$this->m_curr_pos,30))." \"";
+				htmlentities(substr($this->m_bbtext,$this->m_curr_pos,30),ENT_QUOTES,'UTF-8')." \"";
 			$this->m_htmltext = 'Text not available due to parsing error, plese edit and fix them';
 			return FALSE;
 		}

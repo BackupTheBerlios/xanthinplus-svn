@@ -45,6 +45,9 @@ function xanth_main()
 	}
 	xDB::getDB()->queryResetCount();
 	
+	// Setting the Content-Type header with charset
+	header('Content-Type: text/html; charset=utf-8');
+
 	//error handler
 	set_error_handler('xanth_php_error_handler');
 	

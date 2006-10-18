@@ -455,6 +455,7 @@ class xDefaultTheme extends xTheme
 		$output = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 		<html>
 		<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 		<title>' . $content->m_title . '</title>
 		<meta name="keywords" content="' . $content->m_meta_keywords . '" />
 		<meta name="description" content="' . $content->m_meta_description . '" />

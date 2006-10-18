@@ -102,7 +102,12 @@ class xInputValidatorText extends xInputValidator
 			return TRUE;
 		}
 		
-		
+		//check for valid utf8 string
+		if(!xUTF8::isValid($input))
+		{
+			$this->m_last_error = 'Invalid UTF8 string.';
+			return false;
+		}
 		
 		if($this->m_maxlength > 0 && xUTF8::strlen($input) > $this->m_maxlength)
 		{
@@ -117,7 +122,7 @@ class xInputValidatorText extends xInputValidator
 /**
  * A simple validator that checks for valid BBcode.
  */
-class xInputValidatorBBCode extends xInputValidator
+class xInputValidatorBBCode extends xInputValidatorText
 {
 	
 	/**
@@ -135,12 +140,11 @@ class xInputValidatorBBCode extends xInputValidator
 	function isValid($input)
 	{
 		if(! xInputValidatorText::isValid($input))
-		{
 			return FALSE;
-		}
 		
 		$bbparser = new xBBCodeParser($input);
-		if($bbparser === FALSE)
+		$res = $bbparser->parse();
+		if($res === FALSE)
 		{
 			$this->m_last_error = 'You have an error in your BBCode syntax: ' . $bbparser->m_last_error;
 			return FALSE;
@@ -178,9 +182,7 @@ class xInputValidatorTextRegex extends xInputValidatorText
 	function isValid($input)
 	{
 		if(! xInputValidatorText::isValid($input))
-		{
 			return FALSE;
-		}
 		
 		if(!preg_match($this->m_regex,$input))
 		{
@@ -212,7 +214,7 @@ class xInputValidatorTextEmail extends xInputValidatorText
 			return FALSE;
 		}
 		
-		if(!xanth_valid_email($input))
+		if(! xanth_valid_email($input))
 		{
 			$this->m_last_error = 'Field does not contain a valid email address';
 			return FALSE;
@@ -241,10 +243,8 @@ class xInputValidatorTextNameId extends xInputValidatorText
 	// DOCS INHERITHED  ========================================================
 	function isValid($input)
 	{
-		if( ! xInputValidatorText::isValid($input))
-		{
+		if( !xInputValidatorText::isValid($input))
 			return FALSE;
-		}
 		
 		if(!preg_match('#^[A-Z][A-Z0-9_-]{2,'.$this->m_maxlength.'}$#i',$input))
 		{
@@ -278,9 +278,7 @@ class xInputValidatorInteger extends xInputValidator
 	function isValid($input)
 	{
 		if(empty($input))
-		{
 			return TRUE;
-		}
 		
 		if(! is_numeric($input))
 		{
@@ -385,11 +383,11 @@ class xFormElement
 			}
 		}
 		
-		if(strcasecmp($method,'post') == 0)
+		if($method === 'post')
 		{
 			return xFormElement::_getInputValueFromRecurseArray($_POST,$names);
 		}
-		elseif(strcasecmp($method,'get') == 0)
+		elseif($method === 'get')
 		{		
 			return xFormElement::_getInputValueFromRecurseArray($_GET,$names);
 		}
@@ -444,7 +442,7 @@ class xFormElement
 		{
 			if($this->m_mandatory)
 			{
-				$this->m_last_error = 'Field '.$this->m_label.' is mandatory';
+				$this->m_last_error = 'Field ' . $this->m_label . ' is mandatory';
 				$this->m_invalid = TRUE;
 				return FALSE;
 			}
@@ -490,7 +488,7 @@ class xFormElementTextField extends xFormElement
 	// DOCS INHERITHED  ========================================================
 	function isValid($method)
 	{
-		$this->m_value = htmlspecialchars($this->getInputValue($method));
+		$this->m_value = htmlentities($this->getInputValue($method),ENT_QUOTES,'UTF-8');
 		return xFormElement::isValid($method);
 	}
 	
@@ -578,7 +576,7 @@ class xFormElementTextArea extends xFormElement
 	// DOCS INHERITHED  ========================================================
 	function isValid($method)
 	{
-		$this->m_value = htmlspecialchars($this->getInputValue($method));
+		$this->m_value = htmlentities($this->getInputValue($method),ENT_QUOTES,'UTF-8');
 		return xFormElement::isValid($method);
 	}
 	
@@ -821,7 +819,7 @@ class xFormElementOptions extends xFormElement
 		$this->m_value = array();
 		foreach($elements_posted_checked as $element)
 		{
-			$this->m_value[] = htmlspecialchars($element);
+			$this->m_value[] = htmlentities($element,ENT_QUOTES,'UTF-8');
 			
 			if(! $this->m_validator->isValid($element))
 			{
@@ -1191,7 +1189,7 @@ class xForm
 		//set a token against "Cross-Site Request Forgeries" attacks
 		$token = xForm::_addFormToken();
 		
-		$output = '<form action="'. $this->m_action . '" method="'.$this->m_method.'">
+		$output = '<form action="'. $this->m_action . '" method="'.$this->m_method.'" accept-charset="utf-8">
 		<input type="hidden" name="form_token" value="'.$token.'" />';
 		
 		return $output;

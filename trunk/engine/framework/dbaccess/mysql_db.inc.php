@@ -49,6 +49,10 @@ class xDBMysql extends xDB
 
 		if(!mysql_select_db($db))
 			exit('Unable to select database');
+		
+		//set connection encoding
+		if(!mysql_query("SET NAMES 'utf8'"))
+			exit('Unable to select utf8 encoding for db conenction');
 	}
 	
 	// DOCS INHERITHED  ========================================================

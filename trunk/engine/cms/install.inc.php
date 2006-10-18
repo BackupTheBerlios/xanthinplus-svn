@@ -43,7 +43,7 @@ class xInstallCMS
 			timestamp DATETIME NOT NULL,
 			stacktrace BLOB,
 			PRIMARY KEY(id)
-			)TYPE=InnoDB"
+			)TYPE=InnoDB DEFAULT CHARACTER SET utf8"
 		);
 		
 		
@@ -54,7 +54,7 @@ class xInstallCMS
 			session_data TEXT NOT NULL,
 			session_timestamp DATETIME NOT NULL,
 			PRIMARY KEY  (session_id)
-			)TYPE=InnoDB"
+			)TYPE=InnoDB DEFAULT CHARACTER SET utf8"
 		);
 		
 		//uniqueid
@@ -63,7 +63,7 @@ class xInstallCMS
 			tablename VARCHAR(32) NOT NULL,
 			currentid INT UNSIGNED NOT NULL,
 			PRIMARY KEY  (tablename)
-			)TYPE=InnoDB"
+			)TYPE=InnoDB DEFAULT CHARACTER SET utf8"
 		);
 		
 		/////////////////////////////////////////////////////
@@ -77,7 +77,7 @@ class xInstallCMS
 			name VARCHAR(32) NOT NULL,
 			value VARCHAR(512) NOT NULL,
 			PRIMARY KEY (name)
-			)TYPE=InnoDB"
+			)TYPE=InnoDB DEFAULT CHARACTER SET utf8"
 		);
 
 		//Roles
@@ -86,7 +86,7 @@ class xInstallCMS
 			name VARCHAR(32) NOT NULL,
 			description VARCHAR(255) NOT NULL,
 			PRIMARY KEY(name)
-			)TYPE=InnoDB"
+			)TYPE=InnoDB DEFAULT CHARACTER SET utf8"
 		);
 		
 		//Users
@@ -101,7 +101,7 @@ class xInstallCMS
 			UNIQUE(username),
 			INDEX(username),
 			UNIQUE(email)
-			)TYPE=InnoDB");
+			)TYPE=InnoDB DEFAULT CHARACTER SET utf8");
 		xUniqueId::createNew('user');
 			
 		//User to role
@@ -114,7 +114,7 @@ class xInstallCMS
 			INDEX(roleName),
 			FOREIGN KEY (userid) REFERENCES user(id) ON DELETE CASCADE,
 			FOREIGN KEY (roleName) REFERENCES role(name) ON DELETE CASCADE
-			)TYPE=InnoDB");
+			)TYPE=InnoDB DEFAULT CHARACTER SET utf8");
 		
 		
 		//access permission
@@ -127,7 +127,7 @@ class xInstallCMS
 			role VARCHAR(32) NOT NULL,
 			PRIMARY KEY(resource,resource_type,resource_id,action,role),
 			FOREIGN KEY (role) REFERENCES role(name) ON DELETE CASCADE
-			)TYPE=InnoDB"
+			)TYPE=InnoDB DEFAULT CHARACTER SET utf8"
 		);
 		
 		//item type
@@ -137,7 +137,7 @@ class xInstallCMS
 			user_editable TINYINT NOT NULL,
 			description VARCHAR(256) NOT NULL,
 			PRIMARY KEY (name)
-			)TYPE=InnoDB"
+			)TYPE=InnoDB DEFAULT CHARACTER SET utf8"
 		);
 		
 		//box
@@ -151,7 +151,7 @@ class xInstallCMS
 			show_filters TEXT NOT NULL,
 			PRIMARY KEY(name),
 			FOREIGN KEY (type) REFERENCES box_type(name) ON DELETE RESTRICT
-			)TYPE=InnoDB"
+			)TYPE=InnoDB DEFAULT CHARACTER SET utf8"
 		);
 		
 		
@@ -163,7 +163,7 @@ class xInstallCMS
 			content_filter VARCHAR(64) NOT NULL,
 			PRIMARY KEY (box_name),
 			FOREIGN KEY (box_name) REFERENCES box(name) ON DELETE CASCADE
-			)TYPE=InnoDB"
+			)TYPE=InnoDB DEFAULT CHARACTER SET utf8"
 		);
 		
 		
@@ -172,7 +172,7 @@ class xInstallCMS
 			name VARCHAR(32) NOT NULL,
 			render TINYINT NOT NULL,
 			PRIMARY KEY(name)
-			)TYPE=InnoDB"
+			)TYPE=InnoDB DEFAULT CHARACTER SET utf8"
 		);
 		
 		
@@ -184,7 +184,7 @@ class xInstallCMS
 			UNIQUE (box_group,box_name),
 			FOREIGN KEY (box_name) REFERENCES box(name) ON DELETE CASCADE,
 			FOREIGN KEY (box_group) REFERENCES box_group(name) ON DELETE CASCADE
-			)TYPE=InnoDB"
+			)TYPE=InnoDB DEFAULT CHARACTER SET utf8"
 		);
 		
 		//menu_static_items
@@ -200,7 +200,7 @@ class xInstallCMS
 			INDEX(box_name),
 			FOREIGN KEY (parent) REFERENCES menu_item(id) ON DELETE CASCADE,
 			FOREIGN KEY (box_name) REFERENCES box(name) ON DELETE CASCADE
-			)TYPE=InnoDB"
+			)TYPE=InnoDB DEFAULT CHARACTER SET utf8"
 		);
 		xUniqueId::createNew('menu_items');
 		
@@ -211,7 +211,7 @@ class xInstallCMS
 			name VARCHAR(32) NOT NULL,
 			description VARCHAR(256) NOT NULL,
 			PRIMARY KEY (name)
-			)TYPE=InnoDB"
+			)TYPE=InnoDB DEFAULT CHARACTER SET utf8"
 		);
 		
 		//item cathegory
@@ -227,7 +227,7 @@ class xInstallCMS
 			UNIQUE(name),
 			FOREIGN KEY (parent_cathegory) REFERENCES cathegory(id) ON DELETE CASCADE,
 			FOREIGN KEY (type) REFERENCES node_and_cathegory_type(name) ON DELETE RESTRICT
-			)TYPE=InnoDB"
+			)TYPE=InnoDB DEFAULT CHARACTER SET utf8"
 		);
 		xUniqueId::createNew('cathegory');
 		
@@ -245,7 +245,7 @@ class xInstallCMS
 			edit_time DATETIME NOT NULL,
 			PRIMARY KEY (id),
 			FOREIGN KEY (type) REFERENCES node_and_cathegory_type(name) ON DELETE RESTRICT
-			)TYPE=InnoDB"
+			)TYPE=InnoDB DEFAULT CHARACTER SET utf8"
 		);
 		xUniqueId::createNew('node');
 		
@@ -257,7 +257,7 @@ class xInstallCMS
 			UNIQUE (nodeid,catid),
 			FOREIGN KEY (nodeid) REFERENCES node(id) ON DELETE CASCADE,
 			FOREIGN KEY (catid) REFERENCES cathegory(id) ON DELETE CASCADE
-			)TYPE=InnoDB"
+			)TYPE=InnoDB DEFAULT CHARACTER SET utf8"
 		);
 		
 		//pageitem
@@ -272,7 +272,7 @@ class xInstallCMS
 			meta_keywords VARCHAR(128) NOT NULL,
 			PRIMARY KEY (nodeid),
 			FOREIGN KEY (nodeid) REFERENCES node(id) ON DELETE CASCADE
-			)TYPE=InnoDB"
+			)TYPE=InnoDB DEFAULT CHARACTER SET utf8"
 		);
 		
 		
@@ -285,7 +285,7 @@ class xInstallCMS
 			PRIMARY KEY (nodeid),
 			FOREIGN KEY (parentid) REFERENCES node(id) ON DELETE CASCADE,
 			FOREIGN KEY (nodeid) REFERENCES node(id) ON DELETE CASCADE
-			)TYPE=InnoDB"
+			)TYPE=InnoDB DEFAULT CHARACTER SET utf8"
 		);
 		
 		//settings
