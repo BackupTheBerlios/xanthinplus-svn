@@ -34,19 +34,16 @@ class xMenuDAO
 	 * @return bool FALSE on error
 	 * @static 
 	 */
-	function insert($menu,$transaction = TRUE)
+	function insert($menu)
 	{
-		if($transaction)
-			xDB::getDB()->startTransaction();
+		xDB::getDB()->startTransaction();
 		
-		if(! xBoxDAO::insert($menu))
+		xBoxDAO::insert($menu);
+		
+		xMenuDAO::_insertItems($menu->m_name,$menu->m_items,0);
+		
+		if(!xDB::getDB()->commitTransaction())
 			return false;
-		
-		if(! xMenuDAO::_insertItems($menu->m_name,$menu->m_items,0))
-			return false;
-		
-		if($transaction)
-			xDB::getDB()->commit();
 		
 		return true;
 	}
@@ -93,24 +90,20 @@ class xMenuDAO
 	 * @return bool FALSE on error
 	 * @static 
 	 */
-	function update($menu,$transaction = TRUE)
+	function update($menu)
 	{
-		if($transaction)
-			xDB::getDB()->startTransaction();
+		xDB::getDB()->startTransaction();
 		
-		if(!xBoxDAO::update($menu))
-			return false;
+		xBoxDAO::update($menu);
 		
 		//clear all menu items
-		if(! xDB::getDB()->query("DELETE FROM menu_item WHERE box_name = '%s')",$menu->m_name))
-			return false;
+		xDB::getDB()->query("DELETE FROM menu_item WHERE box_name = '%s')",$menu->m_name);
 		
 		//insert new
-		if(! xMenuDAO::_insertItems($menu->m_name,$menu->m_items,0))
-			return false;
+		xMenuDAO::_insertItems($menu->m_name,$menu->m_items,0);
 		
-		if($transaction)
-			xDB::getDB()->commit();
+		if(!xDB::getDB()->commitTransaction())
+			return false;
 		
 		return true;
 	}

@@ -138,16 +138,14 @@ class xDBMysql extends xDB
 	function _commit()
 	{
 		$this->query('COMMIT');
-		$this->m_is_transaction_started = FALSE;
 	}
 
 	// DOCS INHERITHED  ========================================================
 	function _rollback()
 	{
 		$this->query('ROLLBACK');
-		$this->m_is_transaction_started = FALSE;
 	}
-
+	
 	// DOCS INHERITHED  ========================================================
 	function getLastId()
 	{
@@ -158,6 +156,13 @@ class xDBMysql extends xDB
 		}
 		
 		return NULL;
+	}
+	
+	
+	// DOCS INHERITHED  ========================================================
+	function _getQueryCallbackFunction()
+	{
+		return 'xanth_mysql_query_callback';
 	}
 
 	// DOCS INHERITHED  ========================================================
@@ -175,33 +180,7 @@ class xDBMysql extends xDB
 		return date('Y-m-d H-i-s',$timestamp);
 	}
 	
-	// DOCS INHERITHED  ========================================================
-	function query($query) 
-	{
-		$this->_queryIncrementCount();
-		
-		$args = func_get_args();
-		array_shift($args);
-		if(isset($args[0]) && is_array($args[0])) // 'All arguments in one array' syntax
-		{
-			$args = $args[0];
-		}
-		
-		xanth_mysql_query_callback($args, TRUE);
-		$query = preg_replace_callback('/(%d|%s|%%|%f|%b)/', 'xanth_mysql_query_callback', $query);
-		$result = $this->_query($query);
-		
-		if($result === FALSE)
-		{
-			//rollback from transaction
-			if(! empty($this->m_is_transaction_started))
-			{
-				$this->_rollback();
-			}
-		}
-		return $result;
-	}
-	
+
 };//end xDBMysql
 
 

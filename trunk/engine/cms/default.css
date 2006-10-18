@@ -30,6 +30,11 @@ body
 
 /*___________ FORM_________________ */
 
+.form-element
+{
+}
+
+
 .form-element,.form-fieldset
 {
 	margin-top: 8px;

@@ -91,7 +91,8 @@ class xThemeXanthin extends xTheme
 					'; $output = xNotifications::render($output) . $content->render() . '
 					</div>
 				</div>
-				<div align="center"> Queries ' . xDB::getDB()->queryGetCount() . ', Execution time ' . xExecutionTime::render() . ' secs</div>
+				<div class="cleaner">&nbsp;</div>
+				<div class="footer"> Queries ' . xDB::getDB()->queryGetCount() . ', Execution time ' . xExecutionTime::render() . ' secs</div>
 				' . xLogEntry::renderFromScreen() . '
 			</body>
 		</html>';

@@ -17,7 +17,7 @@ Tipi di path in base alla risorsa, all'azione
 			I.hittp://myhost.com/admin/box/create/type_name/
 		b.Actions without id
 			I.hittp://myhost.com/admin/box/create/type_name/
-	3)Automatic partial aliasing : hittp://myhost.com/node/view/item_title(string)_itemid(int)_ppage(int)
+	3)Automatic partial aliasing : hittp://myhost.com/lang/node/view/item-title(string)_itemid(int)_ppage(int)
 	4)Custom aliasing (no pag nr here): hittp://myhost.com/custom_path/custom_title
 
 1.resource

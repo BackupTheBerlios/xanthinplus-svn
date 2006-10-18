@@ -50,28 +50,26 @@ class xNodeDAO
 	 * @return int The new id or FALSE on error
 	 * @static
 	 */
-	function insert($node,$transaction = TRUE)
+	function insert($node)
 	{
-		if($transaction)
-			xDB::getDB()->startTransaction();
+		xDB::getDB()->startTransaction();
 		
 		$id = xUniqueId::generate('node');
-
+		
 		$field_names = "id,title,type,author,content,content_filter,creation_time";
 		$field_values = "%d,'%s','%s','%s','%s','%s',NOW()";
 		$values = array($id,$node->m_title,$node->m_type,$node->m_author,$node->m_content,
 			$node->m_content_filter);
 		
-		
-		if(! xDB::getDB()->query("INSERT INTO node($field_names) VALUES($field_values)",$values))
-			return false;
+		xDB::getDB()->query("INSERT INTO node($field_names) VALUES($field_values)",$values);
 		
 		//now cathegory link
-		if(! xNodeDAO::_linkToCathegories($id,$node->m_parent_cathegories))
-			return false;
+		xNodeDAO::_linkToCathegories($id,$node->m_parent_cathegories);
 
-		if($transaction)
-			xDB::getDB()->commit();
+		if(! xDB::getDB()->commitTransaction())
+		{
+			return false;
+		}
 		
 		return $id;
 	}
@@ -82,18 +80,12 @@ class xNodeDAO
 	 * @param int $nodeid
 	 * @static
 	 */
-	function delete($nodeid,$transaction = true)
+	function delete($nodeid)
 	{
-		if($transaction)
-			xDB::getDB()->startTransaction();
-		
 		if(! xDB::getDB()->query("DELETE FROM node WHERE id = %d",$nodeid))
 			return false;
 		
 		//automatic node_to_cathegory deletion
-		
-		if($transaction)
-			xDB::getDB()->commit();
 		
 		return true;
 	}
@@ -106,27 +98,24 @@ class xNodeDAO
 	 * @return bool FALSE on error
 	 * @static
 	 */
-	function update($node,$transaction = true)
+	function update($node)
 	{
-		if($transaction)
-			xDB::getDB()->startTransaction();
+		xDB::getDB()->startTransaction();
 			
 		$fields = "title = '%s',content = '%s',content_filter = '%s',edit_time = NOW()";
 		$values = array($node->m_title,$node->m_content,$node->m_content_filter,
 			$node->m_cathegory);
 		
 		$values[] = $node->m_id;
-		if(! xDB::getDB()->query("UPDATE node SET $fields WHERE id = %d",$values))
-			return false;
+		xDB::getDB()->query("UPDATE node SET $fields WHERE id = %d",$values);
 		
 		//now cathegories
-		if(! xDB::getDB()->query("DELETE FROM node_to_cathegory WHERE nodeid = %d",$node->m_id))
-			return false;
-		if(! xNodeDAO::_linkToCathegories($node->m_id,$node->m_cathegories))
-			return false;
+		xDB::getDB()->query("DELETE FROM node_to_cathegory WHERE nodeid = %d",$node->m_id);
 		
-		if($transaction)
-			xDB::getDB()->commit();
+		xNodeDAO::_linkToCathegories($node->m_id,$node->m_cathegories);
+		
+		if(!xDB::getDB()->commitTransaction())
+			return false;
 		
 		return true;
 	}

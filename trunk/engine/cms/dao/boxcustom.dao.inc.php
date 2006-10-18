@@ -29,20 +29,17 @@ class xBoxCustomDAO
 	 * @return bool FALSE on error
 	 * @static 
 	 */
-	function insert($box,$transaction = true)
+	function insert($box)
 	{
-		if($transaction)
-			xDB::getDB()->startTransaction();
+		xDB::getDB()->startTransaction();
 		
-		if(! xBoxDAO::insert($box,false))
-			return FALSE;
+		xBoxDAO::insert($box);
 		
-		if(! xDB::getDB()->query("INSERT INTO box_custom(box_name,title,content,content_filter) VALUES('%s','%s','%s','%s')",
-			$box->m_name,$box->m_title,$box->m_content,$box->m_content_filter))
-			return FALSE;
+		xDB::getDB()->query("INSERT INTO box_custom(box_name,title,content,content_filter) VALUES('%s','%s','%s','%s')",
+			$box->m_name,$box->m_title,$box->m_content,$box->m_content_filter);
 		
-		if($transaction)
-			xDB::getDB()->commit();
+		if(!xDB::getDB()->commitTransaction())
+			return false;
 		
 		return TRUE;
 	}
@@ -55,21 +52,18 @@ class xBoxCustomDAO
 	 * @return bool FALSE on error
 	 * @static 
 	 */
-	function update($box,$transaction = true)
+	function update($box)
 	{
-		if($transaction)
-			xDB::getDB()->startTransaction();
+		xDB::getDB()->startTransaction();
 		
-		if(! xBoxDAO::update($box,false))
-			return FALSE;
+		xBoxDAO::update($box);
 		
-		if(! xDB::getDB()->query("UPDATE box_custom SET title = '%s',content = '%s',content_filter = '%s' 
+		xDB::getDB()->query("UPDATE box_custom SET title = '%s',content = '%s',content_filter = '%s' 
 			WHERE box_name = '%s'",
-			$box->m_title,$box->m_content,$box->m_content_filter,$box->m_name))
-			return FALSE;
+			$box->m_title,$box->m_content,$box->m_content_filter,$box->m_name);
 		
-		if($transaction)
-			xDB::getDB()->commit();
+		if(!xDB::getDB()->commitTransaction())
+			return false;
 		
 		return TRUE;
 	}

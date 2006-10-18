@@ -38,7 +38,7 @@ class xStackTrace
 	function getCurrent($ntoremove)
 	{
 		$trace = debug_backtrace();
-		for($i=0;$i < $ntoremove;$i++)
+		for($i = 0;$i < $ntoremove;$i++)
 		{
 			unset($trace[$i]);
 		}
@@ -60,7 +60,6 @@ class xStackTrace
 			$type = isset($stack['type'])?$stack['type']:'';
 			$output .= '<i>'. $class .$type.$stack['function'] . '</i> in file ' . $stack['file'] .
 				'@' . $stack['line'] . '<br/>';
-				
 		}
 		
 		return $output;
@@ -167,7 +166,7 @@ class xLogEntry
 		$output = "";
 		foreach(xLogEntry::getFromScreen() as $entry)
 		{
-			$output .= "<table border='1'><tr><td>Log</td><td>";
+			$output .= '<div class="log"><table border="1"><tr><td>Log</td><td>';
 			
 			$output .= "<table border='1'><tr><th>id</th><th>level</th><th>message</th><th>filename</th><th>line</th></tr>";
 			$output .= '<tr><td>' . $entry->m_id . '</td><td>' . $entry->m_level . '</td><td>' .
@@ -181,7 +180,7 @@ class xLogEntry
 				$output .= $entry->m_stacktrace->renderTrace();			
 			}
 			$output .= "</td><tr>";
-			$output .= "</table>";
+			$output .= "</table></div>";
 		}
 		
 		return $output;

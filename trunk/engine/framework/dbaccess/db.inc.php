@@ -28,10 +28,16 @@ class xDB
 	var $m_query_count;
 	
 	/**
+	* @var int
+	* @access protected
+	*/
+	var $m_transaction_nesting;
+	
+	/**
 	* @var bool
 	* @access protected
 	*/
-	var $m_is_transaction_started;
+	var $m_transaction_failed;
 	
 	/**
 	* Constructor
@@ -39,7 +45,8 @@ class xDB
 	function xDB()
 	{
 		$this->m_query_count = 0;
-		$this->m_is_transaction_started = false;
+		$this->m_transaction_nesting = 0;
+		$this->m_transaction_failed = FALSE;
 	}
 	
 	/**
@@ -291,6 +298,18 @@ class xDB
 	}
 
 	/**
+	* Get the callback query function.
+	*
+	* @abstract
+	* @return string
+	*/
+	function _getQueryCallbackFunction()
+	{
+		assert(false);
+	}
+	
+	
+	/**
 	 * Runs a basic query in the active database.
 	 *
 	 * User-supplied arguments to the query should be passed in as separate
@@ -308,46 +327,95 @@ class xDB
 	 */
 	function query($query) 
 	{
-		//must override this function
-		assert(FALSE);
+		if($this->m_transaction_nesting > 0 && $this->m_transaction_failed === TRUE)
+			return false;
+			
+		$this->_queryIncrementCount();
+		
+		$args = func_get_args();
+		array_shift($args);
+		if(isset($args[0]) && is_array($args[0])) // 'All arguments in one array' syntax
+			$args = $args[0];
+		
+		$foo = $this->_getQueryCallbackFunction();
+		
+		$foo($args, TRUE);
+		$query = preg_replace_callback('/(%d|%s|%%|%f|%b)/', $foo, $query);
+		$result = $this->_query($query);
+		
+		if($result === FALSE)
+		{
+			$this->m_transaction_failed = TRUE;
+		}
+			
+		return $result;
 	}
 
 
 	/**
-	* Starts a new transaction.
-	*/
+	 * Starts a new transaction. Transaction nesting is allowed but nested transactions are ignored.
+	 * If a query fails during execution, the transaction is set to failed and on commitTransaction() 
+	 * it will be rolled back. After a transaction is failed, all the query inside it will be ignored.
+	 *
+	 * @return int The nesting level
+	 */
 	function startTransaction()
 	{
-		if(empty($this->m_is_transaction_started))
+		if($this->m_transaction_nesting <= 0) //first transaction
 		{
 			$this->_startTransaction();
-			$this->m_is_transaction_started = TRUE;
+			$this->m_transaction_nesting = 1;
+			$this->m_transaction_failed = FALSE;
+		}
+		else
+		{
+			$this->m_transaction_nesting++;
+		}
+		
+		return $this->m_transaction_nesting;
+	}
+
+	/**
+	 * Commit the current transaction or if the transaction is failed executes a rollback.
+	 *
+	 * @return bool If transaction failed it return false, true otherwise.
+	 */
+	function commitTransaction()
+	{
+		if($this->m_transaction_nesting === 1)
+		{
+			$this->m_transaction_nesting = 0;
+			
+			if($this->m_transaction_failed === TRUE)
+			{
+				$this->_rollback();
+				return FALSE;
+			}
+			else
+			{
+				$this->_commit();
+				return TRUE;
+			}
+		}
+		else
+		{
+			$this->m_transaction_nesting--;
+			
+			if($this->m_transaction_failed === TRUE)
+				return FALSE;
+			else
+				return TRUE;
 		}
 	}
 
 	/**
-	* Executes a commit.
-	*/
-	function commit()
+	 * Explicitly set to failed a transaction.
+	 */
+	function failTransaction()
 	{
-		if(! empty($this->m_is_transaction_started))
-		{
-			$this->_commit();
-			$this->m_is_transaction_started = FALSE;
-		}
+		$this->m_transaction_failed = TRUE;
 	}
-
-	/**
-	* Executes a rollback.
-	*/
-	function rollback()
-	{
-		if(! empty($this->m_is_transaction_started))
-		{
-			$this->_rollback();
-			$this->m_is_transaction_started = FALSE;
-		}
-	}
+	
 	
 	/**
 	* Returns the current global xDB object.

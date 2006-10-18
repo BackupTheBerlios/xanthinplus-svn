@@ -29,20 +29,17 @@ class xBoxGroupDAO
 	* @return bool FALSE on error
 	* @static 
 	*/
-	function insert($box_group,$transaction = TRUE)
+	function insert($box_group)
 	{
-		if($transaction)
-			xDB::getDB()->startTransaction();
+		xDB::getDB()->startTransaction();
 			
-		if(! xDB::getDB()->query("INSERT INTO box_group(name,render) VALUES('%s',%d)",
-			$box_group->m_name,$box_group->m_render))
+		xDB::getDB()->query("INSERT INTO box_group(name,render) VALUES('%s',%d)",
+			$box_group->m_name,$box_group->m_render);
+			
+		xBoxGroupDAO::_insertBoxes($box_group);
+			
+		if(!xDB::getDB()->commitTransaction())
 			return false;
-			
-		if(! xBoxGroupDAO::_insertBoxes($box_group))
-			return false;
-			
-		if($transaction)
-			xDB::getDB()->commit();
 		
 		return true;
 	}
@@ -70,23 +67,19 @@ class xBoxGroupDAO
 	 * @return bool FALSE on error
 	 * @static 
 	 */
-	function update($box_group,$transaction = TRUE)
+	function update($box_group)
 	{
-		if($transaction)
-			xDB::getDB()->startTransaction();
+		xDB::getDB()->startTransaction();
 		
-		if(! xDB::getDB()->query("UPDATE box_group SET render = %d WHERE box_group_name = '%s'",
-			$box_group->m_name,$box_group->m_render))
-			return false;
+		xDB::getDB()->query("UPDATE box_group SET render = %d WHERE box_group_name = '%s'",
+			$box_group->m_name,$box_group->m_render);
 			
-		if(! xDB::getDB()->query("DELETE FROM box_group WHERE box_group_name = '%s'",$box_group->m_name))
-			return false;
+		xDB::getDB()->query("DELETE FROM box_group WHERE box_group_name = '%s'",$box_group->m_name);
 			
-		if(! xBoxGroupDAO::_insertBoxes($box_group))
-			return false;
+		xBoxGroupDAO::_insertBoxes($box_group);
 			
-		if($transaction)
-			xDB::getDB()->commit();
+		if(!xDB::getDB()->commitTransaction())
+			return false;
 		
 		return true;
 	}

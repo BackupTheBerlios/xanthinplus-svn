@@ -32,17 +32,16 @@ class xUserDAO
 	 * @return int The new userid or FALSE on error
 	 * @static
 	 */
-	function insert($user,$password,$transaction = true)
+	function insert($user,$password)
 	{
-		if($transaction)
-			xDB::getDB()->startTransaction();
+		xDB::getDB()->startTransaction();
 			
 		$id = xUniqueId::generate('user');
 		xDB::getDB()->query("INSERT INTO user (id,username,password,email,cookie_token) VALUES (%d,'%s','%s','%s','%s')",
 			$id,$user->m_username,xUserDAO::_passwordHash($password),$user->m_email,md5(uniqid(rand(),true)));
 		
-		if($transaction)
-			xDB::getDB()->commit();
+		if(!xDB::getDB()->commitTransaction())
+			return false;
 			
 		return $id;
 	}

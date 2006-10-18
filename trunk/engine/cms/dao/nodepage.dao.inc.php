@@ -31,24 +31,19 @@ class xNodePageDAO
 	 * @return int The new id or FALSE on error
 	 * @static
 	 */
-	function insert($node,$transaction = TRUE)
+	function insert($node)
 	{
-		if($transaction)
-			xDB::getDB()->startTransaction();
+		xDB::getDB()->startTransaction();
 		
-		$id = xNodeDAO::insert($node,FALSE);
-		if($id == FALSE)
-			return false;
+		$id = xNodeDAO::insert($node);
 		
-		if(! xDB::getDB()->query("INSERT INTO Node_page(nodeid,sticky,accept_replies,published,approved,
+		xDB::getDB()->query("INSERT INTO node_page(nodeid,sticky,accept_replies,published,approved,
 			meta_description,meta_keywords) VALUES (%d,%d,%d,%d,%d,'%s','%s')",
 			$id,$node->m_published,$node->m_sticky,$node->m_accept_replies,$node->m_published,
-			$node->m_approved,$node->m_meta_description,$node->m_meta_keywords))
-			return false;
+			$node->m_approved,$node->m_meta_description,$node->m_meta_keywords);
 			
-		
-		if($transaction)
-			xDB::getDB()->commit();
+		if(!xDB::getDB()->commitTransaction())
+			return false;
 		
 		return $id;
 	}
@@ -73,22 +68,19 @@ class xNodePageDAO
 	 * @return bool FALSE on error
 	 * @static
 	 */
-	function update($node,$transaction = true)
+	function update($node)
 	{
-		if($transaction)
-			xDB::getDB()->startTransaction();
+		xDB::getDB()->startTransaction();
 		
-		if(! xNodeDAO::update($node,false))
-			return false;
+		xNodeDAO::update($node,false);
 		
-		if(! xDB::getDB()->query("UPDATE node_page SET published = %d,sticky = %d,accept_replies = %d,published = %d,
+		xDB::getDB()->query("UPDATE node_page SET published = %d,sticky = %d,accept_replies = %d,published = %d,
 			approved = %d,meta_description = '%s',meta_keywords = '%s' WHERE nodeid = %d",
 			$node->m_published,$node->m_sticky,$node->m_accept_replies,$node->m_published,
-			$node->m_approved,$node->m_meta_description,$node->m_meta_keywords,$node->m_id))
-			return false;
+			$node->m_approved,$node->m_meta_description,$node->m_meta_keywords,$node->m_id);
 			
-		if($transaction)
-			xDB::getDB()->commit();
+		if(!xDB::getDB()->commitTransaction())
+			return false;
 		
 		return true;
 	}

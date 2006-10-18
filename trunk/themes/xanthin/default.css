@@ -14,24 +14,21 @@ body
 
 #page 
 {
-	vertical-align: top;
 	padding: 10px;
 }
 
 
 #contents
 {
-	margin-left: 210px;
-	vertical-align: top;
+	margin-left: 200px;
 }
 
 
 #left-sidebar
 {
-	position: absolute;
-	left:1em;
+	float: left;
+	left: 1em;
 	padding: 10px;
-	vertical-align: top;
 	width: 184px;
 }
 
@@ -50,8 +47,29 @@ body
 	vertical-align: bottom;
 }
 
-/*___________ITEM_________________ */
-.item-title
+
+/*___________VARIOUS_ITEMS_________ */
+
+/* Reset css layout */
+.cleaner
+{
+	clear: both;
+	height: 1px;
+	font-size: 1px;
+	border: none;
+	margin: 0; 
+	padding: 0;
+	background: transparent;
+}
+
+.footer
+{
+	text-align: center;
+}
+
+
+/*___________NODE_________________ */
+.node-title
 {
 	font-weight: bold;
 }
@@ -80,71 +98,4 @@ body
 	text-align: center;
 	background: url(images/menu_up.png) no-repeat;
 	height: 30px;
-}
-
-/*___________ ADMIN PAGES_________________ */
-
-.admin-table,.admin-table td,.admin-table th
-{
-	border: 1px solid black;
-	padding: 0.3em;
-	border-spacing: 0;
-	border-collapse: collapse;
-}
-
-.admin-table th
-{
-	background-color: #ddd;
-}
-
-/*___________ FORM_________________ */
-
-.form-element,.form-fieldset
-{
-	margin-top: 8px;
-}
-
-.form-element .form-element-invalid
-{
-	border: 2px solid red !important;
-}
-
-.form-element label 
-{
-	display: block;
-	font-weight: bold;
-}
-
-.form-element .radio-label
-{
-	display: inline;
-	font-weight: normal;
-}
-
-.form-element .checkbox-label
-{
-	display: inline;
-	font-weight: normal;
-}
-
-
-.form-element .form-textfield
-{
-	border: 1px solid gray;
-	width: 90%;
-}
-
-.form-element .form-textarea
-{
-	border: 1px solid gray;
-	height: 150px;
-	width: 90%;
-}
-
-.form-fieldset
-{
-	width: 88%;
-	padding: 1em;
-	border: 1px solid #000;
-	font-weight: bold;
 }
