@@ -121,10 +121,8 @@ class xCathegoryDAO
 	 * @return array(xCathegory)
 	 * @static
 	 */
-	function find($type = NULL,$parent_cathegory = NULL,$inf_limit = 0,$sup_limit = 0)
+	function find($type = NULL,$parent_cathegory = NULL)
 	{
-		assert($inf_limit >= 0 && $sup_limit >= 0 && $inf_limit <= $sup_limit);
-		
 		$query_tables = array("cathegory");
 		$values = array();
 		$query_where = array();
@@ -142,14 +140,6 @@ class xCathegoryDAO
 			$query_where[] = "cathegory.parent_cathegory = '%d'";
 			$query_where_link[] = "AND";
 			$values[] = $parent_cathegory;
-		}
-		
-		if($inf_limit != 0 || $sup_limit != 0)
-		{
-			$query_where[] .= "LIMIT %d,%d";
-			$query_where_link[] = "";
-			$values[] = $inf_limit;
-			$values[] = $sup_limit;
 		}
 		
 		//now construct the query
@@ -183,7 +173,6 @@ class xCathegoryDAO
 			}
 		}
 		$result = xDB::getDB()->query($query,$values);
-		
 		$cats = array();
 		while($row = xDB::getDB()->fetchObject($result))
 		{

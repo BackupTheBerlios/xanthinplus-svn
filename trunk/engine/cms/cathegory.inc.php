@@ -48,7 +48,7 @@ class xCathegory extends xElement
 	{
 		$this->xElement();
 		
-		$this->m_id = $id;
+		$this->m_id = (int) $id;
 		$this->m_type = $type;
 		$this->m_parent_cathegory = $parent_cathegory;
 	}
@@ -237,9 +237,9 @@ class xCathegoryI18N extends xCathegory
 	 * @return array(xCathegory)
 	 * @static
 	 */
-	function find($type = NULL,$parent_cathegory = NULL,$title,$inf_limit = 0,$sup_limit = 0)
+	function find($type = NULL,$parent_cathegory = NULL)
 	{
-		return xCathegoryDAO::find($type,$parent_cathegory,$title,$inf_limit,$sup_limit);
+		return xCathegoryI18NDAO::find($type,$parent_cathegory,$name,$lang);
 	}
 };
 

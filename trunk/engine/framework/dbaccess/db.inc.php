@@ -360,6 +360,180 @@ class xDB
 		return $result;
 	}
 
+	/**
+	 * Automatically construct and executes a query from an associative arrays. A transaction is created if
+	 * Inserting/Updating multiple tables.
+	 *
+	 * @param string $action on between 'SELECT','INSERT','UPDATE'.
+	 
+	 
+	 * @param array $records An array with this structure :\n
+	 * $params[<table name>][<column_name>]["type"] = a param substituted into the query using printf() syntax.\n
+	 * $params[<table name>][<column_name>]["connector"] = A boolean connector to select this column (AND/OR).\n
+	 * $params[<table name>][<column_name>]["value"] = The value of the column. If this is NULL in a select query,
+	 * simply this column will be ignored, in a insert/update query it sets the column to null.\n
+	 * $params[<table name>][<column_name>]["join"] = A table.columnname to join this column with.\n
+	 * @param array $where An array as for $records
+	 * @param string $append
+	 */
+	function autoQuery($action,$records,$where,$extra_query = '',$extra_values = array())
+	{
+		$out = '';
+		$values = array();
+		switch($action)
+		{
+			case 'UPDATE':
+			
+				$this->startTransaction();
+				
+				foreach($records as $table_name => $column)
+				{
+					$out1 = '';
+					$out2 = '';
+					
+					$first1 = TRUE;
+					foreach($column as $colname => $param)
+					{
+						if(!$first1)
+							$out1 .= ',';
+						else
+							$first1 = FALSE;
+						
+						
+						if(isset($param['value']))
+						{
+							$out1 .= $colname . '=' . $param['type'];
+							$values[] = $param['value'];
+						}
+						else
+						{
+							$out1 .= $colname . ' SET NULL ';
+						}
+					}
+					
+					$first1 = TRUE;
+					foreach($where[$table_name] as $colname => $param)
+					{
+						if(isset($param['value']))
+						{
+							if(!$first1)
+								$out2 .= ' ' . $param['connector'] . ' ';
+							else
+								$first1 = FALSE;
+						
+							$out2 .= $colname . '=' . $param['type'];
+							$values[] = $param['value'];
+						}
+					}
+					
+					$out =  'UPDATE  ' . $table_name . ' SET ' . $out1 . ' WHERE '.$out2. ' '. $append;
+					array_merge($values,$extra_values);
+					$this->query($out,$values);
+				}
+				
+				return $this->commitTransaction();
+				
+				
+				
+			case 'INSERT':
+			
+				$this->startTransaction();
+				
+				foreach($records as $table_name => $column)
+				{
+					$out2 = '';
+					$out1 = '';
+					
+					$first1 = TRUE;
+					foreach($column as $colname => $param)
+					{
+						if(isset($param['value']))
+						{
+							if(!$first1)
+							{
+								$out1 .= ',';
+								$out2 .= ',';
+							}
+							else
+							{
+								$first1 = FALSE;
+							}
+							
+							$out1 .= $colname;
+							$out2 .= $param['type'];
+							$values[] = $param['value'];
+						}
+					}
+					
+					$out =  'INSERT INTO  ' . $table_name . ' (' . $out1 . ') VALUES (' .$out2 . ') ' . $append;
+					array_merge($values,$extra_values);
+					$this->query($out,$values);
+				}
+				
+				return $this->commitTransaction();
+		
+			case 'SELECT':
+				$out1 = '';
+				$out2 = '';
+				$out1 .= 'SELECT * FROM ';
+				
+				$first1 = TRUE;
+				$first2 = TRUE;
+				foreach($where as $table_name => $column)
+				{
+					if(!$first1)
+						$out1 .= ',';
+					else
+						$first1 = FALSE;
+					
+					$out1 .= $table_name;
+					
+					foreach($column as $colname => $param)
+					{
+						if(isset($param['value']))
+						{
+							if(!$first2)
+							{
+								$out2 .= ' ' . $param['connector'] . ' ';
+							}
+							else
+							{
+								$first2 = FALSE;
+							}
+							
+							$out2 .= $table_name . '.' . $colname .'='. $param['type'];
+							$values[] = $param['value'];
+						}
+						
+						if(isset($param['join']))
+						{
+							if(!$first2)
+							{
+								$out2 .= ' ' . $param['connector'] . ' ';
+							}
+							else
+							{
+								$first2 = false;
+							}
+							
+							
+							$out2 .= $table_name . '.' . $colname .'='. $param['join'];
+						}
+					}
+					
+					$out = $out1 . ' WHERE ' . $out2;
+				}
+				$out .=  ' ' . $append;
+				array_merge($values,$extra_values);
+				//echo $out;
+				return $this->query($out,$values);
+				
+			default: 
+				assert(FALSE);
+		}
+		
+		
+	}
 
 	/**
 	 * Starts a new transaction. Transaction nesting is allowed but nested transactions are ignored.

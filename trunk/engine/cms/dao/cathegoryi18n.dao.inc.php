@@ -101,6 +101,44 @@ class xCathegoryI18NDAO
 		
 		return NULL;
 	}
+	
+	
+	/**
+	 * Retrieves cathegories by search parameters
+	 *
+	 * @return array(xCathegory)
+	 * @static
+	 */
+	function find($type = NULL,$parent_cathegory = NULL,$name = NULL,$lang = NULL)
+	{
+		$where['cathegory_i18n']['catid']['join'] = "cathegory.id";
+		$where['cathegory_i18n']['catid']['connector'] = "AND";
+		
+		$where['cathegory']['type']['type'] = "'%s'";
+		$where['cathegory']['type']['connector'] = "AND";
+		$where['cathegory']['type']['value'] = $type;
+		
+		$where['cathegory']['parent_cathegory']['type'] = "%d";
+		$where['cathegory']['parent_cathegory']['connector'] = "AND";
+		$where['cathegory']['parent_cathegory']['value'] = $parent_cathegory;
+		
+		$where['cathegory_i18n']['name']['type'] = "'%s'";
+		$where['cathegory_i18n']['name']['connector'] = "AND";
+		$where['cathegory_i18n']['name']['value'] = $name;
+		
+		$where['cathegory_i18n']['lang']['type'] = "'%s'";
+		$where['cathegory_i18n']['lang']['connector'] = "AND";
+		$where['cathegory_i18n']['lang']['value'] = $lang;
+		
+		$result = xDB::getDB()->autoQuery('SELECT',array(),$where);
+		$cats = array();
+		while($row = xDB::getDB()->fetchObject($result))
+		{
+			$cats[] = xCathegoryI18NDAO::_cathegoryi18nFromRow($row);
+		}
+		return $cats;
+	}
+	
 }
 
 ?>

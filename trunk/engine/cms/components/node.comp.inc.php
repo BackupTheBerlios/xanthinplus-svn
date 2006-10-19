@@ -110,7 +110,8 @@ class xPageContentNodeCreateChooseType extends xPageContent
 		$out = "Choose type:\n <ul>\n";
 		foreach($types as $type)
 		{
-			$out .= "<li><a href=\"".xanth_relative_path('node/create/'.$type->m_name)."\">" . $type->m_name . "</a></li>\n";
+			$out .= "<li><a href=\"".xanth_relative_path($this->m_path->m_lang. '/node/create/'.$type->m_name)."\">" 
+				. $type->m_name . "</a></li>\n";
 		}
 		
 		$out  .= "</ul>\n";

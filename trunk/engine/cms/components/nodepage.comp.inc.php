@@ -159,8 +159,7 @@ class xPageContentNodePageCreate extends xPageContentNodeCreate
 		//no cathegory in path so let user choose according to its permissions
 		if($this->m_path->m_parent_cathegory == NULL)
 		{
-			$cathegories = xCathegory::find(NULL,$this->m_path->m_type);
-			
+			$cathegories = xCathegoryI18N::find($this->m_path->m_type,NULL,NULL,'en');
 			$options = array();
 			foreach($cathegories as $cathegory)
 			{
