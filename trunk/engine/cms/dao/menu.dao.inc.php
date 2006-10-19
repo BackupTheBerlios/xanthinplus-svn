@@ -38,7 +38,7 @@ class xMenuDAO
 	{
 		xDB::getDB()->startTransaction();
 		
-		xBoxDAO::insert($menu);
+		xBoxI18NDAO::insert($menu);
 		
 		xMenuDAO::_insertItems($menu->m_name,$menu->m_items,0);
 		
@@ -47,6 +47,29 @@ class xMenuDAO
 		
 		return true;
 	}
+	
+	
+	/**
+	* Insert a new menu translation
+	*
+	* @param xBoxI18 $box
+	* @return bool FALSE on error
+	* @static 
+	*/
+	function insertTranslation($box)
+	{
+		xDB::getDB()->startTransaction();
+		
+		xBoxI18NDAO::insertTranslation($menu);
+		
+		xMenuDAO::_insertItems($menu->m_name,$menu->m_items,0);
+		
+		if(!xDB::getDB()->commitTransaction())
+			return false;
+		
+		return true;
+	}
+	
 	
 	/**
 	 * @access private
@@ -60,9 +83,9 @@ class xMenuDAO
 			foreach($items as $item)
 			{
 				$id = xUniqueId::generate('menu_items');
-				$field_names = "id,box_name,label,link,weight";
-				$field_values = "%d,'%s','%s','%s',%d";
-				$values = array($id,$menuname,$item->m_label,$item->m_link,$item->m_weight);
+				$field_names = "id,box_name,label,link,weight,lang";
+				$field_values = "%d,'%s','%s','%s',%d,'%s'";
+				$values = array($id,$menuname,$item->m_label,$item->m_link,$item->m_weight,$item->m_lang);
 				
 				if(!empty($parentid))
 				{
@@ -94,10 +117,10 @@ class xMenuDAO
 	{
 		xDB::getDB()->startTransaction();
 		
-		xBoxDAO::update($menu);
+		xBoxI18NDAO::update($menu);
 		
 		//clear all menu items
-		xDB::getDB()->query("DELETE FROM menu_item WHERE box_name = '%s')",$menu->m_name);
+		xDB::getDB()->query("DELETE FROM menu_item WHERE box_name = '%s' AND lang = '%s'"),$menu->m_name,$menu->m_lang);
 		
 		//insert new
 		xMenuDAO::_insertItems($menu->m_name,$menu->m_items,0);
@@ -110,19 +133,6 @@ class xMenuDAO
 	
 	
 	/**
-	* Delete an existing static menu. Based on key.
-	*
-	* @param xMenuStatic $menu
-	* @return bool FALSE on error
-	* @static 
-	*/
-	function delete($menu)
-	{
-		return xBoxDAO::delete($menu);
-	}
-	
-	
-	/**
 	 *
 	 * @return xMenuItem
 	 * @static
@@ -130,7 +140,7 @@ class xMenuDAO
 	 */
 	function _menuitemFromRow($row_object)
 	{
-		return new xMenuItem($row_object->id,$row_object->label,$row_object->link,$row_object->weight);
+		return new xMenuItem($row_object->id,$row_object->label,$row_object->link,$row_object->weight,$row_object->lang);
 	}
 	
 	/**
@@ -139,18 +149,18 @@ class xMenuDAO
 	 * @access private
 	 * @static
 	 */
-	function _getMenuItems($menuname,$parent)
+	function _getMenuItems($menuname,$lang,$parent)
 	{
 		$items = array();
 		if($parent === 0)
 		{
 			$result = xDB::getDB()->query("SELECT * FROM menu_item WHERE menu_item.box_name = '%s' AND 
-				menu_item.parent IS NULL",$menuname);
+				menu_item.parent IS NULL AND menu_item.lang = '%s'",$menuname,$lang);
 		
 			while($row = xDB::getDB()->fetchObject($result))
 			{
 				$newitem = xMenuDAO::_menuitemFromRow($row);
-				$newitem->m_subitems = xMenuDAO::_getMenuItems($menuname,$row->id);
+				$newitem->m_subitems = xMenuDAO::_getMenuItems($menuname,$lang,$row->id);
 				
 				$items[] = $newitem;
 			}
@@ -158,12 +168,12 @@ class xMenuDAO
 		else
 		{
 			$result = xDB::getDB()->query("SELECT * FROM menu_item WHERE menu_item.box_name = '%s' AND 
-				menu_item.parent = %d",$menuname,$parent);
+				menu_item.parent = %d AND menu_item.lang = '%s'",$menuname,$parent,$lang);
 		
 			while($row = xDB::getDB()->fetchObject($result))
 			{
 				$newitem = xMenuDAO::_menuitemFromRow($row);
-				$newitem->m_subitems = xMenuDAO::_getMenuItems($menuname,$row->id);
+				$newitem->m_subitems = xMenuDAO::_getMenuItems($menuname,$lang,$row->id);
 				
 				$items[] = $newitem;
 			}
@@ -181,19 +191,21 @@ class xMenuDAO
 	 */
 	function _menuFromRow($row,$items)
 	{
-		return new xMenu($row->name,$row->title,$row->type,$row->weight,
+		return new xMenu($row->name,$row->type,$row->weight,$row->title,$row->lang,
 			new xShowFilter($row->show_filters_type,$row->show_filters),$items);
 	}
+	
 	
 	/**
 	 *
 	 */
-	function load($name)
+	function load($name,$lang)
 	{
-		$result = xDB::getDB()->query("SELECT * FROM box WHERE name = '%s'",$name);
+		$result = xDB::getDB()->query("SELECT * FROM box,box_i18n WHERE box.name = '%s' AND box_i18n.box_name = box.name 
+			AND box_i18n.lang = '%s'",$name,$lang);
 		if($row = xDB::getDB()->fetchObject($result))
 		{
-			$items = xMenuDAO::_getMenuItems($name,0);
+			$items = xMenuDAO::_getMenuItems($name,$lang,0);
 			return xMenuDAO::_menuFromRow($row,$items);
 		}
 		

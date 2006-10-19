@@ -56,10 +56,9 @@ class xNodeDAO
 		
 		$id = xUniqueId::generate('node');
 		
-		$field_names = "id,title,type,author,content,content_filter,creation_time";
-		$field_values = "%d,'%s','%s','%s','%s','%s',NOW()";
-		$values = array($id,$node->m_title,$node->m_type,$node->m_author,$node->m_content,
-			$node->m_content_filter);
+		$field_names = "id,type,author,content_filter,creation_time";
+		$field_values = "%d,'%s','%s','%s',NOW()";
+		$values = array($id,$node->m_type,$node->m_author,$node->m_content_filter);
 		
 		xDB::getDB()->query("INSERT INTO node($field_names) VALUES($field_values)",$values);
 		
@@ -102,9 +101,8 @@ class xNodeDAO
 	{
 		xDB::getDB()->startTransaction();
 			
-		$fields = "title = '%s',content = '%s',content_filter = '%s',edit_time = NOW()";
-		$values = array($node->m_title,$node->m_content,$node->m_content_filter,
-			$node->m_cathegory);
+		$fields = "content_filter = '%s',edit_time = NOW()";
+		$values = array($node->m_content_filter,$node->m_cathegory);
 		
 		$values[] = $node->m_id;
 		xDB::getDB()->query("UPDATE node SET $fields WHERE id = %d",$values);
@@ -141,8 +139,8 @@ class xNodeDAO
 	 */
 	function _nodeFromRow($row_object,$cathegories)
 	{
-		return new xNode($row_object->id,$row_object->title,$row_object->type,$row_object->author,
-			$row_object->content,$row_object->content_filter,$cathegories,
+		return new xNode($row_object->id,$row_object->type,$row_object->author,
+			$row_object->content_filter,$cathegories,
 			$row_object->creation_time,$row_object->edit_time);
 	}
 	

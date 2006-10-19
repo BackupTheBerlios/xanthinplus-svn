@@ -33,10 +33,32 @@ class xBoxCustomDAO
 	{
 		xDB::getDB()->startTransaction();
 		
-		xBoxDAO::insert($box);
+		xBoxI18NDAO::insert($box);
 		
-		xDB::getDB()->query("INSERT INTO box_custom(box_name,title,content,content_filter) VALUES('%s','%s','%s','%s')",
-			$box->m_name,$box->m_title,$box->m_content,$box->m_content_filter);
+		xDB::getDB()->query("INSERT INTO box_custom(box_name,lang,content,content_filter) VALUES('%s','%s','%s','%s')",
+			$box->m_name,$box->m_lang,$box->m_content,$box->m_content_filter);
+		
+		if(!xDB::getDB()->commitTransaction())
+			return false;
+		
+		return TRUE;
+	}
+	
+	/**
+	* Insert a new xBoxCustom translation
+	*
+	* @param xBoxI18 $box
+	* @return bool FALSE on error
+	* @static 
+	*/
+	function insertTranslation($box)
+	{
+		xDB::getDB()->startTransaction();
+		
+		xBoxI18NDAO::insertTranslation($box);
+		
+		xDB::getDB()->query("INSERT INTO box_custom(box_name,lang,content,content_filter) VALUES('%s','%s','%s','%s')",
+			$box->m_name,$box->m_lang,$box->m_content,$box->m_content_filter);
 		
 		if(!xDB::getDB()->commitTransaction())
 			return false;
@@ -56,29 +78,16 @@ class xBoxCustomDAO
 	{
 		xDB::getDB()->startTransaction();
 		
-		xBoxDAO::update($box);
+		xBoxI18NDAO::update($box);
 		
-		xDB::getDB()->query("UPDATE box_custom SET title = '%s',content = '%s',content_filter = '%s' 
-			WHERE box_name = '%s'",
-			$box->m_title,$box->m_content,$box->m_content_filter,$box->m_name);
+		xDB::getDB()->query("UPDATE box_custom SET content = '%s',content_filter = '%s' 
+			WHERE box_name = '%s' AND lang = '%s'",
+			$box->m_content,$box->m_content_filter,$box->m_name,$box->m_lang);
 		
 		if(!xDB::getDB()->commitTransaction())
 			return false;
 		
 		return TRUE;
-	}
-	
-	
-	/**
-	* Delete an existing static box. Based on key.
-	*
-	* @param xBoxStatic $box
-	* @return bool FALSE on error
-	* @static 
-	*/
-	function delete($box)
-	{
-		return xBoxDAO::delete($box);
 	}
 	
 	/**
@@ -87,19 +96,21 @@ class xBoxCustomDAO
 	function _boxcustomFromRow($row)
 	{
 		return new xBoxCustom($row->name,$row->type,$row->weight,
-			new xShowFilter($row->show_filters_type,$row->show_filters),$row->title,$row->content,$row->content_filter);
+			new xShowFilter($row->show_filters_type,$row->show_filters),$row->title,$row->lang,
+			$row->content,$row->content_filter);
 	}
 	
 	/**
 	 * Extract specific data for static box and build and return a new xBoxStatic
 	 *
 	 * @param xBox $box
-	 * @return xBoxStatic or NULL no error
+	 * @return xBoxCustom or NULL no error
 	 * @static
 	 */
 	function load($name)
 	{
-		$result = xDB::getDB()->query("SELECT * FROM box_custom WHERE box_name = '%s'",$name);
+		$result = xDB::getDB()->query("SELECT * FROM box,box_i18n,box_custom WHERE box.name = '%s' 
+			AND box_i18N.box_name = box.name AND box_custom.box_name = box_i18n.box_name",$name);
 		if($row = xDB::getDB()->fetcObject($result))
 		{
 			return xBoxCustomDAO::_boxcustomFromRow($row);

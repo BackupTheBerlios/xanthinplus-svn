@@ -19,7 +19,7 @@ $g_xanth_cathegory_managers = array();
 
 
 /**
- * An items cathegory.
+ * A cathegory.
  */
 class xCathegory extends xElement
 {
@@ -36,24 +36,6 @@ class xCathegory extends xElement
 	var $m_type;
 	
 	/**
-	 * @var string
-	 * @access public
-	 */
-	var $m_name;
-	
-	/**
-	 * @var string
-	 * @access public
-	 */
-	var $m_title;
-	
-	/**
-	 * @var string
-	 * @access public
-	 */
-	var $m_description;
-	
-	/**
 	 * @var int
 	 * @access public
 	 */
@@ -62,15 +44,12 @@ class xCathegory extends xElement
 	/**
 	 *
 	 */
-	function xCathegory($id,$name,$title,$type,$description,$parent_cathegory)
+	function xCathegory($id,$type,$parent_cathegory)
 	{
 		$this->xElement();
 		
 		$this->m_id = $id;
 		$this->m_type = $type;
-		$this->m_name = $name;
-		$this->m_title = $title;
-		$this->m_description = $description;
 		$this->m_parent_cathegory = $parent_cathegory;
 	}
 	
@@ -109,16 +88,6 @@ class xCathegory extends xElement
 	}
 	
 	/**
-	 * Update this in db
-	 *
-	 * @return bool FALSE on error
-	 */
-	function dbUpdate()
-	{
-		return xCathegoryDAO::update($this);
-	}
-	
-	/**
 	 * Retrieve a specific cathegory from db
 	 *
 	 * @return xCathegory
@@ -126,12 +95,7 @@ class xCathegory extends xElement
 	 */
 	function dbLoad($id)
 	{
-		if(is_numeric($id))
-		{
-			return xCathegoryDAO::load((int) $id);
-		}
-		
-		return xCathegoryDAO::loadByName($id);
+		return xCathegoryDAO::load($id);
 	}
 	
 	/**
@@ -149,15 +113,16 @@ class xCathegory extends xElement
 	 * @return array(xCathegory)
 	 * @static
 	 */
-	function find($title = NULL,$type = NULL,$description = NULL,$parent_cathegory = NULL,$inf_limit = 0,$sup_limit = 0)
+	function find($type = NULL,$parent_cathegory = NULL,$inf_limit = 0,$sup_limit = 0)
 	{
-		return xCathegoryDAO::find($title,$type,$description,$parent_cathegory,$inf_limit,$sup_limit);
+		return xCathegoryDAO::find($type,$parent_cathegory,$inf_limit,$sup_limit);
 	}
 	
 	/**
 	 * Check recursively an access permission relative to this cathegory
 	 *
 	 * @return bool
+	 * @static
 	 */
 	function checkCurrentUserPermissionRecursive($action)
 	{
@@ -175,9 +140,118 @@ class xCathegory extends xElement
 		
 		return true;
 	}
-	
-	
 };
+
+
+
+/**
+ * An internationalized cathegory.
+ */
+class xCathegoryI18N extends xElement
+{
+	/**
+	 * @var string
+	 * @access public
+	 */
+	var $m_title;
+	
+	/**
+	 * @var string
+	 * @access public
+	 */
+	var $m_name;
+	
+	
+	/**
+	 * @var string
+	 * @access public
+	 */
+	var $m_description;
+	
+	/**
+	 *
+	 */
+	function xCathegoryI18N($id,$type,$parent_cathegory,$name,$title,$description)
+	{
+		$this-> xCathegory($id,$name,$type,$parent_cathegory);
+		
+		$this->m_name = $name;
+		$this->m_title = $title;
+		$this->m_description = $description;
+	}
+	
+	
+	/** 
+	 * Inserts this into db
+	 *
+	 * @return bool FALSE on error
+	 */
+	function dbInsert()
+	{
+		return xCathegoryI18NDAO::insert($this);
+	}
+	
+	/**
+	 * Update this in db
+	 *
+	 * @return bool FALSE on error
+	 */
+	function dbUpdate()
+	{
+		return xCathegoryI18NDAO::update($this);
+	}
+	
+	
+		/** 
+	 * Inserts this into db
+	 *
+	 * @return bool FALSE on error
+	 */
+	function dbInsertTranslation()
+	{
+		return xCathegoryI18NDAO::insertTranslation($this);
+	}
+	
+	
+	/** 
+	 * Delete this cathegory from db
+	 *
+	 * @return bool FALSE on error
+	 */
+	function dbDeleteTranslation()
+	{
+		return xCathegoryI18NDAO::deleteTranslation($this->m_id,$this->m_lang);
+	}
+	
+	
+	/**
+	 * Retrieve a specific cathegory from db
+	 *
+	 * @return xCathegory
+	 * @static
+	 */
+	function dbLoad($id,$lang)
+	{
+		if(is_numeric($id))
+		{
+			return xCathegoryI18NDAO::load((int) $id,$lang);
+		}
+		
+		return xCathegoryI18NDAO::loadByName($id,$lang);
+	}	
+	
+	/**
+	 * Retrieves generic xCathegory objects by different search parameters
+	 *
+	 * @return array(xCathegory)
+	 * @static
+	 */
+	function find($type = NULL,$parent_cathegory = NULL,$title,$inf_limit = 0,$sup_limit = 0)
+	{
+		return xCathegoryDAO::find($type,$parent_cathegory,$title,$inf_limit,$sup_limit);
+	}
+};
+
 
 
 
@@ -220,7 +294,6 @@ class xCreateIntoCathegoryValidator extends xInputValidatorInteger
 			$this->m_last_error = 'You are not authorized to insert inside this cathegory';
 			return false;
 		}
-		
 		return true;
 	}
 }

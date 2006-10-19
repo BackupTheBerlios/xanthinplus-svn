@@ -37,9 +37,9 @@ class xCathegoryDAO
 		
 		$id = xUniqueId::generate('cathegory');
 		
-		$field_names = "id,name,title,type,description";
-		$field_values = "%d,'%s','%s','%s','%s'";
-		$values = array($id,$cathegory->m_name,$cathegory->m_title,$cathegory->m_type,$cathegory->m_description);
+		$field_names = "id,type";
+		$field_values = "%d,'%s'";
+		$values = array($id,$cathegory->m_type);
 		
 		if(!empty($cathegory->m_parent_cathegory))
 		{
@@ -68,34 +68,6 @@ class xCathegoryDAO
 		return xDB::getDB()->query("DELETE FROM cathegory WHERE id = %d",$catid);
 	}
 	
-	/**
-	 * Updates a cathegory.
-	 *
-	 * @param xCathegory $cathegory
-	 * @return bool FALSE on error
-	 * @static
-	 */
-	function update($cathegory)
-	{
-		$fields = "name = '%s',title = '%s',description = '%s'";
-		$values = array($item_type->m_name,$item_type->m_title,$item_type->m_description);
-
-		
-		if(!empty($cathegory->m_parent_cathegory))
-		{
-			$fields .= ",parent_cathegory = %d";
-			$values[] = $cathegory->m_parent_cathegory;
-		}
-		else
-		{
-			$fields .= ",parent_cathegory = NULL";
-		}
-		
-		
-		$values[] = $cathegory->m_id;
-		return xDB::getDB()->query("UPDATE cathegory SET $fields WHERE id = %d",$values);
-	}
-	
 	
 	/**
 	 *
@@ -105,12 +77,10 @@ class xCathegoryDAO
 	 */
 	function _cathegoryFromRow($row_object)
 	{
-		return new xCathegory($row_object->id,$row_object->name,$row_object->title,$row_object->type,
-			$row_object->description,$row_object->parent_cathegory);
+		return new xCathegory($row_object->id,$row_object->type,$row_object->parent_cathegory);
 	}
 	
 	/**
-	 *
 	 * @return array(xCathegory)
 	 */
 	function findNodeCathegories($id)
@@ -145,31 +115,13 @@ class xCathegoryDAO
 		return NULL;
 	}
 	
-	
-	/**
-	 * Load an cathegory from db by name
-	 *
-	 * @return xCathegory
-	 * @static
-	 */
-	function loadByName($catname)
-	{
-		$result = xDB::getDB()->query("SELECT * FROM cathegory WHERE name = '%s'",$catname);
-		if($row = xDB::getDB()->fetchObject($result))
-		{
-			return xCathegoryDAO::_cathegoryFromRow($row);
-		}
-		
-		return NULL;
-	}
-	
 	/**
 	 * Retrieves cathegories by search parameters
 	 *
 	 * @return array(xCathegory)
 	 * @static
 	 */
-	function find($title = NULL,$type = NULL,$description = NULL,$parent_cathegory = NULL,$inf_limit = 0,$sup_limit = 0)
+	function find($type = NULL,$parent_cathegory = NULL,$inf_limit = 0,$sup_limit = 0)
 	{
 		assert($inf_limit >= 0 && $sup_limit >= 0 && $inf_limit <= $sup_limit);
 		
@@ -178,25 +130,11 @@ class xCathegoryDAO
 		$query_where = array();
 		$query_where_link = array();
 		
-		if($title !== NULL)
-		{
-			$query_where[] = "cathegory.title LIKE '%s'";
-			$query_where_link[] = "AND";
-			$values[] = $title;
-		}
-		
 		if($type !== NULL)
 		{
 			$query_where[] = "cathegory.type = '%s'";
 			$query_where_link[] = "AND";
 			$values[] = $type;
-		}
-		
-		if($description !== NULL)
-		{
-			$query_where[] = "cathegory.description LIKE '%s'";
-			$query_where_link[] = "AND";
-			$values[] = $description;
 		}
 		
 		if($parent_cathegory !== NULL)

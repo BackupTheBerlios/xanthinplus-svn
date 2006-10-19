@@ -28,6 +28,11 @@ class xMenuItem extends xElement
 	
 	/**
 	 * @var string
+	 */
+	var $lang;
+	
+	/**
+	 * @var string
 	 * @access public
 	 */
 	var $m_label;
@@ -54,13 +59,14 @@ class xMenuItem extends xElement
 	 * Contructor
 	 *
 	 */
-	function xMenuItem($id,$label,$link,$weight,$subitems = array())
+	function xMenuItem($id,$label,$link,$weight,$lang,$subitems = array())
 	{
 		$this->m_id = $id;
 		$this->m_label = $label;
 		$this->m_link = $link;
 		$this->m_weight = $weight;
 		$this->m_subitems = $subitems;
+		$this->m_lang = $lang;
 	}
 	
 	// DOCS INHERITHED  ========================================================
@@ -78,8 +84,14 @@ class xMenuItem extends xElement
 /**
  * Represent a simple link menu.
  */
-class xMenu extends xBox
-{
+class xMenu extends xBoxI18N
+{	
+	/**
+	 * @var string
+	 */
+	var $lang;
+	
+	
 	/**
 	 * @var array(xMenuItem)
 	 */
@@ -93,9 +105,9 @@ class xMenu extends xBox
 	* @param string $type
 	* @param string $area
 	*/
-	function xMenu($name,$title,$type,$weight,$show_filter,$items = array())
+	function xMenu($name,$type,$weight,$show_filter,$title,$lang,$items = array())
 	{
-		$this->xBox($name,$title,$type,$weight,$show_filter);
+		$this->xBoxI18N($name,$type,$weight,$show_filter,$title,$lang);
 		$this->m_items = $items;
 	}
 	
@@ -119,13 +131,33 @@ class xMenu extends xBox
 	}
 	
 	/**
+	 * Insert this object into db
+	 *
+	 * @return bool FALSE on error
+	 */
+	function dbInsertTranslation()
+	{
+		return xMenuDAO::insertTranslation($this);
+	}
+	
+	/**
+	 * Delete this menu translation from db.
+	 *
+	 * @return bool FALSE on error
+	 */
+	function dbDeleteTranslation()
+	{
+		return xMenuDAO::deleteTranslation($this->m_name,$this->m_lang);
+	}
+	
+	/**
 	 *
 	 *
 	 * @return bool FALSE on error
 	 */
-	function dbLoad($name)
+	function dbLoad($name,$lang)
 	{
-		return xMenuDAO::load($name);
+		return xMenuDAO::load($name,$lang);
 	}
 };
 

@@ -35,11 +35,11 @@ class xNodePageDAO
 	{
 		xDB::getDB()->startTransaction();
 		
-		$id = xNodeDAO::insert($node);
+		$id = xNodeI18NDAO::insert($node);
 		
-		xDB::getDB()->query("INSERT INTO node_page(nodeid,sticky,accept_replies,published,approved,
-			meta_description,meta_keywords) VALUES (%d,%d,%d,%d,%d,'%s','%s')",
-			$id,$node->m_published,$node->m_sticky,$node->m_accept_replies,$node->m_published,
+		xDB::getDB()->query("INSERT INTO node_page(nodeid,lang,sticky,accept_replies,published,approved,
+			meta_description,meta_keywords) VALUES (%d,'%s',%d,%d,%d,%d,'%s','%s')",
+			$id,$node->m_lang,$node->m_published,$node->m_sticky,$node->m_accept_replies,$node->m_published,
 			$node->m_approved,$node->m_meta_description,$node->m_meta_keywords);
 			
 		if(!xDB::getDB()->commitTransaction())
@@ -49,15 +49,27 @@ class xNodePageDAO
 	}
 	
 	/**
-	 * Deletes an node and all its replies.
-	 * 
-	 * @param int $nodeid
-	 * @return bool FALSE on error
+	 * Insert a new Node page
+	 *
+	 * @param xNodePage $item
+	 * @return int The new id or FALSE on error
 	 * @static
 	 */
-	function delete($nodeid,$transaction = true)
+	function insertTranslation($node)
 	{
-		return xNodeDAO::delete($nodeid,$transaction);
+		xDB::getDB()->startTransaction();
+		
+		xNodeI18NDAO::insertTranslation($node);
+		
+		xDB::getDB()->query("INSERT INTO node_page(nodeid,lang,sticky,accept_replies,published,approved,
+			meta_description,meta_keywords) VALUES (%d,%d,%d,%d,%d,'%s','%s')",
+			$node->m_id,$node->m_lang,$node->m_published,$node->m_sticky,$node->m_accept_replies,$node->m_published,
+			$node->m_approved,$node->m_meta_description,$node->m_meta_keywords);
+			
+		if(!xDB::getDB()->commitTransaction())
+			return false;
+		
+		return $id;
 	}
 	
 	/**
@@ -72,12 +84,12 @@ class xNodePageDAO
 	{
 		xDB::getDB()->startTransaction();
 		
-		xNodeDAO::update($node,false);
+		xNodeI18NDAO::update($node);
 		
 		xDB::getDB()->query("UPDATE node_page SET published = %d,sticky = %d,accept_replies = %d,published = %d,
-			approved = %d,meta_description = '%s',meta_keywords = '%s' WHERE nodeid = %d",
+			approved = %d,meta_description = '%s',meta_keywords = '%s' WHERE nodeid = %d AND lang = '%s'",
 			$node->m_published,$node->m_sticky,$node->m_accept_replies,$node->m_published,
-			$node->m_approved,$node->m_meta_description,$node->m_meta_keywords,$node->m_id);
+			$node->m_approved,$node->m_meta_description,$node->m_meta_keywords,$node->m_id,$node->m_lang);
 			
 		if(!xDB::getDB()->commitTransaction())
 			return false;
@@ -94,8 +106,8 @@ class xNodePageDAO
 	 */
 	function _nodepageFromRow($row_object,$cathegories)
 	{
-		return new xNodePage($row_object->id,$row_object->title,$row_object->type,
-			$row_object->author,$row_object->content,$row_object->content_filter,$cathegories,
+		return new xNodePage($row_object->id,$row_object->type,
+			$row_object->author,$row_object->content_filter,$row_object->title,$row_object->content,$cathegories,
 			$row_object->creation_time,$row_object->edit_time,$row_object->published,$row_object->sticky,
 			$row_object->accept_replies,
 			$row_object->approved,$row_object->meta_description,$row_object->meta_keywords);
@@ -107,10 +119,11 @@ class xNodePageDAO
 	 * @return xNodePage
 	 * @static
 	 */
-	function load($id)
+	function load($id,$lang)
 	{
-		$result = xDB::getDB()->query("SELECT * FROM node,node_page WHERE 
-			node.id = %d AND node_page.nodeid = node.id",$id);
+		$result = xDB::getDB()->query("SELECT * FROM node,node_i18n,node_page WHERE 
+			node.id = %d AND node_i18n.nodeid = node.id AND node_i18n.lang = '%s' AND 
+			node_page.nodeid = node_i18n.nodeid",$id,$lang);
 		if($row = xDB::getDB()->fetchObject($result))
 		{
 			return xNodePageDAO::_nodepageFromRow($row,xCathegoryDAO::findNodeCathegories($id));
@@ -118,102 +131,6 @@ class xNodePageDAO
 		
 		return NULL;
 	}
-	
-	
-	/**
-	 *
-	 * @static
-	 */
-	function find($title = NULL,$author = NULL,
-		$parent_cathegory = NULL,$creation_time = NULL, $edit_time = NULL, $published, 
-		$sticky = NULL, $accept_replies = NULL, $approved = NULL, $meta_description = NULL,$meta_keywords = NULL, 
-		$inf_limit = 0,$sup_limit = 0,$order_by = 0)
-	{
-		assert($inf_limit >= 0 && $sup_limit >= 0 && $inf_limit <= $sup_limit);
-		
-		$query_tables = array("node","node_page");
-		$query_where = array('node.id = node_page.nodeid');
-		$query_where_link = array('AND');
-		$order = '';
-		$values = array();
-		
-		if($title !== NULL)
-		{
-			$query_where[] = "node.title LIKE '%s'";
-			$query_where_link[] = "AND";
-			$values[] = $title;
-		}
-		
-		if($author !== NULL)
-		{
-			$query_where[] = "node.author = '%s'";
-			$query_where_link[] = "AND";
-			$values[] = $author;
-		}
-		
-		if($parent_cathegory !== NULL)
-		{
-			$query_tables[] = 'node_to_cathegory';
-			$query_where[] = "node_to_cathegory.nodeid = node.id AND node_to_cathegory.catid = %d";
-			$query_where_link[] = "AND";
-			$values[] = $parent_cathegory;
-		}
-		
-		if($parent_cathegory !== NULL)
-		{
-			$query_where[] = "cathegory.parent_cathegory = '%d'";
-			$query_where_link[] = "AND";
-			$values[] = $parent_cathegory;
-		}
-		
-		if($inf_limit != 0 || $sup_limit != 0)
-		{
-			$query_where[] .= "LIMIT %d,%d";
-			$query_where_link[] = "";
-			$values[] = $inf_limit;
-			$values[] = $sup_limit;
-		}
-		
-		//now construct the query
-		$query = "SELECT * FROM ";
-		$i = 0;
-		foreach($query_tables as $query_table)
-		{
-			if($i === 0) //not adding link string
-			{
-				$query .= $query_table;
-			}
-			else
-			{
-				$query .= "," . $query_table;
-			}
-			$i++;
-		}
-		
-		$query .= " ";
-		for($i = 0;$i < count($query_where);$i++)
-		{
-			if($i === 0) //not adding link string
-			{
-				$query .= "WHERE ";
-				$query .= $query_where[$i];
-			}
-			else
-			{
-				$query .= " " . $query_where_link[$i] . " ";
-				$query .= $query_where[$i];
-			}
-		}
-		$result = xDB::getDB()->query($query,$values);
-		
-		$cats = array();
-		while($row = xDB::getDB()->fetchObject($result))
-		{
-			$cats[] = xCathegoryDAO::_cathegoryFromRow($row);
-		}
-		return $cats;
-	}
-	
 }
 
 ?>

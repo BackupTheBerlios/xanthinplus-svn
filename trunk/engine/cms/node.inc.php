@@ -32,12 +32,6 @@ class xNode extends xElement
 	 * @var string
 	 * @access public
 	 */
-	var $m_title;
-	
-	/**
-	 * @var string
-	 * @access public
-	 */
 	var $m_type;
 	
 	/**
@@ -45,12 +39,6 @@ class xNode extends xElement
 	 * @access public
 	 */
 	var $m_author;
-	
-	/**
-	 * @var string
-	 * @access public
-	 */
-	var $m_content;
 	
 	/**
 	 * @var string
@@ -80,16 +68,14 @@ class xNode extends xElement
 	 *
 	 * @param array(mixed) $parent_cathegories An array of xCathegory objects or an array of cathegories ids
 	 */
-	function xNode($id,$title,$type,$author,$content,$content_filter,$parent_cathegories = array(),
+	function xNode($id,$type,$author,$content_filter,$parent_cathegories = array(),
 		$creation_time = NULL,$edit_time = NULL)
 	{
 		$this->xElement();
 		
 		$this->m_id = (int) $id;
-		$this->m_title = $title;
 		$this->m_type = $type;
 		$this->m_author = $author;
-		$this->m_content = $content;
 		$this->m_content_filter = $content_filter;
 		$this->m_creation_time = $creation_time;
 		$this->m_edit_time = $edit_time;
@@ -115,28 +101,6 @@ class xNode extends xElement
 			$this->m_parent_cathegories =  array();
 		}
 	}
-	
-	
-	// DOCS INHERITHED  ========================================================
-	function render()
-	{
-		$error = '';
-		$content = xContentFilterController::applyFilter($this->m_content_filter,$this->m_content,$error);
-		$title = xContentFilterController::applyFilter('notags',$this->m_title,$error);
-		return xTheme::render3('renderItem',$this->m_type,$title,$content);
-	}
-	
-	/**
-	 * Render the node in a compact form with at least a title and optionally a sumary of the content
-	 *
-	 * @return string
-	 */
-	function renderSummary()
-	{
-		//todo
-		assert(false);
-	}
-
 	
 	/** 
 	 * Delete a node from db using its id
@@ -174,7 +138,68 @@ class xNode extends xElement
 	
 	function findAll()
 	{
-		return xNodeDAO::findAll($id);
+		return xNodeDAO::findAll();
+	}
+};
+
+
+
+/**
+ * Represent a node in the CMS.
+ */
+class xNodeI18N extends xNode
+{
+	/**
+	 * @var string
+	 * @access public
+	 */
+	var $m_title;
+	
+	/**
+	 * @var string
+	 * @access public
+	 */
+	var $m_content;
+
+	
+	/**
+	 *
+	 * @param array(mixed) $parent_cathegories An array of xCathegory objects or an array of cathegories ids
+	 */
+	function xNodeI18N($id,$type,$author,$content_filter,$title,$content,$parent_cathegories = array(),
+		$creation_time = NULL,$edit_time = NULL)
+	{
+		$this->xNode($id,$type,$author,$content_filter,$parent_cathegories,$creation_time,$edit_time);
+		
+		$this->m_title = $title;
+		$this->m_content = $content;
+	}
+	
+	
+	// DOCS INHERITHED  ========================================================
+	function render()
+	{
+		$error = '';
+		$content = xContentFilterController::applyFilter($this->m_content_filter,$this->m_content,$error);
+		$title = xContentFilterController::applyFilter('notags',$this->m_title,$error);
+		return xTheme::render3('renderNode',$this->m_type,$title,$content);
+	}
+	
+	/**
+	 * Retrieve a node from db.
+	 *
+	 * @return xItem
+	 * @static
+	 */
+	function dbLoad($id,$lang)
+	{
+		return xNodeI18NDAO::load($id,$lang);
+	}
+	
+	
+	function findAll($lang)
+	{
+		return xNodeI18NDAO::findAll($lang);
 	}
 };
 

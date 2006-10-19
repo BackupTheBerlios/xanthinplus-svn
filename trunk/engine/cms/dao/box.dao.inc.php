@@ -31,9 +31,9 @@ class xBoxDAO
 	*/
 	function insert($box)
 	{
-		$field_names = "name,title,type,weight,show_filters_type,show_filters";
-		$field_values = "'%s','%s','%s',%d,'%s','%s'";
-		$values = array($box->m_name,$box->m_title,$box->m_type,$box->m_weight,
+		$field_names = "name,type,weight,show_filters_type,show_filters";
+		$field_values = "'%s','%s',%d,'%s','%s'";
+		$values = array($box->m_name,$box->m_type,$box->m_weight,
 			$box->m_show_filter->m_type,$box->m_show_filter->m_filters);
 		
 		return xDB::getDB()->query("INSERT INTO box($field_names) VALUES($field_values)",$values);
@@ -49,8 +49,8 @@ class xBoxDAO
 	 */
 	function update($box)
 	{
-		$fields = "weight = %d, title = '%s', show_filters_type = '%s',show_filter = '%s'";
-		$values = array($box->m_weight,$box->m_title,$box->m_show_filter->m_type,$box->m_show_filter->m_filters);
+		$fields = "weight = %d, show_filters_type = '%s',show_filter = '%s'";
+		$values = array($box->m_weight,$box->m_show_filter->m_type,$box->m_show_filter->m_filters);
 		
 		$values[] = $box->m_name;
 		return xDB::getDB()->query("UPDATE box SET $fields WHERE name = '%s'",$values);
@@ -75,7 +75,7 @@ class xBoxDAO
 	 */ 
 	function _boxFromRow($row)
 	{
-		return new xBox($row->name,$row->title,$row->type,$row->weight,
+		return new xBox($row->name,$row->type,$row->weight,
 			new xShowFilter($row->show_filters_type,$row->show_filters));
 	}
 	

@@ -19,6 +19,7 @@
 
 /**
 * Represent box visual element. The box id is a string.
+* @abstract
 */
 class xBox extends xElement
 {
@@ -27,13 +28,6 @@ class xBox extends xElement
 	 * @access public
 	 */
 	var $m_name;
-	
-	/**
-	 * @var string
-	 * @access public
-	 */
-	var $m_title;
-	
 	
 	/**
 	 * The type of the box
@@ -59,13 +53,12 @@ class xBox extends xElement
 	/**
 	* Contructor
 	*/
-	function xBox($name,$title,$type,$weight,$show_filter)
+	function xBox($name,$type,$weight,$show_filter)
 	{
 		$this->xElement();
 		
 		$this->m_weight = $weight;
 		$this->m_name = $name;
-		$this->m_title = $title;
 		$this->m_type = $type;
 		$this->m_show_filter = $show_filter;
 	}
@@ -101,17 +94,7 @@ class xBox extends xElement
 	}
 	
 	/**
-	 * Insert this object into db
-	 *
-	 * @return bool FALSE on error
-	 */
-	function dbInsert()
-	{
-		return xBoxDAO::insert($this);
-	}
-	
-	/**
-	 * Fetch a specific box object given the name and type
+	 * Fetch a specific box object given the name and type.
 	 *
 	 * @return xBox A specific xBox child object or NULL if not found.
 	 * @static
@@ -135,9 +118,55 @@ class xBox extends xElement
 
 
 /**
+* Represent an internationalized box.
+* @abstract
+*/
+class xBoxI18N extends xBox
+{
+	/**
+	 * @var string
+	 * @access public
+	 */
+	var $m_title;
+	
+	/**
+	 * The type of the box
+	 *
+	 * @var string
+	 * @access public
+	 */
+	var $m_lang;
+	
+	/**
+	* Contructor
+	*/
+	function xBoxI18N($name,$type,$weight,$show_filter,$title,$lang)
+	{
+		$this->xBox($name,$type,$weight,$show_filter);
+		
+		$this->m_title = $title;
+		$this->m_lang = $lang;
+	}
+	
+	/**
+	 * Retrieve all boxes from db
+	 *
+	 * @return array(xBoxI18N)
+	 */
+	function findAll($lang)
+	{
+		return xBoxI18NDAO::findAll($lang);
+	}
+};
+
+	
+	
+	
+
+/**
  * Represent a custom user box.
  */
-class xBoxCustom extends xBox
+class xBoxCustom extends xBoxI18N
 {
 	/**
 	 * @var string
@@ -161,9 +190,9 @@ class xBoxCustom extends xBox
 	* @param string $content_filter
 	* @param string $area
 	*/
-	function xBoxCustom($name,$title,$type,$weight,$show_filter,$content,$content_filter)
+	function xBoxCustom($name,$type,$weight,$show_filter,$title,$lang,$content,$content_filter)
 	{
-		xBox::xBox($name,$title,$type,$weight,$show_filter);
+		xBoxI18N::xBoxI18N($name,$type,$weight,$show_filter,,$title,$lang);
 		
 		$this->m_content = $content;
 		$this->m_content_filter = $content_filter;
@@ -190,6 +219,26 @@ class xBoxCustom extends xBox
 		return xBoxCustomDAO::insert($this);
 	}
 	
+	/**
+	 * Insert as a new box translation
+	 *
+	 * @return bool FALSE on error
+	 */
+	function dbInsertTranslation()
+	{
+		return xBoxCustomDAO::insertTranslation($this);
+	}
+	
+	
+	/**
+	 * Delete this object from db
+	 *
+	 * @return bool FALSE on error
+	 */
+	function dbDeleteTranslation()
+	{
+		return xBoxCustomDAO::deleteTranslation($this->m_name,$this->m_lang);
+	}
 	
 	/**
 	 * Load an xBoxCustom from db

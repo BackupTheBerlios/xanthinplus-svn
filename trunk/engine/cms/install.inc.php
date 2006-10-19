@@ -130,7 +130,18 @@ class xInstallCMS
 			)TYPE=InnoDB DEFAULT CHARACTER SET utf8"
 		);
 		
-		//item type
+		
+		//language
+		xDB::getDB()->query("
+			CREATE TABLE language (
+			name VARCHAR(2) NOT NULL,
+			full_name VARCHAR(32) NOT NULL,
+			PRIMARY KEY (name)
+			)TYPE=InnoDB DEFAULT CHARACTER SET utf8"
+		);
+		
+		
+		//box type
 		xDB::getDB()->query("
 			CREATE TABLE box_type (
 			name VARCHAR(32) NOT NULL,
@@ -140,11 +151,11 @@ class xInstallCMS
 			)TYPE=InnoDB DEFAULT CHARACTER SET utf8"
 		);
 		
+		
 		//box
 		xDB::getDB()->query("
 			CREATE TABLE box(
 			name VARCHAR(32) NOT NULL,
-			title VARCHAR(128) NOT NULL,
 			type VARCHAR(32) NOT NULL,
 			weight TINYINT NOT NULL,
 			show_filters_type TINYINT NOT NULL,
@@ -155,16 +166,49 @@ class xInstallCMS
 		);
 		
 		
+		//box i18n
+		xDB::getDB()->query("
+			CREATE TABLE box_i18n(
+			box_name VARCHAR(32) NOT NULL,
+			title VARCHAR(128) NOT NULL,
+			lang VARCHAR(2) NOT NULL,
+			PRIMARY KEY(box_name,lang),
+			FOREIGN KEY (box_name) REFERENCES box(name) ON DELETE CASCADE,
+			FOREIGN KEY (lang) REFERENCES language(name) ON DELETE CASCADE
+			)TYPE=InnoDB DEFAULT CHARACTER SET utf8"
+		);
+		
+		
 		//static box
 		xDB::getDB()->query("
 			CREATE TABLE box_custom(
 			box_name VARCHAR(64) NOT NULL,
+			lang VARCHAR(2) NOT NULL,
 			content TEXT NOT NULL,
 			content_filter VARCHAR(64) NOT NULL,
-			PRIMARY KEY (box_name),
-			FOREIGN KEY (box_name) REFERENCES box(name) ON DELETE CASCADE
+			PRIMARY KEY (box_name,lang),
+			FOREIGN KEY (box_name,lang) REFERENCES box_i18n(box_name,lang) ON DELETE CASCADE
 			)TYPE=InnoDB DEFAULT CHARACTER SET utf8"
 		);
+		
+		
+		//menu_static_items
+		xDB::getDB()->query("
+			CREATE TABLE menu_item (
+			id INT UNSIGNED NOT NULL,
+			box_name VARCHAR(64) NOT NULL,
+			lang VARCHAR(2) NOT NULL,
+			label VARCHAR(128) NOT NULL,
+			link VARCHAR(128) NOT NULL,
+			weight TINYINT NOT NULL,
+			parent INT UNSIGNED,
+			PRIMARY KEY(id),
+			INDEX(box_name,lang),
+			FOREIGN KEY (parent) REFERENCES menu_item(id) ON DELETE CASCADE,
+			FOREIGN KEY (box_name,lang) REFERENCES box_i18n(box_name,lang) ON DELETE CASCADE
+			)TYPE=InnoDB DEFAULT CHARACTER SET utf8"
+		);
+		xUniqueId::createNew('menu_item');
 		
 		
 		xDB::getDB()->query("
@@ -187,23 +231,6 @@ class xInstallCMS
 			)TYPE=InnoDB DEFAULT CHARACTER SET utf8"
 		);
 		
-		//menu_static_items
-		xDB::getDB()->query("
-			CREATE TABLE menu_item (
-			id INT UNSIGNED NOT NULL,
-			box_name VARCHAR(64) NOT NULL,
-			label VARCHAR(128) NOT NULL,
-			link VARCHAR(128) NOT NULL,
-			weight TINYINT NOT NULL,
-			parent INT UNSIGNED,
-			PRIMARY KEY(id),
-			INDEX(box_name),
-			FOREIGN KEY (parent) REFERENCES menu_item(id) ON DELETE CASCADE,
-			FOREIGN KEY (box_name) REFERENCES box(name) ON DELETE CASCADE
-			)TYPE=InnoDB DEFAULT CHARACTER SET utf8"
-		);
-		xUniqueId::createNew('menu_items');
-		
 		
 		//item type
 		xDB::getDB()->query("
@@ -214,17 +241,16 @@ class xInstallCMS
 			)TYPE=InnoDB DEFAULT CHARACTER SET utf8"
 		);
 		
+		
 		//item cathegory
 		xDB::getDB()->query("
 			CREATE TABLE cathegory (
 			id INT UNSIGNED NOT NULL,
-			name VARCHAR(32) NOT NULL,
 			title VARCHAR(128) NOT NULL,
 			type VARCHAR(32) NOT NULL,
 			description TEXT NOT NULL,
 			parent_cathegory INT UNSIGNED,
 			PRIMARY KEY (id),
-			UNIQUE(name),
 			FOREIGN KEY (parent_cathegory) REFERENCES cathegory(id) ON DELETE CASCADE,
 			FOREIGN KEY (type) REFERENCES node_and_cathegory_type(name) ON DELETE RESTRICT
 			)TYPE=InnoDB DEFAULT CHARACTER SET utf8"
@@ -232,7 +258,23 @@ class xInstallCMS
 		xUniqueId::createNew('cathegory');
 		
 		
-		//item
+		//cathegory i18n
+		xDB::getDB()->query("
+			CREATE TABLE cathegory_i18n (
+			catid INT UNSIGNED NOT NULL,
+			name VARCHAR(32) NOT NULL,
+			title VARCHAR(128) NOT NULL,
+			description TEXT NOT NULL,
+			lang VARCHAR(2) NOT NULL,
+			UNIQUE(name),
+			PRIMARY KEY (catid,lang),
+			FOREIGN KEY (catid) REFERENCES cathegory(id) ON DELETE CASCADE,
+			FOREIGN KEY (lang) REFERENCES language(name) ON DELETE CASCADE
+			)TYPE=InnoDB DEFAULT CHARACTER SET utf8"
+		);
+		
+		
+		//node
 		xDB::getDB()->query("
 			CREATE TABLE node (
 			id INT UNSIGNED NOT NULL,
@@ -249,6 +291,36 @@ class xInstallCMS
 		);
 		xUniqueId::createNew('node');
 		
+		
+		//node i18n
+		xDB::getDB()->query("
+			CREATE TABLE node_i18n (
+			nodeid INT UNSIGNED NOT NULL,
+			title VARCHAR(256) NOT NULL,
+			content TEXT NOT NULL,
+			lang VARCHAR(2) NOT NULL,
+			PRIMARY KEY (nodeid,lang),
+			FOREIGN KEY (nodeid) REFERENCES node(id) ON DELETE CASCADE,
+			FOREIGN KEY (lang) REFERENCES language(name) ON DELETE CASCADE
+			)TYPE=InnoDB DEFAULT CHARACTER SET utf8"
+		);
+		
+		//pageitem
+		xDB::getDB()->query("
+			CREATE TABLE node_page (
+			nodeid INT UNSIGNED NOT NULL,
+			lang VARCHAR(2) NOT NULL,
+			published TINYINT NOT NULL,
+			sticky TINYINT NOT NULL,
+			accept_replies TINYINT NOT NULL,
+			approved TINYINT NOT NULL,
+			meta_description VARCHAR(128) NOT NULL,
+			meta_keywords VARCHAR(128) NOT NULL,
+			PRIMARY KEY (nodeid,lang),
+			FOREIGN KEY (nodeid,lang) REFERENCES node_i18n(nodeid,lang) ON DELETE CASCADE
+			)TYPE=InnoDB DEFAULT CHARACTER SET utf8"
+		);
+		
 		//item to cathegory
 		xDB::getDB()->query("
 			CREATE TABLE node_to_cathegory (
@@ -257,21 +329,6 @@ class xInstallCMS
 			UNIQUE (nodeid,catid),
 			FOREIGN KEY (nodeid) REFERENCES node(id) ON DELETE CASCADE,
 			FOREIGN KEY (catid) REFERENCES cathegory(id) ON DELETE CASCADE
-			)TYPE=InnoDB DEFAULT CHARACTER SET utf8"
-		);
-		
-		//pageitem
-		xDB::getDB()->query("
-			CREATE TABLE node_page (
-			nodeid INT UNSIGNED NOT NULL,
-			published TINYINT NOT NULL,
-			sticky TINYINT NOT NULL,
-			accept_replies TINYINT NOT NULL,
-			approved TINYINT NOT NULL,
-			meta_description VARCHAR(128) NOT NULL,
-			meta_keywords VARCHAR(128) NOT NULL,
-			PRIMARY KEY (nodeid),
-			FOREIGN KEY (nodeid) REFERENCES node(id) ON DELETE CASCADE
 			)TYPE=InnoDB DEFAULT CHARACTER SET utf8"
 		);
 		
@@ -307,19 +364,21 @@ class xInstallCMS
 		$user->dbInsert('pass');
 		$user->giveRole('administrator');
 		
-		//not type
+		//notde	type
 		$node_type = new xNodeType('page','Basic node type');
 		$node_type->dbInsert();
-		
-		//root cathegory
-		$cat = new xCathegory(-1,'page_root','Root cathegory','page','',NULL);
-		$cat->dbInsert();
 		
 		//box types
 		$box_type = new xBoxType('custom','A user custom box',TRUE);
 		$box_type->dbInsert();
 		$box_type = new xBoxType('menu','a Menu',TRUE);
 		$box_type->dbInsert();
+		
+
+		/**
+		//root cathegory
+		$cat = new xCathegory(-1,'page_root','Root cathegory','page','',NULL);
+		$cat->dbInsert();
 		
 		//menus
 		$menu = new xMenu('admin','Admin','menu',0,new xShowFilter(XANTH_SHOW_FILTER_EXCLUSIVE,''));
@@ -353,6 +412,7 @@ class xInstallCMS
 		//box group
 		$group = new xBoxGroup('left_group',true,array($menu));
 		$group->dbInsert();
+		*/
 	}
 };
 

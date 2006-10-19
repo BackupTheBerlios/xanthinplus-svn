@@ -7,16 +7,18 @@ Path management
 Tipi di path in base alla risorsa, all'azione
 	1)Normal resource
 		a.Actions with id
-			I.hittp://myhost.com/node/view/itemid(int)/page(int)
-			II.hittp://myhost.com/cathegory/view/cathegory_name/page(int) 
+			I.hittp://myhost.com/lang/node/view/itemid(int)/page(int)
+			I.hittp://myhost.com/lang/node/translate/itemid(int)
+			I.hittp://myhost.com/lang/node/edit/itemid(int)
+			II.hittp://myhost.com/lang/cathegory/view/cathegory_name/page(int)
 		b.Actions without id
-			I.hittp://myhost.com/node/create/type_name/
-			II.hittp://myhost.com/node/create/type_name/cathegory_name
+			I.hittp://myhost.com/lang/node/create/type_name/
+			II.hittp://myhost.com/lang/node/create/type_name/cathegory_name
 	2)Special resource
 		a.Actions with id
-			I.hittp://myhost.com/admin/box/create/type_name/
+			I.hittp://myhost.com/lang/admin/box/create/type_name/
 		b.Actions without id
-			I.hittp://myhost.com/admin/box/create/type_name/
+			I.hittp://myhost.com/lang/admin/box/create/type_name/
 	3)Automatic partial aliasing : hittp://myhost.com/lang/node/view/item-title(string)_itemid(int)_ppage(int)
 	4)Custom aliasing (no pag nr here): hittp://myhost.com/custom_path/custom_title
 
@@ -35,15 +37,10 @@ Node permission order:
 2)xNode subtype builtin specific permission of creation/editing/view
 3)Cathegory add-inside/view-nodes-inside
 
---------------------------------------------------------------------------------------------
-Module management
---------------------------------------------------------------------------------------------
-Registrazione del tipo
-xModuleManager::register(module,function,filter1,filter2)
 
 --------------------------------------------------------------------------------------------
 Box show management
 --------------------------------------------------------------------------------------------
-1)check node permissions
+1)check permissions
 2)check show filter
 

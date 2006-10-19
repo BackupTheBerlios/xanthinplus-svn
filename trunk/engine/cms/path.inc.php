@@ -56,6 +56,11 @@ class xPath
 	*/
 	var $m_page;
 	
+	/**
+	* @var string
+	*/
+	var $m_lang;
+	
 	
 	function xPath()
 	{
@@ -67,6 +72,7 @@ class xPath
 		$this->m_parent_cathegory = NULL;
 		$this->m_id = NULL;
 		$this->m_page = NULL;
+		$this->m_lang = NULL;
 	}
 	
 	/**
@@ -180,6 +186,12 @@ class xPath
 			$i = 0;
 			if(! isset($exploded[$i]))
 				return $path;
+			
+			if(! preg_match('#^[A-Z]{2}$#i',$exploded[$i]))
+				return NULL;
+			
+			$path->m_lang = $exploded[$i++];
+			
 			$path->m_resource = $exploded[$i++];
 			
 			if(xPath::_isSpecialResource($path->m_resource))

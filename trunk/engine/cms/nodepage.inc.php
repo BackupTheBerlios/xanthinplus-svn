@@ -19,7 +19,7 @@
 /**
  * Represent the standard node in xanthin+
  */
-class xNodePage extends xNode
+class xNodePage extends xNodeI18N
 {
 	/**
 	 * @var bool
@@ -66,10 +66,10 @@ class xNodePage extends xNode
 	/**
 	 *
 	 */
-	function xNodePage($id,$title,$type,$author,$content,$content_filter,$parent_cathegories,$creation_time,
+	function xNodePage($id,$type,$author,$content_filter,$title,$content,$parent_cathegories,$creation_time,
 		$edit_time,$published,$sticky,$accept_replies,$approved,$meta_description,$meta_keywords)
 	{
-		xNode::xNode($id,$title,$type,$author,$content,$content_filter,$parent_cathegories,
+		$this->NodeI18N($id,$type,$author,$content_filter,$title,$content,$parent_cathegories,
 			$creation_time,$edit_time);
 			
 		$this->m_sticky = $sticky;
@@ -91,6 +91,16 @@ class xNodePage extends xNode
 		return $this->m_id;
 	}
 	
+	/** 
+	 * Inserts this into db
+	 *
+	 * @return bool FALSE on error
+	 */
+	function dbInsertTranslation()
+	{
+		xNodePageDAO::insertTranslation($this);
+	}
+	
 	/**
 	 * Update this in db
 	 *
@@ -107,9 +117,9 @@ class xNodePage extends xNode
 	 * @return xNodePage
 	 * @static
 	 */
-	function dbLoad($id)
+	function dbLoad($id,$lang)
 	{
-		return xNodePageDAO::load($id);
+		return xNodePageDAO::load($id,$lang);
 	}
 };
 
