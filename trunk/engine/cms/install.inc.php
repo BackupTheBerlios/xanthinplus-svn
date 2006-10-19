@@ -24,14 +24,14 @@ class xInstallCMS
 	function xModuleInstallCMS()
 	{
 		//not instantiable
-		assert(FASLE);
+		assert(FALSE);
 	}
 	
 	/**
 	* Installs the cms in a Mysql db
 	*/
 	function installDBMySql()
-	{
+	{		
 		//log
 		xDB::getDB()->query("
 			CREATE TABLE xanth_log (
@@ -351,6 +351,10 @@ class xInstallCMS
 		xSettings::dbInsert('site_keywords','');
 		xSettings::dbInsert('site_theme','');
 		
+		//lang
+		$lang = new xLanguage('en','English');
+		$lang->dbInsert();
+		
 		//roles
 		$role = new xRole('administrator','Administrator');
 		$role->dbInsert();
@@ -364,7 +368,7 @@ class xInstallCMS
 		$user->dbInsert('pass');
 		$user->giveRole('administrator');
 		
-		//notde	type
+		//node	type
 		$node_type = new xNodeType('page','Basic node type');
 		$node_type->dbInsert();
 		
@@ -374,37 +378,35 @@ class xInstallCMS
 		$box_type = new xBoxType('menu','a Menu',TRUE);
 		$box_type->dbInsert();
 		
-
-		/**
 		//root cathegory
-		$cat = new xCathegory(-1,'page_root','Root cathegory','page','',NULL);
+		$cat = new xCathegoryI18N(0,'page',NULL,'page_root','Root cathegory','Root cathegory','en');
 		$cat->dbInsert();
 		
 		//menus
-		$menu = new xMenu('admin','Admin','menu',0,new xShowFilter(XANTH_SHOW_FILTER_EXCLUSIVE,''));
+		$menu = new xMenu('admin','menu',0,new xShowFilter(XANTH_SHOW_FILTER_EXCLUSIVE,''),'Admin','en');
 	
-		$menuitem = new xMenuItem(-1,'Homepage','?',-1);
+		$menuitem = new xMenuItem(-1,'Homepage','?p=en',-1,'en');
 		$menu->m_items[] = $menuitem;
 		
-		$menuitem = new xMenuItem(-1,'Create cathegory','?p=cathegory/create',-1);
+		$menuitem = new xMenuItem(-1,'Create cathegory','?p=en/cathegory/create',-1,'en');
 		$menu->m_items[] = $menuitem;
 		
-		$menuitem = new xMenuItem(-1,'Create node','?p=node/create',-1);
+		$menuitem = new xMenuItem(-1,'Create node','?p=en/node/create',-1,'en');
 		$menu->m_items[] = $menuitem;
 		
-		$menuitem = new xMenuItem(-1,'Access permissions','?p=admin/accesspermissions',-1);
+		$menuitem = new xMenuItem(-1,'Access permissions','?p=en/admin/accesspermissions',-1,'en');
 		$menu->m_items[] = $menuitem;
 		
-		$menuitem = new xMenuItem(-1,'Create custom box','?p=admin/box/create/custom',-1);
+		$menuitem = new xMenuItem(-1,'Create custom box','?p=en/admin/box/create/custom',-1,'en');
 		$menu->m_items[] = $menuitem;
 		
-		$menuitem = new xMenuItem(-1,'Login','?p=user/login',-1);
+		$menuitem = new xMenuItem(-1,'Login','?p=en/user/login',-1,'en');
 		$menu->m_items[] = $menuitem;
 		
-		$menuitem = new xMenuItem(-1,'Logout','?p=user/logout',-1);
+		$menuitem = new xMenuItem(-1,'Logout','?p=en/user/logout',-1,'en');
 		$menu->m_items[] = $menuitem;
 		
-		$menuitem = new xMenuItem(-1,'Settings','?p=admin/settings',-1);
+		$menuitem = new xMenuItem(-1,'Settings','?p=en/admin/settings',-1,'en');
 		$menu->m_items[] = $menuitem;
 		
 		$menu->dbInsert();
@@ -412,7 +414,6 @@ class xInstallCMS
 		//box group
 		$group = new xBoxGroup('left_group',true,array($menu));
 		$group->dbInsert();
-		*/
 	}
 };
 
@@ -426,8 +427,14 @@ function xanth_install_main()
 	if(xConf::get('db_type','mysql') == 'mysql')
 	{
 		$db = new xDBMysql();
-		$db->connect(xConf::get('db_host',''),xConf::get('db_name',''),xConf::get('db_user',''),xConf::get('db_pass',''),xConf::get('db_port',''));
+		$db->connect(xConf::get('db_host',''),xConf::get('db_user',''),xConf::get('db_pass',''),xConf::get('db_port',''));
 		xDB::setDB($db);
+		
+		$name = xConf::get('db_name','');
+		xDB::getDB()->query("DROP DATABASE $name");
+		xDB::getDB()->query("CREATE DATABASE $name");
+		
+		$db->selectDB($name);
 	}
 	else
 	{

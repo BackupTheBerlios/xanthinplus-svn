@@ -53,13 +53,22 @@ class xDB
 	* Initialize a databse connection.
 	*
 	* @param string $host databse hostname
-	* @param string $db database name
 	* @param string $user database username
 	* @param string $pass database password for username
 	* @param string $port database listening port (give blank for default)
 	* @abstract
 	*/
-	function connect($host,$db,$user,$pass,$port = '')
+	function connect($host,$user,$pass,$port = '')
+	{
+		//must override this function
+		assert(FALSE);
+	}
+	
+	/**
+	* select a database
+	* @abstract
+	*/
+	function selectDB($name)
 	{
 		//must override this function
 		assert(FALSE);

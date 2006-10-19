@@ -33,7 +33,7 @@ class xDBMysql extends xDB
 	}
 	
 	// DOCS INHERITHED  ========================================================
-	function connect($host,$db,$user,$pass,$port = '')
+	function connect($host,$user,$pass,$port = '')
 	{
 		// Check if MySQL support is present in PHP
 		if (!function_exists('mysql_connect')) 
@@ -46,14 +46,20 @@ class xDBMysql extends xDB
 		$this->m_connection = mysql_connect($host, $user, $pass, TRUE);
 		if(!$this->m_connection) 
 			exit('Unable to connect to database server');
-
-		if(!mysql_select_db($db))
-			exit('Unable to select database');
 		
 		//set connection encoding
 		if(!mysql_query("SET NAMES 'utf8'"))
 			exit('Unable to select utf8 encoding for db conenction');
 	}
+	
+	
+	// DOCS INHERITHED  ========================================================
+	function selectDB($name)
+	{
+		if(!mysql_select_db($name))
+			exit('Unable to select database');
+	}
+	
 	
 	// DOCS INHERITHED  ========================================================
 	function _query($query)

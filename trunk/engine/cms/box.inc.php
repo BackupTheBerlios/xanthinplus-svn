@@ -99,9 +99,9 @@ class xBox extends xElement
 	 * @return xBox A specific xBox child object or NULL if not found.
 	 * @static
 	 */
-	function fetchBox($boxname,$type)
+	function fetchBox($boxname,$type,$lang)
 	{
-		return xModule::callWithSingleResult2('xm_fetchBox',$boxname,$type);
+		return xModule::callWithSingleResult3('xm_fetchBox',$boxname,$type,$lang);
 	}
 	
 	/**
@@ -192,7 +192,7 @@ class xBoxCustom extends xBoxI18N
 	*/
 	function xBoxCustom($name,$type,$weight,$show_filter,$title,$lang,$content,$content_filter)
 	{
-		xBoxI18N::xBoxI18N($name,$type,$weight,$show_filter,,$title,$lang);
+		xBoxI18N::xBoxI18N($name,$type,$weight,$show_filter,$title,$lang);
 		
 		$this->m_content = $content;
 		$this->m_content_filter = $content_filter;

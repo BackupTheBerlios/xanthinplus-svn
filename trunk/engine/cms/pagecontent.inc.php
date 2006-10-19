@@ -190,12 +190,6 @@ class xPageContent extends xElement
 		$emptystr = '';
 		$content = xModule::callWithSingleResult1('xm_fetchContent',$path);
 		
-		//search for automatic or full aliasing
-		if($content === NULL)
-		{
-			$content = xModule::callWithSingleResult1('xm_fetchAliasContent',$path);
-		}
-		
 		return xPageContent::_processContent($content,$path);
 	}
 };

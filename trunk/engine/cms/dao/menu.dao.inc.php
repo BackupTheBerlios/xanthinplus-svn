@@ -82,7 +82,7 @@ class xMenuDAO
 		{
 			foreach($items as $item)
 			{
-				$id = xUniqueId::generate('menu_items');
+				$id = xUniqueId::generate('menu_item');
 				$field_names = "id,box_name,label,link,weight,lang";
 				$field_values = "%d,'%s','%s','%s',%d,'%s'";
 				$values = array($id,$menuname,$item->m_label,$item->m_link,$item->m_weight,$item->m_lang);
@@ -120,7 +120,7 @@ class xMenuDAO
 		xBoxI18NDAO::update($menu);
 		
 		//clear all menu items
-		xDB::getDB()->query("DELETE FROM menu_item WHERE box_name = '%s' AND lang = '%s'"),$menu->m_name,$menu->m_lang);
+		xDB::getDB()->query("DELETE FROM menu_item WHERE box_name = '%s' AND lang = '%s'",$menu->m_name,$menu->m_lang);
 		
 		//insert new
 		xMenuDAO::_insertItems($menu->m_name,$menu->m_items,0);
@@ -191,8 +191,8 @@ class xMenuDAO
 	 */
 	function _menuFromRow($row,$items)
 	{
-		return new xMenu($row->name,$row->type,$row->weight,$row->title,$row->lang,
-			new xShowFilter($row->show_filters_type,$row->show_filters),$items);
+		return new xMenu($row->name,$row->type,$row->weight,
+			new xShowFilter($row->show_filters_type,$row->show_filters),$row->title,$row->lang,$items);
 	}
 	
 	

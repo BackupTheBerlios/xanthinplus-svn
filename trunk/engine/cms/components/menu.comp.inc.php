@@ -44,12 +44,12 @@ class xModuleMenu extends xModule
 	/**
 	 * @see xDummyModule::xm_fetchBox()
 	 */ 
-	function xm_fetchBox($box_name,$box_type)
+	function xm_fetchBox($box_name,$box_type,$lang)
 	{
 		switch($box_type)
 		{
 			case 'menu':
-				return xMenu::dbLoad($box_name);
+				return xMenu::dbLoad($box_name,$lang);
 				break;
 		}
 		

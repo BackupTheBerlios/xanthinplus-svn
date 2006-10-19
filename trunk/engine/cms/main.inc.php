@@ -36,7 +36,8 @@ function xanth_main()
 	if(xConf::get('db_type','mysql') == 'mysql')
 	{
 		$db = new xDBMysql();
-		$db->connect(xConf::get('db_host',''),xConf::get('db_name',''),xConf::get('db_user',''),xConf::get('db_pass',''),xConf::get('db_port',''));
+		$db->connect(xConf::get('db_host',''),xConf::get('db_user',''),xConf::get('db_pass',''),xConf::get('db_port',''));
+		$db->selectDB(xConf::get('db_name',''));
 		xDB::setDB($db);
 	}
 	else

@@ -38,7 +38,7 @@ class xBoxI18NDAO
 		xDB::getDB()->query("INSERT INTO box_i18n(box_name,title,lang) VALUES('%s','%s','%s')",
 			$box->m_name,$box->m_title,$box->m_lang);
 		
-		if(!xDB::getDB()->endTransaction())
+		if(!xDB::getDB()->commitTransaction())
 			return false;
 			
 		return true;
@@ -86,7 +86,7 @@ class xBoxI18NDAO
 		xDB::getDB()->query("UPDATE box_i18n SET title = '%s' WHERE box_name = '%s' AND lang = '%s'",
 			$box->m_title,$box->m_name,$box->m_lang);
 		
-		if(!xDB::getDB()->endTransaction())
+		if(!xDB::getDB()->commitTransaction())
 			return false;
 			
 		return true;

@@ -105,9 +105,9 @@ class xBoxGroup extends xElement
 	 *
 	 * @return bool FALSE on error
 	 */
-	function find($renderizable)
+	function find($renderizable,$lang)
 	{
-		return xBoxGroupDAO::find($renderizable);
+		return xBoxGroupDAO::find($renderizable,$lang);
 	}
 }
 

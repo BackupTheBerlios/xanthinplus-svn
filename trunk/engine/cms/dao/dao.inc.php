@@ -28,5 +28,10 @@ require_once('engine/cms/dao/boxtype.dao.inc.php');
 require_once('engine/cms/dao/menu.dao.inc.php');
 require_once('engine/cms/dao/boxgroup.dao.inc.php');
 require_once('engine/cms/dao/settings.dao.inc.php');
+require_once('engine/cms/dao/boxi18n.dao.inc.php');
+require_once('engine/cms/dao/nodei18n.dao.inc.php');
+require_once('engine/cms/dao/cathegoryi18n.dao.inc.php');
+require_once('engine/cms/dao/language.dao.inc.php');
+
 
 ?>

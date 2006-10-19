@@ -57,12 +57,12 @@ class xModuleBox extends xModule
 	/**
 	 * @see xDummyModule::xm_fetchBox()
 	 */ 
-	function xm_fetchBox($box_name,$box_type)
+	function xm_fetchBox($box_name,$box_type,$lang)
 	{
 		switch($box_type)
 		{
 			case 'custom':
-				return xBoxCustom::dbLoad($box_name);
+				return xBoxCustom::dbLoad($box_name,$lang);
 				break;
 		}
 		

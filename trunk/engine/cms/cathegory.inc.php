@@ -53,17 +53,6 @@ class xCathegory extends xElement
 		$this->m_parent_cathegory = $parent_cathegory;
 	}
 	
-	
-	/** 
-	 * Inserts this into db
-	 *
-	 * @return bool FALSE on error
-	 */
-	function dbInsert()
-	{
-		return xCathegoryDAO::insert($this);
-	}
-	
 	/** 
 	 * Delete this cathegory from db
 	 *
@@ -73,7 +62,6 @@ class xCathegory extends xElement
 	{
 		return xCathegoryDAO::delete($this->m_id);
 	}
-	
 	
 	/** 
 	 * Delete a cathegory from db using its id
@@ -147,8 +135,10 @@ class xCathegory extends xElement
 /**
  * An internationalized cathegory.
  */
-class xCathegoryI18N extends xElement
+class xCathegoryI18N extends xCathegory
 {
+	var $m_lang;
+	
 	/**
 	 * @var string
 	 * @access public
@@ -171,11 +161,12 @@ class xCathegoryI18N extends xElement
 	/**
 	 *
 	 */
-	function xCathegoryI18N($id,$type,$parent_cathegory,$name,$title,$description)
+	function xCathegoryI18N($id,$type,$parent_cathegory,$name,$title,$description,$lang)
 	{
-		$this-> xCathegory($id,$name,$type,$parent_cathegory);
+		$this->xCathegory($id,$type,$parent_cathegory);
 		
 		$this->m_name = $name;
+		$this->m_lang = $lang;
 		$this->m_title = $title;
 		$this->m_description = $description;
 	}

@@ -432,7 +432,7 @@ class xDummyModule extends xModule
 	* @param xPath $path
 	* @return xPageContent A valid xPageContent object for the given path, NULL otherwise.
 	*/
-	function xm_fetchBox($box_name,$box_type)
+	function xm_fetchBox($box_name,$box_type,$lang)
 	{
 	}
 	

@@ -189,9 +189,10 @@ class xPath
 			
 			if(! preg_match('#^[A-Z]{2}$#i',$exploded[$i]))
 				return NULL;
-			
 			$path->m_lang = $exploded[$i++];
 			
+			if(! isset($exploded[$i]))
+				return $path;
 			$path->m_resource = $exploded[$i++];
 			
 			if(xPath::_isSpecialResource($path->m_resource))
