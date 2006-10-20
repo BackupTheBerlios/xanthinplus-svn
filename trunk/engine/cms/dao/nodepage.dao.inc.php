@@ -39,7 +39,7 @@ class xNodePageDAO
 		
 		xDB::getDB()->query("INSERT INTO node_page(nodeid,lang,sticky,accept_replies,published,approved,
 			meta_description,meta_keywords) VALUES (%d,'%s',%d,%d,%d,%d,'%s','%s')",
-			$id,$node->m_lang,$node->m_published,$node->m_sticky,$node->m_accept_replies,$node->m_published,
+			$id,$node->m_lang,$node->m_sticky,$node->m_accept_replies,$node->m_published,
 			$node->m_approved,$node->m_meta_description,$node->m_meta_keywords);
 			
 		if(!xDB::getDB()->commitTransaction())
@@ -107,7 +107,8 @@ class xNodePageDAO
 	function _nodepageFromRow($row_object,$cathegories)
 	{
 		return new xNodePage($row_object->id,$row_object->type,
-			$row_object->author,$row_object->content_filter,$row_object->title,$row_object->content,$cathegories,
+			$row_object->author,$row_object->content_filter,$row_object->title,$row_object->content,$row_object->lang,
+			$cathegories,
 			$row_object->creation_time,$row_object->edit_time,$row_object->published,$row_object->sticky,
 			$row_object->accept_replies,
 			$row_object->approved,$row_object->meta_description,$row_object->meta_keywords);
@@ -130,6 +131,37 @@ class xNodePageDAO
 		}
 		
 		return NULL;
+	}
+	
+	
+	/**
+	 * Retrieve nodes
+	 *
+	 * @return array(xNodePage)
+	 * @static
+	 */
+	function find($lang = NULL)
+	{
+		$where['node'] = array();
+		
+		$where['node_i18n']['nodeid']['join'] = "node.id";
+		$where['node_i18n']['nodeid']['connector'] = "AND";
+		
+		$where['node_page']['nodeid']['join'] = "node_i18n.nodeid";
+		$where['node_page']['nodeid']['connector'] = "AND";
+		
+		$where['node_i18n']['lang']['type'] = "node_i18n.nodeid";
+		$where['node_i18n']['lang']['connector'] = "AND";
+		$where['node_i18n']['lang']['value'] = $lang;
+		
+		$result = xDB::getDB()->autoQuery("SELECT", NULL, $where);
+		$pages = array();
+		while($row = xDB::getDB()->fetchObject($result))
+		{
+			$pages[] = xNodePageDAO::_nodepageFromRow($row,xCathegoryDAO::findNodeCathegories($row->id));
+		}
+		
+		return $pages;
 	}
 }
 

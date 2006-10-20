@@ -66,18 +66,18 @@ class xNodePage extends xNodeI18N
 	/**
 	 *
 	 */
-	function xNodePage($id,$type,$author,$content_filter,$title,$content,$parent_cathegories,$creation_time,
+	function xNodePage($id,$type,$author,$content_filter,$title,$content,$lang,$parent_cathegories,$creation_time,
 		$edit_time,$published,$sticky,$accept_replies,$approved,$meta_description,$meta_keywords)
 	{
-		$this->NodeI18N($id,$type,$author,$content_filter,$title,$content,$parent_cathegories,
+		$this->xNodeI18N($id,$type,$author,$content_filter,$title,$content,$lang,$parent_cathegories,
 			$creation_time,$edit_time);
 			
-		$this->m_sticky = $sticky;
-		$this->m_accept_replies = $accept_replies;
-		$this->m_published = $published;
-		$this->m_approved = $approved;
-		$this->m_meta_description = $meta_description;
-		$this->m_meta_keywords = $meta_keywords;
+		$this->m_sticky = (bool) $sticky;
+		$this->m_accept_replies = (bool) $accept_replies;
+		$this->m_published = (bool) $published;
+		$this->m_approved = (bool) $approved;
+		$this->m_meta_description = (string) $meta_description;
+		$this->m_meta_keywords = (string) $meta_keywords;
 	}
 	
 	/** 
@@ -120,6 +120,14 @@ class xNodePage extends xNodeI18N
 	function dbLoad($id,$lang)
 	{
 		return xNodePageDAO::load($id,$lang);
+	}
+	
+	/**
+	 *
+	 */
+	function find()
+	{
+		return xNodePageDAO::find();
 	}
 };
 

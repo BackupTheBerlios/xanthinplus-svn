@@ -426,7 +426,7 @@ class xDB
 						}
 					}
 					
-					$out =  'UPDATE  ' . $table_name . ' SET ' . $out1 . ' WHERE '.$out2. ' '. $append;
+					$out =  'UPDATE  ' . $table_name . ' SET ' . $out1 . ' WHERE '.$out2. ' '. $extra_query;
 					array_merge($values,$extra_values);
 					$this->query($out,$values);
 				}
@@ -465,7 +465,7 @@ class xDB
 						}
 					}
 					
-					$out =  'INSERT INTO  ' . $table_name . ' (' . $out1 . ') VALUES (' .$out2 . ') ' . $append;
+					$out =  'INSERT INTO  ' . $table_name . ' (' . $out1 . ') VALUES (' .$out2 . ') ' . $extra_query;
 					array_merge($values,$extra_values);
 					$this->query($out,$values);
 				}
@@ -523,7 +523,7 @@ class xDB
 					
 					$out = $out1 . ' WHERE ' . $out2;
 				}
-				$out .=  ' ' . $append;
+				$out .=  ' ' . $extra_query;
 				array_merge($values,$extra_values);
 				//echo $out;
 				return $this->query($out,$values);

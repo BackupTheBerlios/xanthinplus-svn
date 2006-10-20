@@ -86,10 +86,9 @@ class xCathegoryDAO
 	function findNodeCathegories($id)
 	{
 		$cats = array();
-		$result = xDB::getDB()->query("SELECT * FROM cathegory,node_to_cathegory WHERE node_to_cathegory.catid = %d 
-			AND cathegory.id = node_to_cathegory.catid",
-			$id);
-		if($row = xDB::getDB()->fetchObject($result))
+		$result = xDB::getDB()->query("SELECT * FROM cathegory,node_to_cathegory WHERE node_to_cathegory.nodeid = %d 
+			AND cathegory.id = node_to_cathegory.catid",$id);
+		while($row = xDB::getDB()->fetchObject($result))
 		{
 			$cats[] = xCathegoryDAO::_cathegoryFromRow($row);
 		}

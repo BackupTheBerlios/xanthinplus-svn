@@ -354,6 +354,8 @@ class xInstallCMS
 		//lang
 		$lang = new xLanguage('en','English');
 		$lang->dbInsert();
+		$lang = new xLanguage('it','Italiano');
+		$lang->dbInsert();
 		
 		//roles
 		$role = new xRole('administrator','Administrator');
@@ -391,13 +393,13 @@ class xInstallCMS
 		$menuitem = new xMenuItem(-1,'Create cathegory','?p=en/cathegory/create',-1,'en');
 		$menu->m_items[] = $menuitem;
 		
-		$menuitem = new xMenuItem(-1,'Create node','?p=en/node/create',-1,'en');
+		$menuitem = new xMenuItem(-1,'Node','?p=en/node/admin',-1,'en');
 		$menu->m_items[] = $menuitem;
 		
-		$menuitem = new xMenuItem(-1,'Access permissions','?p=en/admin/accesspermissions',-1,'en');
+		$menuitem = new xMenuItem(-1,'Access permissions','?p=en/accesspermissions/admin/',-1,'en');
 		$menu->m_items[] = $menuitem;
 		
-		$menuitem = new xMenuItem(-1,'Create custom box','?p=en/admin/box/create/custom',-1,'en');
+		$menuitem = new xMenuItem(-1,'Create custom box','?p=en/box/create/custom',-1,'en');
 		$menu->m_items[] = $menuitem;
 		
 		$menuitem = new xMenuItem(-1,'Login','?p=en/user/login',-1,'en');
@@ -406,7 +408,10 @@ class xInstallCMS
 		$menuitem = new xMenuItem(-1,'Logout','?p=en/user/logout',-1,'en');
 		$menu->m_items[] = $menuitem;
 		
-		$menuitem = new xMenuItem(-1,'Settings','?p=en/admin/settings',-1,'en');
+		$menuitem = new xMenuItem(-1,'Settings','?p=en/settings/admin',-1,'en');
+		$menu->m_items[] = $menuitem;
+		
+		$menuitem = new xMenuItem(-1,'Install','install.php',-1,'en');
 		$menu->m_items[] = $menuitem;
 		
 		$menu->dbInsert();

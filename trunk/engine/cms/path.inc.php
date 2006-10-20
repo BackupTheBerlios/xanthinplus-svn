@@ -113,23 +113,6 @@ class xPath
 		return xPath::_parse($p);
 	}
 	
-	
-	/**
-	 * @access private
-	 * @return bool 
-	 */
-	function _isSpecialResource($res)
-	{
-		switch($res)
-		{
-			case 'admin':
-			case 'user':
-			return true;
-		}
-		
-		return false;
-	}
-	
 	/**
 	 * @access private
 	 * @return bool 
@@ -140,23 +123,7 @@ class xPath
 		{
 			case 'view':
 			case 'edit':
-			return true;
-		}
-		
-		return false;
-	}
-	
-	
-	/**
-	 * @access private
-	 * @return bool 
-	 */
-	function _isActionWithoutId($act)
-	{
-		switch($act)
-		{
-			case 'view_all':
-			case 'create':
+			case 'translate':
 			return true;
 		}
 		
@@ -194,13 +161,6 @@ class xPath
 			if(! isset($exploded[$i]))
 				return $path;
 			$path->m_resource = $exploded[$i++];
-			
-			if(xPath::_isSpecialResource($path->m_resource))
-			{
-				if(! isset($exploded[$i]))
-					return $path;
-				$path->m_resource .= '/' . $exploded[$i++];
-			}
 			
 			if(! isset($exploded[$i]))
 				return $path;

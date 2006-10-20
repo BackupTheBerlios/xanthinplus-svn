@@ -31,7 +31,7 @@ class xModuleSettings extends xModule
 	 */ 
 	function xm_fetchContent($path)
 	{
-		if($path->m_resource == 'admin/settings' && $path->m_action == NULL && $path->m_type == NULL)
+		if($path->m_resource == 'settings' && $path->m_action == 'admin' && $path->m_type == NULL)
 		{
 			return new xPageContentAdminSettings($path);
 		}

@@ -37,7 +37,7 @@ class xNodeI18NDAO
 		
 		$id = xNodeDAO::insert($node);
 		
-		xDB::getDB()->query("INSERT INTO node_i18n(nodeid,title,content,lang) VALUES(%d,'%s','%s,'%s')",
+		xDB::getDB()->query("INSERT INTO node_i18n(nodeid,title,content,lang) VALUES(%d,'%s','%s','%s')",
 			$id, $node->m_title, $node->m_content, $node->m_lang);
 
 		if(! xDB::getDB()->commitTransaction())
@@ -148,6 +148,23 @@ class xNodeI18NDAO
 		
 		return $nodes;
 	}
+	
+	/**
+	 *
+	 */
+	function getNodeTranslations($nodeid,$exclude_lang)
+	{
+		$langs = array();
+		$result = xDB::getDB()->query("SELECT lang FROM node_i18n WHERE node_i18n.nodeid = %d AND 
+			node_i18n.lang <> '%s'",$nodeid,$exclude_lang);
+		while($row = xDB::getDB()->fetchObject($result))
+		{
+			$langs[] = $row->lang;
+		}
+		
+		return $langs;
+	}
+	
 };
 
 ?>

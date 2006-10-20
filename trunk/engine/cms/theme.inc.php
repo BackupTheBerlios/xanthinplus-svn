@@ -389,6 +389,13 @@ class xDummyTheme extends xTheme
 	{
 	}
 	
+	/**
+	 * Render a node.
+	 */
+	function renderNode($type,$title,$content)
+	{
+	}
+	
 	
 	/**
 	 * Return the path to theme css file or an array of it.
@@ -504,12 +511,12 @@ class xDefaultTheme extends xTheme
 	}
 	
 	/**
-	 * @see xDummyModule::renderItemPage()
+	 * @see xDummyModule::renderNode()
 	 */
-	function renderItem($type,$title,$content)
+	function renderNode($type,$title,$content)
 	{
-		$output = '<div class="item-title">' . $title . '</div>
-		<div class="item-content">' . $content . '</div>';
+		$output = '<div class="node-title">' . $title . '</div>
+		<div class="node-content">' . $content . '</div>';
 		
 		return $output;
 	}

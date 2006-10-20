@@ -161,18 +161,20 @@ class xNodeI18N extends xNode
 	 */
 	var $m_content;
 
+	var $m_lang;
 	
 	/**
 	 *
 	 * @param array(mixed) $parent_cathegories An array of xCathegory objects or an array of cathegories ids
 	 */
-	function xNodeI18N($id,$type,$author,$content_filter,$title,$content,$parent_cathegories = array(),
+	function xNodeI18N($id,$type,$author,$content_filter,$title,$content,$lang,$parent_cathegories = array(),
 		$creation_time = NULL,$edit_time = NULL)
 	{
 		$this->xNode($id,$type,$author,$content_filter,$parent_cathegories,$creation_time,$edit_time);
 		
 		$this->m_title = $title;
 		$this->m_content = $content;
+		$this->m_lang = $lang;
 	}
 	
 	
@@ -200,6 +202,14 @@ class xNodeI18N extends xNode
 	function findAll($lang)
 	{
 		return xNodeI18NDAO::findAll($lang);
+	}
+	
+	/**
+	 * @static
+	 */
+	function getNodeTranslations($nodeid,$exclude_lang)
+	{
+		return xNodeI18NDAO::getNodeTranslations($nodeid,$exclude_lang);
 	}
 };
 

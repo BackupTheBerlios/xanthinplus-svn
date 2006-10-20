@@ -32,14 +32,14 @@ class xModuleNodePage extends xModule
 	 */ 
 	function xm_fetchContent($path)
 	{
-		if($path->m_resource === 'admin/node' && $path->m_action === NULL && $path->m_type === 'page')
+		if($path->m_resource === 'node' && $path->m_action === 'admin' && $path->m_type === 'page')
 		{
-			return new xPageContentAdminNodePage($path);
+			return new xPageContentNodeAdminPage($path);
 		}
 		
 		elseif($path->m_resource === 'node' && $path->m_action === 'view' && $path->m_type === 'page')
 		{
-			$node = xNodePage::dbLoad($path->m_id);
+			$node = xNodePage::dbLoad($path->m_id,$path->m_lang);
 			if($node === NULL)
 			{
 				return new xPageContentNotFound($path);
@@ -89,7 +89,7 @@ xModule::registerDefaultModule(new xModuleNodePage());
 /**
  * 
  */
-class xPageContentAdminNodePage extends xPageContent
+class xPageContentNodeAdminPage extends xPageContent
 {	
 	function xPageContentAdminNodePage($path)
 	{
@@ -97,31 +97,52 @@ class xPageContentAdminNodePage extends xPageContent
 	}
 	
 	/**
-	 * No checks here
+	 * Check node admin type permission
 	 */
 	function onCheckPreconditions()
 	{
-		if(!xAccessPermission::checkCurrentUserPermission('node',NULL,NULL,'admin'))
+		if(!xAccessPermission::checkCurrentUserPermission('node',$this->m_path->m_type,NULL,'admin'))
 			return new xPageContentNotAuthorized($this->m_path);
+		
+		return true;
 	}
 	
 	
 	/**
-	 * Do nothing
+	 * 
 	 */
 	function onCreate()
 	{
-		$types = xNodePage::find();
+		$nodes = xNodePage::find($this->m_path->m_lang);
 		
-		$out = "<table>\n";
-		foreach($types as $type)
+		$out = "<div class = 'admin'><table>\n";
+		$out .= "<tr><th>ID</th><th>Title</th><th>Translated in</th><th>Translate in</th><th>Actions</th></tr>\n";
+		foreach($nodes as $node)
 		{
-			$out .= "<li><a href=\"".xanth_relative_path('node/create/'.$type->m_name)."\">" . $type->m_name . "</a></li>\n";
+			$out .= '<tr><td>'.$node->m_id.'</td><td>'.$node->m_title.'</td><td>';
+			$langs = xNodeI18N::getNodeTranslations($node->m_id,$node->m_lang);
+			foreach($langs as $lang)
+			{
+				$out .= $lang . '  ';
+			}
+			$out .= '</td><td>';
+			$langs = xLanguage::findAll();
+			foreach($langs as $lang)
+			{
+				if($lang->m_name == $node->m_lang)
+					continue;
+				
+				$out .= '<a href="'. 
+					xanth_relative_path($lang->m_name . '/node/translate/'.$node->m_type.'/' . $node->m_id). 
+					'">' . $lang->m_full_name . '</a>';
+			}
+			$out .= '</td><td><a href="'.
+				xanth_relative_path($node->m_lang . '/node/view/'.$node->m_id).'">View</a></td></tr>';
 		}
 		
-		$out  .= "</ul>\n";
+		$out  .= "</table></div>\n";
 		
-		xPageContent::_set("Create node: choose type",$out,'','');
+		xPageContent::_set("Admin node page",$out,'','');
 		return true;
 	}
 };
@@ -226,13 +247,14 @@ class xPageContentNodePageCreate extends xPageContentNodeCreate
 					$cathegories[] = $this->m_path->m_parent_cathegory;
 				else
 					$cathegories = $ret->m_valid_data['cathegory'];
-					
-				$node = new xNodePage(-1,$ret->m_valid_data['title'],$this->m_path->m_type,xUser::getLoggedinUsername(),
-					$ret->m_valid_data['body'],$ret->m_valid_data['filter'],$cathegories,NULL,NULL,
-					$ret->m_valid_data['published'],$ret->m_valid_data['sticky'],$ret->m_valid_data['accept_replies'],
-					$ret->m_valid_data['approved'],0,$ret->m_valid_data['meta_description'],
-					$ret->m_valid_data['meta_keywords']);
 				
+				$node = new xNodePage(-1,$this->m_path->m_type,xUser::getLoggedinUsername(),
+					$ret->m_valid_data['filter'],$ret->m_valid_data['title'],$ret->m_valid_data['body'],
+					$this->m_path->m_lang,$cathegories,NULL,NULL,
+					$ret->m_valid_data['published'],$ret->m_valid_data['sticky'],$ret->m_valid_data['accept_replies'],
+					$ret->m_valid_data['approved'],$ret->m_valid_data['meta_description'],
+					$ret->m_valid_data['meta_keywords']);
+					
 				if($node->dbInsert())
 				{
 					xNotifications::add(NOTIFICATION_NOTICE,'New node successfully created');
@@ -291,8 +313,12 @@ class xPageContentNodePageView extends xPageContentNodeView
 		if($res !== TRUE)
 			return $res;
 		
-		$this->m_meta_description = $this->m_node->m_meta_description;
-		$this->m_meta_keywords = $this->m_node->m_meta_keywords;
+		
+		$error = '';
+		$title = xContentFilterController::applyFilter('notags',$this->m_node->m_title,$error);
+		
+		xPageContent::_set($title,$this->m_node->render(),$this->m_node->m_meta_description,
+			$this->m_node->m_meta_keywords);
 		
 		return true;
 	}

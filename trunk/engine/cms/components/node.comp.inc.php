@@ -48,6 +48,15 @@ class xModuleNode extends xModule
 			return new xPageContentNodeCreateChooseType($path);
 		}
 
+		elseif($path->m_resource === 'node' && $path->m_action === 'admin' && $path->m_type === NULL)
+		{
+			return new xPageContentAdminNode($path);
+		}
+		
+		elseif($path->m_resource === 'node' && $path->m_action === 'translate' && $path->m_type === NULL)
+		{
+			return new xPageContentNodeTranslate($path);
+		}
 		
 		return NULL;
 	}
@@ -79,6 +88,82 @@ class xModuleNode extends xModule
 	
 };
 xModule::registerDefaultModule(new xModuleNode());
+
+
+
+/**
+ * 
+ */
+class xPageContentAdminNode extends xPageContent
+{	
+	function xPageContentAdminNode($path)
+	{
+		$this->xPageContent($path);
+	}
+	
+	/**
+	 * Checks that original node exists, that the translation is not already present, checks translation permission.
+	 */
+	function onCheckPreconditions()
+	{
+		return TRUE;
+	}
+	
+	/**
+	 * Do nothing
+	 * @abstract
+	 */
+	function onCreate()
+	{
+		assert(false);
+	}
+};
+
+
+
+/**
+ * 
+ */
+class xPageContentAdminNode extends xPageContent
+{	
+	function xPageContentAdminNode($path)
+	{
+		$this->xPageContent($path);
+	}
+	
+	/**
+	 * No checks here
+	 */
+	function onCheckPreconditions()
+	{
+		return TRUE;
+	}
+	
+	/**
+	 * Do nothing
+	 */
+	function onCreate()
+	{
+		
+		
+		$out = '<a href="'.xanth_relative_path($this->m_path->m_lang. '/node/create').'">Create new node</a><br/><br/>
+		Choose type:
+		<ul>
+		';
+		$types = xNodeType::findAll();
+		foreach($types as $type)
+		{
+			$out .= "<li><a href=\"".xanth_relative_path($this->m_path->m_lang. '/node/admin/'.$type->m_name)."\">" 
+				. $type->m_name . "</a></li>\n";
+		}
+		
+		$out  .= "</ul>\n";
+		
+		xPageContent::_set("Create node: choose type",$out,'','');
+		return true;
+	}
+};
+
 
 
 /**
@@ -224,17 +309,11 @@ class xPageContentNodeView extends xPageContent
 	
 	
 	/**
-	 * Fill this object with node properties by calling xNode->render(). Only metadata are not filled-id, 
-	 * so override this funciton in your node type implementation.
+	 * Do nothing. Only asserts node != NULL and returns true.
 	 */
 	function onCreate()
 	{
 		assert($this->m_node != NULL);
-		
-		$error = '';
-		$title = xContentFilterController::applyFilter('notags',$this->m_node->m_title,$error);
-		
-		xPageContent::_set($title,$this->m_node->render(),'','');
 		return true;
 	}
 

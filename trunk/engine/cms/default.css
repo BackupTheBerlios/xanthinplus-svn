@@ -15,7 +15,12 @@ body
 
 /*___________ ADMIN PAGES_________________ */
 
-.admin-table,.admin-table td,.admin-table th
+.admin table
+{
+	width: 90%;
+}
+
+.admin table,.admin table td,.admin table th
 {
 	border: 1px solid black;
 	padding: 0.3em;
@@ -23,7 +28,7 @@ body
 	border-collapse: collapse;
 }
 
-.admin-table th
+.admin table th
 {
 	background-color: #ddd;
 }

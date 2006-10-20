@@ -32,11 +32,11 @@ class xModuleBox extends xModule
 	 */ 
 	function xm_fetchContent($path)
 	{
-		if($path->m_resource === 'admin/box' && $path->m_action === 'create' && $path->m_type === NULL)
+		if($path->m_resource === 'box' && $path->m_action === 'create' && $path->m_type === NULL)
 		{
 			//let user choose type
 		}
-		elseif($path->m_resource === 'admin/box' && $path->m_action === 'create' && $path->m_type === 'custom')
+		elseif($path->m_resource === 'box' && $path->m_action === 'create' && $path->m_type === 'custom')
 		{
 			return new xPageContentAdminBoxCreateCustom($path);
 		}

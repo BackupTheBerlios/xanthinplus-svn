@@ -237,7 +237,7 @@ class xCathegoryI18N extends xCathegory
 	 * @return array(xCathegory)
 	 * @static
 	 */
-	function find($type = NULL,$parent_cathegory = NULL)
+	function find($type = NULL,$parent_cathegory = NULL,$name = NULL,$lang = NULL)
 	{
 		return xCathegoryI18NDAO::find($type,$parent_cathegory,$name,$lang);
 	}
