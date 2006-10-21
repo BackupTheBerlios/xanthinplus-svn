@@ -58,18 +58,13 @@ class xNodePage extends xNodeI18N
 	var $m_meta_keywords;
 	
 	/**
-	 * @var bool
-	 * @access public
-	 */
-	var $m_last_edit_time;
-	
-	/**
 	 *
 	 */
-	function xNodePage($id,$type,$author,$content_filter,$title,$content,$lang,$parent_cathegories,$creation_time,
+	function xNodePage($id,$type,$author,$content_filter,$title,$content,$lang,$translator,
+		$parent_cathegories,$creation_time,
 		$edit_time,$published,$sticky,$accept_replies,$approved,$meta_description,$meta_keywords)
 	{
-		$this->xNodeI18N($id,$type,$author,$content_filter,$title,$content,$lang,$parent_cathegories,
+		$this->xNodeI18N($id,$type,$author,$content_filter,$title,$content,$lang,$translator,$parent_cathegories,
 			$creation_time,$edit_time);
 			
 		$this->m_sticky = (bool) $sticky;
@@ -98,7 +93,7 @@ class xNodePage extends xNodeI18N
 	 */
 	function dbInsertTranslation()
 	{
-		xNodePageDAO::insertTranslation($this);
+		return xNodePageDAO::insertTranslation($this);
 	}
 	
 	/**
@@ -125,9 +120,9 @@ class xNodePage extends xNodeI18N
 	/**
 	 *
 	 */
-	function find()
+	function find($lang)
 	{
-		return xNodePageDAO::find();
+		return xNodePageDAO::find($lang);
 	}
 };
 

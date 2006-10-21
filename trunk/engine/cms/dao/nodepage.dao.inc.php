@@ -62,14 +62,14 @@ class xNodePageDAO
 		xNodeI18NDAO::insertTranslation($node);
 		
 		xDB::getDB()->query("INSERT INTO node_page(nodeid,lang,sticky,accept_replies,published,approved,
-			meta_description,meta_keywords) VALUES (%d,%d,%d,%d,%d,'%s','%s')",
+			meta_description,meta_keywords) VALUES (%d,'%s',%d,%d,%d,%d,'%s','%s')",
 			$node->m_id,$node->m_lang,$node->m_published,$node->m_sticky,$node->m_accept_replies,$node->m_published,
 			$node->m_approved,$node->m_meta_description,$node->m_meta_keywords);
 			
 		if(!xDB::getDB()->commitTransaction())
 			return false;
 		
-		return $id;
+		return true;
 	}
 	
 	/**
@@ -108,7 +108,7 @@ class xNodePageDAO
 	{
 		return new xNodePage($row_object->id,$row_object->type,
 			$row_object->author,$row_object->content_filter,$row_object->title,$row_object->content,$row_object->lang,
-			$cathegories,
+			$row_object->translator,$cathegories,
 			$row_object->creation_time,$row_object->edit_time,$row_object->published,$row_object->sticky,
 			$row_object->accept_replies,
 			$row_object->approved,$row_object->meta_description,$row_object->meta_keywords);
@@ -142,17 +142,20 @@ class xNodePageDAO
 	 */
 	function find($lang = NULL)
 	{
-		$where['node'] = array();
+		$where['node_i18n']['lang']['type'] = "'%s'";
+		$where['node_i18n']['lang']['connector'] = "AND";
+		$where['node_i18n']['lang']['value'] = $lang;
 		
-		$where['node_i18n']['nodeid']['join'] = "node.id";
-		$where['node_i18n']['nodeid']['connector'] = "AND";
+		$where['node'] = array();
+		$where['node']['id']['join'] = "node_i18n.nodeid";
+		$where['node']['id']['connector'] = "AND";
 		
 		$where['node_page']['nodeid']['join'] = "node_i18n.nodeid";
 		$where['node_page']['nodeid']['connector'] = "AND";
 		
-		$where['node_i18n']['lang']['type'] = "node_i18n.nodeid";
-		$where['node_i18n']['lang']['connector'] = "AND";
-		$where['node_i18n']['lang']['value'] = $lang;
+		$where['node_page']['lang']['type'] = "'%s'";
+		$where['node_page']['lang']['connector'] = "AND";
+		$where['node_page']['lang']['value'] = $lang;
 		
 		$result = xDB::getDB()->autoQuery("SELECT", NULL, $where);
 		$pages = array();
@@ -160,7 +163,6 @@ class xNodePageDAO
 		{
 			$pages[] = xNodePageDAO::_nodepageFromRow($row,xCathegoryDAO::findNodeCathegories($row->id));
 		}
-		
 		return $pages;
 	}
 }

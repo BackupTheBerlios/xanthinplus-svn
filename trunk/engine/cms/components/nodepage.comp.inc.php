@@ -52,6 +52,13 @@ class xModuleNodePage extends xModule
 			return new xPageContentNodePageCreate($path);
 		}
 		
+		elseif($path->m_resource === 'node' && $path->m_type === 'page' && $path->m_action === 'translate'
+			&& $path->m_id !== NULL)
+		{
+			return new xPageContentNodeTranslatePage($path);
+		}
+		
+		
 		return NULL;
 	}
 	
@@ -120,24 +127,27 @@ class xPageContentNodeAdminPage extends xPageContent
 		foreach($nodes as $node)
 		{
 			$out .= '<tr><td>'.$node->m_id.'</td><td>'.$node->m_title.'</td><td>';
-			$langs = xNodeI18N::getNodeTranslations($node->m_id,$node->m_lang);
-			foreach($langs as $lang)
+			$node_langs = xNodeI18N::getNodeTranslations($node->m_id);
+			foreach($node_langs as $lang)
 			{
-				$out .= $lang . '  ';
+				if($lang->m_name != $node->m_lang)
+					$out .= $lang->m_name . '  ';
 			}
 			$out .= '</td><td>';
+			
 			$langs = xLanguage::findAll();
 			foreach($langs as $lang)
 			{
-				if($lang->m_name == $node->m_lang)
-					continue;
-				
-				$out .= '<a href="'. 
-					xanth_relative_path($lang->m_name . '/node/translate/'.$node->m_type.'/' . $node->m_id). 
-					'">' . $lang->m_full_name . '</a>';
+				if(! in_array($lang,$node_langs))
+				{
+					$out .= '<a href="'. 
+						xanth_relative_path($lang->m_name . '/node/translate/'.$node->m_type.'/' . $node->m_id). 
+						'">' . $lang->m_full_name . '</a>';
+				}
 			}
 			$out .= '</td><td><a href="'.
-				xanth_relative_path($node->m_lang . '/node/view/'.$node->m_id).'">View</a></td></tr>';
+				xanth_relative_path($node->m_lang . '/node/view/'. $node->m_type . '/' . $node->m_id) . 
+				'">View</a></td></tr>';
 		}
 		
 		$out  .= "</table></div>\n";
@@ -146,6 +156,85 @@ class xPageContentNodeAdminPage extends xPageContent
 		return true;
 	}
 };
+
+
+
+/**
+ * 
+ */
+class xPageContentNodeTranslatePage extends xPageContentNodeTranslate
+{	
+	
+	function xPageContentNodeTranslatePage($path)
+	{
+		$this->xPageContentNodeTranslate($path);
+	}
+	
+	/**
+	 * Create and outputs node creation form
+	 */
+	function onCreate()
+	{
+		$node = xNodePage::dbLoad($this->m_path->m_id,xSettings::get('default_lang'));
+		
+		//create form
+		$form = new xForm(xanth_relative_path($this->m_path->m_full_path));
+		
+		//item title
+		$form->m_elements[] = new xFormElementTextField('title','Title','','',true,new xInputValidatorText(256));
+		
+		//item body
+		$form->m_elements[] = new xFormElementTextArea('body','Body ('.$node->m_content_filter.' filter)','','',true,
+			new xInputValidatorApplyContentFilter(0,$node->m_content_filter));
+		
+		$group = new xFormGroup('Metadata');
+		//item description
+		$group->m_elements[] = new xFormElementTextField('meta_description','Description','','',false,new xInputValidatorText(128));
+		//item keywords
+		$group->m_elements[] = new xFormElementTextField('meta_keywords','Keywords','','',false,new xInputValidatorText(128));
+		$form->m_elements[] = $group;
+		
+		//submit buttom
+		$form->m_elements[] = new xFormSubmit('submit','Create');
+		
+		$ret = $form->validate();
+		if(! $ret->isEmpty())
+		{
+			if(empty($ret->m_errors))
+			{
+				$node = new xNodePage($node->m_id,$node->m_type,$node->m_author,
+					$node->m_content_filter,$ret->m_valid_data['title'],$ret->m_valid_data['body'],
+					$this->m_path->m_lang,xUser::getLoggedinUsername(),$node->m_parent_cathegories,$node->m_creation_time,$node->m_edit_time,
+					$node->m_published,$node->m_sticky,$node->m_accept_replies,
+					$node->m_approved,$ret->m_valid_data['meta_description'],$ret->m_valid_data['meta_keywords']);
+				
+				if($node->dbInsertTranslation())
+				{
+					xNotifications::add(NOTIFICATION_NOTICE,'Node successfully translated');
+				}
+				else
+				{
+					xNotifications::add(NOTIFICATION_ERROR,'Error inserting translation');
+				}
+				
+				$this->_set("Translate node page",'','','');
+				return TRUE;
+			}
+			else
+			{
+				foreach($ret->m_errors as $error)
+				{
+					xNotifications::add(NOTIFICATION_WARNING,$error);
+				}
+			}
+		}
+
+		$this->_set("Translate node page",$form->render(),'','');
+		return TRUE;
+	}
+};
+
+
 
 
 
@@ -178,7 +267,7 @@ class xPageContentNodePageCreate extends xPageContentNodeCreate
 		$form = new xForm(xanth_relative_path($this->m_path->m_full_path));
 		
 		//no cathegory in path so let user choose according to its permissions
-		if($this->m_path->m_parent_cathegory == NULL)
+		if($this->m_path->m_id == NULL)
 		{
 			$cathegories = xCathegoryI18N::find($this->m_path->m_type,NULL,NULL,'en');
 			$options = array();
@@ -243,14 +332,14 @@ class xPageContentNodePageCreate extends xPageContentNodeCreate
 			if(empty($ret->m_errors))
 			{
 				$cathegories = array();
-				if($this->m_path->m_parent_cathegory != NULL)
-					$cathegories[] = $this->m_path->m_parent_cathegory;
+				if($this->m_path->m_id != NULL)
+					$cathegories[] = $this->m_path->m_id;
 				else
 					$cathegories = $ret->m_valid_data['cathegory'];
 				
 				$node = new xNodePage(-1,$this->m_path->m_type,xUser::getLoggedinUsername(),
 					$ret->m_valid_data['filter'],$ret->m_valid_data['title'],$ret->m_valid_data['body'],
-					$this->m_path->m_lang,$cathegories,NULL,NULL,
+					$this->m_path->m_lang,xUser::getLoggedinUsername(),$cathegories,NULL,NULL,
 					$ret->m_valid_data['published'],$ret->m_valid_data['sticky'],$ret->m_valid_data['accept_replies'],
 					$ret->m_valid_data['approved'],$ret->m_valid_data['meta_description'],
 					$ret->m_valid_data['meta_keywords']);

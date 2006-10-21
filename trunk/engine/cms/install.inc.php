@@ -278,7 +278,6 @@ class xInstallCMS
 		xDB::getDB()->query("
 			CREATE TABLE node (
 			id INT UNSIGNED NOT NULL,
-			title VARCHAR(256) NOT NULL,
 			type VARCHAR(32) NOT NULL,
 			author VARCHAR(64) NOT NULL,
 			content TEXT NOT NULL,
@@ -299,6 +298,7 @@ class xInstallCMS
 			title VARCHAR(256) NOT NULL,
 			content TEXT NOT NULL,
 			lang VARCHAR(2) NOT NULL,
+			translator VARCHAR(64) NOT NULL,
 			PRIMARY KEY (nodeid,lang),
 			FOREIGN KEY (nodeid) REFERENCES node(id) ON DELETE CASCADE,
 			FOREIGN KEY (lang) REFERENCES language(name) ON DELETE CASCADE
@@ -346,10 +346,11 @@ class xInstallCMS
 		);
 		
 		//settings
-		xSettings::dbInsert('site_name','');
+		xSettings::dbInsert('site_name','Site Name');
 		xSettings::dbInsert('site_description','');
 		xSettings::dbInsert('site_keywords','');
-		xSettings::dbInsert('site_theme','');
+		xSettings::dbInsert('theme','xanthin');
+		xSettings::dbInsert('default_lang','en');
 		
 		//lang
 		$lang = new xLanguage('en','English');
@@ -396,7 +397,7 @@ class xInstallCMS
 		$menuitem = new xMenuItem(-1,'Node','?p=en/node/admin',-1,'en');
 		$menu->m_items[] = $menuitem;
 		
-		$menuitem = new xMenuItem(-1,'Access permissions','?p=en/accesspermissions/admin/',-1,'en');
+		$menuitem = new xMenuItem(-1,'Access permissions','?p=en/accesspermissions/admin',-1,'en');
 		$menu->m_items[] = $menuitem;
 		
 		$menuitem = new xMenuItem(-1,'Create custom box','?p=en/box/create/custom',-1,'en');

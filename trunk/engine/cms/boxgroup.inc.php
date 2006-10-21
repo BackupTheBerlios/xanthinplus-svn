@@ -107,7 +107,30 @@ class xBoxGroup extends xElement
 	 */
 	function find($renderizable,$lang)
 	{
-		return xBoxGroupDAO::find($renderizable,$lang);
+		$boxes = array();
+		$groups = xBoxGroupDAO::find($renderizable);
+		
+		foreach($groups as $group)
+		{
+			$rows = xBoxGroupDAO::findBoxNamesAndTypesByGroup($group->m_name);
+			$group->m_boxes = array();
+			foreach($rows as $row)
+			{
+				$box = xBox::fetchBox($row->name,$row->type,$lang);
+				if($box != NULL)
+				{
+					$group->m_boxes[] = $box;
+				}
+				else
+				{
+					$box = xBox::fetchBox($row->name,$row->type,xSettings::get('default_lang'));
+					if($box != NULL)
+						$group->m_boxes[] = $box;
+				}
+			}
+		}
+		
+		return $groups;
 	}
 }
 

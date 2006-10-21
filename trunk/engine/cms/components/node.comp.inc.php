@@ -32,18 +32,8 @@ class xModuleNode extends xModule
 	 */ 
 	function xm_fetchContent($path)
 	{
-		if($path->m_resource === 'node' && $path->m_action === 'view' && $path->m_type === NULL)
-		{
-			//get node type
-			$type = xNode::getNodeTypeById($path->m_id);
-			if($type == NULL)
-				return NULL;
-			
-			$path->m_type = $type;
-			return xModule::callWithSingleResult1('xm_fetchContent',$path);
-		}
-		
-		elseif($path->m_resource === 'node' && $path->m_action === 'create' && $path->m_type === NULL)
+
+		if($path->m_resource === 'node' && $path->m_action === 'create' && $path->m_type === NULL)
 		{
 			return new xPageContentNodeCreateChooseType($path);
 		}
@@ -94,9 +84,9 @@ xModule::registerDefaultModule(new xModuleNode());
 /**
  * 
  */
-class xPageContentAdminNode extends xPageContent
+class xPageContentNodeTranslate extends xPageContent
 {	
-	function xPageContentAdminNode($path)
+	function xPageContentNodeTranslate($path)
 	{
 		$this->xPageContent($path);
 	}
@@ -106,7 +96,18 @@ class xPageContentAdminNode extends xPageContent
 	 */
 	function onCheckPreconditions()
 	{
-		return TRUE;
+		if(! xNodeI18N::isTranslatable($this->m_path->m_id))
+			return new xPageContentError('Cannot translate this node',$this->m_path);
+			
+		
+		if(xNodeI18N::existsTranslation($this->m_path->m_id,$this->m_path->m_lang))
+			return new xPageContentError('A translation of this node in this language already exists',$this->m_path);
+			
+		
+		if(!xAccessPermission::checkCurrentUserPermission('node',NULL,NULL,'translate'))
+			return new xPageContentNotAuthorized($this->m_path);
+			
+		return true;
 	}
 	
 	/**
@@ -144,8 +145,6 @@ class xPageContentAdminNode extends xPageContent
 	 */
 	function onCreate()
 	{
-		
-		
 		$out = '<a href="'.xanth_relative_path($this->m_path->m_lang. '/node/create').'">Create new node</a><br/><br/>
 		Choose type:
 		<ul>
@@ -211,7 +210,6 @@ class xPageContentNodeCreateChooseType extends xPageContent
 
 
 
-
 /**
  * 
  */
@@ -236,9 +234,9 @@ class xPageContentNodeCreate extends xPageContent
 			return new xPageContentNotAuthorized($this->m_path);
 		
 		$cathegory = NULL;
-		if($this->m_path->m_parent_cathegory != NULL)
+		if($this->m_path->m_id != NULL)
 		{
-			$cathegory = xCathegory::dbLoad($this->m_path->m_parent_cathegory);
+			$cathegory = xCathegory::dbLoad($this->m_path->m_id);
 			if($cathegory == NULL)
 				return new xPageContentNotFound($this->m_path);
 			

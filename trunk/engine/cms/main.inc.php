@@ -63,7 +63,7 @@ function xanth_main()
 	
 	//start execution	
 	$page = xPage::fetchPage($path);
-	xTheme::load(xSettings::get('site_theme',''));
+	xTheme::load(xSettings::get('theme',''));
 	echo $page->render();
 	
 	session_write_close();

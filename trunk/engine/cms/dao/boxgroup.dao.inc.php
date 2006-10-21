@@ -108,16 +108,14 @@ class xBoxGroupDAO
 	/**
 	 *
 	 */
-	function _findBoxesByGroup($group_name,$lang)
+	function findBoxNamesAndTypesByGroup($group_name)
 	{
 		$boxes = array();
-		$result = xDB::getDB()->query("SELECT box.name as boxname,type  FROM box,box_to_group WHERE 
+		$result = xDB::getDB()->query("SELECT box.name,box.type FROM box,box_to_group WHERE 
 			box_to_group.box_group = '%s' AND box.name = box_to_group.box_name",$group_name);
 		while($row = xDB::getDB()->fetchObject($result))
 		{
-			$box = xBox::fetchBox($row->boxname,$row->type,$lang);
-			if($box != NULL)
-				$boxes[] = $box;
+			$boxes[] = $row;
 		}
 		
 		return $boxes;
@@ -126,17 +124,16 @@ class xBoxGroupDAO
 	/**
 	 * Find box groups.
 	 * 
-	 * @return array(xBox)
+	 * @return array(xBox) An xBoxGroup array with empty m_boxes member.
 	 * @static
 	 */
-	function find($renderizable,$lang)
+	function find($renderizable)
 	{
 		$groups = array();
 		$result = xDB::getDB()->query("SELECT * FROM box_group WHERE render = %d",$renderizable);
 		while($row = xDB::getDB()->fetchObject($result))
 		{
-			$boxes = xBoxGroupDAO::_findBoxesByGroup($row->name,$lang);
-			$groups[] = xBoxGroupDAO::_boxGroupFromRow($row,$boxes);
+			$groups[] = xBoxGroupDAO::_boxGroupFromRow($row,array());
 		}
 		
 		return $groups;

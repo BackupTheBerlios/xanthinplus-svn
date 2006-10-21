@@ -161,13 +161,21 @@ class xNodeI18N extends xNode
 	 */
 	var $m_content;
 
+	/**
+	 * @var string
+	 */
 	var $m_lang;
+	
+	/**
+	 * @var string
+	 */
+	var $m_translator;
 	
 	/**
 	 *
 	 * @param array(mixed) $parent_cathegories An array of xCathegory objects or an array of cathegories ids
 	 */
-	function xNodeI18N($id,$type,$author,$content_filter,$title,$content,$lang,$parent_cathegories = array(),
+	function xNodeI18N($id,$type,$author,$content_filter,$title,$content,$lang,$translator,$parent_cathegories = array(),
 		$creation_time = NULL,$edit_time = NULL)
 	{
 		$this->xNode($id,$type,$author,$content_filter,$parent_cathegories,$creation_time,$edit_time);
@@ -175,6 +183,7 @@ class xNodeI18N extends xNode
 		$this->m_title = $title;
 		$this->m_content = $content;
 		$this->m_lang = $lang;
+		$this->m_translator = $translator;
 	}
 	
 	
@@ -207,9 +216,25 @@ class xNodeI18N extends xNode
 	/**
 	 * @static
 	 */
-	function getNodeTranslations($nodeid,$exclude_lang)
+	function getNodeTranslations($nodeid)
 	{
-		return xNodeI18NDAO::getNodeTranslations($nodeid,$exclude_lang);
+		return xNodeI18NDAO::getNodeTranslations($nodeid);
+	}
+	
+	/**
+	 * @static
+	 */
+	function isTranslatable($nodeid)
+	{
+		return xNodeI18NDAO::isTranslatable($nodeid);
+	}
+	
+	/**
+	 * @static
+	 */
+	function existsTranslation($nodeid,$lang)
+	{
+		return xNodeI18NDAO::existsTranslation($nodeid,$lang);
 	}
 };
 

@@ -89,8 +89,10 @@ class xPageContentAdminSettings extends xPageContent
 			FALSE,new xInputValidatorText(512));
 		$form->m_elements[] = new xFormElementTextField('site_keywords','Site keywords','',xSettings::get('site_keywords'),
 			FALSE,new xInputValidatorText(128));
-		$form->m_elements[] = new xFormElementTextField('site_theme','Site theme','',xSettings::get('site_theme'),
+		$form->m_elements[] = new xFormElementTextField('theme','Site theme','',xSettings::get('theme'),
 			FALSE,new xInputValidatorText(128));
+		$form->m_elements[] = new xFormElementTextField('default_lang','Default Language','',xSettings::get('default_lang'),
+			FALSE,new xInputValidatorText(2));
 		
 		//submit buttom
 		$form->m_elements[] = new xFormSubmit('submit','Save');

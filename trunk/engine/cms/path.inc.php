@@ -42,11 +42,6 @@ class xPath
 	var $m_type;
 	
 	/**
-	* @var string
-	*/
-	var $m_parent_cathegory;
-	
-	/**
 	* @var mixed
 	*/
 	var $m_id;
@@ -69,7 +64,6 @@ class xPath
 		$this->m_resource = NULL;
 		$this->m_action = NULL;
 		$this->m_type = NULL;
-		$this->m_parent_cathegory = NULL;
 		$this->m_id = NULL;
 		$this->m_page = NULL;
 		$this->m_lang = NULL;
@@ -166,27 +160,17 @@ class xPath
 				return $path;
 			$path->m_action .= $exploded[$i++];
 			
+			if(! isset($exploded[$i]))
+				return $path;
+			$path->m_type = $exploded[$i++];
 			
-			if(xPath::_isActionWithId($path->m_action))
-			{
-				if(! isset($exploded[$i]))
-					return $path;
-				$path->m_id = $exploded[$i++];
-				
-				if(! isset($exploded[$i]))
-					return $path;
-				$path->m_page = $exploded[$i];
-			}
-			else
-			{
-				if(! isset($exploded[$i]))
-					return $path;
-				$path->m_type = $exploded[$i++];
-				
-				if(! isset($exploded[$i]))
-					return $path;
-				$path->m_parent_cathegory = $exploded[$i++];
-			}
+			if(! isset($exploded[$i]))
+				return $path;
+			$path->m_id = $exploded[$i++];
+			
+			if(! isset($exploded[$i]))
+				return $path;
+			$path->m_page = $exploded[$i];
 			
 			return $path;
 	    }

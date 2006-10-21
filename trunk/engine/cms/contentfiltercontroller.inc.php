@@ -138,8 +138,45 @@ class xDynamicInputValidatorApplyContentFilter extends xDynamicInputValidator
 		}
 		
 		$error = '';
-		if(xContentFilterController::applyFilter(xFormElement::getInputValueByName($this->m_variable_name,$this->m_method),
-			$input,$error) === NULL)
+		if(xContentFilterController::applyFilter(
+			xFormElement::getInputValueByName($this->m_variable_name,$this->m_method),$input,$error) === NULL)
+		{
+			$this->m_last_error = $error;
+			return FALSE;
+		}
+		
+		return TRUE;
+	}
+}
+
+
+/**
+ * A validator that checks the content provided a content filter
+ */
+class xInputValidatorApplyContentFilter extends xInputValidatorText
+{
+	var $m_filter;
+	
+	/**
+	 * Contructor.
+	 *
+	 * @param int $maxlenght The max lenght of the text to be considered valid.
+	 */
+	function xInputValidatorApplyContentFilter($maxlength,$filter)
+	{
+		$this->xInputValidatorText($maxlength);
+		
+		$this->m_filter = $filter;
+	}
+	
+	// DOCS INHERITHED  ========================================================
+	function isValid($input)
+	{
+		if( ! xInputValidatorText::isValid($input))
+			return FALSE;
+		
+		$error = '';
+		if(xContentFilterController::applyFilter($this->m_filter,$input,$error) === NULL)
 		{
 			$this->m_last_error = $error;
 			return FALSE;

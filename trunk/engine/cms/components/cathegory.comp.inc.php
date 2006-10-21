@@ -147,9 +147,9 @@ class xPageContentCathegoryCreate extends xPageContent
 			return new xPageContentNotAuthorized($this->m_path);
 			
 		$cathegory = NULL;
-		if($this->m_path->m_parent_cathegory != NULL)
+		if($this->m_path->m_id != NULL)
 		{
-			$cathegory = xCathegory::dbLoad($this->m_path->m_parent_cathegory);
+			$cathegory = xCathegory::dbLoad($this->m_path->m_id);
 			if($cathegory == NULL)
 				return new xPageContentNotFound($this->m_path);
 			
@@ -195,7 +195,7 @@ class xPageContentCathegoryCreatePage extends xPageContentCathegoryCreate
 		$form = new xForm(xanth_relative_path($this->m_path->m_full_path));
 		
 		//no cathegory in path so let user choose according to its permissions
-		if($this->m_path->m_parent_cathegory == NULL)
+		if($this->m_path->m_id == NULL)
 		{
 			$cathegories = xCathegory::find(NULL,$this->m_path->m_type);
 			
@@ -228,8 +228,8 @@ class xPageContentCathegoryCreatePage extends xPageContentCathegoryCreate
 			if(empty($ret->m_errors))
 			{
 				$cathegory = array();
-				if($this->m_path->m_parent_cathegory != NULL)
-					$cathegory = $this->m_path->m_parent_cathegory;
+				if($this->m_path->m_id != NULL)
+					$cathegory = $this->m_path->m_id;
 				else
 					$cathegory = $ret->m_valid_data['parent_cathegory'];
 					

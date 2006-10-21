@@ -376,7 +376,7 @@ class xDB
 	 * @param array $where An array as for $records
 	 * @param string $append
 	 */
-	function autoQuery($action,$records,$where,$extra_query = '',$extra_values = array())
+	function autoQuery($action,$records,$where,$extra_query = '',$extra_values = array(),$debug =false)
 	{
 		$out = '';
 		$values = array();
@@ -429,6 +429,9 @@ class xDB
 					$out =  'UPDATE  ' . $table_name . ' SET ' . $out1 . ' WHERE '.$out2. ' '. $extra_query;
 					array_merge($values,$extra_values);
 					$this->query($out,$values);
+					
+					if($debug)
+						echo "<br/>Query: $out";
 				}
 				
 				return $this->commitTransaction();
@@ -468,6 +471,9 @@ class xDB
 					$out =  'INSERT INTO  ' . $table_name . ' (' . $out1 . ') VALUES (' .$out2 . ') ' . $extra_query;
 					array_merge($values,$extra_values);
 					$this->query($out,$values);
+					
+					if($debug)
+						echo "<br/>Query: $out";
 				}
 				
 				return $this->commitTransaction();
@@ -525,7 +531,8 @@ class xDB
 				}
 				$out .=  ' ' . $extra_query;
 				array_merge($values,$extra_values);
-				//echo $out;
+				if($debug)
+					echo "<br/>Query: $out";
 				return $this->query($out,$values);
 				
 			default: 

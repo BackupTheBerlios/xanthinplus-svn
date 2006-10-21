@@ -37,8 +37,9 @@ class xNodeI18NDAO
 		
 		$id = xNodeDAO::insert($node);
 		
-		xDB::getDB()->query("INSERT INTO node_i18n(nodeid,title,content,lang) VALUES(%d,'%s','%s','%s')",
-			$id, $node->m_title, $node->m_content, $node->m_lang);
+		xDB::getDB()->query("INSERT INTO node_i18n(nodeid,title,content,lang,translator) 
+			VALUES(%d,'%s','%s','%s','%s')",
+			$id, $node->m_title, $node->m_content, $node->m_lang,$node->m_translator);
 
 		if(! xDB::getDB()->commitTransaction())
 			return false;
@@ -50,13 +51,14 @@ class xNodeI18NDAO
 	 * Insert a new node
 	 *
 	 * @param xNode $node
-	 * @return int The new id or FALSE on error
+	 * @return The new id or FALSE on error
 	 * @static
 	 */
 	function insertTranslation($node)
 	{
-		return xDB::getDB()->query("INSERT INTO node_i18n(nodeid,title,content,lang) VALUES(%d,'%s','%s,'%s')",
-			$id, $node->m_title, $node->m_content, $node->m_lang);
+		return xDB::getDB()->query("INSERT INTO node_i18n(nodeid,title,content,lang,translator) 
+			VALUES(%d,'%s','%s','%s','%s')",
+			$node->m_id, $node->m_title, $node->m_content, $node->m_lang, $node->m_translator);
 	}
 	
 	/**
@@ -108,7 +110,8 @@ class xNodeI18NDAO
 	function _nodei18nFromRow($row_object,$cathegories)
 	{
 		return new xNodeI18N($row_object->id,$row_object->type,$row_object->author,
-			$row_object->content_filter,$row_object->title,$row_object->content,$cathegories,
+			$row_object->content_filter,$row_object->title,$row_object->content,$row_object->m_lang,
+			$row_object->translator,$cathegories,
 			$row_object->creation_time,$row_object->edit_time);
 	}
 	
@@ -152,18 +155,46 @@ class xNodeI18NDAO
 	/**
 	 *
 	 */
-	function getNodeTranslations($nodeid,$exclude_lang)
+	function getNodeTranslations($nodeid)
 	{
 		$langs = array();
-		$result = xDB::getDB()->query("SELECT lang FROM node_i18n WHERE node_i18n.nodeid = %d AND 
-			node_i18n.lang <> '%s'",$nodeid,$exclude_lang);
+		$result = xDB::getDB()->query("SELECT language.name,language.full_name FROM node_i18n,language WHERE 
+			node_i18n.nodeid = %d AND language.name = node_i18n.lang",$nodeid);
 		while($row = xDB::getDB()->fetchObject($result))
 		{
-			$langs[] = $row->lang;
+			$langs[] = xLanguageDAO::_languageFromRow($row);
 		}
 		
 		return $langs;
 	}
+	
+	
+	/**
+	 *
+	 */
+	function isTranslatable($nodeid)
+	{
+		$result = xDB::getDB()->query("SELECT lang FROM node_i18n WHERE node_i18n.nodeid = %d",$nodeid);
+		if($row = xDB::getDB()->fetchObject($result))
+			return true;
+		
+		return false;
+	}
+	
+	
+	/**
+	 *
+	 */
+	function existsTranslation($nodeid,$lang)
+	{
+		$result = xDB::getDB()->query("SELECT lang FROM node_i18n WHERE node_i18n.nodeid = %d AND 
+			node_i18n.lang = '%s'",$nodeid,$lang);
+		if($row = xDB::getDB()->fetchObject($result))
+			return true;
+		
+		return false;
+	}
+
 	
 };
 
