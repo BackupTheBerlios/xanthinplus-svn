@@ -5,22 +5,25 @@ body
 {
 	background-color: #fff;
 	font-family: sans-serif ;
-}
-
-#page
-{
-	/*width: 100%;*/
+	font-size: 0.75em ;
+	text-align: center;
 }
 
 #page 
 {
-	padding: 10px;
+	margin: auto;
+	width: 760px;
+	text-align: left;
+	border: 1px solid black;
+	padding: 0.5em;
 }
 
 
 #contents
 {
 	margin-left: 200px;
+	padding: 1em;
+	height: 100%;
 }
 
 
@@ -28,22 +31,29 @@ body
 {
 	float: left;
 	left: 1em;
-	padding: 10px;
-	width: 184px;
+	padding: 0.5em;
+	width: 183px;
 }
 
 #logo
 {
 	background: url(images/logo.png) no-repeat;
-	width: 20em;
-	height: 4em;
+	width: 400px;
+	height: 70px;
 }
 
-
+#header
+{
+	width: 100%;
+	border-bottom: 1px solid black;
+}
 
 #footer
 {
-	
+	border-top: 1px solid black;
+	padding: 0.5em;
+	font-size: 0.8em;
+	text-align: center;
 	vertical-align: bottom;
 }
 
@@ -80,22 +90,25 @@ body
 
 .box
 {
-	font-size: 0.8em;
-	background: url(images/menu_middle.png) repeat-y;
+	font-size: 1em;
+	background: url(images/box_background.png) no-repeat;
 	margin-top: 0.3em;
 }
 
 .box .content
 {
-	background: url(images/menu_down.png) no-repeat bottom;
 	padding: 0 0 0.3em 0;
 }
 
 .box .title
 {
 	padding: 0.7em 0 0 0;
-	color: #fff;
+	color: #000;
 	text-align: center;
-	background: url(images/menu_up.png) no-repeat;
 	height: 30px;
+}
+
+.box-footer
+{
+	background: url(images/box_footer.png) no-repeat;
 }

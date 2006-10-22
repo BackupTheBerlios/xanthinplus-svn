@@ -39,7 +39,6 @@ body
 {
 }
 
-
 .form-element,.form-fieldset
 {
 	margin-top: 8px;
@@ -83,9 +82,9 @@ body
 }
 
 .form-fieldset
-{
-	width: 88%;
+{	
+	width: 85%;
 	padding: 1em;
-	border: 1px solid #000;
+	border: 1px solid #5d5d5d;
 	font-weight: bold;
 }
