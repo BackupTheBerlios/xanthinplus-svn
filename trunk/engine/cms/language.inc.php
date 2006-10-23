@@ -81,9 +81,20 @@ class xLanguage
 	 * @return array(xNodeType)
 	 * @static
 	 */
-	function findAll()
+	function findNames()
 	{
-		return xLanguageDAO::findAll();
+		return xLanguageDAO::findNames();
+	}
+	
+	/**
+	 * Retrieves all node types.
+	 *
+	 * @return array(xNodeType)
+	 * @static
+	 */
+	function find()
+	{
+		return xLanguageDAO::find();
 	}
 };
 

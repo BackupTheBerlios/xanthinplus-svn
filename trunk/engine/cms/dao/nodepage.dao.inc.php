@@ -142,20 +142,18 @@ class xNodePageDAO
 	 */
 	function find($lang = NULL)
 	{
-		$where['node_i18n']['lang']['type'] = "'%s'";
-		$where['node_i18n']['lang']['connector'] = "AND";
-		$where['node_i18n']['lang']['value'] = $lang;
-		
-		$where['node'] = array();
-		$where['node']['id']['join'] = "node_i18n.nodeid";
-		$where['node']['id']['connector'] = "AND";
-		
 		$where['node_page']['nodeid']['join'] = "node_i18n.nodeid";
 		$where['node_page']['nodeid']['connector'] = "AND";
 		
 		$where['node_page']['lang']['type'] = "'%s'";
 		$where['node_page']['lang']['connector'] = "AND";
 		$where['node_page']['lang']['value'] = $lang;
+		
+		$where['node_i18n']['lang']['join'] = "node_page.lang";
+		$where['node_i18n']['lang']['connector'] = "AND";
+		
+		$where['node']['id']['join'] = "node_i18n.nodeid";
+		$where['node']['id']['connector'] = "AND";
 		
 		$result = xDB::getDB()->autoQuery("SELECT", NULL, $where);
 		$pages = array();

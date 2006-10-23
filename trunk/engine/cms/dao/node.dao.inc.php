@@ -167,7 +167,7 @@ class xNodeDAO
 	 * @return xNode
 	 * @static
 	 */
-	function findAll()
+	function find()
 	{
 		$nodes = array();
 		$result = xDB::getDB()->query("SELECT * FROM node WHERE");

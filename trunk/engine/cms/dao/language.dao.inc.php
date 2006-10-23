@@ -80,12 +80,31 @@ class xLanguageDAO
 	}
 	
 	/**
+	 * Retrieves all language names.
+	 *
+	 * @return array(string)
+	 * @static
+	 */
+	function findNames()
+	{
+		$languages = array();
+		$result = xDB::getDB()->query("SELECT name FROM language");
+		while($row = xDB::getDB()->fetchObject($result))
+		{
+			$languages[] = $row->name;
+		}
+		
+		return $languages;
+	}
+	
+	
+	/**
 	 * Retrieves all item type.
 	 *
 	 * @return array(xItemType)
 	 * @static
 	 */
-	function findAll()
+	function find()
 	{
 		$languages = array();
 		$result = xDB::getDB()->query("SELECT * FROM language");

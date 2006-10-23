@@ -136,9 +136,9 @@ class xNode extends xElement
 	}
 	
 	
-	function findAll()
+	function find()
 	{
-		return xNodeDAO::findAll();
+		return xNodeDAO::find();
 	}
 };
 

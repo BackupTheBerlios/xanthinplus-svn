@@ -114,38 +114,67 @@ class xPageContentNodeAdminPage extends xPageContent
 		return true;
 	}
 	
+	/**
+	 * @access private
+	 */
+	function _groupNodes($nodes)
+	{
+		$out = array();
+		foreach($nodes as $node)
+		{
+			$out[$node->m_id][$node->m_lang] = $node;
+		}
+		
+		return $out;
+	}
 	
 	/**
 	 * 
 	 */
 	function onCreate()
 	{
-		$nodes = xNodePage::find($this->m_path->m_lang);
-		
+		$nodes = xNodePage::find(NULL);
+		$nodes = $this->_groupNodes($nodes);
 		$out = '<a href="'.xanth_relative_path($this->m_path->m_lang. '/node/create/page').'">Create new node page</a><br/><br/>';
 		$out .= "<div class = 'admin'><table>\n";
 		$out .= "<tr><th>ID</th><th>Title</th><th>Translated in</th><th>Translate in</th><th>Actions</th></tr>\n";
-		foreach($nodes as $node)
+		$langs = xLanguage::findNames();
+		foreach($nodes as $id => $node_array)
 		{
-			$out .= '<tr><td>'.$node->m_id.'</td><td>'.$node->m_title.'</td><td>';
-			$node_langs = xNodeI18N::getNodeTranslations($node->m_id);
-			foreach($node_langs as $lang)
+			$node = NULL;
+			
+			
+			if(isset($node_array[$this->m_path->m_lang])) 				//select current language node
 			{
-				if($lang->m_name != $node->m_lang)
-					$out .= $lang->m_name . '  ';
+				$node = $node_array[$this->m_path->m_lang];
+			}
+			elseif(isset($node_array[xSettings::get('default_lang')]))	//select default language node
+			{
+				$node = $node_array[xSettings::get('default_lang')];
+			}
+			else														//select first found language node
+			{
+				$node = reset($node_array);
+			}
+			
+			$out .= '<tr><td>'.$id.'</td><td>' . $node->m_title . '</td><td>';
+			foreach($node_array as $lang => $node_ignore)
+			{
+				$out .= $lang . '  ';
 			}
 			$out .= '</td><td>';
 			
-			$langs = xLanguage::findAll();
+			
 			foreach($langs as $lang)
 			{
-				if(! in_array($lang,$node_langs))
+				if(!array_key_exists($lang, $node_array))
 				{
 					$out .= '<a href="'. 
-						xanth_relative_path($lang->m_name . '/node/translate/'.$node->m_type.'/' . $node->m_id). 
-						'">' . $lang->m_full_name . '</a>';
+						xanth_relative_path($lang . '/node/translate/page'. $node->m_type . '/' . $id). 
+						'">' . $lang . '</a>';
 				}
 			}
+			
 			$out .= '</td><td><a href="'.
 				xanth_relative_path($node->m_lang . '/node/view/'. $node->m_type . '/' . $node->m_id) . 
 				'">View</a></td></tr>';
