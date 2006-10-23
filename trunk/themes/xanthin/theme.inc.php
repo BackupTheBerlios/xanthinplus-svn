@@ -45,7 +45,7 @@ class xThemeXanthin extends xTheme
 			<div class="title">' . $title . '</div>
 			<div class="content">' . $content . '</div>
 		</div>
-		<div class="box-footer">&nbsp;</div>
+		
 		'
 		;
 		return $output;
@@ -85,14 +85,24 @@ class xThemeXanthin extends xTheme
 				<div id="page">
 					<div id="header">
 						<div id="logo">
+						<img src="themes/xanthin/images/logo.png"/>
 						</div>
 					</div>
-					
-					<div id="left-sidebar">'. $groups['left_group']->render() .'</div>
-					<div id="contents">
-					'; $output = xNotifications::render($output) . $content->render() . '
+					<div id="links">
+						Link1 | Link2
 					</div>
-					<div class="cleaner">&nbsp;</div>
+					<div id="middle">
+						<div id="left-sidebar">'. $groups['left_group']->render() .'</div>
+						
+						<div id="contents">
+						<div id="contents-header">&nbsp;</div>
+						<div id="contents-center">
+						'; $output = xNotifications::render($output) . $content->render() . '
+						</div>
+						<div id="contents-footer">&nbsp;</div>
+						</div>
+						<div class="cleaner">&nbsp;</div>
+					</div>
 					<div id="footer"> Queries ' . xDB::getDB()->queryGetCount() . ', Execution time ' . xExecutionTime::render() . ' secs</div>
 					' . xLogEntry::renderFromScreen() . '
 				</div>

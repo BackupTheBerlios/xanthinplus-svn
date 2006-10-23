@@ -122,7 +122,8 @@ class xPageContentNodeAdminPage extends xPageContent
 	{
 		$nodes = xNodePage::find($this->m_path->m_lang);
 		
-		$out = "<div class = 'admin'><table>\n";
+		$out = '<a href="'.xanth_relative_path($this->m_path->m_lang. '/node/create/page').'">Create new node page</a><br/><br/>';
+		$out .= "<div class = 'admin'><table>\n";
 		$out .= "<tr><th>ID</th><th>Title</th><th>Translated in</th><th>Translate in</th><th>Actions</th></tr>\n";
 		foreach($nodes as $node)
 		{

@@ -32,13 +32,7 @@ class xModuleNode extends xModule
 	 */ 
 	function xm_fetchContent($path)
 	{
-
-		if($path->m_resource === 'node' && $path->m_action === 'create' && $path->m_type === NULL)
-		{
-			return new xPageContentNodeCreateChooseType($path);
-		}
-
-		elseif($path->m_resource === 'node' && $path->m_action === 'admin' && $path->m_type === NULL)
+		if($path->m_resource === 'node' && $path->m_action === 'admin' && $path->m_type === NULL)
 		{
 			return new xPageContentAdminNode($path);
 		}
@@ -145,8 +139,7 @@ class xPageContentAdminNode extends xPageContent
 	 */
 	function onCreate()
 	{
-		$out = '<a href="'.xanth_relative_path($this->m_path->m_lang. '/node/create').'">Create new node</a><br/><br/>
-		Choose type:
+		$out = 'Choose type:
 		<ul>
 		';
 		$types = xNodeType::findAll();
@@ -162,52 +155,6 @@ class xPageContentAdminNode extends xPageContent
 		return true;
 	}
 };
-
-
-
-/**
- * 
- */
-class xPageContentNodeCreateChooseType extends xPageContent
-{	
-	function xPageContentNodeCreateChooseType($path)
-	{
-		$this->xPageContent($path);
-	}
-	
-	/**
-	 * No checks here
-	 */
-	function onCheckPreconditions()
-	{
-		return TRUE;
-	}
-	
-	
-	/**
-	 * Do nothing
-	 */
-	function onCreate()
-	{
-		$types = xNodeType::findAll();
-		
-		$out = "Choose type:\n <ul>\n";
-		foreach($types as $type)
-		{
-			$out .= "<li><a href=\"".xanth_relative_path($this->m_path->m_lang. '/node/create/'.$type->m_name)."\">" 
-				. $type->m_name . "</a></li>\n";
-		}
-		
-		$out  .= "</ul>\n";
-		
-		xPageContent::_set("Create node: choose type",$out,'','');
-		return true;
-	}
-};
-
-
-
-
 
 
 /**
