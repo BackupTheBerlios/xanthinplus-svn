@@ -98,7 +98,43 @@ class xPageContentNodeTranslate extends xPageContent
 			return new xPageContentError('A translation of this node in this language already exists',$this->m_path);
 			
 		
-		if(!xAccessPermission::checkCurrentUserPermission('node',NULL,NULL,'translate'))
+		if(!xAccessPermission::checkCurrentUserPermission('node',$this->m_path->m_type,NULL,'translate'))
+			return new xPageContentNotAuthorized($this->m_path);
+			
+		return true;
+	}
+	
+	/**
+	 * Do nothing
+	 * @abstract
+	 */
+	function onCreate()
+	{
+		assert(false);
+	}
+};
+
+
+
+/**
+ * 
+ */
+class xPageContentNodeEdittranslation extends xPageContent
+{	
+	function xPageContentNodeEdittranslation($path)
+	{
+		$this->xPageContent($path);
+	}
+	
+	/**
+	 * Checks that the translation is  present, checks translation permission.
+	 */
+	function onCheckPreconditions()
+	{
+		if(! xNodeI18N::existsTranslation($this->m_path->m_id,$this->m_path->m_lang))
+			return new xPageContentError('A translation of this node does exists',$this->m_path);
+			
+		if(!xAccessPermission::checkCurrentUserPermission('node',$this->m_path->m_type,NULL,'edittranslation'))
 			return new xPageContentNotAuthorized($this->m_path);
 			
 		return true;

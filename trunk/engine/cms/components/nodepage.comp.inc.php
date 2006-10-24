@@ -58,6 +58,11 @@ class xModuleNodePage extends xModule
 			return new xPageContentNodeTranslatePage($path);
 		}
 		
+		elseif($path->m_resource === 'node' && $path->m_type === 'page' && $path->m_action === 'edittranslation'
+			&& $path->m_id !== NULL)
+		{
+			return new xPageContentNodeEdittranslationPage($path);
+		}
 		
 		return NULL;
 	}
@@ -137,12 +142,11 @@ class xPageContentNodeAdminPage extends xPageContent
 		$nodes = $this->_groupNodes($nodes);
 		$out = '<a href="'.xanth_relative_path($this->m_path->m_lang. '/node/create/page').'">Create new node page</a><br/><br/>';
 		$out .= "<div class = 'admin'><table>\n";
-		$out .= "<tr><th>ID</th><th>Title</th><th>Translated in</th><th>Translate in</th><th>Actions</th></tr>\n";
+		$out .= "<tr><th>ID</th><th>Title</th><th>In your lang?</th><th>Translated in</th><th>Translate in</th><th>Actions</th></tr>\n";
 		$langs = xLanguage::findNames();
 		foreach($nodes as $id => $node_array)
 		{
 			$node = NULL;
-			
 			
 			if(isset($node_array[$this->m_path->m_lang])) 				//select current language node
 			{
@@ -158,6 +162,12 @@ class xPageContentNodeAdminPage extends xPageContent
 			}
 			
 			$out .= '<tr><td>'.$id.'</td><td>' . $node->m_title . '</td><td>';
+			if($node->m_lang == $this->m_path->m_lang)
+				$out .= 'Yes';
+			else			
+				$out .= 'No';
+			
+			$out .= '</td><td>';
 			foreach($node_array as $lang => $node_ignore)
 			{
 				$out .= $lang . '  ';
@@ -170,14 +180,21 @@ class xPageContentNodeAdminPage extends xPageContent
 				if(!array_key_exists($lang, $node_array))
 				{
 					$out .= '<a href="'. 
-						xanth_relative_path($lang . '/node/translate/page'. $node->m_type . '/' . $id). 
+						xanth_relative_path($lang . '/node/translate/'. $node->m_type . '/' . $id). 
 						'">' . $lang . '</a>';
 				}
 			}
 			
 			$out .= '</td><td><a href="'.
 				xanth_relative_path($node->m_lang . '/node/view/'. $node->m_type . '/' . $node->m_id) . 
-				'">View</a></td></tr>';
+				'">View</a>';
+				
+			if($node->m_lang == $this->m_path->m_lang)
+				$out .= ' - <a href="'.
+					xanth_relative_path($node->m_lang . '/node/edittranslation/'. $node->m_type . '/' . $node->m_id).
+					'">Edit this translation</a>';
+					
+			$out .= '- Delete a translation - Delete node - Edit node properties</td></tr>';
 		}
 		
 		$out  .= "</table></div>\n";
@@ -199,6 +216,22 @@ class xPageContentNodeTranslatePage extends xPageContentNodeTranslate
 	{
 		$this->xPageContentNodeTranslate($path);
 	}
+	
+	/**
+	 * Checks if type is node page
+	 */
+	function onCheckPreconditions()
+	{
+		$ret = xPageContentNodeTranslate::onCheckPreconditions();
+		if($ret !== TRUE)
+			return $ret;
+		
+		if(! xNodePage::isNodePage($this->m_path->m_id))
+			return new xPageContentError('The node is not of type page',$this->m_path);
+			
+		return true;
+	}
+	
 	
 	/**
 	 * Create and outputs node creation form
@@ -264,6 +297,101 @@ class xPageContentNodeTranslatePage extends xPageContentNodeTranslate
 	}
 };
 
+
+
+/**
+ * 
+ */
+class xPageContentNodeEdittranslationPage extends xPageContentNodeEdittranslation
+{	
+	
+	function xPageContentNodeEdittranslationPage($path)
+	{
+		$this->xPageContentNodeEdittranslation($path);
+	}
+	
+	/**
+	 * Checks if type is node page
+	 */
+	function onCheckPreconditions()
+	{
+		$ret = xPageContentNodeEdittranslation::onCheckPreconditions();
+		if($ret !== TRUE)
+			return $ret;
+		
+		if(! xNodePage::isNodePage($this->m_path->m_id))
+			return new xPageContentError('The node is not of type page',$this->m_path);
+			
+		return true;
+	}
+	
+	
+	/**
+	 * Create and outputs node creation form
+	 */
+	function onCreate()
+	{
+		$node = xNodePage::dbLoad($this->m_path->m_id,$this->m_path->m_lang);
+		
+		//create form
+		$form = new xForm(xanth_relative_path($this->m_path->m_full_path));
+		
+		//item title
+		$form->m_elements[] = new xFormElementTextField('title','Title','',$node->m_title,true,
+			new xInputValidatorText(256));
+		
+		//item body
+		$form->m_elements[] = new xFormElementTextArea('body','Body ('.$node->m_content_filter.' filter)','',
+			$node->m_content,true,new xInputValidatorApplyContentFilter(0,$node->m_content_filter));
+		
+		$group = new xFormGroup('Metadata');
+		//item description
+		$group->m_elements[] = new xFormElementTextField('meta_description','Description','',$node->m_meta_description,
+			false,new xInputValidatorText(128));
+		//item keywords
+		$group->m_elements[] = new xFormElementTextField('meta_keywords','Keywords','',$node->m_meta_keywords,
+			false,new xInputValidatorText(128));
+		$form->m_elements[] = $group;
+		
+		//submit buttom
+		$form->m_elements[] = new xFormSubmit('submit','Edit');
+		
+		$ret = $form->validate();
+		if(! $ret->isEmpty())
+		{
+			if(empty($ret->m_errors))
+			{
+				$node = new xNodePage($node->m_id,$node->m_type,$node->m_author,
+					$node->m_content_filter,$ret->m_valid_data['title'],$ret->m_valid_data['body'],
+					$this->m_path->m_lang,xUser::getLoggedinUsername(),$node->m_parent_cathegories,$node->m_creation_time,$node->m_edit_time,
+					$node->m_published,$node->m_sticky,$node->m_accept_replies,
+					$node->m_approved,$ret->m_valid_data['meta_description'],$ret->m_valid_data['meta_keywords']);
+				
+				if($node->dbUpdateTranslation())
+				{
+					xNotifications::add(NOTIFICATION_NOTICE,'Node translation successfully updated');
+				}
+				else
+				{
+					xNotifications::add(NOTIFICATION_ERROR,'Error during translation update');
+				}
+				
+				$this->_set("Edit node page translation",'','','');
+				return TRUE;
+			}
+			else
+			{
+				foreach($ret->m_errors as $error)
+				{
+					xNotifications::add(NOTIFICATION_WARNING,$error);
+				}
+			}
+		}
+
+		$this->_set("Edit node page translation",$form->render(),'','');
+		return TRUE;
+	}
+};
 
 
 

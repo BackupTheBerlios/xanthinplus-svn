@@ -106,6 +106,18 @@ class xNodePage extends xNodeI18N
 		return xNodePageDAO::update($this);
 	}
 	
+	
+	/**
+	 * Update this in db
+	 *
+	 * @return bool FALSE on error
+	 */
+	function dbUpdateTranslation()
+	{
+		return xNodePageDAO::updateTranslation($this);
+	}
+	
+	
 	/**
 	 * Retrieve a specific Node page from db
 	 *
@@ -118,11 +130,19 @@ class xNodePage extends xNodeI18N
 	}
 	
 	/**
-	 *
+	 * @static
 	 */
 	function find($lang)
 	{
 		return xNodePageDAO::find($lang);
+	}
+	
+	/**
+	 * @static
+	 */
+	function isNodePage($id)
+	{
+		return xNodePageDAO::isNodePage($id);
 	}
 };
 

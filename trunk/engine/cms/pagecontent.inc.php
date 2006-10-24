@@ -52,9 +52,9 @@ class xPageContent extends xElement
 	*/
 	var $m_headers;
 	
-	
-	
 	var $m_path;
+	
+	
 	
 	/**
 	 * Create an empty content. You call onCreate() to let the object fill itself with all data.

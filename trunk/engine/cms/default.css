@@ -8,7 +8,7 @@
 
 .admin table
 {
-	width: 90%;
+	width: 95%;
 }
 
 .admin table,.admin table td,.admin table th
@@ -62,14 +62,20 @@
 .form-element .form-textfield
 {
 	border: 1px solid gray;
-	width: 90%;
+	width: 95%;
+}
+
+.form-element .form-password
+{
+	border: 1px solid gray;
+	width: 95%;
 }
 
 .form-element .form-textarea
 {
 	border: 1px solid gray;
 	height: 150px;
-	width: 90%;
+	width: 95%;
 }
 
 .form-fieldset

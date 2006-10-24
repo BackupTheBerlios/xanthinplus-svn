@@ -33,6 +33,7 @@ function _objWeightCompare($a, $b)
 /**
  * Analyze the type of the current path alias/no alias and format properly the provided relative path
  *
+ * @deprecated
  * @param string $path
  * @return string
  */

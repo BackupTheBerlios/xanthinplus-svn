@@ -140,6 +140,15 @@ class xNode extends xElement
 	{
 		return xNodeDAO::find();
 	}
+	
+	/**
+	 * @abstract
+	 * @return array(xOperation)
+	 */
+	function getOperations()
+	{
+		assert(false);
+	}
 };
 
 

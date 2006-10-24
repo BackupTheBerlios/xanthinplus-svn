@@ -57,16 +57,35 @@ class xPath
 	var $m_lang;
 	
 	
-	function xPath()
+	function xPath($lang,$resource,$action,$type = NULL,$id = NULL,$page = NULL,$full_path = NULL)
 	{
-		$this->m_full_path = NULL;
+		$this->m_resource = $resource;
+		$this->m_action = $action;
+		$this->m_type = $type;
+		$this->m_id = $id;
+		$this->m_page = $page;
+		$this->m_lang = $lang;
 		
-		$this->m_resource = NULL;
-		$this->m_action = NULL;
-		$this->m_type = NULL;
-		$this->m_id = NULL;
-		$this->m_page = NULL;
-		$this->m_lang = NULL;
+		
+		if($full_path === NULL) //generate the path dinamically
+		{
+			$this->m_full_path = $lang . '/' . $resource . '/' . $action;
+			
+			if($type !== NULL)
+			{
+				$this->m_full_path .= '/'. $type;
+				
+				if($id !== NULL)
+				{
+					$this->m_full_path .= '/'. $id;
+					
+					if($page !== NULL)
+						$this->m_full_path .= '/'. $page;
+				}
+			}
+		}
+		else
+			$this->m_full_path = $full_path;
 	}
 	
 	/**
@@ -175,6 +194,31 @@ class xPath
 			return $path;
 	    }
 	}
+	
+	/**
+	 * Outputs a link based on this path.
+	 *
+	 * @return string
+	 */
+	function getLink()
+	{
+		//todo
+		return '?p='.$this->m_full_path;
+	}
+	
+	
+	/**
+	 * Outputs a link based on given params.
+	 *
+	 * @return string
+	 * @static
+	 */
+	function renderLink($lang,$resource,$action,$type = NULL,$id = NULL,$page = NULL)
+	{
+		$path = new xPath($lang,$resource,$action,$type,$id,$page);
+		return $path->getLink();
+	}
+	
 };
 
 ?>

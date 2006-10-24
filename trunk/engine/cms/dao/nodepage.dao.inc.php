@@ -97,6 +97,30 @@ class xNodePageDAO
 		return true;
 	}
 	
+	/**
+	 * 
+	 *
+	 * @param xNode $node
+	 * @return The new id or FALSE on error
+	 * @static
+	 */
+	function updateTranslation($node)
+	{
+		xDB::getDB()->startTransaction();
+		
+		xNodeI18NDAO::updateTranslation($node);
+		
+		xDB::getDB()->query("UPDATE node_page SET meta_description = '%s',meta_keywords = '%s' 
+			WHERE nodeid = %d AND lang = '%s'",
+			$node->m_meta_description, $node->m_meta_keywords,$node->m_id, $node->m_lang);
+			
+		if(!xDB::getDB()->commitTransaction())
+			return false;
+		
+		return true;
+	}
+	
+	
 	
 	/**
 	 *
@@ -131,6 +155,21 @@ class xNodePageDAO
 		}
 		
 		return NULL;
+	}
+	
+	/**
+	 * @static
+	 */
+	function isNodePage($id)
+	{
+		$result = xDB::getDB()->query("SELECT nodeid FROM node_page WHERE 
+			nodeid = %d",$id);
+		if($row = xDB::getDB()->fetchObject($result))
+		{
+			return true;
+		}
+		
+		return false;
 	}
 	
 	

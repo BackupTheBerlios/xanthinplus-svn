@@ -101,6 +101,20 @@ class xNodeI18NDAO
 		return true;
 	}
 	
+	
+	/**
+	 * 
+	 *
+	 * @param xNode $node
+	 * @return The new id or FALSE on error
+	 * @static
+	 */
+	function updateTranslation($node)
+	{
+		return xDB::getDB()->query("UPDATE node_i18n SET title = '%s',content = '%s' WHERE nodeid = %d AND lang = '%s'",
+			$node->m_title, $node->m_content,$node->m_id, $node->m_lang);
+	}
+	
 	/**
 	 *
 	 * @return xNode
