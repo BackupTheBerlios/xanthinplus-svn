@@ -202,7 +202,17 @@ class xNodeI18N extends xNode
 		$error = '';
 		$content = xContentFilterController::applyFilter($this->m_content_filter,$this->m_content,$error);
 		$title = xContentFilterController::applyFilter('notags',$this->m_title,$error);
-		return xTheme::render3('renderNode',$this->m_type,$title,$content);
+		
+		//format operations
+		$ops = $this->getOperations();
+		$formatted = array();
+		foreach($ops as $op)
+			$formatted[$op->m_name] = array('link' => $op->getLink('node',$this->m_type,$this->m_id,$this->m_lang),
+				'description' => $op->m_description);
+			
+		$operations = xTheme::render1('renderNodeOperations',$formatted);
+		
+		return xTheme::render4('renderNode',$this->m_type,$title,$content,$operations);
 	}
 	
 	/**
@@ -244,6 +254,20 @@ class xNodeI18N extends xNode
 	function existsTranslation($nodeid,$lang)
 	{
 		return xNodeI18NDAO::existsTranslation($nodeid,$lang);
+	}
+	
+	
+	/**
+	 * @return array(xOperation)
+	 */
+	function getOperations()
+	{
+		return array
+			(
+				new xOperation('edit_translation','Edit translation',''),
+				new xOperation('delete_translation','Delete translation',''),
+				new xOperation('delete_node','Delete node','')
+			);
 	}
 };
 

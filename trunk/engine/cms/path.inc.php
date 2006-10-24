@@ -159,7 +159,7 @@ class xPath
 	    }
 		else
 		{
-			$path = new xPath();
+			$path = new xPath(NULL,NULL,NULL,NULL,NULL,NULL,NULL);
 			$path->m_full_path = $pieces[0];
 			$exploded = explode('/',$pieces[0]);
 			

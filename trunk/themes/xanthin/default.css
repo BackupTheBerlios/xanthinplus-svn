@@ -142,6 +142,18 @@ body
 	height: 30px;
 }
 
+/*___________ Operations_________________ */
+
+.node .operations
+{
+	display: block;
+}
+
+.node .operation
+{
+	display: inline;
+}
+
 /*___________ MOVE to default._________________ */
 ul
 {

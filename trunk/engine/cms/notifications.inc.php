@@ -92,14 +92,7 @@ class xNotifications
 	function _renderAll()
 	{
 		global $g_xanth_notifications;
-		
-		$notifications = array();
-		foreach($g_xanth_notifications as $notification)
-		{
-			$notifications[] = array('severity' => $notification->m_severity,'message' => $notification->m_message);
-		}
-		
-		return xTheme::render1('renderNotifications',$notifications);
+		return xTheme::render1('renderNotifications',$g_xanth_notifications);
 	}
 	
 	/**

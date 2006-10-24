@@ -27,16 +27,15 @@ class xThemeXanthin extends xTheme
 	}
 	
 	/**
-	 * @see xDummyModule
+	 * @see xDefaultModule
 	 */
 	function getCss()
 	{
 		return "themes/xanthin/default.css";
 	}
 	
-	
 	/**
-	 * @see xDummyModule
+	 * @see xDefaultModule
 	 */
 	function renderBox($name,$title,$content)
 	{
@@ -51,23 +50,9 @@ class xThemeXanthin extends xTheme
 		return $output;
 	}
 	
-	/**
-	 * @see xDummyModule
-	 */
-	function renderBoxGroup($group_name,$rendered_boxes)
-	{
-		$output = '';
-		
-		foreach($rendered_boxes as $box)
-		{
-			$output .= $box;
-		}
-		
-		return $output;
-	}
 	
 	/**
-	 * @see xDummyModule
+	 * @see xDefaultModule
 	 */
 	function renderPage($content,$groups)
 	{
@@ -108,61 +93,6 @@ class xThemeXanthin extends xTheme
 				</div>
 			</body>
 		</html>';
-		
-		return $output;
-	}
-	
-	/**
-	 * @see xDummyModule
-	 */
-	function renderMenuItem($label,$link,$subitems)
-	{
-		return '<li><a href="' . $link . '">' . $label . '</a>' . $subitems . '</li>';
-	}
-	
-	
-	/**
-	 * @see xDummyModule
-	 */
-	function renderMenuItems($items)
-	{
-		$output = '';
-		if(!empty($items))
-		{
-			$output .= "<ul>\n";
-			foreach($items as $item)
-			{
-				$output .= $item->render();
-			}
-			$output .= "</ul>\n";
-		}
-		
-		return $output;
-	}
-	
-	/**
-	 * @see xDummyModule::renderItemPage()
-	 */
-	function renderItem($type,$title,$content)
-	{
-		$output = '<div class="item-title">' . $title . '</div>
-		<div class="item-content">' . $content . '</div>';
-		
-		return $output;
-	}
-	
-	
-	/**
-	 * @see xDummyModule::renderNotifications()
-	 */
-	function renderNotifications($notifications)
-	{
-		$output = '';
-		foreach($notifications as $notification)
-		{
-			$output .= '<div class="notification"><div class="' . $notification['severity'] . '">' .
-				$notification['message'] . '</div></div>';
-		}
 		
 		return $output;
 	}

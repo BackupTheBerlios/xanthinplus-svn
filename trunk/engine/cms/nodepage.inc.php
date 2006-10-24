@@ -144,6 +144,20 @@ class xNodePage extends xNodeI18N
 	{
 		return xNodePageDAO::isNodePage($id);
 	}
+	
+	/**
+	 * @return array(xOperation)
+	 */
+	function getOperations()
+	{
+		$def = xNodeI18N::getOperations();
+		
+		return array_merge($def,
+			array(
+					new xOperation('edit_properties','Edit properties','')
+				)
+			);
+	}
 };
 
 ?>

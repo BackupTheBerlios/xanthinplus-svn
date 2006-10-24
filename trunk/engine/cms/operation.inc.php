@@ -27,11 +27,6 @@ class xOperation
 	var $m_action;
 	
 	/**
-	 * @var string
-	 */
-	var $m_resource;
-	
-	/**
 	* @var string
 	*/
 	var $m_name;
@@ -42,9 +37,8 @@ class xOperation
 	var $m_description;
 	
 
-	function xOperation($resource,$action,$name,$description)
+	function xOperation($action,$name,$description)
 	{
-		$this->m_resource = $resource;
 		$this->m_action = $action;
 		$this->m_name = $name;
 		$this->m_description = $description;
@@ -54,9 +48,9 @@ class xOperation
 	/**
 	 * Outputs the link corresponding to this operation.
 	 */
-	function getLink($resource_type,$resource_id,$lang)
+	function getLink($resource,$resource_type,$resource_id,$lang)
 	{
-		return xPath::renderLink($lang,$this->m_resource,$this->m_action,$resource_type,$resource_id);
+		return xPath::renderLink($lang,$resource,$this->m_action,$resource_type,$resource_id);
 	}
 };
 

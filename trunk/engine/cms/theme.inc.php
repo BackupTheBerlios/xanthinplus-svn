@@ -321,92 +321,6 @@ class xTheme
 	}
 };
 
-/**
- * A dummy theme class for documentation purpose only
- */
-class xDummyTheme extends xTheme
-{
-	/**
-	* Render the box element.
-	* 
-	* @param string $id
-	* @param string $title
-	* @param string $content
-	* @return string the renderized element.
-	*/
-	function renderBox($name,$title,$content)
-	{
-	}
-	
-	/**
-	* Render the boxgroup element.
-	* 
-	* @param string $group_name
-	* @param array(string) $rendered_boxes
-	* @return string the renderized element.
-	*/
-	function renderBoxGroup($group_name,$rendered_boxes)
-	{
-	}
-	
-	/**
-	* Render the whole page.
-	* 
-	* @param array(xArea) $areas
-	* @return string the renderized element.
-	*/
-	function renderPage($content,$areas)
-	{
-	}
-	
-	/**
-	 * Render a list of menu items
-	 * 
-	 * @param string $label
-	 * @param string $link
-	 * @param string subitems
-	 * @return string the renderized element.
-	 */
-	function renderMenuItem($label,$link,$subitems)
-	{
-	}
-	
-	
-	/**
-	 * @see xDummyModule
-	 */
-	function renderMenuItems($items)
-	{
-	}
-	
-	/**
-	 * Render an array of notifications
-	 *
-	 * @param array(array("severity" => int,"message" => string)) $notifications
-	 * @return string the renderized element.
-	 */
-	function renderNotifications($notifications)
-	{
-	}
-	
-	/**
-	 * Render a node.
-	 */
-	function renderNode($type,$title,$content)
-	{
-	}
-	
-	
-	/**
-	 * Return the path to theme css file or an array of it.
-	 *
-	 * @return mixed
-	 */
-	function getCss()
-	{
-	}
-}
-
 
 /**
  * The default theme.
@@ -418,7 +332,9 @@ class xDefaultTheme extends xTheme
 	
 	
 	/**
-	 * @see xDummyModule
+	 * Return the path to theme css file or an array of it.
+	 *
+	 * @return mixed
 	 */
 	function getCss()
 	{
@@ -427,7 +343,12 @@ class xDefaultTheme extends xTheme
 	
 	
 	/**
-	 * @see xDummyModule
+	 * Render the box element.
+	 * 
+	 * @param string $name
+	 * @param string $title
+	 * @param string $content
+	 * @return string the renderized element.
 	 */
 	function renderBox($name,$title,$content)
 	{
@@ -440,7 +361,11 @@ class xDefaultTheme extends xTheme
 	}
 	
 	/**
-	 * @see xDummyModule
+	 * Render the boxgroup element.
+	 * 
+ 	 * @param string $group_name
+	 * @param array(string) $rendered_boxes
+	 * @return string the renderized element.
 	 */
 	function renderBoxGroup($group_name,$rendered_boxes)
 	{
@@ -455,7 +380,11 @@ class xDefaultTheme extends xTheme
 	}
 	
 	/**
-	 * @see xDummyModule
+	 * Render the whole page.
+	 * 
+	 * @param xPageContent $content
+	 * @param array(xBoxGroup) $groups
+	 * @return string the renderized element.
 	 */
 	function renderPage($content,$groups)
 	{
@@ -483,7 +412,12 @@ class xDefaultTheme extends xTheme
 	}
 	
 	/**
-	 * @see xDummyModule
+	 * Render a menu item
+	 * 
+	 * @param string $label
+	 * @param string $link
+	 * @param string $subitems
+	 * @return string the renderized element.
 	 */
 	function renderMenuItem($label,$link,$subitems)
 	{
@@ -492,7 +426,30 @@ class xDefaultTheme extends xTheme
 	
 	
 	/**
-	 * @see xDummyModule
+	 * Render node operations
+	 * 
+	 * @param array() $operations An array so structured:
+	 * 		array(name => array(link => string, description => string))
+	 * @return string the renderized element.
+	 */
+	function renderNodeOperations($operations)
+	{
+		$out = '<div class="operations">';
+		foreach($operations as $name => $params)
+		{
+			$out .= '<div class="operation"> <a href="'.$params['link'].'">'.$name.'</a> </div>';
+		}
+		$out .= '</div>';
+		
+		return $out;
+	}
+	
+	
+	/**
+	 * Render a list of menu items
+	 * 
+	 * @param array(xMenuItem) $items
+	 * @return string the renderized element.
 	 */
 	function renderMenuItems($items)
 	{
@@ -511,27 +468,36 @@ class xDefaultTheme extends xTheme
 	}
 	
 	/**
-	 * @see xDummyModule::renderNode()
+	 * Render a node.
+	 *
+	 *
+	 * @param string $type
+	 * @param string $title
+	 * @param string $content
+	 * @param string $operations
 	 */
-	function renderNode($type,$title,$content)
+	function renderNode($type,$title,$content,$operations)
 	{
-		$output = '<div class="node-title">' . $title . '</div>
-		<div class="node-content">' . $content . '</div>';
+		$output = '<div class="node">' . $operations . '<br/><div class="node-title">' . $title . '</div>
+		<div class="node-content">' . $content . '</div></div>';
 		
 		return $output;
 	}
 	
 	
 	/**
-	 * @see xDummyModule::renderNotifications()
+	 * Render an array of notifications
+	 *
+	 * @param array(xNotification) $notifications
+	 * @return string the renderized element.
 	 */
 	function renderNotifications($notifications)
 	{
 		$output = '';
 		foreach($notifications as $notification)
 		{
-			$output .= '<div class="notification"><div class="' . $notification['severity'] . '">' .
-				$notification['message'] . '</div></div>';
+			$output .= '<div class="notification"><div class="' . $notification->m_severity . '">' .
+				$notification->m_message . '</div></div>';
 		}
 		
 		return $output;

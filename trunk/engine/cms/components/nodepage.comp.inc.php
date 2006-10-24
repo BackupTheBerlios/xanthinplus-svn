@@ -58,7 +58,7 @@ class xModuleNodePage extends xModule
 			return new xPageContentNodeTranslatePage($path);
 		}
 		
-		elseif($path->m_resource === 'node' && $path->m_type === 'page' && $path->m_action === 'edittranslation'
+		elseif($path->m_resource === 'node' && $path->m_type === 'page' && $path->m_action === 'edit_translation'
 			&& $path->m_id !== NULL)
 		{
 			return new xPageContentNodeEdittranslationPage($path);
@@ -142,7 +142,7 @@ class xPageContentNodeAdminPage extends xPageContent
 		$nodes = $this->_groupNodes($nodes);
 		$out = '<a href="'.xanth_relative_path($this->m_path->m_lang. '/node/create/page').'">Create new node page</a><br/><br/>';
 		$out .= "<div class = 'admin'><table>\n";
-		$out .= "<tr><th>ID</th><th>Title</th><th>In your lang?</th><th>Translated in</th><th>Translate in</th><th>Actions</th></tr>\n";
+		$out .= "<tr><th>ID</th><th>Title</th><th>In your lang?</th><th>Translated in</th><th>Translate in</th></tr>\n";
 		$langs = xLanguage::findNames();
 		foreach($nodes as $id => $node_array)
 		{
@@ -161,7 +161,9 @@ class xPageContentNodeAdminPage extends xPageContent
 				$node = reset($node_array);
 			}
 			
-			$out .= '<tr><td>'.$id.'</td><td>' . $node->m_title . '</td><td>';
+			$out .= '<tr><td>'.$id.'</td><td><a href="'.
+				xPath::renderLink($node->m_lang,'node','view',$node->m_type,$node->m_id) . '">'.
+				$node->m_title . '</a></td><td>';
 			if($node->m_lang == $this->m_path->m_lang)
 				$out .= 'Yes';
 			else			
@@ -184,17 +186,6 @@ class xPageContentNodeAdminPage extends xPageContent
 						'">' . $lang . '</a>';
 				}
 			}
-			
-			$out .= '</td><td><a href="'.
-				xanth_relative_path($node->m_lang . '/node/view/'. $node->m_type . '/' . $node->m_id) . 
-				'">View</a>';
-				
-			if($node->m_lang == $this->m_path->m_lang)
-				$out .= ' - <a href="'.
-					xanth_relative_path($node->m_lang . '/node/edittranslation/'. $node->m_type . '/' . $node->m_id).
-					'">Edit this translation</a>';
-					
-			$out .= '- Delete a translation - Delete node - Edit node properties</td></tr>';
 		}
 		
 		$out  .= "</table></div>\n";
