@@ -391,10 +391,10 @@ class xInstallCMS
 		$menuitem = new xMenuItem(-1,'Homepage','?p=en',-1,'en');
 		$menu->m_items[] = $menuitem;
 		
-		$menuitem = new xMenuItem(-1,'Create cathegory','?p=en/cathegory/create',-1,'en');
+		$menuitem = new xMenuItem(-1,'Admin Cathegory','?p=en/cathegory/admin',-1,'en');
 		$menu->m_items[] = $menuitem;
 		
-		$menuitem = new xMenuItem(-1,'Node','?p=en/node/admin',-1,'en');
+		$menuitem = new xMenuItem(-1,'Admin Node','?p=en/node/admin',-1,'en');
 		$menu->m_items[] = $menuitem;
 		
 		$menuitem = new xMenuItem(-1,'Access permissions','?p=en/accesspermissions/admin',-1,'en');

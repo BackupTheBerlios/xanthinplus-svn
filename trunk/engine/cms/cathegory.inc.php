@@ -101,9 +101,9 @@ class xCathegory extends xElement
 	 * @return array(xCathegory)
 	 * @static
 	 */
-	function find($type = NULL,$parent_cathegory = NULL,$inf_limit = 0,$sup_limit = 0)
+	function find($type = NULL,$parent_cathegory = NULL)
 	{
-		return xCathegoryDAO::find($type,$parent_cathegory,$inf_limit,$sup_limit);
+		return xCathegoryDAO::find($type,$parent_cathegory);
 	}
 	
 	/**
@@ -171,6 +171,16 @@ class xCathegoryI18N extends xCathegory
 		$this->m_description = $description;
 	}
 	
+	
+	// DOCS INHERITHED  ========================================================
+	function render()
+	{
+		$error = '';
+		$description = xContentFilterController::applyFilter('html',$this->m_description,$error);
+		$title = xContentFilterController::applyFilter('notags',$this->m_title,$error);
+		
+		return xTheme::render4('renderCathegory',$title,$description);
+	}
 	
 	/** 
 	 * Inserts this into db
@@ -241,8 +251,41 @@ class xCathegoryI18N extends xCathegory
 	{
 		return xCathegoryI18NDAO::find($type,$parent_cathegory,$name,$lang);
 	}
+	
+	/**
+	 *
+	 */
+	function findChildNodes()
+	{
+	
+	}
 };
 
+
+/**
+ *
+ */
+class xCathegoryPage extends xCathegoryI18N
+{
+	/**
+	 *
+	 */
+	function xCathegoryPage($id,$type,$parent_cathegory,$name,$title,$description,$lang)
+	{
+		$this->xCathegoryI18N($id,$type,$parent_cathegory);
+	}
+	
+	/**
+	 * Retrieves generic xCathegory objects by different search parameters
+	 *
+	 * @return array(xCathegory)
+	 * @static
+	 */
+	function find($parent_cathegory = NULL,$name = NULL,$lang = NULL)
+	{
+		return xCathegoryI18NDAO::find('page',$parent_cathegory,$name,$lang);
+	}
+};
 
 
 

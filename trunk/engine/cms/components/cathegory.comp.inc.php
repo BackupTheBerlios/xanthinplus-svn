@@ -32,32 +32,13 @@ class xModuleCathegory extends xModule
 	 */ 
 	function xm_fetchContent($path)
 	{
-		if($path->m_resource === "cathegory" && $path->m_type == NULL && $path->m_action == 'create')
+		if($path->m_resource === "cathegory" && $path->m_type === NULL && $path->m_action == 'admin')
 		{
-			return new xPageContentCathegoryCreateChooseType($path);
-		}
-		elseif($path->m_resource === "cathegory" && $path->m_type == 'page' && $path->m_action == 'create')
-		{
-			return new xPageContentCathegoryCreatePage($path);
+			return new xPageContentCathegoryAdmin($path);
 		}
 		
 		return NULL;
 	}
-	
-	/**
-	 * @see xDummyModule::xm_fetchCathegory()
-	 */
-	function xm_fetchCathegory($cat_id,$cat_type)
-	{
-		switch($cat_type)
-		{
-			case 'page':
-				return xCathegory::dbLoad($cat_id);
-		}
-		
-		return NULL;
-	}
-	
 	
 	/**
 	 * @see xDummyModule::xm_fetchPermissionDescriptors()
@@ -87,15 +68,62 @@ class xModuleCathegory extends xModule
 xModule::registerDefaultModule(new xModuleCathegory());
 
 
+/**
+ * 
+ */
+class xPageContentCathegoryView extends xPageContent
+{	
+	/**
+	 * @var xCathegory
+	 */
+	var $m_cat;
+	
+	function xPageContentCathegoryView($path,$cat)
+	{
+		$this->xPageContent($path);
+		$this->m_cat = $cat;
+	}
+	
+	/**
+	 * Checks that cat exists, checks cathegory and type view permission.
+	 * If you inherit the xPageContentCathegoryView clas and override this member, remember
+	 * to call the xPageContentCathegoryView::onCheckPreconditions() before your checks.
+	 */
+	function onCheckPreconditions()
+	{
+		assert($this->m_cat != NULL);
+		
+		//check type permission
+		if(!xAccessPermission::checkCurrentUserPermission('cathegory',$this->m_cat->m_type,NULL,'view'))
+			return new xPageContentNotAuthorized($this->m_path);
+		
+		$cathegory = xCathegory::dbLoad($this->m_cat->m_parent_cathegory);
+		if(! $cathegory->checkCurrentUserPermissionRecursive('view'))
+				return new xPageContentNotAuthorized($this->m_path);
+		
+		return TRUE;
+	}
+	
+	
+	/**
+	 * Do nothing. Only asserts cat != NULL and returns true.
+	 */
+	function onCreate()
+	{
+		assert($this->m_cat != NULL);
+		return true;
+	}
+}
+
 
 
 /**
  *
  */
-class xPageContentCathegoryCreateChooseType extends xPageContent
+class xPageContentCathegoryAdmin extends xPageContent
 {
 
-	function xPageContentCathegoryCreateChooseType($path)
+	function xPageContentCathegoryAdmin($path)
 	{
 		xPageContent::xPageContent($path);
 	}
@@ -114,12 +142,13 @@ class xPageContentCathegoryCreateChooseType extends xPageContent
 		$out = "Choose type:\n <ul>\n";
 		foreach($types as $type)
 		{
-			$out .= "<li><a href=\"".xanth_relative_path('cathegory/create/'.$type->m_name)."\">" . $type->m_name . "</a></li>\n";
+			$out .= "<li><a href=\"".xPath::renderLink($this->m_path->m_lang,'cathegory','admin',$type->m_name) 
+				."\">" . $type->m_name . "</a></li>\n";
 		}
 		
 		$out  .= "</ul>\n";
 		
-		xPageContent::_set("Create cathegory: choose type",$out,'','');
+		xPageContent::_set("Admin cathegory: choose type",$out,'','');
 		return true;
 	}
 }
@@ -175,91 +204,4 @@ class xPageContentCathegoryCreate extends xPageContent
 }
 
 
-
-
-/**
- *
- */
-class xPageContentCathegoryCreatePage extends xPageContentCathegoryCreate
-{
-
-	function xPageContentCathegoryCreatePage($path)
-	{
-		xPageContentCathegoryCreate::xPageContentCathegoryCreate($path);
-	}
-	
-	// DOCS INHERITHED  ========================================================
-	function onCreate()
-	{
-		//create form
-		$form = new xForm(xanth_relative_path($this->m_path->m_full_path));
-		
-		//no cathegory in path so let user choose according to its permissions
-		if($this->m_path->m_id == NULL)
-		{
-			$cathegories = xCathegory::find(NULL,$this->m_path->m_type);
-			
-			$options = array();
-			foreach($cathegories as $cathegory)
-			{
-				$options[$cathegory->m_name] = $cathegory->m_id;
-			}
-			
-			$form->m_elements[] = new xFormElementOptions('parent_cathegory','Parent cathegory','','',$options,FALSE,
-				TRUE,new xCreateIntoCathegoryValidator($this->m_path->m_type));
-		}
-		
-		//cat name
-		$form->m_elements[] = new xFormElementTextField('name','Unique Name','','',true,new xInputValidatorTextNameId(32));
-		
-		//cat title
-		$form->m_elements[] = new xFormElementTextField('title','Title','','',true,new xInputValidatorText(128));
-		
-		//cat description
-		$form->m_elements[] = new xFormElementTextArea('description','Description','','',false,
-			new xInputValidatorText());
-			
-		//submit buttom
-		$form->m_elements[] = new xFormSubmit('submit','Create');
-		
-		$ret = $form->validate();
-		if(! $ret->isEmpty())
-		{
-			if(empty($ret->m_errors))
-			{
-				$cathegory = array();
-				if($this->m_path->m_id != NULL)
-					$cathegory = $this->m_path->m_id;
-				else
-					$cathegory = $ret->m_valid_data['parent_cathegory'];
-					
-				$cat = new xCathegory(-1,$ret->m_valid_data['title'],$ret->m_valid_data['name'],
-					'page',$ret->m_valid_data['description'],$cathegory);
-				
-				if($cat->dbInsert())
-				{
-					xNotifications::add(NOTIFICATION_NOTICE,'New cathegory successfully created');
-				}
-				else
-				{
-					xNotifications::add(NOTIFICATION_ERROR,'Error: cathegory was not created');
-				}
-				
-				$this->_set("Create new cathegory page",'','','');
-				return TRUE;
-			}
-			else
-			{
-				foreach($ret->m_errors as $error)
-				{
-					xNotifications::add(NOTIFICATION_WARNING,$error);
-				}
-			}
-		}
-
-		$this->_set("Create new cathegory page",$form->render(),'','');
-		return TRUE;
-	}
-}
-	
 ?>

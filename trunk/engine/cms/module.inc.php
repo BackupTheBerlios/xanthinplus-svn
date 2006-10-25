@@ -446,18 +446,6 @@ class xDummyModule extends xModule
 	{
 	}
 	
-	
-	/**
-	* Returns a valid content for the given alias path. Note that you SHOULD NOT call onCheckPrecontitions() or
-	* call onCreate() on the content object before you return it.
-	*
-	* @param xPath $path
-	* @return xPageContent A valid xPageContent object for the given resource/action/id, NULL otherwise.
-	*/
-	function xm_fetchAliasContent($path)
-	{
-	}
-	
 	/**
 	* Called when the page creation occur. Use this method to do all the stuff befor a the page is created.
 	*
@@ -481,11 +469,31 @@ class xDummyModule extends xModule
 	/**
 	* Fetch a specific node object corresponding to given type and id.
 	*
+	* @deprecated (todo)
 	* @return xNode
 	*/
 	function xm_fetchSingleNode($type,$id)
 	{
 	}
+	
+	/**
+	 * Returns the name of the specific node class that manage a specific class node.
+	 *
+	 * @return string
+	 */
+	function xm_fetchNodeClassName($type)
+	{
+	}
+	
+	/**
+	 * Returns the name of the specific cathegory class that manage a specific class cathegory.
+	 *
+	 * @return string
+	 */
+	function xm_fetchCathegoryClassName($type)
+	{
+	}
+	
 }
 
 

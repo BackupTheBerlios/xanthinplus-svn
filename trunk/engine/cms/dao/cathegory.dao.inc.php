@@ -122,56 +122,15 @@ class xCathegoryDAO
 	 */
 	function find($type = NULL,$parent_cathegory = NULL)
 	{
-		$query_tables = array("cathegory");
-		$values = array();
-		$query_where = array();
-		$query_where_link = array();
+		$where['cathegory']['type']['type'] = "'%s'";
+		$where['cathegory']['type']['connector'] = "AND";
+		$where['cathegory']['type']['value'] = $type;
 		
-		if($type !== NULL)
-		{
-			$query_where[] = "cathegory.type = '%s'";
-			$query_where_link[] = "AND";
-			$values[] = $type;
-		}
+		$where['cathegory']['parent_cathegory']['type'] = "%d";
+		$where['cathegory']['parent_cathegory']['connector'] = "AND";
+		$where['cathegory']['parent_cathegory']['value'] = $parent_cathegory;
 		
-		if($parent_cathegory !== NULL)
-		{
-			$query_where[] = "cathegory.parent_cathegory = '%d'";
-			$query_where_link[] = "AND";
-			$values[] = $parent_cathegory;
-		}
-		
-		//now construct the query
-		$query = "SELECT * FROM ";
-		$i = 0;
-		foreach($query_tables as $query_table)
-		{
-			if($i === 0) //not adding link string
-			{
-				$query .= $query_table;
-			}
-			else
-			{
-				$query .= "," . $query_table;
-			}
-			$i++;
-		}
-		
-		$query .= " ";
-		for($i = 0;$i < count($query_where);$i++)
-		{
-			if($i === 0) //not adding link string
-			{
-				$query .= "WHERE ";
-				$query .= $query_where[$i];
-			}
-			else
-			{
-				$query .= " " . $query_where_link[$i] . " ";
-				$query .= $query_where[$i];
-			}
-		}
-		$result = xDB::getDB()->query($query,$values);
+		$result = xDB::getDB()->autoQuery('SELECT',array(),$where);
 		$cats = array();
 		while($row = xDB::getDB()->fetchObject($result))
 		{

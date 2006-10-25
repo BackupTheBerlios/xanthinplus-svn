@@ -376,7 +376,7 @@ class xDB
 	 * @param array $where An array as for $records
 	 * @param string $append
 	 */
-	function autoQuery($action,$records,$where,$extra_query = '',$extra_values = array(),$debug =false)
+	function autoQuery($action,$records,$where,$extra_query = '',$extra_values = array(),$debug = false)
 	{
 		$out = '';
 		$values = array();

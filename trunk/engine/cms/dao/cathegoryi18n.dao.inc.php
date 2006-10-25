@@ -96,7 +96,7 @@ class xCathegoryI18NDAO
 			cathegory_i18n.catid = cathegory.id AND cathegory_i18n.lang = '%s'",$catid,$lang);
 		if($row = xDB::getDB()->fetchObject($result))
 		{
-			return xCathegoryDAO::_cathegoryFromRow($row);
+			return xCathegoryI18NDAO::_cathegoryi18nFromRow($row);
 		}
 		
 		return NULL;
@@ -111,8 +111,8 @@ class xCathegoryI18NDAO
 	 */
 	function find($type = NULL,$parent_cathegory = NULL,$name = NULL,$lang = NULL)
 	{
-		$where['cathegory_i18n']['catid']['join'] = "cathegory.id";
-		$where['cathegory_i18n']['catid']['connector'] = "AND";
+		$where['cathegory']['id']['join'] = "cathegory_i18n.catid";
+		$where['cathegory']['id']['connector'] = "AND";
 		
 		$where['cathegory']['type']['type'] = "'%s'";
 		$where['cathegory']['type']['connector'] = "AND";

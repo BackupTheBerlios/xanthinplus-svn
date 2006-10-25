@@ -113,4 +113,37 @@ class xNodeType
 };
 
 
+
+
+/**
+ *
+ */
+class xTypeFactory
+{
+	function xTypeFactory()
+	{
+		assert(false);
+	}
+	
+	
+	/**
+	 *
+	 */
+	function getNodeTypeClass($type)
+	{
+		return xModule::callWithSingleResult1('xm_fetchNodeClassName',$type);
+	}
+	
+	
+	/**
+	 *
+	 */
+	function getCathegoryTypeClass($type)
+	{
+		return xModule::callWithSingleResult1('xm_fetchCathegoryClassName',$type);
+	}
+}
+
+
+
 ?>

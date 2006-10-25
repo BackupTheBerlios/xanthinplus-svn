@@ -426,6 +426,33 @@ class xDefaultTheme extends xTheme
 	
 	
 	/**
+	 * Render cathegory
+	 * 
+	 * @param string $title
+	 * @param string $descrition
+	 * @param array(xNode) $nodes
+	 * @return string the renderized element.
+	 */
+	function renderCathegory($title,$description,$nodes)
+	{
+		$out = 
+		'<div class="cathegory">
+			<div class = "title">
+			'.$title.'
+			</div>
+			<div class="node-list">';
+			
+		foreach($nodes as $node)
+		{
+			$out .= $node->renderBrief();
+		}
+		
+		$out .= '</div></div>';
+		
+		return $out;
+	}
+	
+	/**
 	 * Render node operations
 	 * 
 	 * @param array() $operations An array so structured:
@@ -479,6 +506,24 @@ class xDefaultTheme extends xTheme
 	function renderNode($type,$title,$content,$operations)
 	{
 		$output = '<div class="node">' . $operations . '<br/><div class="node-title">' . $title . '</div>
+		<div class="node-content">' . $content . '</div></div>';
+		
+		return $output;
+	}
+	
+	
+	/**
+	 * Render a node in a brief version.
+	 *
+	 *
+	 * @param string $type
+	 * @param string $title
+	 * @param string $content
+	 * @param string $operations
+	 */
+	function renderBriefNode($type,$title,$content,$operations)
+	{
+		$output = '<div class="node-brief">' . $operations . '<br/><div class="node-title">' . $title . '</div>
 		<div class="node-content">' . $content . '</div></div>';
 		
 		return $output;
