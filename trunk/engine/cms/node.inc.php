@@ -226,6 +226,14 @@ class xNodeI18N extends xNode
 		return xNodeI18NDAO::load($id,$lang);
 	}
 	
+	/** 
+	 * Delete the node translation and if this is the last translation deletes the node at all.
+	 */
+	function dbDeleteTranslation($id,$lang)
+	{
+		return xNodeI18NDAO::deleteTranslation($id,$lang);
+	}
+	
 	
 	function findAll($lang)
 	{

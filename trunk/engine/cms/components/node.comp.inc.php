@@ -134,7 +134,7 @@ class xPageContentNodeEdittranslation extends xPageContent
 		if(! xNodeI18N::existsTranslation($this->m_path->m_id,$this->m_path->m_lang))
 			return new xPageContentError('A translation of this node does exists',$this->m_path);
 			
-		if(!xAccessPermission::checkCurrentUserPermission('node',$this->m_path->m_type,NULL,'edittranslation'))
+		if(!xAccessPermission::checkCurrentUserPermission('node',$this->m_path->m_type,NULL,'edit_translation'))
 			return new xPageContentNotAuthorized($this->m_path);
 			
 		return true;
@@ -147,6 +147,89 @@ class xPageContentNodeEdittranslation extends xPageContent
 	function onCreate()
 	{
 		assert(false);
+	}
+};
+
+
+
+/**
+ * 
+ */
+class xPageContentNodeDeleteTranslation extends xPageContent
+{	
+	function xPageContentNodeDeleteTranslation($path)
+	{
+		$this->xPageContent($path);
+	}
+	
+	/**
+	 * Checks that the translation is  present, checks delete translation permission.
+	 */
+	function onCheckPreconditions()
+	{
+		if(! xNodeI18N::existsTranslation($this->m_path->m_id,$this->m_path->m_lang))
+			return new xPageContentError('A translation of this node does exists',$this->m_path);
+			
+		if(!xAccessPermission::checkCurrentUserPermission('node',$this->m_path->m_type,NULL,'delete_translation'))
+			return new xPageContentNotAuthorized($this->m_path);
+			
+		return true;
+	}
+	
+	/**
+	 * Ask the confirmation and delete node translation.
+	 */
+	function onCreate()
+	{
+		//create form
+		$form = new xForm($this->m_path->getLink());
+		
+		//submit buttom
+		$form->m_elements[] = new xFormSubmit('submit','Delete');
+		
+		//submit buttom
+		$form->m_elements[] = new xFormSubmit('submit','Cancel');
+		
+		$ret = $form->validate();
+		if(! $ret->isEmpty())
+		{
+			if(empty($ret->m_errors))
+			{
+				if($ret->m_valid_data['submit'] === 'Delete')
+				{
+					if(xNodeI18N::dbDeleteTranslation($this->m_path->m_id,$this->m_path->m_lang))
+					{
+						xNotifications::add(NOTIFICATION_NOTICE,'Node translation successfully deleted');
+					}
+					else
+					{
+						xNotifications::add(NOTIFICATION_ERROR,'Error deleting translation');
+					}
+					
+					$this->_set("Delete node translation",'','','');
+					return TRUE;
+				}
+				else
+				{
+					$js = new xJavascriptRedirect(xPath::renderLink($this->m_path->m_lang,'node','view',
+						$this->m_path->m_type,$this->m_path->m_id),true,0);
+					$this->_set("Delete node translation",$js->render(),'','');
+					return TRUE;
+				}
+			}
+			else
+			{
+				foreach($ret->m_errors as $error)
+				{
+					xNotifications::add(NOTIFICATION_WARNING,$error);
+				}
+			}
+		}
+
+		$out = 'Are you sure do you want to delete this node translation? <br/> 
+			Note: If this is the last translation of the node, the node will we deleted at all.<br/>';
+		$this->_set("Delete node translation",$out . $form->render(),'','');
+		return TRUE;
 	}
 };
 

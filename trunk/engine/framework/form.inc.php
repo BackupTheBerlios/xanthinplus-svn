@@ -938,15 +938,19 @@ class xFormElementRadio extends xFormElement
 class xFormSubmit extends xFormElement
 {
 	// DOCS INHERITHED  ========================================================
-	function xFormSubmit($name,$value)
+	function xFormSubmit($name,$value,$description = NULL)
 	{
-		$this->xFormElement($name,NULL,NULL,$value,TRUE,new xInputValidator());
+		$this->xFormElement($name,NULL,$description,$value,TRUE,new xInputValidator());
 	}
 	
 	// DOCS INHERITHED  ========================================================
 	function render()
 	{
 		$output = '<div class="form-element">'. "\n";
+		if($this->m_description !== NULL)
+		{
+			$output .= '<div class="form-submit-description">'.$this->m_description.'</div>';
+		}
 		$output .= '<input class="form-submit" name="' . $this->m_name .'" value="'.$this->m_value.'" type="submit"/>'."\n";
 		$output .= '</div>'. "\n";
 		return $output;

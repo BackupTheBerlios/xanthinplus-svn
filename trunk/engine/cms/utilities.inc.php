@@ -128,7 +128,7 @@ class xJavaScriptRedirect extends xElement
 		if($this->m_isPath)
 		{
 			$location = 'http://' . $_SERVER['HTTP_HOST'] . rtrim(dirname($_SERVER['PHP_SELF']), '/\\') .
-			'/?p=' . $location;
+			'/' . $location;
 		}
 
 		return 

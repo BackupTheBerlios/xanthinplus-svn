@@ -70,8 +70,21 @@ class xNodeI18NDAO
 	 */
 	function deleteTranslation($id,$lang)
 	{
-		return xDB::getDB()->query("DELETE FROM node_i18n WHERE nodeid = %d AND lang = '%s'",
+		xDB::getDB()->startTransaction();
+		
+		xDB::getDB()->query("DELETE FROM node_i18n WHERE nodeid = %d AND lang = '%s'",
 			$id,$lang);
+			
+		$result = xDB::getDB()->query("SELECT nodeid FROM node_i18n WHERE node_i18n.nodeid = %d",$id);
+		if(! xDB::getDB()->fetchObject($result))
+		{
+			xNodeDAO::delete($id);
+		}
+		
+		if(! xDB::getDB()->commitTransaction())
+			return false;
+		
+		return true;
 	}
 	
 	/**

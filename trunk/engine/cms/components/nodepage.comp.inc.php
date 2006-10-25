@@ -64,6 +64,12 @@ class xModuleNodePage extends xModule
 			return new xPageContentNodeEdittranslationPage($path);
 		}
 		
+		elseif($path->m_resource === 'node' && $path->m_type === 'page' && $path->m_action === 'delete_translation'
+			&& $path->m_id !== NULL)
+		{
+			return new xPageContentNodeDeleteTranslation($path);
+		}
+		
 		return NULL;
 	}
 	
@@ -160,10 +166,10 @@ class xPageContentNodeAdminPage extends xPageContent
 			{
 				$node = reset($node_array);
 			}
-			
+			$error = '';
 			$out .= '<tr><td>'.$id.'</td><td><a href="'.
 				xPath::renderLink($node->m_lang,'node','view',$node->m_type,$node->m_id) . '">'.
-				$node->m_title . '</a></td><td>';
+				xContentFilterController::applyFilter('notags',$node->m_title,$error) . '</a></td><td>';
 			if($node->m_lang == $this->m_path->m_lang)
 				$out .= 'Yes';
 			else			
@@ -383,8 +389,6 @@ class xPageContentNodeEdittranslationPage extends xPageContentNodeEdittranslatio
 		return TRUE;
 	}
 };
-
-
 
 
 /**
