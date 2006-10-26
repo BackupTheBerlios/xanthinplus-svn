@@ -98,7 +98,7 @@ class xBoxI18NDAO
 	function _boxI18nFromRow($row)
 	{
 		return new xBoxI18N($row->name,$row->type,$row->weight,
-			new xShowFilter($row->show_filters_type,$row->show_filters,$row->title,$row->lang));
+			new xShowFilter($row->show_filters_type,$row->show_filters),$row->title,$row->lang);
 	}
 	
 	/**
@@ -107,17 +107,26 @@ class xBoxI18NDAO
 	 * @return array(xBox)
 	 * @static
 	 */
-	function findAll($lang)
+	function find($type,$lang)
 	{
-		$boxes = array();
-		$result = xDB::getDB()->query("SELECT * FROM box,box_i18n WHERE lang = '%s' AND box.name = box_i18n.box_name",
-			$lang);
+		$where['box']['name']['join'][] = "box_i18n.box_name";
+		$where['box']['name']['connector'] = "AND";
+		
+		$where['box_i18n']['lang']['type'] = "'%s'";
+		$where['box_i18n']['lang']['connector'] = "AND";
+		$where['box_i18n']['lang']['value'] = $lang;
+		
+		$where['box']['type']['type'] = "'%s'";
+		$where['box']['type']['connector'] = "AND";
+		$where['box']['type']['value'] = $type;
+		
+		$result = xDB::getDB()->autoQuery('SELECT',array(),$where);
+		$objs = array();
 		while($row = xDB::getDB()->fetchObject($result))
 		{
-			$boxes[] = xBoxI18NDAO::_boxI18nFromRow($row);
+			$objs[] = xBoxI18NDAO::_boxi18nFromRow($row);
 		}
-		
-		return $boxes;
+		return $objs;
 	}
 };
 

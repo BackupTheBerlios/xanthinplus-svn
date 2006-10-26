@@ -34,11 +34,7 @@ class xModuleBox extends xModule
 	{
 		if($path->m_resource === 'box' && $path->m_action === 'admin' && $path->m_type === NULL)
 		{
-			//let user choose type
-		}
-		elseif($path->m_resource === 'box' && $path->m_action === 'create' && $path->m_type === 'custom')
-		{
-			return new xPageContentAdminBoxCreateCustom($path);
+			return new xPageContentBoxAdmin($path);
 		}
 		
 		return NULL;
@@ -60,14 +56,13 @@ xModule::registerDefaultModule(new xModuleBox());
 
 
 
-
 /**
  *
  */
-class xPageContentAdminBoxCreateCustom extends xPageContent
+class xPageContentBoxAdmin extends xPageContent
 {
 
-	function xPageContentAdminBoxCreateCustom($path)
+	function xPageContentBoxAdmin($path)
 	{
 		xPageContent::xPageContent($path);
 	}
@@ -75,93 +70,97 @@ class xPageContentAdminBoxCreateCustom extends xPageContent
 	// DOCS INHERITHED  ========================================================
 	function onCheckPreconditions()
 	{
-		if(!xAccessPermission::checkCurrentUserPermission('admin/box',$this->m_path->m_type,NULL,'create'))
+		if(!xAccessPermission::checkCurrentUserPermission('box',NULL,NULL,'admin'))
 			return new xPageContentNotAuthorized($this->m_path);
 			
-		return TRUE;
+		return true;
 	}
+	
+	
+	/**
+	 * @access private
+	 */
+	function _groupBoxes($boxes)
+	{
+		$out = array();
+		foreach($boxes as $box)
+		{
+			$out[$box->m_name][$box->m_lang] = $box;
+		}
+		
+		return $out;
+	}
+	
 	
 	// DOCS INHERITHED  ========================================================
 	function onCreate()
 	{
-		//create form
-		$form = new xForm(xanth_relative_path($this->m_path->m_full_path));
+		$boxes = xBoxI18N::find();
+		$boxes = $this->_groupBoxes($boxes);
 		
-		//box name
-		$form->m_elements[] = new xFormElementTextField('name','Name','','',true,new xInputValidatorTextNameId(32));
-		
-		//box title
-		$form->m_elements[] = new xFormElementTextField('title','Title','','',true,new xInputValidatorText(128));
-		
-		//box content
-		$form->m_elements[] = new xFormElementTextArea('content','Content','','',true,
-			new xDynamicInputValidatorApplyContentFilter(0,'filter'));
-			
-			
-		//box content filter
-		$filters = xContentFilterController::getCurrentUserAvailableFilters();
-		$content_filter_radio_group = new xFormRadioGroup('Content filter');
-		foreach($filters as $filter)
+		$out = '<div class = "admin"><table>';
+		$out .= '<tr><th>Name</th><th>Type</th><th>Title</th><th>Group</th><th>In your lang?</th><th>Translated in</th><th>Translate in</th></tr>';
+		$langs = xLanguage::findNames();
+		foreach($boxes as $name => $box_array)
 		{
-			$content_filter_radio_group->m_elements[] = new xFormElementRadio('filter',$filter['name'],
-				$filter['description'],$filter['name'],false,TRUE,new xInputValidatorContentFilter(64));
-		}
-		$form->m_elements[] = $content_filter_radio_group;
-		
-		//show filter type
-		$show_filter_radio = new xFormRadioGroup('Show filter type');
-		$show_filter_radio->m_elements[] = new xFormElementRadio('show_filter_type','Inclusive filter',
-				'',XANTH_SHOW_FILTER_INCLUSIVE,false,TRUE,new xInputValidatorInteger(1,3));
-		$show_filter_radio->m_elements[] = new xFormElementRadio('show_filter_type','Exclusive filter',
-				'',XANTH_SHOW_FILTER_EXCLUSIVE,false,TRUE,new xInputValidatorInteger(1,3));
-		$show_filter_radio->m_elements[] = new xFormElementRadio('show_filter_type','PHP filter',
-				'',XANTH_SHOW_FILTER_PHP,false,TRUE,new xInputValidatorInteger(1,3));
-		$form->m_elements[] = $show_filter_radio;
-		
-		//show filter
-		$form->m_elements[] = new xFormElementTextArea('show_filter','Show filter','','',false,
-			new xInputValidatorText());
-		
-		//todo weight
-		
-		//submit buttom
-		$form->m_elements[] = new xFormSubmit('submit','Create');
-		
-		$ret = $form->validate();
-		if(! $ret->isEmpty())
-		{
-			if(empty($ret->m_errors))
+			$box = NULL;
+			
+			if(isset($box_array[$this->m_path->m_lang])) 				//select current language node
 			{
-				$node = new xBoxCustom($ret->m_valid_data['name'],'custom',0,
-					new xShowFilter($ret->m_valid_data['show_filter_type'],$ret->m_valid_data['show_filter']),
-					$ret->m_valid_data['title'],$ret->m_valid_data['content'],$ret->m_valid_data['filter']);
-				
-				if($node->insert())
-				{
-					xNotifications::add(NOTIFICATION_NOTICE,'New box successfully created');
-				}
-				else
-				{
-					xNotifications::add(NOTIFICATION_ERROR,'Error: box was not created');
-				}
-				
-				$this->_set("Create new box",'','','');
-				return TRUE;
+				$box = $box_array[$this->m_path->m_lang];
 			}
-			else
+			elseif(isset($box_array[xSettings::get('default_lang')]))	//select default language node
 			{
-				foreach($ret->m_errors as $error)
+				$box = $box_array[xSettings::get('default_lang')];
+			}
+			else														//select first found language node
+			{
+				$box = reset($box_array);
+			}
+			$error = '';
+			$out .= '<tr><td>'.$name.'</td><td>'.$box->m_type.'</td><td><a href="'.
+				xPath::renderLink($box->m_lang,'box','view',$box->m_type,$box->m_name) . '">'.
+				xContentFilterController::applyFilter('notags',$box->m_title,$error) . '</a></td>
+				<td>';
+				
+			$groups	 = $box->findBoxGroups();
+			foreach($groups as $group)
+			{
+				$out .= $group->m_name;
+			}
+			
+			$out .= '</td><td>';
+				
+			if($box->m_lang == $this->m_path->m_lang)
+				$out .= 'Yes';
+			else			
+				$out .= 'No';
+			
+			$out .= '</td><td>';
+			foreach($box_array as $lang => $ignore)
+			{
+				$out .= $lang . '  ';
+			}
+			$out .= '</td><td>';
+			
+			
+			foreach($langs as $lang)
+			{
+				if(!array_key_exists($lang, $box_array))
 				{
-					xNotifications::add(NOTIFICATION_WARNING,$error);
+					$out .= '<a href="'. 
+						xPath::renderLink($lang,'box','translate',$box->m_type,$name) . 
+						'">' . $lang . '</a>';
 				}
 			}
 		}
-
-		$this->_set("Create new box page",$form->render(),'','');
-		return TRUE;
+		
+		$out  .= "</table></div>\n";
+		
+		xPageContent::_set("Admin box",$out,'','');
+		return true;
 	}
 }
-
 
 	
 ?>

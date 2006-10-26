@@ -127,6 +127,31 @@ class xBoxGroupDAO
 	 * @return array(xBox) An xBoxGroup array with empty m_boxes member.
 	 * @static
 	 */
+	function findBoxGroups($name)
+	{
+		$where['box_to_group']['box_name']['type'] = "'%s'";
+		$where['box_to_group']['box_name']['connector'] = "AND";
+		$where['box_to_group']['box_name']['value'] = $name;
+		
+		$where['box_group']['name']['join'][] = "box_to_group.box_group";
+		$where['box_group']['name']['connector'] = "AND";
+		
+		$result = xDB::getDB()->autoQuery('SELECT',array(),$where);
+		$objs = array();
+		while($row = xDB::getDB()->fetchObject($result))
+		{
+			$objs[] = xBoxGroupDAO::_boxGroupFromRow($row,NULL);
+		}
+		return $objs;
+	}
+	
+	
+	/**
+	 * Find box groups.
+	 * 
+	 * @return array(xBox) An xBoxGroup array with empty m_boxes member.
+	 * @static
+	 */
 	function find($renderizable)
 	{
 		$groups = array();
