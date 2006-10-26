@@ -102,7 +102,7 @@ class xBoxGroupDAO
 	 */ 
 	function _boxGroupFromRow($row,$boxes)
 	{
-		return new xBoxGroup($row->name,$row->render,$boxes);
+		return new xBoxGroup($row->name,$row->description,$row->render,$boxes);
 	}
 	
 	/**
@@ -154,14 +154,17 @@ class xBoxGroupDAO
 	 */
 	function find($renderizable)
 	{
-		$groups = array();
-		$result = xDB::getDB()->query("SELECT * FROM box_group WHERE render = %d",$renderizable);
+		$where['box_group']['render']['type'] = "%d";
+		$where['box_group']['render']['connector'] = "AND";
+		$where['box_group']['render']['value'] = $renderizable;
+		
+		$result = xDB::getDB()->autoQuery('SELECT',array(),$where);
+		$objs = array();
 		while($row = xDB::getDB()->fetchObject($result))
 		{
-			$groups[] = xBoxGroupDAO::_boxGroupFromRow($row,array());
+			$objs[] = xBoxGroupDAO::_boxGroupFromRow($row,NULL);
 		}
-		
-		return $groups;
+		return $objs;
 	}
 };
 

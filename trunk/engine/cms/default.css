@@ -35,9 +35,9 @@
 	margin-top: 8px;
 }
 
-.form-element .form-element-invalid
+.form-element-invalid
 {
-	border: 2px solid red;
+	border: 2px solid red !important;
 }
 
 .form-element label 
@@ -78,7 +78,7 @@
 	width: 95%;
 }
 
-.form-fieldset
+.form-element .form-fieldset
 {	
 	width: 85%;
 	padding: 1em;

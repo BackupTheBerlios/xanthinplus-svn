@@ -215,6 +215,7 @@ class xInstallCMS
 			CREATE TABLE box_group(
 			name VARCHAR(32) NOT NULL,
 			render TINYINT NOT NULL,
+			description VARCHAR(255) NOT NULL,
 			PRIMARY KEY(name)
 			)TYPE=InnoDB DEFAULT CHARACTER SET utf8"
 		);
@@ -404,6 +405,9 @@ class xInstallCMS
 		$menuitem = new xMenuItem(-1,'Box Manager','?p=en/box/admin',-1,'en');
 		$menu->m_items[] = $menuitem;
 		
+		$menuitem = new xMenuItem(-1,'Box Groups Manager','?p=en/boxgroup/admin',-1,'en');
+		$menu->m_items[] = $menuitem;
+		
 		$menuitem = new xMenuItem(-1,'Login','?p=en/user/login',-1,'en');
 		$menu->m_items[] = $menuitem;
 		
@@ -419,7 +423,7 @@ class xInstallCMS
 		$menu->insert();
 		
 		//box group
-		$group = new xBoxGroup('left_group',true,array($menu));
+		$group = new xBoxGroup('left_group','',true,array($menu));
 		$group->insert();
 	}
 };

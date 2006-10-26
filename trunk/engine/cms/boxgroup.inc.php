@@ -27,6 +27,13 @@ class xBoxGroup extends xElement
 	 */
 	var $m_name;
 	
+	
+	/**
+	 * @var string
+	 * @access public
+	 */
+	var $m_description;
+	
 	/**
 	 * @var bool
 	 * @access public
@@ -46,14 +53,14 @@ class xBoxGroup extends xElement
 	 * 
 	 * @param string $name
 	 */
-	function xBoxGroup($name,$render,$boxes)
+	function xBoxGroup($name,$description,$render,$boxes)
 	{
 		$this->xElement();
 		
 		$this->m_name = $name;
 		$this->m_render = $render;
 		$this->m_boxes = $boxes;
-
+		$this->m_description = $description;
 	}
 	
 	// DOCS INHERITHED  ========================================================
@@ -102,30 +109,33 @@ class xBoxGroup extends xElement
 	}
 	
 	/**
-	 *
+	 * @param mixed $renderizable Can be true, false or NULL.
 	 * @return bool FALSE on error
 	 */
-	function find($renderizable,$lang)
+	function find($renderizable,$load_boxes = TRUE,$lang = NULL)
 	{
 		$boxes = array();
 		$groups = xBoxGroupDAO::find($renderizable);
 		
-		foreach($groups as $group)
+		if($load_boxes)
 		{
-			$rows = xBoxGroupDAO::findBoxNamesAndTypesByGroup($group->m_name);
-			$group->m_boxes = array();
-			foreach($rows as $row)
+			foreach($groups as $group)
 			{
-				$box = xBox::fetchBox($row->name,$row->type,$lang);
-				if($box != NULL)
+				$rows = xBoxGroupDAO::findBoxNamesAndTypesByGroup($group->m_name);
+				$group->m_boxes = array();
+				foreach($rows as $row)
 				{
-					$group->m_boxes[] = $box;
-				}
-				else
-				{
-					$box = xBox::fetchBox($row->name,$row->type,xSettings::get('default_lang'));
+					$box = xBox::fetchBox($row->name,$row->type,$lang);
 					if($box != NULL)
+					{
 						$group->m_boxes[] = $box;
+					}
+					else
+					{
+						$box = xBox::fetchBox($row->name,$row->type,xSettings::get('default_lang'));
+						if($box != NULL)
+							$group->m_boxes[] = $box;
+					}
 				}
 			}
 		}

@@ -496,6 +496,7 @@ class xDB
 					
 					foreach($column as $colname => $param)
 					{
+						//set column value
 						if(isset($param['value']))
 						{
 							if(!$first2)
@@ -511,6 +512,7 @@ class xDB
 							$values[] = $param['value'];
 						}
 						
+						//now join
 						if(isset($param['join']))
 						{
 							foreach($param['join'] as $join)
@@ -528,8 +530,10 @@ class xDB
 							}
 						}
 					}
-					
-					$out = $out1 . ' WHERE ' . $out2;
+					if(!empty($out2))
+						$out = $out1 . ' WHERE ' . $out2;
+					else
+						$out = $out1;
 				}
 				$out .=  ' ' . $extra_query;
 				array_merge($values,$extra_values);

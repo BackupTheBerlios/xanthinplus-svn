@@ -785,7 +785,6 @@ class xFormElementOptions extends xFormElement
 		
 		
 		//check if all values corresponds to at least an option
-		$elements_posted_checked = array();
 		foreach($elements_posted as $ignore => $element_posted)
 		{
 			$found = FALSE;
@@ -803,7 +802,6 @@ class xFormElementOptions extends xFormElement
 				if($opt_val == $element_posted)
 				{
 					$found = TRUE;
-					break;
 				}
 			}
 			
@@ -817,7 +815,7 @@ class xFormElementOptions extends xFormElement
 		
 		//save values as array
 		$this->m_value = array();
-		foreach($elements_posted_checked as $element)
+		foreach($elements_posted as $ignore => $element)
 		{
 			$this->m_value[] = htmlentities($element,ENT_QUOTES,'UTF-8');
 			
@@ -829,14 +827,13 @@ class xFormElementOptions extends xFormElement
 				return FALSE;
 			}
 		}
-		
 		return TRUE;
 	}
 	
 	// DOCS INHERITHED  ========================================================
 	function render()
 	{
-		$output = '<div class="form-element" '.$this->m_invalid.'>'. "\n";
+		$output = '<div class="form-element">'. "\n";
 		$output .= '<label for="id-'.$this->m_name.'">'.$this->m_label;
 		if($this->m_mandatory)
 		{
@@ -867,6 +864,7 @@ class xFormElementOptions extends xFormElement
 			//check if is selected
 			if(is_array($this->m_value))
 			{
+				
 				if(in_array($opt_val, $this->m_value))
 				{
 					$output .= ' selected="selected"';

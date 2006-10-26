@@ -79,7 +79,7 @@ class xPage extends xElement
 		}
 		
 		//ask for areas
-		$box_groups = xBoxGroup::find(TRUE,$path->m_lang);
+		$box_groups = xBoxGroup::find(TRUE,TRUE,$path->m_lang);
 		$groups = array();
 		foreach($box_groups as $group)
 		{
