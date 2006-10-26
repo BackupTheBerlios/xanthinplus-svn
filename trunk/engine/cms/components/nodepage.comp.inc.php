@@ -39,7 +39,7 @@ class xModuleNodePage extends xModule
 		
 		elseif($path->m_resource === 'node' && $path->m_action === 'view' && $path->m_type === 'page')
 		{
-			$node = xNodePage::dbLoad($path->m_id,$path->m_lang);
+			$node = xNodePage::load($path->m_id,$path->m_lang);
 			if($node === NULL)
 			{
 				return new xPageContentNotFound($path);
@@ -235,7 +235,7 @@ class xPageContentNodeTranslatePage extends xPageContentNodeTranslate
 	 */
 	function onCreate()
 	{
-		$node = xNodePage::dbLoad($this->m_path->m_id,xSettings::get('default_lang'));
+		$node = xNodePage::load($this->m_path->m_id,xSettings::get('default_lang'));
 		
 		//create form
 		$form = new xForm(xanth_relative_path($this->m_path->m_full_path));
@@ -268,7 +268,7 @@ class xPageContentNodeTranslatePage extends xPageContentNodeTranslate
 					$node->m_published,$node->m_sticky,$node->m_accept_replies,
 					$node->m_approved,$ret->m_valid_data['meta_description'],$ret->m_valid_data['meta_keywords']);
 				
-				if($node->dbInsertTranslation())
+				if($node->insertTranslation())
 				{
 					xNotifications::add(NOTIFICATION_NOTICE,'Node successfully translated');
 				}
@@ -328,7 +328,7 @@ class xPageContentNodeEdittranslationPage extends xPageContentNodeEdittranslatio
 	 */
 	function onCreate()
 	{
-		$node = xNodePage::dbLoad($this->m_path->m_id,$this->m_path->m_lang);
+		$node = xNodePage::load($this->m_path->m_id,$this->m_path->m_lang);
 		
 		//create form
 		$form = new xForm(xanth_relative_path($this->m_path->m_full_path));
@@ -364,7 +364,7 @@ class xPageContentNodeEdittranslationPage extends xPageContentNodeEdittranslatio
 					$node->m_published,$node->m_sticky,$node->m_accept_replies,
 					$node->m_approved,$ret->m_valid_data['meta_description'],$ret->m_valid_data['meta_keywords']);
 				
-				if($node->dbUpdateTranslation())
+				if($node->updateTranslation())
 				{
 					xNotifications::add(NOTIFICATION_NOTICE,'Node translation successfully updated');
 				}
@@ -497,7 +497,7 @@ class xPageContentNodePageCreate extends xPageContentNodeCreate
 					$ret->m_valid_data['approved'],$ret->m_valid_data['meta_description'],
 					$ret->m_valid_data['meta_keywords']);
 					
-				if($node->dbInsert())
+				if($node->insert())
 				{
 					xNotifications::add(NOTIFICATION_NOTICE,'New node successfully created');
 				}

@@ -34,21 +34,14 @@ class xBoxType
 	 */
 	var $m_description;
 	
+	
 	/**
-	 * @var bool
-	 * @access public
+	 * Contructor
 	 */
-	var $m_user_editable;
-	
-	
-	/**
-	* Contructor
-	*/
-	function xBoxType($name,$description,$user_editable)
+	function xBoxType($name,$description)
 	{
 		$this->m_description = $description;
 		$this->m_name = $name;
-		$this->m_user_editable = $user_editable;
 	}
 	
 	/**
@@ -56,7 +49,7 @@ class xBoxType
 	 *
 	 * @return bool FALSE on error
 	 */
-	function dbDelete()
+	function delete()
 	{
 		return  xBoxTypeDAO::delete($this);
 	}
@@ -66,7 +59,7 @@ class xBoxType
 	 *
 	 * @return bool FALSE on error
 	 */
-	function dbInsert()
+	function insert()
 	{
 		return xBoxTypeDAO::insert($this);
 	}

@@ -40,22 +40,6 @@ class xModuleMenu extends xModule
 	function xm_fetchPermissionDescriptors()
 	{
 	}
-	
-	/**
-	 * @see xDummyModule::xm_fetchBox()
-	 */ 
-	function xm_fetchBox($box_name,$box_type,$lang)
-	{
-		switch($box_type)
-		{
-			case 'menu':
-				return xMenu::dbLoad($box_name,$lang);
-				break;
-		}
-		
-		return NULL;
-	}
-	
 };
 
 xModule::registerDefaultModule(new xModuleMenu());

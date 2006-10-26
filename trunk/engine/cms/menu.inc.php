@@ -125,7 +125,7 @@ class xMenu extends xBoxI18N
 	 *
 	 * @return bool FALSE on error
 	 */
-	function dbInsert()
+	function insert()
 	{
 		return xMenuDAO::insert($this);
 	}
@@ -135,7 +135,7 @@ class xMenu extends xBoxI18N
 	 *
 	 * @return bool FALSE on error
 	 */
-	function dbInsertTranslation()
+	function insertTranslation()
 	{
 		return xMenuDAO::insertTranslation($this);
 	}
@@ -145,7 +145,7 @@ class xMenu extends xBoxI18N
 	 *
 	 * @return bool FALSE on error
 	 */
-	function dbDeleteTranslation()
+	function deleteTranslation()
 	{
 		return xMenuDAO::deleteTranslation($this->m_name,$this->m_lang);
 	}
@@ -155,11 +155,11 @@ class xMenu extends xBoxI18N
 	 *
 	 * @return bool FALSE on error
 	 */
-	function dbLoad($name,$lang)
+	function load($name,$lang)
 	{
 		return xMenuDAO::load($name,$lang);
 	}
 };
-
+xBox::registerBoxTypeClass('menu','xMenu');
 
 ?>

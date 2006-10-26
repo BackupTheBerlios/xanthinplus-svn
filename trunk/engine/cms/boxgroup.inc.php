@@ -75,7 +75,7 @@ class xBoxGroup extends xElement
 	 *
 	 * @return bool FALSE on error
 	 */
-	function dbDelete()
+	function delete()
 	{
 		return  xBoxGroupDAO::delete($this);
 	}
@@ -85,7 +85,7 @@ class xBoxGroup extends xElement
 	 *
 	 * @return bool FALSE on error
 	 */
-	function dbInsert()
+	function insert()
 	{
 		return xBoxGroupDAO::insert($this);
 	}
@@ -96,7 +96,7 @@ class xBoxGroup extends xElement
 	 *
 	 * @return bool FALSE on error
 	 */
-	function dbUpdate()
+	function update()
 	{
 		return xBoxGroupDAO::update($this);
 	}

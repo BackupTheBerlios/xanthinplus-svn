@@ -49,7 +49,7 @@ class xLanguage
 	 *
 	 * @return bool FALSE on error
 	 */
-	function dbInsert()
+	function insert()
 	{
 		xLanguageDAO::insert($this);
 	}
@@ -59,7 +59,7 @@ class xLanguage
 	 *
 	 * @return bool FALSE on error
 	 */
-	function dbDelete()
+	function delete()
 	{
 		return xLanguageDAO::delete($this->m_name);
 	}
@@ -70,7 +70,7 @@ class xLanguage
 	 * @return xItemType
 	 * @static
 	 */
-	function dbLoad($name)
+	function load($name)
 	{
 		return xLanguageDAO::load($name);
 	}

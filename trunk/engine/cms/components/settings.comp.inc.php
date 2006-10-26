@@ -44,7 +44,7 @@ class xModuleSettings extends xModule
 	function xm_onPageCreation()
 	{
 		//load settings
-		xSettings::dbLoad();
+		xSettings::load();
 	}
 };
 

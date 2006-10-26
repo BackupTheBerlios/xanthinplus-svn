@@ -58,7 +58,7 @@ class xCathegory extends xElement
 	 *
 	 * @return bool FALSE on error
 	 */
-	function dbDelete()
+	function delete()
 	{
 		return xCathegoryDAO::delete($this->m_id);
 	}
@@ -70,7 +70,7 @@ class xCathegory extends xElement
 	 * @return bool FALSE on error
 	 * @static
 	 */
-	function dbDeleteById($catid)
+	function deleteById($catid)
 	{
 		return xCathegoryDAO::delete($catid);
 	}
@@ -81,7 +81,7 @@ class xCathegory extends xElement
 	 * @return xCathegory
 	 * @static
 	 */
-	function dbLoad($id)
+	function load($id)
 	{
 		return xCathegoryDAO::load($id);
 	}
@@ -112,7 +112,7 @@ class xCathegory extends xElement
 		//now load parent and check parent
 		if($this->m_parent_cathegory != NULL)
 		{
-			$parent = xCathegory::dbLoad($this->m_parent_cathegory);
+			$parent = xCathegory::load($this->m_parent_cathegory);
 			if(! $parent->checkCurrentUserPermissionRecursive($action))
 				return false;
 		}
@@ -222,7 +222,7 @@ class xCathegoryI18N extends xCathegory
 	 *
 	 * @return bool FALSE on error
 	 */
-	function dbInsert()
+	function insert()
 	{
 		return xCathegoryI18NDAO::insert($this);
 	}
@@ -232,7 +232,7 @@ class xCathegoryI18N extends xCathegory
 	 *
 	 * @return bool FALSE on error
 	 */
-	function dbUpdate()
+	function update()
 	{
 		return xCathegoryI18NDAO::update($this);
 	}
@@ -243,7 +243,7 @@ class xCathegoryI18N extends xCathegory
 	 *
 	 * @return bool FALSE on error
 	 */
-	function dbInsertTranslation()
+	function insertTranslation()
 	{
 		return xCathegoryI18NDAO::insertTranslation($this);
 	}
@@ -254,7 +254,7 @@ class xCathegoryI18N extends xCathegory
 	 *
 	 * @return bool FALSE on error
 	 */
-	function dbDeleteTranslation()
+	function deleteTranslation()
 	{
 		return xCathegoryI18NDAO::deleteTranslation($this->m_id,$this->m_lang);
 	}
@@ -266,7 +266,7 @@ class xCathegoryI18N extends xCathegory
 	 * @return xCathegory
 	 * @static
 	 */
-	function dbLoad($id,$lang)
+	function load($id,$lang)
 	{
 		if(is_numeric($id))
 		{
@@ -352,7 +352,7 @@ class xCreateIntoCathegoryValidator extends xInputValidatorInteger
 		if(!xInputValidatorInteger::isValid($input))
 			return FALSE;
 		
-		$cathegory = xCathegory::dbLoad($input);
+		$cathegory = xCathegory::load($input);
 		if($cathegory === NULL)
 		{
 			echo "here";

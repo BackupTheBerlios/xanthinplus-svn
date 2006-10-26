@@ -49,7 +49,7 @@ class xNodeType
 	 *
 	 * @return bool FALSE on error
 	 */
-	function dbInsert()
+	function insert()
 	{
 		$this->m_id = xNodeTypeDAO::insert($this);
 		
@@ -61,7 +61,7 @@ class xNodeType
 	 *
 	 * @return bool FALSE on error
 	 */
-	function dbDelete()
+	function delete()
 	{
 		return xNodeTypeDAO::delete($this->m_name);
 	}
@@ -74,7 +74,7 @@ class xNodeType
 	 * @return bool FALSE on error
 	 * @static
 	 */
-	function dbDeleteByName($typename)
+	function deleteByName($typename)
 	{
 		return xNodeTypeDAO::delete($typename);
 	}
@@ -84,7 +84,7 @@ class xNodeType
 	 *
 	 * @return bool FALSE on error
 	 */
-	function dbUpdate()
+	function update()
 	{
 		return xNodeTypeDAO::update($this);
 	}
@@ -95,7 +95,7 @@ class xNodeType
 	 * @return xItemType
 	 * @static
 	 */
-	function dbLoad($typename)
+	function load($typename)
 	{
 		return xNodeTypeDAO::load($typename);
 	}

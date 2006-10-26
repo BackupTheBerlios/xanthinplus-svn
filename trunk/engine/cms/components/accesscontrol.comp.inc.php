@@ -237,7 +237,7 @@ class xPageContentAdminAccesspermissions extends xPageContent
 					{
 						if(! $perm_present)
 						{
-							if($perm->dbInsert())
+							if($perm->insert())
 							{
 								xNotifications::add(NOTIFICATION_NOTICE,'Permission updated successfully');
 							}
@@ -251,7 +251,7 @@ class xPageContentAdminAccesspermissions extends xPageContent
 					{
 						if($perm_present)
 						{
-							if($perm->dbDelete())
+							if($perm->delete())
 							{
 								xNotifications::add(NOTIFICATION_NOTICE,'Permission updated successfully');
 							}

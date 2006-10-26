@@ -57,7 +57,7 @@ class xUser
 	 * @param string $password
 	 * @return bool FALSE on error
 	 */
-	function dbInsert($password)
+	function insert($password)
 	{
 		$this->m_id = xUserDAO::insert($this,$password);
 		
@@ -69,7 +69,7 @@ class xUser
 	 *
 	 * @return bool FALSE on error
 	 */
-	function dbDelete()
+	function delete()
 	{
 		return xUserDAO::delete($this->m_username);
 	}
@@ -80,7 +80,7 @@ class xUser
 	 * @param string $password
 	 * @return bool FALSE on error
 	 */
-	function dbUpdate($password)
+	function update($password)
 	{
 		 return xUserDAO::update($this,$password);
 	}
@@ -92,7 +92,7 @@ class xUser
 	 * @param mixed $usr
 	 * @return bool FALSE on error
 	 */
-	function dbLoad($usr)
+	function load($usr)
 	{
 		if(is_int($usr))
 		{

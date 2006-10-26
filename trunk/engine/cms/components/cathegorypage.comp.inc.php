@@ -42,7 +42,7 @@ class xModuleCathegoryPage extends xModule
 		}
 		elseif($path->m_resource === "cathegory" && $path->m_type == 'page' && $path->m_action == 'view')
 		{
-			$cat = xCathegoryPage::dbLoad($path->m_id,$path->m_lang);
+			$cat = xCathegoryPage::load($path->m_id,$path->m_lang);
 			if($cat === NULL)
 			{
 				return new xPageContentNotFound($path);
@@ -74,7 +74,7 @@ class xPageContentCathegoryViewPage extends xPageContentCathegoryView
 	 */
 	function onCreate()
 	{
-		$res = xPageContentNodeView::onCreate();
+		$res = xPageContentCathegoryView::onCreate();
 		if($res !== TRUE)
 			return $res;
 		
@@ -252,7 +252,7 @@ class xPageContentCathegoryCreatePage extends xPageContentCathegoryCreate
 				$cat = new xCathegoryI18N(-1,$this->m_path->m_type,$cathegory,$ret->m_valid_data['name'],
 					$ret->m_valid_data['title'],$ret->m_valid_data['description'],$this->m_path->m_lang);
 				
-				if($cat->dbInsert())
+				if($cat->insert())
 				{
 					xNotifications::add(NOTIFICATION_NOTICE,'New cathegory successfully created');
 				}

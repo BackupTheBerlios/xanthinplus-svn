@@ -33,7 +33,7 @@ class xSettings
 	 * 
 	 * @static
 	 */
-	function dbInsert($name,$value)
+	function insert($name,$value)
 	{
 		xSettingsDAO::insert($name,$value);
 	}
@@ -57,7 +57,7 @@ class xSettings
 	 * @return void
 	 * @static
 	 */
-	function dbLoad()
+	function load()
 	{
 		global $g_xanth_settings;
 		

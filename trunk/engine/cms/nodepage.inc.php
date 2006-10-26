@@ -80,7 +80,7 @@ class xNodePage extends xNodeI18N
 	 *
 	 * @return bool FALSE on error
 	 */
-	function dbInsert()
+	function insert()
 	{
 		$this->m_id = xNodePageDAO::insert($this);
 		return $this->m_id;
@@ -91,7 +91,7 @@ class xNodePage extends xNodeI18N
 	 *
 	 * @return bool FALSE on error
 	 */
-	function dbInsertTranslation()
+	function insertTranslation()
 	{
 		return xNodePageDAO::insertTranslation($this);
 	}
@@ -101,7 +101,7 @@ class xNodePage extends xNodeI18N
 	 *
 	 * @return bool FALSE on error
 	 */
-	function dbUpdate()
+	function update()
 	{
 		return xNodePageDAO::update($this);
 	}
@@ -112,7 +112,7 @@ class xNodePage extends xNodeI18N
 	 *
 	 * @return bool FALSE on error
 	 */
-	function dbUpdateTranslation()
+	function updateTranslation()
 	{
 		return xNodePageDAO::updateTranslation($this);
 	}
@@ -124,7 +124,7 @@ class xNodePage extends xNodeI18N
 	 * @return xNodePage
 	 * @static
 	 */
-	function dbLoad($id,$lang)
+	function load($id,$lang)
 	{
 		return xNodePageDAO::load($id,$lang);
 	}

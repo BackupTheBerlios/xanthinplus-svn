@@ -86,7 +86,7 @@ class xNode extends xElement
 			{
 				foreach($parent_cathegories as $parent_cat)
 				{
-					$tmp = xCathegory::dbLoad($parent_cat);
+					$tmp = xCathegory::load($parent_cat);
 					if($tmp != NULL)
 						$this->m_parent_cathegories[] = $tmp;
 				}
@@ -117,7 +117,7 @@ class xNode extends xElement
 	 * @return bool FALSE on error
 	 * @static
 	 */
-	function dbDeleteById($id)
+	function deleteById($id)
 	{
 		return xNodeDAO::delete($id);
 	}
@@ -138,7 +138,7 @@ class xNode extends xElement
 	 * @return xItem
 	 * @static
 	 */
-	function dbLoad($id)
+	function load($id)
 	{
 		return xNodeDAO::load($id);
 	}
@@ -271,7 +271,7 @@ class xNodeI18N extends xNode
 	 * @return xItem
 	 * @static
 	 */
-	function dbLoad($id,$lang)
+	function load($id,$lang)
 	{
 		return xNodeI18NDAO::load($id,$lang);
 	}
@@ -279,7 +279,7 @@ class xNodeI18N extends xNode
 	/** 
 	 * Delete the node translation and if this is the last translation deletes the node at all.
 	 */
-	function dbDeleteTranslation($id,$lang)
+	function deleteTranslation($id,$lang)
 	{
 		return xNodeI18NDAO::deleteTranslation($id,$lang);
 	}

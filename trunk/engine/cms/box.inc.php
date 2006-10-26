@@ -88,7 +88,7 @@ class xBox extends xElement
 	 *
 	 * @return bool FALSE on error
 	 */
-	function dbDelete()
+	function delete()
 	{
 		return  xBoxDAO::delete($this);
 	}
@@ -101,17 +101,47 @@ class xBox extends xElement
 	 */
 	function fetchBox($boxname,$type,$lang)
 	{
-		return xModule::callWithSingleResult3('xm_fetchBox',$boxname,$type,$lang);
+		$class_name = xBox::getBoxTypeClass($type);
+		if($class_name === NULL)
+		{
+			xLog::log(LOG_LEVEL_ERROR,'Cannot retrieve box type class name: "'.$type.'"',__FILE__,__LINE__);
+			return NULL;
+		}
+		
+		return call_user_func(array( $class_name,'load'),$boxname,$lang);
+	}
+	
+	
+	/**
+	 * Return the builtin box relative to given name.
+	 */
+	function registerBoxTypeClass($type,$class_name)
+	{
+		global $xanth_builtin_boxes;
+		$xanth_builtin_boxes[$type] = $class_name;
+			
+		return NULL;
+	}
+	
+	
+	/**
+	 * Return the builtin box relative to given name.
+	 */
+	function getBoxTypeClass($type)
+	{
+		global $xanth_builtin_boxes;
+		if(isset($xanth_builtin_boxes[$type]))
+			return $xanth_builtin_boxes[$type];
+			
+		return NULL;
 	}
 	
 	/**
-	 * Retrieve all boxes from db
 	 *
-	 * @return array(xBox)
 	 */
-	function findAll()
+	function find($type = NULL)
 	{
-		return xBoxDAO::findAll();
+		//todo
 	}
 };
 	
@@ -138,8 +168,8 @@ class xBoxI18N extends xBox
 	var $m_lang;
 	
 	/**
-	* Contructor
-	*/
+	 * Contructor
+	 */
 	function xBoxI18N($name,$type,$weight,$show_filter,$title,$lang)
 	{
 		$this->xBox($name,$type,$weight,$show_filter);
@@ -149,13 +179,22 @@ class xBoxI18N extends xBox
 	}
 	
 	/**
+	 *
+	 */
+	function load($name,$lang)
+	{
+		 xBoxI18NDAO::load($name,$lang);
+	}
+	
+	
+	/**
 	 * Retrieve all boxes from db
 	 *
 	 * @return array(xBoxI18N)
 	 */
-	function findAll($lang)
+	function find($type,$lang)
 	{
-		return xBoxI18NDAO::findAll($lang);
+		xBoxI18NDAO::find($type,$lang);
 	}
 };
 
@@ -214,7 +253,7 @@ class xBoxCustom extends xBoxI18N
 	 *
 	 * @return bool FALSE on error
 	 */
-	function dbInsert()
+	function insert()
 	{
 		return xBoxCustomDAO::insert($this);
 	}
@@ -224,7 +263,7 @@ class xBoxCustom extends xBoxI18N
 	 *
 	 * @return bool FALSE on error
 	 */
-	function dbInsertTranslation()
+	function insertTranslation()
 	{
 		return xBoxCustomDAO::insertTranslation($this);
 	}
@@ -235,7 +274,7 @@ class xBoxCustom extends xBoxI18N
 	 *
 	 * @return bool FALSE on error
 	 */
-	function dbDeleteTranslation()
+	function deleteTranslation()
 	{
 		return xBoxCustomDAO::deleteTranslation($this->m_name,$this->m_lang);
 	}
@@ -245,27 +284,69 @@ class xBoxCustom extends xBoxI18N
 	 *
 	 * @return bool NULL on error
 	 */
-	function dbLoad($name)
+	function load($name,$lang)
 	{
-		return xBoxCustomDAO::load($name);
+		return xBoxCustomDAO::load($name,$lang);
+	}
+	
+	
+	/**
+	 * Retrieve all boxes from db
+	 *
+	 * @return array(xBoxI18N)
+	 */
+	function find($type,$lang)
+	{
+		xBoxCustomDAO::find($type,$lang);
 	}
 };
+xBox::registerBoxTypeClass('custom','xBoxCustom');
 
 
 /**
  * Represent a dynamic. A dynamic box is generated dynamically from a module.
  * @abstract
  */
-class xBoxDynamic extends xBox
+class xBoxBuiltin extends xBoxI18N
 {
 	/**
 	 * Contructor
 	 */
-	function xBoxStatic($name,$title,$type,$weight,$show_filter)
+	function xBoxBuiltin($name,$type,$weight,$show_filter,$title,$lang,$content,$content_filter)
 	{
-		xBox::xBox($name,$title,$type,$weight,$show_filter);
+		xBoxI18N::xBoxI18N($name,$type,$weight,$show_filter,$title,$lang,$content,$content_filter);
+	}
+	
+	
+	/**
+	 * Load an xBoxCustom from db
+	 *
+	 * @return bool NULL on error
+	 */
+	function load($name,$lang)
+	{
+		return callWithSingleResult('xm_fetchBuiltinBox',$box_name,$lang);
+	}
+	
+	
+	/**
+	 * Retrieve all boxes from db
+	 *
+	 * @return array(xBoxI18N)
+	 */
+	function find($type,$lang)
+	{
+		$boxes = xBoxI18N::find($type,$lang);
+		$ret = array();
+		foreach($boxes as $box )
+		{
+			$ret[] = xBoxBuiltin::load($box->m_name,$box->m_lang);
+		}
+		
+		return ret;
 	}
 };
+xBox::registerBoxTypeClass('custom','xBoxBuiltin');
 
 
 ?>

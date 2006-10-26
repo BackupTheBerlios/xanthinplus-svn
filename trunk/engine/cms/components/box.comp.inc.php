@@ -32,7 +32,7 @@ class xModuleBox extends xModule
 	 */ 
 	function xm_fetchContent($path)
 	{
-		if($path->m_resource === 'box' && $path->m_action === 'create' && $path->m_type === NULL)
+		if($path->m_resource === 'box' && $path->m_action === 'admin' && $path->m_type === NULL)
 		{
 			//let user choose type
 		}
@@ -53,22 +53,6 @@ class xModuleBox extends xModule
 		$descr[] = new xAccessPermissionDescriptor('admin/box',NULL,NULL,'create','Create a custom box of any type');
 		return $descrs;
 	}
-	
-	/**
-	 * @see xDummyModule::xm_fetchBox()
-	 */ 
-	function xm_fetchBox($box_name,$box_type,$lang)
-	{
-		switch($box_type)
-		{
-			case 'custom':
-				return xBoxCustom::dbLoad($box_name,$lang);
-				break;
-		}
-		
-		return NULL;
-	}
-	
 };
 
 xModule::registerDefaultModule(new xModuleBox());
@@ -152,7 +136,7 @@ class xPageContentAdminBoxCreateCustom extends xPageContent
 					new xShowFilter($ret->m_valid_data['show_filter_type'],$ret->m_valid_data['show_filter']),
 					$ret->m_valid_data['title'],$ret->m_valid_data['content'],$ret->m_valid_data['filter']);
 				
-				if($node->dbInsert())
+				if($node->insert())
 				{
 					xNotifications::add(NOTIFICATION_NOTICE,'New box successfully created');
 				}

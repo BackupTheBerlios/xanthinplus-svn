@@ -217,7 +217,7 @@ class xLogEntry
 	/**
 	 * Insert this log entry into db
 	 */
-	function dbInsert()
+	function insert()
 	{
 		//manual check to prevent deadlocks
 		if(!is_int($this->m_level) || !is_int($this->m_line))
@@ -233,7 +233,7 @@ class xLogEntry
 	/**
 	 * Delete a log entry from db. Based on id.
 	 */
-	function dbDelete()
+	function delete()
 	{
 		xDB::getDB()->query("DELETE FROM xanth_log WHERE id = %d",$this->m_id);
 	}
@@ -302,12 +302,12 @@ class xLog
 		
 		if($level > LOG_LEVEL_FATAL_ERROR && $level < LOG_LEVEL_DEBUG && $level != LOG_LEVEL_USER_MESSAGE)
 		{
-			$log_entry->dbInsert();
+			$log_entry->insert();
 		}
 		
 		if($level == LOG_LEVEL_DEBUG && xanth_conf_get('debug', false))
 		{
-			$log_entry->dbInsert();
+			$log_entry->insert();
 		}
 	}
 };

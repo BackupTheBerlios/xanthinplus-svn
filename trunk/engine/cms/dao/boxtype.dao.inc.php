@@ -31,9 +31,9 @@ class xBoxTypeDAO
 	*/
 	function insert($box_type)
 	{
-		$field_names = "name,description,user_editable";
-		$field_values = "'%s','%s',%d";
-		$values = array($box_type->m_name,$box_type->m_description,$box_type->m_user_editable);
+		$field_names = "name,description";
+		$field_values = "'%s','%s'";
+		$values = array($box_type->m_name,$box_type->m_description);
 		
 		return xDB::getDB()->query("INSERT INTO box_type($field_names) VALUES($field_values)",$values);
 	}
@@ -56,7 +56,7 @@ class xBoxTypeDAO
 	 */ 
 	function _boxTypeFromRow($row)
 	{
-		return new xBoxType($row->name,$row->description,$row->user_editable);
+		return new xBoxType($row->name,$row->description);
 	}
 	
 	

@@ -345,44 +345,46 @@ class xInstallCMS
 		);
 		
 		//settings
-		xSettings::dbInsert('site_name','Site Name');
-		xSettings::dbInsert('site_description','');
-		xSettings::dbInsert('site_keywords','');
-		xSettings::dbInsert('theme','xanthin');
-		xSettings::dbInsert('default_lang','en');
+		xSettings::insert('site_name','Site Name');
+		xSettings::insert('site_description','');
+		xSettings::insert('site_keywords','');
+		xSettings::insert('theme','xanthin');
+		xSettings::insert('default_lang','en');
 		
 		//lang
 		$lang = new xLanguage('en','English');
-		$lang->dbInsert();
+		$lang->insert();
 		$lang = new xLanguage('it','Italiano');
-		$lang->dbInsert();
+		$lang->insert();
 		
 		//roles
 		$role = new xRole('administrator','Administrator');
-		$role->dbInsert();
+		$role->insert();
 		$role = new xRole('authenticated','Authenticated user');
-		$role->dbInsert();
+		$role->insert();
 		$role = new xRole('anonymous','Anonymous visitor');
-		$role->dbInsert();
+		$role->insert();
 		
 		//user
 		$user = new xUser('','admin','root@localhost.com');
-		$user->dbInsert('pass');
+		$user->insert('pass');
 		$user->giveRole('administrator');
 		
 		//node	type
 		$node_type = new xNodeType('page','Basic node type');
-		$node_type->dbInsert();
+		$node_type->insert();
 		
 		//box types
-		$box_type = new xBoxType('custom','A user custom box',TRUE);
-		$box_type->dbInsert();
-		$box_type = new xBoxType('menu','a Menu',TRUE);
-		$box_type->dbInsert();
+		$box_type = new xBoxType('custom','A user custom box');
+		$box_type->insert();
+		$box_type = new xBoxType('menu','a Menu');
+		$box_type->insert();
+		$box_type = new xBoxType('builtin','a Menu');
+		$box_type->insert();
 		
 		//root cathegory
 		$cat = new xCathegoryI18N(0,'page',NULL,'page_root','Root cathegory','Root cathegory','en');
-		$cat->dbInsert();
+		$cat->insert();
 		
 		//menus
 		$menu = new xMenu('admin','menu',0,new xShowFilter(XANTH_SHOW_FILTER_EXCLUSIVE,''),'Admin','en');
@@ -390,16 +392,16 @@ class xInstallCMS
 		$menuitem = new xMenuItem(-1,'Homepage','?p=en',-1,'en');
 		$menu->m_items[] = $menuitem;
 		
-		$menuitem = new xMenuItem(-1,'Admin Cathegory','?p=en/cathegory/admin',-1,'en');
+		$menuitem = new xMenuItem(-1,'Cathegory Manager','?p=en/cathegory/admin',-1,'en');
 		$menu->m_items[] = $menuitem;
 		
-		$menuitem = new xMenuItem(-1,'Admin Node','?p=en/node/admin',-1,'en');
+		$menuitem = new xMenuItem(-1,'Node Manager','?p=en/node/admin',-1,'en');
 		$menu->m_items[] = $menuitem;
 		
 		$menuitem = new xMenuItem(-1,'Access permissions','?p=en/accesspermissions/admin',-1,'en');
 		$menu->m_items[] = $menuitem;
 		
-		$menuitem = new xMenuItem(-1,'Create custom box','?p=en/box/create/custom',-1,'en');
+		$menuitem = new xMenuItem(-1,'Box Manager','?p=en/box/admin',-1,'en');
 		$menu->m_items[] = $menuitem;
 		
 		$menuitem = new xMenuItem(-1,'Login','?p=en/user/login',-1,'en');
@@ -414,11 +416,11 @@ class xInstallCMS
 		$menuitem = new xMenuItem(-1,'Install','install.php',-1,'en');
 		$menu->m_items[] = $menuitem;
 		
-		$menu->dbInsert();
+		$menu->insert();
 		
 		//box group
 		$group = new xBoxGroup('left_group',true,array($menu));
-		$group->dbInsert();
+		$group->insert();
 	}
 };
 

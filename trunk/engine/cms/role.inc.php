@@ -42,7 +42,7 @@ class xRole
 	 *
 	 * @return bool FALSE on error
 	 */ 
-	function dbInsert()
+	function insert()
 	{
 		return xRoleDAO::insert($this);
 	}
@@ -52,7 +52,7 @@ class xRole
 	 *
 	 * @return bool FALSE on error
 	 */ 
-	function dbDelete()
+	function delete()
 	{
 		return xRoleDAO::delete($this->m_name);
 	}
@@ -62,7 +62,7 @@ class xRole
 	 *
 	 * @return bool FALSE on error
 	 */
-	function dbUpdate()
+	function update()
 	{
 		return xRoleDAO::update($this);
 	}

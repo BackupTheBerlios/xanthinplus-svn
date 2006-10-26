@@ -74,7 +74,7 @@ class xAccessPermission
 	/**
 	 * @return bool FALSE on error
 	 */
-	function dbInsert()
+	function insert()
 	{
 		return xAccessPermissionDAO::insert($this);
 	}
@@ -82,7 +82,7 @@ class xAccessPermission
 	/**
 	 * @return bool FALSE on error
 	 */
-	function dbDelete()
+	function delete()
 	{
 		return xAccessPermissionDAO::delete($this->m_resource,$this->m_resource_type,$this->m_resource_id,
 			$this->m_action,$this->m_role);

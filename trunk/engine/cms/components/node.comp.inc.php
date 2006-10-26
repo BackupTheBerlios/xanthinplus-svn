@@ -197,7 +197,7 @@ class xPageContentNodeDeleteTranslation extends xPageContent
 			{
 				if($ret->m_valid_data['submit'] === 'Delete')
 				{
-					if(xNodeI18N::dbDeleteTranslation($this->m_path->m_id,$this->m_path->m_lang))
+					if(xNodeI18N::deleteTranslation($this->m_path->m_id,$this->m_path->m_lang))
 					{
 						xNotifications::add(NOTIFICATION_NOTICE,'Node translation successfully deleted');
 					}
@@ -302,7 +302,7 @@ class xPageContentNodeCreate extends xPageContent
 		$cathegory = NULL;
 		if($this->m_path->m_id != NULL)
 		{
-			$cathegory = xCathegory::dbLoad($this->m_path->m_id);
+			$cathegory = xCathegory::load($this->m_path->m_id);
 			if($cathegory == NULL)
 				return new xPageContentNotFound($this->m_path);
 			

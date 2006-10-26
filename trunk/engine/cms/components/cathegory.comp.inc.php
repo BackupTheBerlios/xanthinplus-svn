@@ -99,7 +99,7 @@ class xPageContentCathegoryView extends xPageContent
 		
 		if(!empty($this->m_cat->m_parent_cathegory))
 		{
-			$cathegory = xCathegory::dbLoad($this->m_cat->m_parent_cathegory);
+			$cathegory = xCathegory::load($this->m_cat->m_parent_cathegory);
 			if(! $cathegory->checkCurrentUserPermissionRecursive('view'))
 					return new xPageContentNotAuthorized($this->m_path);
 		}
@@ -181,7 +181,7 @@ class xPageContentCathegoryCreate extends xPageContent
 		$cathegory = NULL;
 		if($this->m_path->m_id != NULL)
 		{
-			$cathegory = xCathegory::dbLoad($this->m_path->m_id);
+			$cathegory = xCathegory::load($this->m_path->m_id);
 			if($cathegory == NULL)
 				return new xPageContentNotFound($this->m_path);
 			
