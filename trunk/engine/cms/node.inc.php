@@ -144,9 +144,9 @@ class xNode extends xElement
 	}
 	
 	
-	function find()
+	function find($type,$parent_cat,$author)
 	{
-		return xNodeDAO::find();
+		//todo
 	}
 	
 	/**
@@ -156,6 +156,28 @@ class xNode extends xElement
 	function getOperations()
 	{
 		assert(false);
+	}
+	
+	/**
+	 * @static
+	 */
+	function registerNodeTypeClass($node_type,$class_name)
+	{
+		global $xanth_node_type_classes;
+		$xanth_node_type_classes[$node_type] = $class_name;
+	}
+	
+	
+	/**
+	 * @static
+	 */
+	function getNodeTypeClass($node_type)
+	{
+		global $xanth_node_type_classes;
+		if(isset($xanth_node_type_classes[$node_type]))
+			return $xanth_node_type_classes[$node_type];
+		
+		return NULL;
 	}
 };
 
@@ -263,9 +285,9 @@ class xNodeI18N extends xNode
 	}
 	
 	
-	function findAll($lang)
+	function find($type,$parent_cat,$author,$lang)
 	{
-		return xNodeI18NDAO::findAll($lang);
+		//todo
 	}
 	
 	/**

@@ -87,15 +87,6 @@ class xCathegory extends xElement
 	}
 	
 	/**
-	 *
-	 */
-	function fetchCathegory($cat_id,$cat_type)
-	{
-		return xModule::callWithSingleResult2('xm_fetchCathegory',$cat_id,$cat_type);
-	}
-	
-	
-	/**
 	 * Retrieves generic xCathegory objects by different search parameters
 	 *
 	 * @return array(xCathegory)
@@ -127,6 +118,38 @@ class xCathegory extends xElement
 		}
 		
 		return true;
+	}
+	
+	
+	/**
+	 * @static
+	 */
+	function registerCathegoryTypeClass($cat_type,$class_name)
+	{
+		global $xanth_cathegory_type_classes;
+		$xanth_cathegory_type_classes[$cat_type] = $class_name;
+	}
+	
+	
+	/**
+	 * @static
+	 */
+	function getCathegoryTypeClass($cat_type)
+	{
+		global $xanth_cathegory_type_classes;
+		if(isset($xanth_cathegory_type_classes[$cat_type]))
+			return $xanth_cathegory_type_classes[$cat_type];
+		
+		return NULL;
+	}
+	
+	/**
+	 * @abstract
+	 * @return array(xOperation)
+	 */
+	function getOperations()
+	{
+		assert(false);
 	}
 };
 
@@ -179,7 +202,19 @@ class xCathegoryI18N extends xCathegory
 		$description = xContentFilterController::applyFilter('html',$this->m_description,$error);
 		$title = xContentFilterController::applyFilter('notags',$this->m_title,$error);
 		
-		return xTheme::render4('renderCathegory',$title,$description);
+		$nodes = call_user_func(
+			array(xNode::getNodeTypeClass($this->m_type), 'find'),NULL,$this->m_id,NULL,$this->m_lang);
+		
+		//format operations
+		$ops = $this->getOperations();
+		$formatted = array();
+		foreach($ops as $op)
+			$formatted[$op->m_name] = array('link' => $op->getLink('cathegory',$this->m_type,$this->m_id,$this->m_lang),
+				'description' => $op->m_description);
+		
+		$operations = xTheme::render1('renderCathegoryOperations',$formatted);
+		
+		return xTheme::render4('renderCathegory',$title,$description,$nodes,$operations);
 	}
 	
 	/** 
@@ -253,11 +288,16 @@ class xCathegoryI18N extends xCathegory
 	}
 	
 	/**
-	 *
+	 * @return array(xOperation)
 	 */
-	function findChildNodes()
+	function getOperations()
 	{
-	
+		return array
+			(
+				new xOperation('edit_translation','Edit translation',''),
+				new xOperation('delete_translation','Delete translation',''),
+				new xOperation('delete_cathegory','Delete cathegory','')
+			);
 	}
 };
 
@@ -286,6 +326,7 @@ class xCathegoryPage extends xCathegoryI18N
 		return xCathegoryI18NDAO::find('page',$parent_cathegory,$name,$lang);
 	}
 };
+xCathegory::registerCathegoryTypeClass('page','xCathegoryPage');
 
 
 

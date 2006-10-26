@@ -513,17 +513,19 @@ class xDB
 						
 						if(isset($param['join']))
 						{
-							if(!$first2)
+							foreach($param['join'] as $join)
 							{
-								$out2 .= ' ' . $param['connector'] . ' ';
+								if(!$first2)
+								{
+									$out2 .= ' ' . $param['connector'] . ' ';
+								}
+								else
+								{
+									$first2 = false;
+								}
+								
+								$out2 .= $table_name . '.' . $colname .'='. $join;
 							}
-							else
-							{
-								$first2 = false;
-							}
-							
-							
-							$out2 .= $table_name . '.' . $colname .'='. $param['join'];
 						}
 					}
 					

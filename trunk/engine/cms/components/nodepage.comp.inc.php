@@ -144,7 +144,7 @@ class xPageContentNodeAdminPage extends xPageContent
 	 */
 	function onCreate()
 	{
-		$nodes = xNodePage::find(NULL);
+		$nodes = xNodePage::find(NULL,NULL,NULL,NULL);
 		$nodes = $this->_groupNodes($nodes);
 		$out = '<a href="'.xanth_relative_path($this->m_path->m_lang. '/node/create/page').'">Create new node page</a><br/><br/>';
 		$out .= "<div class = 'admin'><table>\n";

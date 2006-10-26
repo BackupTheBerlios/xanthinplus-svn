@@ -437,16 +437,6 @@ class xDummyModule extends xModule
 	}
 	
 	/**
-	* Returns a valid cathegory corresponding to the given name/type
-	*
-	* @param xPath $path
-	* @return xCathegory A valid xCathegory object for the given path, NULL otherwise.
-	*/
-	function xm_fetchCathegory($cat_id,$cat_type)
-	{
-	}
-	
-	/**
 	* Called when the page creation occur. Use this method to do all the stuff befor a the page is created.
 	*
 	* @param xPath $path
@@ -464,36 +454,6 @@ class xDummyModule extends xModule
 	function xm_fetchPermissionDescriptors()
 	{
 	}
-	
-	
-	/**
-	* Fetch a specific node object corresponding to given type and id.
-	*
-	* @deprecated (todo)
-	* @return xNode
-	*/
-	function xm_fetchSingleNode($type,$id)
-	{
-	}
-	
-	/**
-	 * Returns the name of the specific node class that manage a specific class node.
-	 *
-	 * @return string
-	 */
-	function xm_fetchNodeClassName($type)
-	{
-	}
-	
-	/**
-	 * Returns the name of the specific cathegory class that manage a specific class cathegory.
-	 *
-	 * @return string
-	 */
-	function xm_fetchCathegoryClassName($type)
-	{
-	}
-	
 }
 
 

@@ -97,9 +97,12 @@ class xPageContentCathegoryView extends xPageContent
 		if(!xAccessPermission::checkCurrentUserPermission('cathegory',$this->m_cat->m_type,NULL,'view'))
 			return new xPageContentNotAuthorized($this->m_path);
 		
-		$cathegory = xCathegory::dbLoad($this->m_cat->m_parent_cathegory);
-		if(! $cathegory->checkCurrentUserPermissionRecursive('view'))
-				return new xPageContentNotAuthorized($this->m_path);
+		if(!empty($this->m_cat->m_parent_cathegory))
+		{
+			$cathegory = xCathegory::dbLoad($this->m_cat->m_parent_cathegory);
+			if(! $cathegory->checkCurrentUserPermissionRecursive('view'))
+					return new xPageContentNotAuthorized($this->m_path);
+		}
 		
 		return TRUE;
 	}

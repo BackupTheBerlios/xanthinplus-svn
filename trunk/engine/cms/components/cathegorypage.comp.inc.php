@@ -42,7 +42,7 @@ class xModuleCathegoryPage extends xModule
 		}
 		elseif($path->m_resource === "cathegory" && $path->m_type == 'page' && $path->m_action == 'view')
 		{
-			$cat = xCathegoryI18N::dbLoad($path->m_id,$path->m_lang);
+			$cat = xCathegoryPage::dbLoad($path->m_id,$path->m_lang);
 			if($cat === NULL)
 			{
 				return new xPageContentNotFound($path);
@@ -50,29 +50,6 @@ class xModuleCathegoryPage extends xModule
 			return new xPageContentCathegoryViewPage($path,$cat);
 		}
 		return NULL;
-	}
-	
-	/**
-	 * @see xDummyModule::xm_fetchCathegory()
-	 */
-	function xm_fetchCathegory($cat_id,$cat_type)
-	{
-		switch($cat_type)
-		{
-			case 'page':
-				return xCathegory::dbLoad($cat_id);
-		}
-		
-		return NULL;
-	}
-	
-	/**
-	 * @see xDummyModule::xm_fetchCathegoryClassName()
-	 */
-	function xm_fetchCathegoryClassName($type)
-	{
-		if($type === 'page')
-			return 'xCathegoryPage';
 	}
 };
 

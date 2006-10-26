@@ -144,12 +144,17 @@ body
 
 /*___________ Operations_________________ */
 
-.node .operations
+.node-brief
+{
+	margin: 1em;
+}
+
+.node .operations, .node-brief .operations, .cathegory .operations
 {
 	display: block;
 }
 
-.node .operation
+.node .operation, .node-brief .operation, .cathegory .operation
 {
 	display: inline;
 }

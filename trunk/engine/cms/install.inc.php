@@ -280,7 +280,6 @@ class xInstallCMS
 			id INT UNSIGNED NOT NULL,
 			type VARCHAR(32) NOT NULL,
 			author VARCHAR(64) NOT NULL,
-			content TEXT NOT NULL,
 			content_filter VARCHAR(64) NOT NULL,
 			creation_time DATETIME NOT NULL,
 			edit_time DATETIME NOT NULL,

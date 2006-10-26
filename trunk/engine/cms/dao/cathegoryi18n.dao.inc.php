@@ -102,7 +102,6 @@ class xCathegoryI18NDAO
 		return NULL;
 	}
 	
-	
 	/**
 	 * Retrieves cathegories by search parameters
 	 *
@@ -111,7 +110,7 @@ class xCathegoryI18NDAO
 	 */
 	function find($type = NULL,$parent_cathegory = NULL,$name = NULL,$lang = NULL)
 	{
-		$where['cathegory']['id']['join'] = "cathegory_i18n.catid";
+		$where['cathegory']['id']['join'][] = "cathegory_i18n.catid";
 		$where['cathegory']['id']['connector'] = "AND";
 		
 		$where['cathegory']['type']['type'] = "'%s'";

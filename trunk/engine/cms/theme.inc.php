@@ -433,10 +433,11 @@ class xDefaultTheme extends xTheme
 	 * @param array(xNode) $nodes
 	 * @return string the renderized element.
 	 */
-	function renderCathegory($title,$description,$nodes)
+	function renderCathegory($title,$description,$nodes,$operations)
 	{
 		$out = 
 		'<div class="cathegory">
+			'.$operations.'
 			<div class = "title">
 			'.$title.'
 			</div>
@@ -460,6 +461,25 @@ class xDefaultTheme extends xTheme
 	 * @return string the renderized element.
 	 */
 	function renderNodeOperations($operations)
+	{
+		$out = '<div class="operations">';
+		foreach($operations as $name => $params)
+		{
+			$out .= '<div class="operation"> <a href="'.$params['link'].'">'.$name.'</a> </div>';
+		}
+		$out .= '</div>';
+		
+		return $out;
+	}
+		
+	/**
+	 * Render cathegory operations
+	 * 
+	 * @param array() $operations An array so structured:
+	 * 		array(name => array(link => string, description => string))
+	 * @return string the renderized element.
+	 */
+	function renderCathegoryOperations($operations)
 	{
 		$out = '<div class="operations">';
 		foreach($operations as $name => $params)
@@ -505,7 +525,7 @@ class xDefaultTheme extends xTheme
 	 */
 	function renderNode($type,$title,$content,$operations)
 	{
-		$output = '<div class="node">' . $operations . '<br/><div class="node-title">' . $title . '</div>
+		$output = '<div class="node">' . $operations . '<div class="node-title">' . $title . '</div>
 		<div class="node-content">' . $content . '</div></div>';
 		
 		return $output;
@@ -523,7 +543,7 @@ class xDefaultTheme extends xTheme
 	 */
 	function renderBriefNode($type,$title,$content,$operations)
 	{
-		$output = '<div class="node-brief">' . $operations . '<br/><div class="node-title">' . $title . '</div>
+		$output = '<div class="node-brief">' . $operations . '<div class="node-title">' . $title . '</div>
 		<div class="node-content">' . $content . '</div></div>';
 		
 		return $output;

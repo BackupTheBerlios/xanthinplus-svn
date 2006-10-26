@@ -131,10 +131,10 @@ class xNodePage extends xNodeI18N
 	
 	/**
 	 * @static
-	 */
-	function find($lang)
+	 */	
+	function find($type,$parent_cat,$author,$lang)
 	{
-		return xNodePageDAO::find($lang);
+		return xNodePageDAO::find($type,$parent_cat,$author,$lang);
 	}
 	
 	/**
@@ -159,5 +159,8 @@ class xNodePage extends xNodeI18N
 			);
 	}
 };
+xNode::registerNodeTypeClass('page','xNodePage');
+
+
 
 ?>

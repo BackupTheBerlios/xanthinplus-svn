@@ -377,7 +377,7 @@ class xPageContentNodeView extends xPageContent
 	 */
 	function onCreate()
 	{
-		assert($this->m_cat != NULL);
+		assert($this->m_node != NULL);
 		return true;
 	}
 
