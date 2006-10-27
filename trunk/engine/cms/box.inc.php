@@ -139,6 +139,14 @@ class xBox extends xElement
 	/**
 	 *
 	 */
+	function load($name)
+	{
+		 return xBoxDAO::load($name);
+	}
+	
+	/**
+	 *
+	 */
 	function findBoxGroups()
 	{
 		return xBoxGroupDAO::findBoxGroups($this->m_name);
@@ -150,7 +158,7 @@ class xBox extends xElement
 	 */
 	function find($type = NULL)
 	{
-		//todo
+		return xBoxDAO::find($type);
 	}
 };
 	
@@ -334,7 +342,7 @@ class xBoxBuiltin extends xBoxI18N
 	 */
 	function load($name,$lang)
 	{
-		return callWithSingleResult('xm_fetchBuiltinBox',$box_name,$lang);
+		return callWithSingleResult2('xm_fetchBuiltinBox',$box_name,$lang);
 	}
 	
 	
@@ -355,7 +363,7 @@ class xBoxBuiltin extends xBoxI18N
 		return ret;
 	}
 };
-xBox::registerBoxTypeClass('custom','xBoxBuiltin');
+xBox::registerBoxTypeClass('builtin','xBoxBuiltin');
 
 
 ?>

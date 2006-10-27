@@ -119,7 +119,7 @@ class xDynamicInputValidatorApplyContentFilter extends xDynamicInputValidator
 	 *
 	 * @param int $maxlenght The max lenght of the text to be considered valid.
 	 */
-	function xDynamicInputValidatorApplyContentFilter($maxlength,$variable_name,$method = 'post')
+	function xDynamicInputValidatorApplyContentFilter($maxlength,$variable_name,$method = 'POST')
 	{
 		xDynamicInputValidator::xDynamicInputValidator($method);
 		

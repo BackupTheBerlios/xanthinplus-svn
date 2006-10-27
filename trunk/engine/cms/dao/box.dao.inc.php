@@ -79,22 +79,48 @@ class xBoxDAO
 			new xShowFilter($row->show_filters_type,$row->show_filters));
 	}
 	
+	
 	/**
 	 * Returns all registered boxes.
 	 * 
 	 * @return array(xBox)
 	 * @static
 	 */
-	function findAll()
+	function load($name)
 	{
-		$boxes = array();
-		$result = xDB::getDB()->query("SELECT * FROM box");
+		$where['box']['name']['type'] = "'%s'";
+		$where['box']['name']['connector'] = "AND";
+		$where['box']['name']['value'] = $name;
+		
+		$result = xDB::getDB()->autoQuery('SELECT',array(),$where);
+		$objs = array();
+		if($row = xDB::getDB()->fetchObject($result))
+		{
+			return xBoxDAO::_boxFromRow($row);
+		}
+		return NULL;
+	}
+	
+	
+	/**
+	 * Returns all registered boxes.
+	 * 
+	 * @return array(xBox)
+	 * @static
+	 */
+	function find($type)
+	{
+		$where['box']['type']['type'] = "'%s'";
+		$where['box']['type']['connector'] = "AND";
+		$where['box']['type']['value'] = $type;
+		
+		$result = xDB::getDB()->autoQuery('SELECT',array(),$where);
+		$objs = array();
 		while($row = xDB::getDB()->fetchObject($result))
 		{
-			$boxes[] = xBoxDAO::_boxFromRow($row);
+			$objs[] = xBoxDAO::_boxFromRow($row);
 		}
-		
-		return $boxes;
+		return $objs;
 	}
 };
 

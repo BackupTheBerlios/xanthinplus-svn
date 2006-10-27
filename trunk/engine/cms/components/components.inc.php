@@ -26,5 +26,6 @@ require_once('engine/cms/components/settings.comp.inc.php');
 require_once('engine/cms/components/nodepage.comp.inc.php');
 require_once('engine/cms/components/cathegorypage.comp.inc.php');
 require_once('engine/cms/components/boxgroup.comp.inc.php');
+require_once('engine/cms/components/boxcustom.comp.inc.php');
 
 ?>

@@ -33,8 +33,8 @@ class xBoxGroupDAO
 	{
 		xDB::getDB()->startTransaction();
 			
-		xDB::getDB()->query("INSERT INTO box_group(name,render) VALUES('%s',%d)",
-			$box_group->m_name,$box_group->m_render);
+		xDB::getDB()->query("INSERT INTO box_group(name,description,render) VALUES('%s','%s',%d)",
+			$box_group->m_name,$box_group->m_description,$box_group->m_render);
 			
 		xBoxGroupDAO::_insertBoxes($box_group);
 			
@@ -55,7 +55,6 @@ class xBoxGroupDAO
 				$box_group->m_name,$box->m_name))
 				return false;
 		}
-		
 		return true;
 	}
 	
@@ -71,11 +70,11 @@ class xBoxGroupDAO
 	{
 		xDB::getDB()->startTransaction();
 		
-		xDB::getDB()->query("UPDATE box_group SET render = %d WHERE box_group_name = '%s'",
-			$box_group->m_name,$box_group->m_render);
+		xDB::getDB()->query("UPDATE box_group SET render = %d , description = '%s' WHERE name = '%s'",
+			$box_group->m_render,$box_group->m_description,$box_group->m_name);
 			
-		xDB::getDB()->query("DELETE FROM box_group WHERE box_group_name = '%s'",$box_group->m_name);
-			
+		xDB::getDB()->query("DELETE FROM box_to_group WHERE box_group = '%s'",$box_group->m_name);
+		
 		xBoxGroupDAO::_insertBoxes($box_group);
 			
 		if(!xDB::getDB()->commitTransaction())
@@ -143,6 +142,27 @@ class xBoxGroupDAO
 			$objs[] = xBoxGroupDAO::_boxGroupFromRow($row,NULL);
 		}
 		return $objs;
+	}
+	
+	/**
+	 * Find box groups.
+	 * 
+	 * @return array(xBox) An xBoxGroup array with empty m_boxes member.
+	 * @static
+	 */
+	function load($name)
+	{
+		$where['box_group']['name']['type'] = "'%s'";
+		$where['box_group']['name']['connector'] = "AND";
+		$where['box_group']['name']['value'] = $name;
+		
+		$result = xDB::getDB()->autoQuery('SELECT',array(),$where);
+		$objs = array();
+		if($row = xDB::getDB()->fetchObject($result))
+		{
+			return xBoxGroupDAO::_boxGroupFromRow($row,NULL);
+		}
+		return NULL;
 	}
 	
 	

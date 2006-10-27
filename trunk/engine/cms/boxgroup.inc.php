@@ -109,38 +109,46 @@ class xBoxGroup extends xElement
 	}
 	
 	/**
+	 *
+	 */
+	function loadBoxes($lang = NULL)
+	{
+		$rows = xBoxGroupDAO::findBoxNamesAndTypesByGroup($this->m_name);
+		$this->m_boxes = array();
+		foreach($rows as $row)
+		{
+			$box = xBox::fetchBox($row->name,$row->type,$lang);
+			if($box != NULL)
+			{
+				$this->m_boxes[] = $box;
+			}
+			else
+			{
+				$box = xBox::fetchBox($row->name,$row->type,xSettings::get('default_lang'));
+				if($box != NULL)
+					$this->m_boxes[] = $box;
+			}
+		}
+	}
+		
+		
+	/**
+	 * Insert this object into db
+	 *
+	 * @return bool FALSE on error
+	 */
+	function load($name)
+	{
+		return xBoxGroupDAO::load($name);
+	}
+	
+	/**
 	 * @param mixed $renderizable Can be true, false or NULL.
 	 * @return bool FALSE on error
 	 */
-	function find($renderizable,$load_boxes = TRUE,$lang = NULL)
+	function find($renderizable)
 	{
-		$boxes = array();
-		$groups = xBoxGroupDAO::find($renderizable);
-		
-		if($load_boxes)
-		{
-			foreach($groups as $group)
-			{
-				$rows = xBoxGroupDAO::findBoxNamesAndTypesByGroup($group->m_name);
-				$group->m_boxes = array();
-				foreach($rows as $row)
-				{
-					$box = xBox::fetchBox($row->name,$row->type,$lang);
-					if($box != NULL)
-					{
-						$group->m_boxes[] = $box;
-					}
-					else
-					{
-						$box = xBox::fetchBox($row->name,$row->type,xSettings::get('default_lang'));
-						if($box != NULL)
-							$group->m_boxes[] = $box;
-					}
-				}
-			}
-		}
-		
-		return $groups;
+		return xBoxGroupDAO::find($renderizable);
 	}
 }
 

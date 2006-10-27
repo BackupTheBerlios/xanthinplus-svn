@@ -111,7 +111,7 @@ class xBoxCustomDAO
 	{
 		$result = xDB::getDB()->query("SELECT * FROM box,box_i18n,box_custom WHERE box.name = '%s' 
 			AND box_i18N.box_name = box.name AND box_custom.box_name = box_i18n.box_name",$name);
-		if($row = xDB::getDB()->fetcObject($result))
+		if($row = xDB::getDB()->fetchObject($result))
 		{
 			return xBoxCustomDAO::_boxcustomFromRow($row);
 		}

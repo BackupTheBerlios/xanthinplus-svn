@@ -50,7 +50,7 @@ class xDynamicInputValidator extends xInputValidator
 {
 	var $m_method;
 	
-	function xDynamicInputValidator($method = 'post')
+	function xDynamicInputValidator($method = 'POST')
 	{
 		xInputValidator::xInputValidator();
 		
@@ -334,15 +334,7 @@ class xFormElement
 		$this->m_description = $description;
 		$this->m_value = $value;
 		$this->m_mandatory = $mandatory;
-		
-		if(empty($validator))
-		{
-			$this->m_validator = new xInputValidatorText(0);
-		}
-		else
-		{
-			$this->m_validator = $validator;
-		}
+		$this->m_validator = $validator;
 	}
 	
 	/**
@@ -363,70 +355,21 @@ class xFormElement
 	 */
 	function getInputValueByName($name,$method)
 	{
-		$names = array();
-		//parse array structure
-		if(preg_match('#^([A-Z0-9_-]+)((\[[A-Z0-9_-]*\])*)$#i',$name,$pieces))
+		if($method === 'POST')
 		{
-			$names[] = $pieces[1];
-			if(!empty($pieces[2]))
-			{
-				if(preg_match_all('#\[([A-Z0-9_-]*)\]*#i',$pieces[2],$pieces))
-				{
-					array_unshift($pieces[1],$names[0]);
-					$names = $pieces[1];
-				}
-				else
-				{
-					//invalid variable name
-					assert(FALSE);
-				}
-			}
+			$ret = xArrayString::extractValue($_POST,$name);
 		}
-		
-		if($method === 'post')
+		elseif($method === 'GET')
 		{
-			return xFormElement::_getInputValueFromRecurseArray($_POST,$names);
-		}
-		elseif($method === 'get')
-		{		
-			return xFormElement::_getInputValueFromRecurseArray($_GET,$names);
+			$ret = xArrayString::extractValue($_GET,$name);
 		}
 		else
-		{
 			assert(FALSE);
-		}
 		
-		return NULL;
-	}
-	
-	
-	/**
-	 * @access private
-	 * @static
-	 */
-	function _getInputValueFromRecurseArray($array,$names)
-	{
-		$name = (string) $names[0];
-		if(is_numeric($names[0]))
-		{
-			$name = (int) $names[0];
-		}
-		
-		if(! isset($array[$name]))
-		{
+		if($ret === NULL)
 			return '';
-		}
-		elseif(! is_array($array[$name]))
-		{
-			return $array[$name];
-		}
-		elseif(isset($names[1]))
-		{
-			array_shift($names);
-			return xFormElement::_getInputValueFromRecurseArray($array[$name],$names);
-		}
-		
-		return $array[$name];
+			
+		return $ret;
 	}
 	
 	/**
@@ -968,6 +911,12 @@ class xValidationData
 	{
 		return empty($this->m_valid_data) && empty($this->m_errors);
 	}
+	
+	
+	function addValidData($input_name,$value)
+	{
+		xArrayString::generateArray($input_name,$value,$this->m_valid_data);
+	}
 }
 
 
@@ -1002,7 +951,7 @@ class xFormGroup
 			}
 			else
 			{
-				$data->m_valid_data[$element->m_name] = $element->getInputValue($method);
+				$data->addValidData($element->m_name,$element->getInputValue($method));
 			}
 		}
 		
@@ -1073,7 +1022,7 @@ class xFormRadioGroup extends xFormGroup
 			}
 			else
 			{
-				$data->m_valid_data[$in_array_elem->m_name] = $in_array_elem->getInputValue($method);
+				$data->addValidData($in_array_elem->m_name,$in_array_elem->getInputValue($method));
 			}
 		}
 		
@@ -1105,7 +1054,7 @@ class xForm
 	 */
 	var $m_method;
 	
-	function xForm($action,$method = 'post',$elements = array())
+	function xForm($action,$method = 'POST',$elements = array())
 	{
 		$this->m_method = $method;
 		$this->m_action = $action;
@@ -1130,35 +1079,25 @@ class xForm
 	function _checkFormToken($method)
 	{
 		if(!isset($_SESSION['form_token']))
-		{
 			return FALSE;
-		}
 		
-		if(strcasecmp($method,'post') == 0)
+		if($method === 'POST')
 		{
 			if(!isset($_POST['form_token']))
-			{
 				return FALSE;
-			}
 			
 			if(! isset($_SESSION['form_token'][$_POST['form_token']]))
-			{
 				return FALSE;
-			}
 			
 			$token = $_POST['form_token'];
 		}
 		else
 		{
 			if(!isset($_GET['form_token']))
-			{
 				return FALSE;
-			}
 			
 			if(! isset($_SESSION['form_token'][$_GET['form_token']]))
-			{
 				return FALSE;
-			}
 			
 			$token = $_GET['form_token'];
 		}
@@ -1228,9 +1167,8 @@ class xForm
 		
 		//first validate the token to prevent "Cross-Site Request Forgeries" attacks
 		if(! xForm::_checkFormToken($this->m_method))
-		{
 			return $data;
-		}
+		
 		
 		foreach($this->m_elements as $element)
 		{
@@ -1246,12 +1184,10 @@ class xForm
 				$ret = $element->isValid($this->m_method);
 				
 				if($ret === FALSE)
-				{
 					$data->m_errors[] = $element->m_last_error;
-				}
 				else
 				{
-					$data->m_valid_data[$element->m_name] = $element->getInputValue($this->m_method);
+					$data->addValidData($element->m_name,$element->getInputValue($this->m_method));
 				}
 			}
 		}
@@ -1259,63 +1195,5 @@ class xForm
 		return $data;
 	}
 };
-
-
-
-
-
-/**
- * A utility class for handling input variables sent as an array (ex. named in form "test[index]").
- */
-class xFormArrayInputWalker
-{
-	var $m_valid_data;
-	
-	
-	function xFormArrayInputWalker($valid_data)
-	{
-		reset($valid_data);
-		$this->m_valid_data = $valid_data;
-	}
-	
-	
-	/**
-	 * Return the next array input with a specified name.
-	 * The return is an array containing in order
-	 * - Var value
-	 * - First index (The first string between [])
-	 * - Second index
-	 * - ...
-	 * You can use this in conjunction with the function list().
-	 * 
-	 * @return array(mixed) An array representing the next input array, or FALSE if no input remains to read.
-	 */
-	function next($name)
-	{
-		while(($value = current($this->m_valid_data)) !== FALSE)
-		{
-			$curr = key($this->m_valid_data);
-			if(preg_match('#^'.$name.'((\[[A-Z0-9_-]*\])*)$#i',$curr,$pieces))
-			{
-				if(isset($pieces[1]))
-				{
-					if(preg_match_all('#\[([A-Z0-9_-]*)\]*#i',$pieces[1],$pieces))
-					{
-						array_unshift($pieces[1],$value);
-						
-						next($this->m_valid_data);
-						return $pieces[1];
-					}
-				}
-		    }
-			
-			next($this->m_valid_data);
-		}
-		
-		return FALSE;
-	}
-
-}
-
 
 ?>
