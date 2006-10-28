@@ -97,9 +97,9 @@ class xPageContentBoxAdmin extends xPageContent
 	{
 		$boxes = xBoxI18N::find();
 		$boxes = $this->_groupBoxes($boxes);
-		
-		$out = '<div class = "admin"><table>';
-		$out .= '<tr><th>Name</th><th>Type</th><th>Title</th><th>Group</th><th>In your lang?</th><th>Translated in</th><th>Translate in</th></tr>';
+		$out = '<a href="'.xPath::renderLink($this->m_path->m_lang,'box','create','menu').'">Create menu</a><br/><br/>';
+		$out .= '<div class = "admin"><table>';
+		$out .= '<tr><th>Name</th><th>Type</th><th>Title</th><th>Groups</th><th>In your lang?</th><th>Translated in</th><th>Translate in</th><th>Actions</th></tr>';
 		$langs = xLanguage::findNames();
 		foreach($boxes as $name => $box_array)
 		{
@@ -118,15 +118,14 @@ class xPageContentBoxAdmin extends xPageContent
 				$box = reset($box_array);
 			}
 			$error = '';
-			$out .= '<tr><td>'.$name.'</td><td>'.$box->m_type.'</td><td><a href="'.
-				xPath::renderLink($box->m_lang,'box','view',$box->m_type,$box->m_name) . '">'.
-				xContentFilterController::applyFilter('notags',$box->m_title,$error) . '</a></td>
+			$out .= '<tr><td>'.$name.'</td><td>'.$box->m_type.'</td><td>' .
+				xContentFilterController::applyFilter('notags',$box->m_title,$error) . '</td>
 				<td>';
 				
 			$groups	 = $box->findBoxGroups();
 			foreach($groups as $group)
 			{
-				$out .= $group->m_name;
+				$out .= $group->m_name . ' ';
 			}
 			
 			$out .= '</td><td>';
@@ -153,6 +152,15 @@ class xPageContentBoxAdmin extends xPageContent
 						'">' . $lang . '</a>';
 				}
 			}
+			
+			$out .= '<td>';
+			$ops = call_user_func(array(xBox::getBoxTypeClass($box->m_type),'getOperations'));
+			foreach($ops as $op)
+			{
+				$out .= '<a href="'.$op->getLink('box',$box->m_type,$box->m_name,$this->m_path->m_lang).
+					'">'.$op->m_name.'</a> - ';
+			}
+			$out .= '</td>';
 		}
 		
 		$out  .= "</table></div>\n";
@@ -162,5 +170,211 @@ class xPageContentBoxAdmin extends xPageContent
 	}
 }
 
+
+
+/**
+ * 
+ */
+class xPageContentBoxCreate extends xPageContent
+{
+	function xPageContentBoxCreate($path)
+	{
+		$this->xPageContent($path);
+	}
 	
+	/**
+	 * Checks action permission, Box existence, box type.
+	 */
+	function onCheckPreconditions()
+	{
+		//check action permission
+		if(!xAccessPermission::checkCurrentUserPermission('box',$this->m_path->m_type,NULL,'create'))
+			return new xPageContentNotAuthorized($this->m_path);
+		
+		return true;
+	}
+	
+	
+	/**
+	 *
+	 */
+	function onCreate()
+	{
+		//create form
+		$form = new xForm($this->m_path->getLink());
+		
+		//box name
+		$form->m_elements[] = new xFormElementTextField('name','Name','','',true,new xInputValidatorTextNameId(32));
+		
+		//box title
+		$form->m_elements[] = new xFormElementTextField('title','Title','','',true,new xInputValidatorText(128));
+		
+		//weight
+		$options = array();
+		for($i = -12;$i <= 12; $i++)
+			$options[$i] = $i;
+		$form->m_elements[] = new xFormElementOptions('weight','Weight','',0,$options,false,TRUE,
+				new xInputValidatorInteger(-12,12));
+				
+		//show filter type
+		$show_filter_radio = new xFormRadioGroup('Show filter type');
+		$show_filter_radio->m_elements[] = new xFormElementRadio('show_filter_type','Exclusive filter',
+				'',XANTH_SHOW_FILTER_EXCLUSIVE,true,TRUE,new xInputValidatorInteger(1,3));
+		$show_filter_radio->m_elements[] = new xFormElementRadio('show_filter_type','Inclusive filter',
+				'',XANTH_SHOW_FILTER_INCLUSIVE,false,TRUE,new xInputValidatorInteger(1,3));
+		$show_filter_radio->m_elements[] = new xFormElementRadio('show_filter_type','PHP filter',
+				'',XANTH_SHOW_FILTER_PHP,false,TRUE,new xInputValidatorInteger(1,3));
+		$form->m_elements[] = $show_filter_radio;
+		
+		//show filter
+		$form->m_elements[] = new xFormElementTextArea('show_filter','Show filter','','',false,
+			new xInputValidatorText());
+		
+		//submit buttom
+		$form->m_elements[] = new xFormSubmit('submit','Create');
+		
+		$ret = $form->validate();
+		if(! $ret->isEmpty())
+		{
+			if(empty($ret->m_errors))
+			{
+				$box = new xBoxI18N($ret->m_valid_data['name'],$this->m_path->m_type,$ret->m_valid_data['weight'],
+					new xShowFilter($ret->m_valid_data['show_filter_type'],$ret->m_valid_data['show_filter']),
+					$ret->m_valid_data['title'],$this->m_path->m_lang);
+				
+				if($box->insert())
+				{
+					xNotifications::add(NOTIFICATION_NOTICE,'New box successfully created');
+				}
+				else
+				{
+					xNotifications::add(NOTIFICATION_ERROR,'Error: box was not created');
+				}
+				
+				$this->_set("Create new box",'','','');
+				return TRUE;
+			}
+			else
+			{
+				foreach($ret->m_errors as $error)
+				{
+					xNotifications::add(NOTIFICATION_WARNING,$error);
+				}
+			}
+		}
+
+		$this->_set("Create new box page",$form->render(),'','');
+		return TRUE;
+	}
+};
+
+
+
+/**
+ * 
+ */
+class xPageContentBoxEdit extends xPageContent
+{
+	var $m_box;
+	
+	function xPageContentBoxEdit($path)
+	{
+		$this->xPageContent($path);
+	}
+	
+	/**
+	 * Checks action permission, Box existence, box type.
+	 */
+	function onCheckPreconditions()
+	{
+		assert($this->m_path->m_id != NULL);
+		
+		//check action permission
+		if(!xAccessPermission::checkCurrentUserPermission('box',$this->m_path->m_type,NULL,'edit'))
+			return new xPageContentNotAuthorized($this->m_path);
+		
+		//check box existence
+		$class_name = xBox::getBoxTypeClass($this->m_path->m_type);
+		if(empty($class_name))
+			return new xPageContentNotFound($this->m_path);
+			
+		if(($this->m_box = call_user_func(array($class_name,'load'),$this->m_path->m_id)) === NULL)
+			return new xPageContentNotFound($this->m_path);
+		
+		return true;
+		
+	}
+	
+	
+	/**
+	 *
+	 */
+	function onCreate()
+	{
+		//create form
+		$form = new xForm($this->m_path->getLink());
+		
+		//weight
+		$options = array();
+		for($i = -12;$i <= 12; $i++)
+			$options[$i] = $i;
+		$form->m_elements[] = new xFormElementOptions('weight','Weight','',$this->m_box->m_weight,$options,false,TRUE,
+				new xInputValidatorInteger(-12,12));
+		
+		//show filter type
+		$show_filter_radio = new xFormRadioGroup('Show filter type');
+		$show_filter_radio->m_elements[] = new xFormElementRadio('show_filter_type','Exclusive filter',
+				'',XANTH_SHOW_FILTER_EXCLUSIVE,$this->m_box->m_show_filter->m_type == XANTH_SHOW_FILTER_EXCLUSIVE,
+				TRUE,new xInputValidatorInteger(1,3));
+		$show_filter_radio->m_elements[] = new xFormElementRadio('show_filter_type','Inclusive filter',
+				'',XANTH_SHOW_FILTER_INCLUSIVE,$this->m_box->m_show_filter->m_type == XANTH_SHOW_FILTER_INCLUSIVE,
+				TRUE,new xInputValidatorInteger(1,3));
+		$show_filter_radio->m_elements[] = new xFormElementRadio('show_filter_type','PHP filter',
+				'',XANTH_SHOW_FILTER_PHP,$this->m_box->m_show_filter->m_type == XANTH_SHOW_FILTER_PHP,
+				TRUE,new xInputValidatorInteger(1,3));
+		$form->m_elements[] = $show_filter_radio;
+		
+		//show filter
+		$form->m_elements[] = new xFormElementTextArea('show_filter','Show filter','',
+			$this->m_box->m_show_filter->m_filters,false,new xInputValidatorText());
+		
+		//submit buttom
+		$form->m_elements[] = new xFormSubmit('submit','Create');
+		
+		$ret = $form->validate();
+		if(! $ret->isEmpty())
+		{
+			if(empty($ret->m_errors))
+			{
+				$box = new xBox($this->m_box->m_name,$this->m_box->m_type,$ret->m_valid_data['weight'],
+					new xShowFilter($ret->m_valid_data['show_filter_type'],$ret->m_valid_data['show_filter']));
+				
+				if($box->update())
+				{
+					xNotifications::add(NOTIFICATION_NOTICE,'Box successfully updated');
+				}
+				else
+				{
+					xNotifications::add(NOTIFICATION_ERROR,'Error: box was not updated');
+				}
+				
+				$this->_set("Edit box",'','','');
+				return TRUE;
+			}
+			else
+			{
+				foreach($ret->m_errors as $error)
+				{
+					xNotifications::add(NOTIFICATION_WARNING,$error);
+				}
+			}
+		}
+
+		$this->_set("Edit box",$form->render(),'','');
+		return TRUE;
+	}
+};
+
+
+
 ?>

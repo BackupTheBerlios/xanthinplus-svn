@@ -49,7 +49,7 @@ class xBoxDAO
 	 */
 	function update($box)
 	{
-		$fields = "weight = %d, show_filters_type = '%s',show_filter = '%s'";
+		$fields = "weight = %d, show_filters_type = %d,show_filters = '%s'";
 		$values = array($box->m_weight,$box->m_show_filter->m_type,$box->m_show_filter->m_filters);
 		
 		$values[] = $box->m_name;

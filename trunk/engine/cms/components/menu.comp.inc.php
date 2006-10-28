@@ -32,6 +32,16 @@ class xModuleMenu extends xModule
 	 */ 
 	function xm_fetchContent($path)
 	{
+		if($path->m_resource === 'box' && $path->m_action === 'edit' && $path->m_type === 'menu' 
+			&& $path->m_id !== NULL)
+		{
+			return new xPageContentBoxEdit($path);
+		}
+		elseif($path->m_resource === 'box' && $path->m_action === 'create' && $path->m_type === 'menu')
+		{
+			return new xPageContentBoxCreate($path);
+		}
+		return NULL;
 	}
 	
 	/**
@@ -44,5 +54,4 @@ class xModuleMenu extends xModule
 
 xModule::registerDefaultModule(new xModuleMenu());
 
-	
 ?>

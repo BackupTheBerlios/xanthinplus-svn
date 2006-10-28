@@ -142,21 +142,15 @@ class xPageContent extends xElement
 	{
 		//not found
 		if($content === NULL)
-		{
 			return new xPageContentNotFound($path);
-		}
 		
 		$res = $content->onCheckPreconditions();
 		if($res !== TRUE)
 		{
 			if(xanth_instanceof($res,'xPageContent'))
-			{
 				return xPageContent::_processContent($res,$path);
-			}
 			else
-			{
 				assert('FALSE');
-			}
 		}
 		else
 		{
@@ -164,13 +158,9 @@ class xPageContent extends xElement
 			if($res !== TRUE)
 			{
 				if(xanth_instanceof($res,'xPageContent'))
-				{
 					return xPageContent::_processContent($res,$path);
-				}
 				else
-				{
 					assert('FALSE');
-				}
 			}
 		}
 		

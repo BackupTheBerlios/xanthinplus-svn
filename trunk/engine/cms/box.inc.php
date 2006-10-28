@@ -57,7 +57,7 @@ class xBox extends xElement
 	{
 		$this->xElement();
 		
-		$this->m_weight = $weight;
+		$this->m_weight = (int) $weight;
 		$this->m_name = $name;
 		$this->m_type = $type;
 		$this->m_show_filter = $show_filter;
@@ -91,6 +91,16 @@ class xBox extends xElement
 	function delete()
 	{
 		return  xBoxDAO::delete($this);
+	}
+	
+	/**
+	 * Update
+	 *
+	 * @return bool FALSE on error
+	 */
+	function update()
+	{
+		return  xBoxDAO::update($this);
 	}
 	
 	/**
@@ -160,6 +170,18 @@ class xBox extends xElement
 	{
 		return xBoxDAO::find($type);
 	}
+	
+	/**
+	 * @return array(xOperation)
+	 */
+	function getOperations()
+	{
+		return array
+			(
+				new xOperation('edit','Edit properties',''),
+				new xOperation('delete','Delete','')
+			);
+	}
 };
 	
 
@@ -200,9 +222,16 @@ class xBoxI18N extends xBox
 	 */
 	function load($name,$lang)
 	{
-		 xBoxI18NDAO::load($name,$lang);
+		return xBoxI18NDAO::load($name,$lang);
 	}
 	
+	/**
+	 *
+	 */
+	function insert()
+	{
+		return xBoxI18NDAO::insert($this);
+	}
 	
 	/**
 	 * Retrieve all boxes from db
@@ -212,6 +241,22 @@ class xBoxI18N extends xBox
 	function find($type = NULL,$lang = NULL)
 	{
 		return xBoxI18NDAO::find($type,$lang);
+	}
+	
+	
+	/**
+	 * @return array(xOperation)
+	 */
+	function getOperations()
+	{
+		$prev = xBox::getOperations();
+		return array_merge($prev,
+			array
+			(
+				new xOperation('edit_translation','Edit translation',''),
+				new xOperation('delete_translation','Delete translation','')
+			)
+		);
 	}
 };
 

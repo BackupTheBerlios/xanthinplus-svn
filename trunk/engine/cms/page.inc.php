@@ -84,6 +84,7 @@ class xPage extends xElement
 		foreach($box_groups as $group)
 		{
 			$group->loadBoxes($path->m_lang);
+			usort($group->m_boxes,'_objWeightCompare');
 			$groups[$group->m_name] = $group;
 		}
 		

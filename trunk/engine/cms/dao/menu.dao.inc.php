@@ -201,8 +201,18 @@ class xMenuDAO
 	 */
 	function load($name,$lang)
 	{
-		$result = xDB::getDB()->query("SELECT * FROM box,box_i18n WHERE box.name = '%s' AND box_i18n.box_name = box.name 
-			AND box_i18n.lang = '%s'",$name,$lang);
+		$where['box_i18n']['lang']['type'] = "'%s'";
+		$where['box_i18n']['lang']['connector'] = "AND";
+		$where['box_i18n']['lang']['value'] = $lang;
+		
+		$where['box_i18n']['box_name']['type'] = "'%s'";
+		$where['box_i18n']['box_name']['connector'] = "AND";
+		$where['box_i18n']['box_name']['value'] = $name;
+		
+		$where['box']['name']['join'][] = "box_i18n.box_name";
+		$where['box']['name']['connector'] = "AND";
+		
+		$result = xDB::getDB()->autoQuery('SELECT',array(),$where);
 		if($row = xDB::getDB()->fetchObject($result))
 		{
 			$items = xMenuDAO::_getMenuItems($name,$lang,0);
