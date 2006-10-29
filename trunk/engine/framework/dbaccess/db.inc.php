@@ -359,22 +359,29 @@ class xDB
 			
 		return $result;
 	}
-
+	
+	
 	/**
 	 * Automatically construct and executes a query from an associative arrays. A transaction is created if
 	 * Inserting/Updating multiple tables.
 	 *
 	 * @param string $action on between 'SELECT','INSERT','UPDATE'.
-	 
-	 
+	 *
+	 *
 	 * @param array $records An array with this structure :\n
-	 * $params[<table name>][<column_name>]["type"] = a param substituted into the query using printf() syntax.\n
-	 * $params[<table name>][<column_name>]["connector"] = A boolean connector to select this column (AND/OR).\n
+	 * $params[<table name>][<column_name>]["type"] = a param substituted into the query using printf() syntax (eg. '%s').\n
+	 * $params[<table name>][<column_name>]["connector"] = A boolean connector to select this column (eg. AND/OR)(OPTIONAL).\n
 	 * $params[<table name>][<column_name>]["value"] = The value of the column. If this is NULL in a select query,
 	 * simply this column will be ignored, in a insert/update query it sets the column to null.\n
-	 * $params[<table name>][<column_name>]["join"] = A table.columnname to join this column with.\n
+	 * $params[<table name>][<column_name>]["comparator"] = A comparator for use with value (eg =,<>,<,>)(OPTIONAL).\n
+	 * $params[<table name>][<column_name>]["join"] = A table.columnname to join this column with (eg. table.column)(OPTIONAL).\n
+	 * \n
+	 * You can add another array $params[<table name>][<column_name>]["value"][] for join,value,connector,comparator 
+	 * to generate a query between round brackets(only valid for where). In this case you can define 
+	 * an outer connector ($params[<table name>][<column_name>]["outer_connector"] = AND/OR).
 	 * @param array $where An array as for $records
 	 * @param string $append
+	 * @deprecated
 	 */
 	function autoQuery($action,$records,$where,$extra_query = '',$extra_values = array(),$debug = false)
 	{
@@ -388,45 +395,56 @@ class xDB
 				
 				foreach($records as $table_name => $column)
 				{
-					$out1 = '';
-					$out2 = '';
+					$out_update = '';
+					$out_where = '';
 					
-					$first1 = TRUE;
+					$isfirst_update = TRUE;
 					foreach($column as $colname => $param)
 					{
-						if(!$first1)
-							$out1 .= ',';
+						if(!$isfirst_update)
+							$out_update .= ',';
 						else
-							$first1 = FALSE;
+							$isfirst_update = FALSE;
 						
 						
 						if(isset($param['value']))
 						{
-							$out1 .= $colname . '=' . $param['type'];
+							$out_update .= $colname . '=' . $param['type'];
 							$values[] = $param['value'];
 						}
 						else
 						{
-							$out1 .= $colname . ' SET NULL ';
+							$out_update .= $colname . ' SET NULL ';
 						}
 					}
 					
-					$first1 = TRUE;
+					$isfirst_where = TRUE;
 					foreach($where[$table_name] as $colname => $param)
 					{
+						$connector = 'AND';
+						if(isset($param['connector']))
+							$connector = $param['connector'];
+						
+						$comparator = '=';
+						if(isset($param['comparator']))
+							$comparator = $param['comparator'];
+							
 						if(isset($param['value']))
 						{
-							if(!$first1)
-								$out2 .= ' ' . $param['connector'] . ' ';
+							if(!$isfirst_where)
+								$out_where .= ' ' . $connector . ' ';
 							else
-								$first1 = FALSE;
+								$isfirst_where = FALSE;
 						
-							$out2 .= $colname . '=' . $param['type'];
+							$out_where .= $colname . $comparator . $param['type'];
 							$values[] = $param['value'];
 						}
 					}
 					
-					$out =  'UPDATE  ' . $table_name . ' SET ' . $out1 . ' WHERE '.$out2. ' '. $extra_query;
+					if(!empty($out_where))
+						$out_where = ' WHERE ' . $out_where;
+					
+					$out =  'UPDATE  ' . $table_name . ' SET ' . $out1 . $out_where . ' '. $extra_query;
 					array_merge($values,$extra_values);
 					$this->query($out,$values);
 					
@@ -435,7 +453,6 @@ class xDB
 				}
 				
 				return $this->commitTransaction();
-				
 				
 				
 			case 'INSERT':
@@ -444,101 +461,98 @@ class xDB
 				
 				foreach($records as $table_name => $column)
 				{
-					$out2 = '';
-					$out1 = '';
+					$out_values = '';
+					$out_bind = '';
 					
-					$first1 = TRUE;
+					$isfirst = TRUE;
 					foreach($column as $colname => $param)
 					{
 						if(isset($param['value']))
 						{
-							if(!$first1)
+							if(!$isfirst)
 							{
-								$out1 .= ',';
-								$out2 .= ',';
+								$out_values .= ',';
+								$out_bind .= ',';
 							}
 							else
 							{
-								$first1 = FALSE;
+								$isfirst = FALSE;
 							}
 							
-							$out1 .= $colname;
-							$out2 .= $param['type'];
+							$out_bind .= $colname;
+							$out_values .= $param['type'];
 							$values[] = $param['value'];
 						}
 					}
 					
-					$out =  'INSERT INTO  ' . $table_name . ' (' . $out1 . ') VALUES (' .$out2 . ') ' . $extra_query;
+					$out =  'INSERT INTO  ' . $table_name . ' (' .$out_bind  . ') VALUES (' .$out_values . ') ' . $extra_query;
 					array_merge($values,$extra_values);
 					$this->query($out,$values);
 					
 					if($debug)
-						echo "<br/>Query: $out";
+						var_dump($out);
 				}
 				
 				return $this->commitTransaction();
 		
 			case 'SELECT':
-				$out1 = '';
-				$out2 = '';
-				$out1 .= 'SELECT * FROM ';
+				$out_select = 'SELECT * FROM ';
+				$out_where = '';
 				
-				$first1 = TRUE;
-				$first2 = TRUE;
+				$isfirst_select = TRUE;
+				$isfirst_where = TRUE;
 				foreach($where as $table_name => $column)
 				{
-					if(!$first1)
-						$out1 .= ',';
+					if(!$isfirst_select)
+						$out_select .= ',';
 					else
-						$first1 = FALSE;
+						$isfirst_select = FALSE;
 					
-					$out1 .= $table_name;
+					$out_select .= $table_name;
 					
-					foreach($column as $colname => $param)
-					{
-						//set column value
-						if(isset($param['value']))
-						{
-							if(!$first2)
-							{
-								$out2 .= ' ' . $param['connector'] . ' ';
-							}
-							else
-							{
-								$first2 = FALSE;
-							}
+					$connector = 'AND';
+					if(isset($param['connector']))
+						$connector = $param['connector'];
+					
+					$comparator = '=';
+					if(isset($param['comparator']))
+						$comparator = $param['comparator'];
 							
-							$out2 .= $table_name . '.' . $colname .'='. $param['type'];
-							$values[] = $param['value'];
-						}
+					//set column value
+					if(isset($param['value']))
+					{
+						if(!$isfirst_where)
+							$out_where .= ' ' . $connector . ' ';
+						else
+							$isfirst_where = FALSE;
 						
-						//now join
-						if(isset($param['join']))
+						$out_where .= $table_name . '.' . $colname . $comparator . $param['type'];
+						$values[] = $param['value'];
+					}
+					
+					//now join
+					if(isset($param['join']))
+					{
+						foreach($param['join'] as $join)
 						{
-							foreach($param['join'] as $join)
-							{
-								if(!$first2)
-								{
-									$out2 .= ' ' . $param['connector'] . ' ';
-								}
-								else
-								{
-									$first2 = false;
-								}
-								
-								$out2 .= $table_name . '.' . $colname .'='. $join;
-							}
+							if(!$isfirst)
+								$out_where .= ' ' . $connector . ' ';
+							else
+								$isfirst_where = false;
+							
+							$out_where .= $table_name . '.' . $colname . $comparator . $join;
 						}
 					}
-					if(!empty($out2))
-						$out = $out1 . ' WHERE ' . $out2;
-					else
-						$out = $out1;
 				}
+				if(!empty($out_where))
+					$out = $out_select . ' WHERE ' . $out_where;
+				else
+					$out = $out_select;
+					
 				$out .=  ' ' . $extra_query;
 				array_merge($values,$extra_values);
 				if($debug)
-					echo "<br/>Query: $out";
+					var_dump($out);
 				return $this->query($out,$values);
 				
 			default: 
@@ -548,6 +562,192 @@ class xDB
 		
 	}
 
+	/**
+	 * @access private
+	 */
+	function _generateWhereClause($where,&$values)
+	{
+		$out = '';
+		$first = true;
+		foreach($where as $clause)
+		{
+			if(isset($clause['clause'])) //simple clause
+			{
+				if(array_key_exists('value',$clause))
+					if($clause['value'] === NULL)
+						continue;
+					else
+						if(is_array($clause['value']))
+							$values = array_merge($values,$clause['value']);
+						else
+							$values[] = $clause['value'];
+				
+				if(!$first)
+					$out .= ' ' . $clause['connector'] . ' ';
+				else
+					$first = false;
+					
+				$out .= $clause['clause'];
+			}
+			else 						//nested clause
+			{
+				$connector = $clause['connector'];
+				unset($clause['connector']);
+				
+				if(!$first)
+					$out .= ' ' . $connector . ' ';
+				else
+					$first = false;
+					
+				$out .= '(' . $this->_generateWhereClause($clause,$values) . ')';
+			}
+		}
+		
+		return $out;
+	}
+	
+	
+	/**
+	 * 
+	 * @param string $columns The columns to select.
+	 * @param string $tables The tables to select colums from
+	 * @param array() $where An array so structured: \n
+	 * \n
+	 * $where[0]["clause"] = "table.column = '%s'";\n
+	 * $where[0]["connector"] = "AND";\n
+	 * $where[0]["value"] = $val (or an array of values);\n
+	 * You can also create nested where clause by defining another sub array:\n
+	 * 
+	 * $where[0]["connector"] = "AND";\n
+	 * $where[0][0]["clause"] = "table.column = '%s'";\n
+	 * $where[0][0]["connector"] = "AND";\n
+	 * $where[0][0]["value"] = $val;\n
+	 * \n
+	 * @notice If ['value'] exists and is null the whole clause will be ingored,
+	 * if ['value'] does not exists at all the clause is inserted normally but no values are inserted.
+	 */
+	function autoQuerySelect($columns,$tables,$where,$debug = FALSE)
+	{
+		$values = array();
+		$out_where = $this->_generateWhereClause($where,$values);
+		if(!empty($out_where))
+			$out_where = ' WHERE ' . $out_where;
+			
+		$query = 'SELECT '.$columns.' FROM '.$tables.$out_where;
+		
+		if($debug)
+		{
+			echo "Query: " . $query . ' , VALUES: ';
+			var_dump($values);
+		}
+		
+		return $this->query($query,$values);
+	}
+	
+	
+	/**
+	 * 
+	 * @param string $table The table to insert into.
+	 * @param string $records An array so structured: \n
+	 * \n
+	 * $records[0]["name"] = "column_name";\n
+	 * $records[0]["type"] = "'%s'";\n
+	 * $records[0]["value"] = $val;\n
+	 * \n
+	 * @notice If ['value'] exists and is null NULL is inserted,
+	 * if ['value'] does not exists the whole clause is ignored so default is inserted.
+	 */
+	function autoQueryInsert($table,$records,$debug = FALSE)
+	{
+		$values = array();
+		
+		$first = true;
+		$out_columns = '';
+		$out_values = '';
+		foreach($redords as $record)
+		{
+			$type = $record['type'];
+			if(array_key_exists('value',$record))
+			{
+				if($record['value'] === NULL)
+					$type = 'NULL';
+				else
+					$values[] = $record['value'];
+			}
+			else
+				continue;
+			
+			if(!$first)
+			{
+				$out_columns .= ',';
+				$out_values .= ',';
+			}			
+			else
+				$first = false;
+			
+			$out_columns .= $record['name'];
+			$out_values .= $type;
+		}
+		
+		$query = 'INSERT INTO '.$table.' ('.$out_columns.') VALUES ('.$out_values.')';
+		
+		if($debug)
+		{
+			echo "Query: " . $query . ' , VALUES: ';
+			var_dump($values);
+		}
+		
+		return $this->query($query,$values);
+	}
+	
+	/**
+	 * 
+	 * @param string $table The table to insert into.
+	 * @param array() $where An in autoQuerySelect
+	 * @param string $records An in autoQueryInsert
+	 *
+	 * @notice If ['value'] exists and is null NULL is inserted,
+	 * if ['value'] does not exists the whole clause is ignored so default is inserted.
+	 */
+	function autoQueryUpdate($table,$records,$where,$debug = FALSE)
+	{
+		$values = array();
+		
+		$first = true;
+		$out_update = '';
+		foreach($records as $record)
+		{
+			$set = $record['name'] . '=' . $record['type'];
+			if(array_key_exists('value',$record))
+				if($record['value'] === NULL)
+					$set = $record['name'] . ' SET NULL';
+				else
+					$values[] = $record['value'];
+			
+			if(!$first)
+				$out_update .= ',';		
+			else
+				$first = false;
+				
+			$out_update .= $set;
+		}
+		
+		$out_where = $this->_generateWhereClause($where,$values);
+		if(!empty($out_where))
+			$out_where = ' WHERE ' . $out_where;
+			
+		$query = 'UPDATE '.$table.' SET '.$out_update . $out_where;
+		
+		if($debug)
+		{
+			echo "Query: " . $query . ' , VALUES: ';
+			var_dump($values);
+		}
+		
+		return $this->query($query,$values);
+	}
+	
+	
 	/**
 	 * Starts a new transaction. Transaction nesting is allowed but nested transactions are ignored.
 	 * If a query fails during execution, the transaction is set to failed and on commitTransaction() 

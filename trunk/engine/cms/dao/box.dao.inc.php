@@ -79,47 +79,26 @@ class xBoxDAO
 			new xShowFilter($row->show_filters_type,$row->show_filters));
 	}
 	
-	
 	/**
 	 * Returns all registered boxes.
 	 * 
 	 * @return array(xBox)
 	 * @static
 	 */
-	function load($name)
+	function find($name,$type)
 	{
-		$where['box']['name']['type'] = "'%s'";
-		$where['box']['name']['connector'] = "AND";
-		$where['box']['name']['value'] = $name;
+		$where[0]["clause"] = "box.name = '%s'";
+		$where[0]["connector"] = "AND";
+		$where[0]["value"] = $name;
+	 
+		$where[1]["clause"] = "box.type = '%s'";
+		$where[1]["connector"] = "AND";
+		$where[1]["value"] = $type;
 		
-		$result = xDB::getDB()->autoQuery('SELECT',array(),$where);
-		$objs = array();
-		if($row = xDB::getDB()->fetchObject($result))
-		{
-			return xBoxDAO::_boxFromRow($row);
-		}
-		return NULL;
-	}
-	
-	
-	/**
-	 * Returns all registered boxes.
-	 * 
-	 * @return array(xBox)
-	 * @static
-	 */
-	function find($type)
-	{
-		$where['box']['type']['type'] = "'%s'";
-		$where['box']['type']['connector'] = "AND";
-		$where['box']['type']['value'] = $type;
-		
-		$result = xDB::getDB()->autoQuery('SELECT',array(),$where);
+		$result = xDB::getDB()->autoQuerySelect('*','box',$where);
 		$objs = array();
 		while($row = xDB::getDB()->fetchObject($result))
-		{
-			$objs[] = xBoxDAO::_boxFromRow($row);
-		}
+			$objs[] = xBoxDAO::_boxFromRow($row,NULL);
 		return $objs;
 	}
 };

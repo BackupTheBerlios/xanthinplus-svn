@@ -151,27 +151,11 @@ class xMenu extends xBoxI18N
 	}
 	
 	/**
-	 *
-	 *
-	 * @return bool FALSE on error
-	 */
-	function load($name,$lang = NULL)
-	{
-		return xMenuDAO::load($name,$lang);
-	}
-	
-	/**
 	 * @return array(xOperation)
 	 */
-	function getOperations()
+	function find($name = NULL,$type = 'menu',$lang = NULL,$flexible_lang = TRUE)
 	{
-		$prev = xBoxI18N::getOperations();
-		return array_merge($prev,
-			array
-			(
-				new xOperation('admin_items','Manage items','')
-			)
-		);
+		return xMenuDAO::find($name,$type,$lang,$flexible_lang);
 	}
 };
 xBox::registerBoxTypeClass('menu','xMenu');

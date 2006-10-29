@@ -70,11 +70,28 @@ class xBoxGroupDAO
 	{
 		xDB::getDB()->startTransaction();
 		
-		xDB::getDB()->query("UPDATE box_group SET render = %d , description = '%s' WHERE name = '%s'",
-			$box_group->m_render,$box_group->m_description,$box_group->m_name);
-			
-		xDB::getDB()->query("DELETE FROM box_to_group WHERE box_group = '%s'",$box_group->m_name);
+		$where[0]["clause"] = "name = '%s'";
+		$where[0]["connector"] = "AND";
+		$where[0]["value"] = $box_group->m_name;
 		
+		$record[1]["name"] = 'render';
+		$record[1]["type"] = "%d";
+		$record[1]["value"] = $box_group->m_render;
+		
+		$record[0]["name"] = 'description';
+		$record[0]["type"] = "'%s'";
+		$record[0]["value"] = $box_group->m_description;
+		
+		$record[1]["name"] = 'render';
+		$record[1]["type"] = "%d";
+		$record[1]["value"] = $box_group->m_render;
+		
+		$record[2]["name"] = 'render';
+		$record[2]["type"] = "%d";
+		$record[2]["value"] = $box_group->m_render;
+		
+		xDB::getDB()->autoQueryUpdate('box_group',$record,$where);
+		xDB::getDB()->query("DELETE FROM box_to_group WHERE box_group = '%s'",$box_group->m_name);
 		xBoxGroupDAO::_insertBoxes($box_group);
 			
 		if(!xDB::getDB()->commitTransaction())
@@ -123,24 +140,22 @@ class xBoxGroupDAO
 	/**
 	 * Find box groups.
 	 * 
-	 * @return array(xBox) An xBoxGroup array with empty m_boxes member.
+	 * @return
 	 * @static
 	 */
 	function findBoxGroups($name)
 	{
-		$where['box_to_group']['box_name']['type'] = "'%s'";
-		$where['box_to_group']['box_name']['connector'] = "AND";
-		$where['box_to_group']['box_name']['value'] = $name;
+		$where[0]["clause"] = "box_to_group.box_name = '%s'";
+		$where[0]["connector"] = "AND";
+		$where[0]["value"] = $name;
+	 
+		$where[1]["clause"] = "box_group.name = box_to_group.box_group";
+		$where[1]["connector"] = "AND";
 		
-		$where['box_group']['name']['join'][] = "box_to_group.box_group";
-		$where['box_group']['name']['connector'] = "AND";
-		
-		$result = xDB::getDB()->autoQuery('SELECT',array(),$where);
+		$result = xDB::getDB()->autoQuerySelect('*','box_group,box_to_group',$where);
 		$objs = array();
 		while($row = xDB::getDB()->fetchObject($result))
-		{
 			$objs[] = xBoxGroupDAO::_boxGroupFromRow($row,NULL);
-		}
 		return $objs;
 	}
 	

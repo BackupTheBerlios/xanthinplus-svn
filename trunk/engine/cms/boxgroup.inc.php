@@ -58,7 +58,7 @@ class xBoxGroup extends xElement
 		$this->xElement();
 		
 		$this->m_name = $name;
-		$this->m_render = $render;
+		$this->m_render = (bool)$render;
 		$this->m_boxes = $boxes;
 		$this->m_description = $description;
 	}
@@ -111,23 +111,15 @@ class xBoxGroup extends xElement
 	/**
 	 *
 	 */
-	function loadBoxes($lang = NULL)
+	function loadBoxes($lang = NULL,$flexible_lang = TRUE)
 	{
 		$rows = xBoxGroupDAO::findBoxNamesAndTypesByGroup($this->m_name);
 		$this->m_boxes = array();
 		foreach($rows as $row)
 		{
-			$box = xBox::fetchBox($row->name,$row->type,$lang);
+			$box = xBoxI18N::fetchBox($row->name,$row->type,$lang,$flexible_lang);
 			if($box != NULL)
-			{
 				$this->m_boxes[] = $box;
-			}
-			else
-			{
-				$box = xBox::fetchBox($row->name,$row->type,xSettings::get('default_lang'));
-				if($box != NULL)
-					$this->m_boxes[] = $box;
-			}
 		}
 	}
 		

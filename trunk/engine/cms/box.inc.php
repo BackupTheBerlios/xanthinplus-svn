@@ -103,24 +103,6 @@ class xBox extends xElement
 		return  xBoxDAO::update($this);
 	}
 	
-	/**
-	 * Fetch a specific box object given the name and type.
-	 *
-	 * @return xBox A specific xBox child object or NULL if not found.
-	 * @static
-	 */
-	function fetchBox($boxname,$type,$lang)
-	{
-		$class_name = xBox::getBoxTypeClass($type);
-		if($class_name === NULL)
-		{
-			xLog::log(LOG_LEVEL_ERROR,'Cannot retrieve box type class name: "'.$type.'"',__FILE__,__LINE__);
-			return NULL;
-		}
-		
-		return call_user_func(array( $class_name,'load'),$boxname,$lang);
-	}
-	
 	
 	/**
 	 * Return the builtin box relative to given name.
@@ -149,14 +131,6 @@ class xBox extends xElement
 	/**
 	 *
 	 */
-	function load($name)
-	{
-		 return xBoxDAO::load($name);
-	}
-	
-	/**
-	 *
-	 */
 	function findBoxGroups()
 	{
 		return xBoxGroupDAO::findBoxGroups($this->m_name);
@@ -166,9 +140,9 @@ class xBox extends xElement
 	/**
 	 *
 	 */
-	function find($type = NULL)
+	function find($name = NULL,$type = NULL)
 	{
-		return xBoxDAO::find($type);
+		return xBoxDAO::find($name,$type);
 	}
 	
 	/**
@@ -216,14 +190,25 @@ class xBoxI18N extends xBox
 		$this->m_title = $title;
 		$this->m_lang = $lang;
 	}
-	
+
 	/**
+	 * Fetch a specific box object given the name and type.
 	 *
+	 * @return xBox A specific xBox child object or NULL if not found.
+	 * @static
 	 */
-	function load($name,$lang)
+	function fetchBox($boxname,$type,$lang,$flexible_lang = TRUE)
 	{
-		return xBoxI18NDAO::load($name,$lang);
+		$class_name = xBox::getBoxTypeClass($type);
+		if($class_name === NULL)
+		{
+			xLog::log(LOG_LEVEL_ERROR,'Cannot retrieve box type class name: "'.$type.'"',__FILE__,__LINE__);
+			return NULL;
+		}
+		
+		return reset(call_user_func(array( $class_name,'find'),$boxname,$type,$lang,$flexible_lang));
 	}
+	
 	
 	/**
 	 *
@@ -238,9 +223,9 @@ class xBoxI18N extends xBox
 	 *
 	 * @return array(xBoxI18N)
 	 */
-	function find($type = NULL,$lang = NULL)
+	function find($name = NULL,$type = NULL,$lang = NULL,$flexible_lang = true)
 	{
-		return xBoxI18NDAO::find($type,$lang);
+		return xBoxI18NDAO::find($name,$type,$lang,$flexible_lang);
 	}
 	
 	
@@ -342,24 +327,13 @@ class xBoxCustom extends xBoxI18N
 	}
 	
 	/**
-	 * Load an xBoxCustom from db
-	 *
-	 * @return bool NULL on error
-	 */
-	function load($name,$lang)
-	{
-		return xBoxCustomDAO::load($name,$lang);
-	}
-	
-	
-	/**
 	 * Retrieve all boxes from db
 	 *
 	 * @return array(xBoxI18N)
 	 */
-	function find($type = NULL,$lang = NULL)
+	function find($name = NULL,$type = 'custom',$lang = NULL,$flexible_lang = true)
 	{
-		return xBoxCustomDAO::find($type,$lang);
+		return xBoxCustomDAO::find($name,$type,$lang,$flexible_lang);
 	}
 };
 xBox::registerBoxTypeClass('custom','xBoxCustom');
@@ -381,29 +355,16 @@ class xBoxBuiltin extends xBoxI18N
 	
 	
 	/**
-	 * Load an xBoxCustom from db
-	 *
-	 * @return bool NULL on error
-	 */
-	function load($name,$lang)
-	{
-		return callWithSingleResult2('xm_fetchBuiltinBox',$box_name,$lang);
-	}
-	
-	
-	/**
 	 * Retrieve all boxes from db
 	 *
 	 * @return array(xBoxI18N)
 	 */
-	function find($type = NULL,$lang = NULL)
+	function find($name = NULL,$type = 'builtin',$lang = NULL,$flexible_lang = true)
 	{
-		$boxes = xBoxI18N::find($type,$lang);
+		$boxes = xBoxI18N::find($name,$type,$lang,$flexible_lang);
 		$ret = array();
-		foreach($boxes as $box )
-		{
-			$ret[] = xBoxBuiltin::load($box->m_name,$box->m_lang);
-		}
+		foreach($boxes as $box)
+			$ret[] = callWithSingleResult2('xm_fetchBuiltinBox',$name,$lang,$flexible_lang);
 		
 		return ret;
 	}

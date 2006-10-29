@@ -298,7 +298,7 @@ class xPageContentBoxEdit extends xPageContent
 		if(empty($class_name))
 			return new xPageContentNotFound($this->m_path);
 			
-		if(($this->m_box = call_user_func(array($class_name,'load'),$this->m_path->m_id)) === NULL)
+		if(($this->m_box = reset(call_user_func(array($class_name,'find'),$this->m_path->m_id))) === FALSE)
 			return new xPageContentNotFound($this->m_path);
 		
 		return true;

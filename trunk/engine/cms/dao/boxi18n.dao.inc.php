@@ -101,32 +101,67 @@ class xBoxI18NDAO
 			new xShowFilter($row->show_filters_type,$row->show_filters),$row->title,$row->lang);
 	}
 	
+	
 	/**
-	 * Returns all registered boxes.
-	 * 
-	 * @return array(xBox)
-	 * @static
+	 * @acces protected
 	 */
-	function find($type,$lang)
+	function _selectFlexiLang($boxes,$lang)
 	{
-		$where['box']['name']['join'][] = "box_i18n.box_name";
-		$where['box']['name']['connector'] = "AND";
-		
-		$where['box_i18n']['lang']['type'] = "'%s'";
-		$where['box_i18n']['lang']['connector'] = "AND";
-		$where['box_i18n']['lang']['value'] = $lang;
-		
-		$where['box']['type']['type'] = "'%s'";
-		$where['box']['type']['connector'] = "AND";
-		$where['box']['type']['value'] = $type;
-		
-		$result = xDB::getDB()->autoQuery('SELECT',array(),$where);
-		$objs = array();
-		while($row = xDB::getDB()->fetchObject($result))
+		//now group by name and lang
+		$grouped = array();
+		foreach($boxes as $box)
+			$grouped[$box->m_name][$box->m_lang] = $box;
+			
+		$ret = array();
+		//extract menus
+		foreach($grouped as $name => $ignore)
 		{
-			$objs[] = xBoxI18NDAO::_boxi18nFromRow($row);
+			if(isset($grouped[$name][$lang])) //specific lang
+				$ret[] = $grouped[$name][$lang];
+			elseif(isset($grouped[$name][xSettings::get('default_lang')])) //default lang
+				$ret[] = $grouped[$name][xSettings::get('default_lang')];
+			else	//first found lang
+				$ret[] = reset($grouped[$name]);
 		}
-		return $objs;
+		
+		return $ret;
+	}
+	
+	
+	/**
+	 * If flexible lang, first select given lang, then default lang, then first found lang.
+	 */
+	function find($name,$type,$lang,$flexible_lang)
+	{
+		if($flexible_lang && $lang !== NULL)
+		{
+			//now extract all menus with specified lang
+			$objs = xBoxI18NDAO::find($name,$type,NULL,false);
+			return xBoxI18NDAO::_selectFlexiLang($objs,$lang);
+		}
+		else
+		{
+			$where[0]["clause"] = "box_i18n.box_name = '%s'";
+			$where[0]["connector"] = "AND";
+			$where[0]["value"] = $name;
+		 
+			$where[1]["clause"] = "box_i18n.lang = '%s'";
+			$where[1]["connector"] = "AND";
+			$where[1]["value"] = $lang;
+			
+			$where[2]["clause"] = "box.name = box_i18n.box_name";
+			$where[2]["connector"] = "AND";
+			
+			$where[3]["clause"] = "box.type = '%s'";
+			$where[3]["connector"] = "AND";
+			$where[3]["value"] = $type;
+			
+			$result = xDB::getDB()->autoQuerySelect('*','box,box_i18n',$where);
+			$objs = array();
+			while($row = xDB::getDB()->fetchObject($result))
+				$objs[] = xBoxI18NDAO::_boxi18nFromRow($row);
+			return $objs;
+		}
 	}
 };
 

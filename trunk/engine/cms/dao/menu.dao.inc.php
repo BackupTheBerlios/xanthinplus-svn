@@ -149,37 +149,34 @@ class xMenuDAO
 	 * @access private
 	 * @static
 	 */
-	function _getMenuItems($menuname,$lang,$parent)
+	function _getMenuItems($parent,$menuname,$lang)
 	{
-		$items = array();
-		if($parent === 0)
-		{
-			$result = xDB::getDB()->query("SELECT * FROM menu_item WHERE menu_item.box_name = '%s' AND 
-				menu_item.parent IS NULL AND menu_item.lang = '%s'",$menuname,$lang);
-		
-			while($row = xDB::getDB()->fetchObject($result))
-			{
-				$newitem = xMenuDAO::_menuitemFromRow($row);
-				$newitem->m_subitems = xMenuDAO::_getMenuItems($menuname,$lang,$row->id);
-				
-				$items[] = $newitem;
-			}
-		}
+		$where[0]["clause"] = "menu_item.box_name = '%s'";
+		$where[0]["connector"] = "AND";
+		$where[0]["value"] = $menuname;
+	 
+		if($parent === NULL)
+			$where[1]["clause"] = "menu_item.parent IS NULL";
 		else
 		{
-			$result = xDB::getDB()->query("SELECT * FROM menu_item WHERE menu_item.box_name = '%s' AND 
-				menu_item.parent = %d AND menu_item.lang = '%s'",$menuname,$parent,$lang);
-		
-			while($row = xDB::getDB()->fetchObject($result))
-			{
-				$newitem = xMenuDAO::_menuitemFromRow($row);
-				$newitem->m_subitems = xMenuDAO::_getMenuItems($menuname,$lang,$row->id);
-				
-				$items[] = $newitem;
-			}
+			$where[1]["clause"] = "menu_item.parent = '%s'";
+			$where[1]["value"] = $parent;
 		}
+		$where[1]["connector"] = "AND";
 		
-		return $items;
+		$where[2]["clause"] = "menu_item.lang = '%s'";
+		$where[2]["connector"] = "AND";
+		$where[2]["value"] = $lang;
+		
+		$result = xDB::getDB()->autoQuerySelect('*','menu_item',$where);
+		$objs = array();
+		while($row = xDB::getDB()->fetchObject($result))
+		{
+			$newitem = xMenuDAO::_menuitemFromRow($row);
+			$newitem->m_subitems = xMenuDAO::_getMenuItems($row->id,$menuname,$lang);
+			$objs[] = $newitem;
+		}
+		return $objs;
 	}
 	
 	
@@ -195,42 +192,73 @@ class xMenuDAO
 			new xShowFilter($row->show_filters_type,$row->show_filters),$row->title,$row->lang,$items);
 	}
 	
+	/**
+	 * @access private
+	 */
+	function _find($name,$type,$lang,$flexible_lang)
+	{
+		if($flexible_lang && $lang !== NULL)
+		{
+			//now extract all menus with specified lang
+			$menus = xMenuDAO::_find($name,$type,NULL,false);
+			
+			//now group by name and lang
+			$grouped = array();
+			foreach($menus as $menu)
+				$grouped[$menu->m_name][$menu->m_lang] = $menu;
+				
+			$ret = array();
+			//extract menus
+			foreach($grouped as $name => $ignore)
+			{
+				if(isset($grouped[$name][$lang])) //specific lang
+					$ret[] = $grouped[$name][$lang];
+				elseif(isset($grouped[$name][xSettings::get('default_lang')])) //default lang
+					$ret[] = $grouped[$name][xSettings::get('default_lang')];
+				else	//first found lang
+					$ret[] = reset($grouped[$name]);
+			}
+			
+			return $ret;
+		}
+		else
+		{
+			$where[0]["clause"] = "box_i18n.box_name = '%s'";
+			$where[0]["connector"] = "AND";
+			$where[0]["value"] = $name;
+		 
+			$where[1]["clause"] = "box_i18n.lang = '%s'";
+			$where[1]["connector"] = "AND";
+			$where[1]["value"] = $lang;
+			
+			$where[2]["clause"] = "box.name = box_i18n.box_name";
+			$where[2]["connector"] = "AND";
+			
+			$where[3]["clause"] = "box.type = '%s'";
+			$where[3]["connector"] = "AND";
+			$where[3]["value"] = $type;
+			
+			$result = xDB::getDB()->autoQuerySelect('*','box,box_i18n',$where);
+			$objs = array();
+			while($row = xDB::getDB()->fetchObject($result))
+				$objs[] = xMenuDAO::_menuFromRow($row,NULL);
+			return $objs;
+		}
+	}
+	
 	
 	/**
-	 *
+	 * If flexible lang, first select given lang, then default lang, then first found lang.
 	 */
-	function load($name,$lang)
+	function find($name,$type,$lang,$flexible_lang)
 	{
-		$where['box_i18n']['lang']['type'] = "'%s'";
-		$where['box_i18n']['lang']['connector'] = "AND";
-		$where['box_i18n']['lang']['value'] = $lang;
+		$menus = xMenuDAO::_find($name,$type,$lang,$flexible_lang);
+		foreach($menus as $menu)
+			$menu->m_items = xMenuDAO::_getMenuItems(NULL,$menu->m_name,$menu->m_lang);
 		
-		$where['box_i18n']['box_name']['type'] = "'%s'";
-		$where['box_i18n']['box_name']['connector'] = "AND";
-		$where['box_i18n']['box_name']['value'] = $name;
-		
-		$where['box']['name']['join'][] = "box_i18n.box_name";
-		$where['box']['name']['connector'] = "AND";
-		
-		$result = xDB::getDB()->autoQuery('SELECT',array(),$where);
-		if($row = xDB::getDB()->fetchObject($result))
-		{
-			$items = xMenuDAO::_getMenuItems($name,$lang,0);
-			return xMenuDAO::_menuFromRow($row,$items);
-		}
-		
-		return NULL;
+		return $menus;
 	}
 };
-
-
-
-
-
-
-
-
-
 
 
 ?>

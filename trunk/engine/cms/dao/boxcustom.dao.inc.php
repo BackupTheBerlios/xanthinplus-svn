@@ -107,15 +107,43 @@ class xBoxCustomDAO
 	 * @return xBoxCustom or NULL no error
 	 * @static
 	 */
-	function load($name)
+	function find($name,$type,$lang)
 	{
-		$result = xDB::getDB()->query("SELECT * FROM box,box_i18n,box_custom WHERE box.name = '%s' 
-			AND box_i18N.box_name = box.name AND box_custom.box_name = box_i18n.box_name",$name);
-		if($row = xDB::getDB()->fetchObject($result))
+		if($flexible_lang && $lang !== NULL)
 		{
-			return xBoxCustomDAO::_boxcustomFromRow($row);
+			//now extract all menus with specified lang
+			$objs = xBoxCustomDAO::find($name,$type,NULL,false);
+			return xBoxI18NDAO::_selectFlexiLang($objs,$lang);
 		}
-		return NULL;
+		else
+		{
+			$where[0]["clause"] = "box_custom.box_name = '%s'";
+			$where[0]["connector"] = "AND";
+			$where[0]["value"] = $name;
+			
+			$where[0]["clause"] = "box_custom.lang = '%s'";
+			$where[0]["connector"] = "AND";
+			$where[0]["value"] = $lang;
+			
+			$where[1]["clause"] = "box_i18n.box_name = box_custom.box_name";
+			$where[1]["connector"] = "AND";
+			
+			$where[1]["clause"] = "box_i18n.lang = box_custom.lang";
+			$where[1]["connector"] = "AND";
+			
+			$where[2]["clause"] = "box.name = box_i18n.box_name";
+			$where[2]["connector"] = "AND";
+			
+			$where[3]["clause"] = "box.type = '%s'";
+			$where[3]["connector"] = "AND";
+			$where[3]["value"] = $type;
+			
+			$result = xDB::getDB()->autoQuerySelect('*','box,box_i18n,box_custom',$where);
+			$objs = array();
+			while($row = xDB::getDB()->fetchObject($result))
+				$objs[] = xBoxCustomDAO::_boxcustomFromRow($row);
+			return $objs;
+		}
 	}
 };
 

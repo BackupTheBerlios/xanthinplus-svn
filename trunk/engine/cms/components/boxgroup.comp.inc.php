@@ -178,9 +178,8 @@ class xPageContentBoxGroupEdit extends xPageContent
 				$boxes = array();
 				foreach($ret->m_valid_data['box'] as $name => $val)
 				{
-					//var_dump($val);echo "|||";
 					if($val == 1)
-						$boxes[] = xBox::load($name);
+						$boxes[] = reset(xBox::find($name));
 				}
 				
 				$bgroup = new xBoxGroup($this->m_path->m_id,$ret->m_valid_data['description'],
