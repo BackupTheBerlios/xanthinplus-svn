@@ -219,6 +219,14 @@ class xBoxI18N extends xBox
 	}
 	
 	/**
+	 *
+	 */
+	function existsTranslation($name,$lang)
+	{
+		return xBoxI18NDAO::existsTranslation($name,$lang);
+	}
+	
+	/**
 	 * Retrieve all boxes from db
 	 *
 	 * @return array(xBoxI18N)

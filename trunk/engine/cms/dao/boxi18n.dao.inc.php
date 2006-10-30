@@ -127,7 +127,6 @@ class xBoxI18NDAO
 		return $ret;
 	}
 	
-	
 	/**
 	 * If flexible lang, first select given lang, then default lang, then first found lang.
 	 */
@@ -163,6 +162,21 @@ class xBoxI18NDAO
 			return $objs;
 		}
 	}
+	
+	
+	/**
+	 *
+	 */
+	function existsTranslation($name,$lang)
+	{
+		$result = xDB::getDB()->query("SELECT lang FROM box_i18n WHERE box_i18n.box_name = '%s' AND 
+			box_i18n.lang = '%s'",$name,$lang);
+		if($row = xDB::getDB()->fetchObject($result))
+			return true;
+		
+		return false;
+	}
+	
 };
 
 ?>

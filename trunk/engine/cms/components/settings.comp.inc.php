@@ -81,7 +81,7 @@ class xPageContentAdminSettings extends xPageContent
 	function onCreate()
 	{
 		//create form
-		$form = new xForm(xanth_relative_path($this->m_path->m_full_path));
+		$form = new xForm('settings',xanth_relative_path($this->m_path->m_full_path));
 		
 		$form->m_elements[] = new xFormElementTextField('site_name','Site name','',xSettings::get('site_name'),
 			FALSE,new xInputValidatorText(256));

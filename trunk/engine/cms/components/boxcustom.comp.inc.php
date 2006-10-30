@@ -71,7 +71,7 @@ class xPageContentAdminBoxCreateCustom extends xPageContent
 	function onCreate()
 	{
 		//create form
-		$form = new xForm(xanth_relative_path($this->m_path->m_full_path));
+		$form = new xForm('create_box_custom',xanth_relative_path($this->m_path->m_full_path));
 		
 		//box name
 		$form->m_elements[] = new xFormElementTextField('name','Name','','',true,new xInputValidatorTextNameId(32));

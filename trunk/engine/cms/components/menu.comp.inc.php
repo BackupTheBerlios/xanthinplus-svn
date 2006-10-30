@@ -41,10 +41,15 @@ class xModuleMenu extends xModule
 		{
 			return new xPageContentBoxCreate($path);
 		}
+		elseif($path->m_resource === 'box' && $path->m_action === 'translate' && $path->m_type === 'menu'
+			&& $path->m_id !== NULL)
+		{
+			return new xPageContentBoxTranslateMenu($path);
+		}
 		elseif($path->m_resource === 'box' && $path->m_action === 'edit_translation' && $path->m_type === 'menu'
 			&& $path->m_id !== NULL)
 		{
-			return new xPageContentBoxMenuEditTranslation($path);
+			return new xPageContentBoxEditTranslationMenu($path);
 		}
 		
 		return NULL;
@@ -63,97 +68,218 @@ xModule::registerDefaultModule(new xModuleMenu());
 
 
 
-
-
 /**
  *
  */
-class xPageContentBoxMenuEditTranslation extends xPageContentBoxEditTranslation
+class xPageContentBoxTranslateMenu extends xPageContentBoxTranslate
 {
 
-	function xPageContentBoxMenuEditTranslation($path)
+	function xPageContentBoxTranslateMenu($path)
 	{
-		xPageContentBoxEditTranslation::xPageContentBoxEditTranslation($path);
+		xPageContentBoxTranslate::xPageContentBoxTranslate($path);
 	}
 	
 	// DOCS INHERITHED  ========================================================
 	function onCreate()
 	{
-		$menus = xMenu::find($this->m_path->m_id,'menu',$this->m_lang);
+		//create form
+		$form = new xForm('translate_menu',$this->m_path->getLink());
 		
-		$out = '<a href="'.xPath::renderLink($this->m_path->m_lang,'menu_item','create','notype',$menu->m_name).
-			'">Create menu item</a><br/><br/>';
-			
-		$out .= '<div class = "admin"><table>';
-		$out .= '<tr><th>ID</th><th>Label</th><th>Actions</th></tr>';
-		$langs = xLanguage::findNames();
-		foreach($boxes as $name => $box_array)
+		//box title
+		$form->m_elements[] = new xFormElementTextField('title','Title','',$this->m_box->m_title,
+			true,new xInputValidatorText(128));
+		
+		//submit buttom
+		$form->m_elements[] = new xFormSubmit('submit','Create');
+		
+		$ret = $form->validate();
+		if(! $ret->isEmpty())
 		{
-			$box = NULL;
-			
-			if(isset($box_array[$this->m_path->m_lang])) 				//select current language node
+			if(empty($ret->m_errors))
 			{
-				$box = $box_array[$this->m_path->m_lang];
-			}
-			elseif(isset($box_array[xSettings::get('default_lang')]))	//select default language node
-			{
-				$box = $box_array[xSettings::get('default_lang')];
-			}
-			else														//select first found language node
-			{
-				$box = reset($box_array);
-			}
-			$error = '';
-			$out .= '<tr><td>'.$name.'</td><td>'.$box->m_type.'</td><td>' .
-				xContentFilterController::applyFilter('notags',$box->m_title,$error) . '</td>
-				<td>';
+				$menu = $this->m_box;
+				$menu->m_title = $ret->m_valid_data['title'];
+				$menu->m_lang = $this->m_path->m_lang;
+				$menu->m_items = array();
 				
-			$groups	 = $box->findBoxGroups();
-			foreach($groups as $group)
-			{
-				$out .= $group->m_name . ' ';
-			}
-			
-			$out .= '</td><td>';
+				if($menu->insertTranslation())
+					xNotifications::add(NOTIFICATION_NOTICE,'New box successfully created');
+				else
+					xNotifications::add(NOTIFICATION_ERROR,'Error: box was not created');
 				
-			if($box->m_lang == $this->m_path->m_lang)
-				$out .= 'Yes';
-			else			
-				$out .= 'No';
-			
-			$out .= '</td><td>';
-			foreach($box_array as $lang => $ignore)
-			{
-				$out .= $lang . '  ';
+				$this->_set("Translate box",'','','');
+				return TRUE;
 			}
-			$out .= '</td><td>';
-			
-			
-			foreach($langs as $lang)
+			else
 			{
-				if(!array_key_exists($lang, $box_array))
-				{
-					$out .= '<a href="'. 
-						xPath::renderLink($lang,'box','translate',$box->m_type,$name) . 
-						'">' . $lang . '</a>';
-				}
+				foreach($ret->m_errors as $error)
+					xNotifications::add(NOTIFICATION_WARNING,$error);
 			}
-			
-			$out .= '<td>';
-			$ops = call_user_func(array(xBox::getBoxTypeClass($box->m_type),'getOperations'));
-			foreach($ops as $op)
-			{
-				$out .= '<a href="'.$op->getLink('box',$box->m_type,$box->m_name,$this->m_path->m_lang).
-					'">'.$op->m_name.'</a> - ';
-			}
-			$out .= '</td>';
 		}
-		
-		$out  .= "</table></div>\n";
-		
-		xPageContent::_set("Admin box",$out,'','');
-		return true;
+
+		$this->_set("Translate box",$form->render(),'','');
+		return TRUE;
 	}
 }
+
+
+
+
+/**
+ *
+ */
+class xPageContentBoxEditTranslationMenu extends xPageContentBoxEditTranslation
+{
+	var $m_box = NULL;
+	
+	function xPageContentBoxEditTranslationMenu($path)
+	{
+		xPageContentBoxEditTranslation::xPageContentBoxEditTranslation($path);
+	}
+	
+	
+	// DOCS INHERITHED  ========================================================
+	function _renderItems($items,$level)
+	{
+		$out = '';
+		$lv = str_repeat("-", $level);
+		foreach($items as $item)
+		{
+			$out .= '<tr><td>'.$lv.' '.$item->m_label.'</td><td>'.$item->m_link.'</td><td>'.
+				$item->m_weight.'</td><td>actions</td></tr>'."\n";
+			if($item->m_subitems !== NULL)
+				$out .= xPageContentBoxEditTranslationMenu::_renderItems($item->m_subitems,$level + 1);
+		}
+		
+		return $out;
+	}
+	
+	
+	// DOCS INHERITHED  ========================================================
+	function _generateOptions($items,$level)
+	{
+		$options = array();
+		$lv = str_repeat("-", $level);
+		foreach($items as $item)
+		{
+			$options[$lv . $item->m_label] = $item->m_id;
+			if($item->m_subitems !== NULL)
+				$options = array_merge($options,
+					xPageContentBoxEditTranslationMenu::_generateOptions($item->m_subitems,$level + 1));
+		}
+		
+		return $options;
+	}
+	
+	// DOCS INHERITHED  ========================================================
+	function onCreate()
+	{
+		//create form
+		$form = new xForm('box_params',$this->m_path->getLink());
+		
+		$group = new xFormGroup('Box Params');
+		
+		//box title
+		$group->m_elements[] = new xFormElementTextField('title','Title','',$this->m_box->m_title,
+			true,new xInputValidatorText(128));
+		
+		//submit buttom
+		$group->m_elements[] = new xFormSubmit('submit','Create');
+		
+		$form->m_elements[] = $group;
+		
+		//////////////////////////////////////////////////////////////
+		
+		//create form
+		$form2 = new xForm('new_item',$this->m_path->getLink());
+		
+		$group2 = new xFormGroup('Add menu item');
+		
+		//label
+		$group2->m_elements[] = new xFormElementTextField('label','Label','','',
+			true,new xInputValidatorText(128));
+			
+		//link
+		$group2->m_elements[] = new xFormElementTextField('link','Link','','',
+			true,new xInputValidatorText(128));
+			
+		//weight
+		$options = array();
+		for($i = -12;$i <= 12; $i++)
+			$options[$i] = $i;
+		$group2->m_elements[] = new xFormElementOptions('weight','Weight','',0,$options,false,TRUE,
+				new xInputValidatorInteger(-12,12));
+		
+		//parent
+		$options = array_merge(array('No parent' => 0),
+			xPageContentBoxEditTranslationMenu::_generateOptions($this->m_box->m_items,0));
+		$group2->m_elements[] = new xFormElementOptions('parent','Parent','',0,$options,false,false,
+				new xInputValidatorInteger);
+				
+				
+		//submit buttom
+		$group2->m_elements[] = new xFormSubmit('submit','Add');
+		
+		$form2->m_elements[] = $group2;
+		
+		
+		//now display items
+		$out = '<div><table>';
+		$out .= '<tr><th>Label</th><th>Link</th><th>Weight</th><th>Actions</th></tr>';
+		$out .= xPageContentBoxEditTranslationMenu::_renderItems($this->m_box->m_items,0);
+		$out .= "</table></div>\n";
+		
+		$ret = $form->validate();
+		$ret2 = $form2->validate();
+		if(! $ret->isEmpty())
+		{
+			if(empty($ret->m_errors))
+			{
+				if(true)
+					xNotifications::add(NOTIFICATION_NOTICE,'New box successfully created');
+				else
+					xNotifications::add(NOTIFICATION_ERROR,'Error: box was not created');
+				
+				$this->_set("Create new box",'','','');
+				return TRUE;
+			}
+			else
+			{
+				foreach($ret->m_errors as $error)
+					xNotifications::add(NOTIFICATION_WARNING,$error);
+			}
+		}
+		elseif(! $ret2->isEmpty())
+		{
+			if(empty($ret2->m_errors))
+			{
+				$item = new xMenuItem(-1,$ret2->m_valid_data['label'],$ret2->m_valid_data['link'],
+					$ret2->m_valid_data['weight'],$this->m_path->m_lang,array());
+				
+				//now find in menu and update
+				$menu = $this->m_box;
+				$menu->addItem($item,$ret2->m_valid_data['parent']);
+				
+				if($menu->update())
+					xNotifications::add(NOTIFICATION_NOTICE,'New box successfully created',2);
+				else
+					xNotifications::add(NOTIFICATION_ERROR,'Error: box was not created',2);
+				
+				$this->_set("Create new box",'','','');
+				$this->m_headers[] = 'Location: '. $this->m_path->getLink();
+				return TRUE;
+			}
+			else
+			{
+				foreach($ret2->m_errors as $error)
+					xNotifications::add(NOTIFICATION_WARNING,$error,2);
+				$this->m_headers[] = 'Location : '.$this->m_path->getLink();
+			}
+		}
+
+		$this->_set("Create new box page",$form->render(). $form2->render() . $out,'','');
+		return TRUE;
+	}
+}	
 
 ?>

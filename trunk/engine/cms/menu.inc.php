@@ -29,7 +29,7 @@ class xMenuItem extends xElement
 	/**
 	 * @var string
 	 */
-	var $lang;
+	var $m_lang;
 	
 	/**
 	 * @var string
@@ -128,6 +128,44 @@ class xMenu extends xBoxI18N
 	function insert()
 	{
 		return xMenuDAO::insert($this);
+	}
+	
+	/**
+	 * 
+	 */
+	function update()
+	{
+		return xMenuDAO::update($this);
+	}
+	
+	/**
+	 * @access private
+	 */
+	function _addItem($items,$item,$parent)
+	{
+		$ret = array();
+		if(! empty($items))
+		{
+			foreach($items as $ite)
+			{
+				$ite->m_subitems = $this->_addItem($ite->m_subitems,$item,$parent);
+				if($ite->m_id == $parent)
+					$ite->m_subitems[] = $item;	
+				$ret[] = $ite;
+			}
+		}	
+		return $ret;
+	}
+	
+	/**
+	 *
+	 */
+	function addItem($item,$parent = NULL)
+	{
+		if(empty($parent))
+			$this->m_items[] = $item;
+		else
+			$this->m_items = $this->_addItem($this->m_items,$item,$parent);
 	}
 	
 	/**

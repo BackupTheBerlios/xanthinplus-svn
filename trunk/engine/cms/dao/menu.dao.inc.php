@@ -56,7 +56,7 @@ class xMenuDAO
 	* @return bool FALSE on error
 	* @static 
 	*/
-	function insertTranslation($box)
+	function insertTranslation($menu)
 	{
 		xDB::getDB()->startTransaction();
 		
@@ -120,7 +120,8 @@ class xMenuDAO
 		xBoxI18NDAO::update($menu);
 		
 		//clear all menu items
-		xDB::getDB()->query("DELETE FROM menu_item WHERE box_name = '%s' AND lang = '%s'",$menu->m_name,$menu->m_lang);
+		xDB::getDB()->query("DELETE FROM menu_item WHERE box_name = '%s' AND lang = '%s'",
+			$menu->m_name,$menu->m_lang);
 		
 		//insert new
 		xMenuDAO::_insertItems($menu->m_name,$menu->m_items,0);
@@ -155,18 +156,19 @@ class xMenuDAO
 		$where[0]["connector"] = "AND";
 		$where[0]["value"] = $menuname;
 	 
+		$where[1]["clause"] = "menu_item.lang = '%s'";
+		$where[1]["connector"] = "AND";
+		$where[1]["value"] = $lang;
+		
 		if($parent === NULL)
-			$where[1]["clause"] = "menu_item.parent IS NULL";
+			$where[2]["clause"] = "menu_item.parent IS NULL";
 		else
 		{
-			$where[1]["clause"] = "menu_item.parent = '%s'";
-			$where[1]["value"] = $parent;
+			$where[2]["clause"] = "menu_item.parent = '%s'";
+			$where[2]["value"] = $parent;
 		}
-		$where[1]["connector"] = "AND";
-		
-		$where[2]["clause"] = "menu_item.lang = '%s'";
 		$where[2]["connector"] = "AND";
-		$where[2]["value"] = $lang;
+		
 		
 		$result = xDB::getDB()->autoQuerySelect('*','menu_item',$where);
 		$objs = array();

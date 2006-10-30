@@ -1054,11 +1054,18 @@ class xForm
 	 */
 	var $m_method;
 	
-	function xForm($action,$method = 'POST',$elements = array())
+	/**
+	 * @var string
+	 * @access public
+	 */
+	var $m_name;
+	
+	function xForm($name,$action,$method = 'POST',$elements = array())
 	{
 		$this->m_method = $method;
 		$this->m_action = $action;
 		$this->m_elements = $elements;
+		$this->m_name = $name;
 	}
 	
 	/**
@@ -1066,8 +1073,10 @@ class xForm
 	 */
 	function _addFormToken()
 	{
+		//clean older tokens
+		
 		$token = md5(uniqid(rand(), TRUE));
-		$_SESSION['form_token'][$token] = time();
+		$_SESSION['form_token'][$this->m_name][$token] = time();
 		return $token;
 	}
 	
@@ -1078,15 +1087,12 @@ class xForm
 	 */
 	function _checkFormToken($method)
 	{
-		if(!isset($_SESSION['form_token']))
+		if(empty($_SESSION['form_token'][$this->m_name]))
 			return FALSE;
 		
 		if($method === 'POST')
 		{
 			if(!isset($_POST['form_token']))
-				return FALSE;
-			
-			if(! isset($_SESSION['form_token'][$_POST['form_token']]))
 				return FALSE;
 			
 			$token = $_POST['form_token'];
@@ -1096,22 +1102,20 @@ class xForm
 			if(!isset($_GET['form_token']))
 				return FALSE;
 			
-			if(! isset($_SESSION['form_token'][$_GET['form_token']]))
-				return FALSE;
-			
 			$token = $_GET['form_token'];
 		}
 		
-		$token_age = time() - $_SESSION['form_token'][$token];
-		if($token_age > 3600) //1 Hour
+		if(!isset($_SESSION['form_token'][$this->m_name][$token]))
+			return false;
+		
+		
+		if((time() - $_SESSION['form_token'][$this->m_name][$token]) < 3600) //1 Hour
 		{
-			xForm::_removeFormToken($token);
-			return FALSE;
+			$this->_removeFormToken($token);
+			return true;
 		}
-		
-		xForm::_removeFormToken($token);
-		
-		return TRUE;
+
+		return false;
 	}
 	
 	/**
@@ -1119,8 +1123,20 @@ class xForm
 	 */
 	function _removeFormToken($token)
 	{
-		unset($_SESSION['form_token'][$token]);
+		unset($_SESSION['form_token'][$this->m_name][$token]);
 	}
+	
+	
+	/**
+	 * @access private
+	 */
+	function _cleanOldTokens()
+	{
+		foreach($_SESSION['form_token'][$this->m_name] as $token => $time)
+			if((time() -  $time) > 3600) //1 Hour
+				$this->_removeFormToken($token);
+	}
+	
 	
 	/**
 	 * @access protected
@@ -1128,10 +1144,11 @@ class xForm
 	function _renderFormHeader()
 	{
 		//set a token against "Cross-Site Request Forgeries" attacks
-		$token = xForm::_addFormToken();
+		$token = $this->_addFormToken();
 		
-		$output = '<form action="'. $this->m_action . '" method="'.$this->m_method.'" accept-charset="utf-8">
-		<input type="hidden" name="form_token" value="'.$token.'" />';
+		$output = '<form action="'. $this->m_action . '" method="'.$this->m_method.
+			'" accept-charset="utf-8" name="'.$this->m_name.'">
+			<input type="hidden" name="form_token" value="'.$token.'" />';
 		
 		return $output;
 	}

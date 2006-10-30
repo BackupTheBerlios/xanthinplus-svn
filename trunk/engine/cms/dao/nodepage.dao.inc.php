@@ -181,42 +181,41 @@ class xNodePageDAO
 	 */
 	function find($type,$parent_cat,$author,$lang)
 	{
-		$where['node_page']['nodeid']['join'][] = "node_i18n.nodeid";
-		$where['node_page']['nodeid']['connector'] = "AND";
+		$where[0]["clause"] = "node_page.lang = '%s'";
+		$where[0]["connector"] = "AND";
+		$where[0]["value"] = $lang;
 		
-		$where['node_page']['lang']['type'] = "'%s'";
-		$where['node_page']['lang']['connector'] = "AND";
-		$where['node_page']['lang']['value'] = $lang;
+		$where[1]["clause"] = "node_i18n.nodeid = node_page.nodeid";
+		$where[1]["connector"] = "AND";
+
+		$where[2]["clause"] = "node_i18n.lang = node_page.lang";
+		$where[2]["connector"] = "AND";
 		
-		$where['node_i18n']['lang']['join'][] = "node_page.lang";
-		$where['node_i18n']['lang']['connector'] = "AND";
+		$where[3]["clause"] = "node.id = node_i18n.nodeid";
+		$where[3]["connector"] = "AND";
 		
-		$where['node']['id']['join'][] = "node_i18n.nodeid";
-		$where['node']['id']['connector'] = "AND";
+		$where[4]["clause"] = "node.type = '%s'";
+		$where[4]["connector"] = "AND";
+		$where[4]["value"] = $type;
 		
-		$where['node']['type']['type'] = "'%s'";
-		$where['node']['type']['connector'] = "AND";
-		$where['node']['type']['value'] = $type;
+		$where[4]["clause"] = "node.author = '%s'";
+		$where[4]["connector"] = "AND";
+		$where[4]["value"] = $author;
 		
-		$where['node']['author']['type'] = "'%s'";
-		$where['node']['author']['connector'] = "AND";
-		$where['node']['author']['value'] = $author;
+		$where[4]["clause"] = "node_to_cathegory.catid = %d";
+		$where[4]["connector"] = "AND";
+		$where[4]["value"] = $parent_cat;
 		
-		$where['node_to_cathegory']['catid']['type'] = "%d";
-		$where['node_to_cathegory']['catid']['connector'] = "AND";
-		$where['node_to_cathegory']['catid']['value'] = $parent_cat;
+		$where[5]["clause"] = "node.id = node_to_cathegory.nodeid";
+		$where[5]["connector"] = "AND";
+		$where[5]["value"] = $parent_cat;
 		
-		$where['node']['id']['join'][] = 'node_to_cathegory.nodeid';
-		
-		$result = xDB::getDB()->autoQuery("SELECT", NULL, $where);
-		$pages = array();
+		$result = xDB::getDB()->autoQuerySelect('node_i18n.*,node.*,node_page.*',
+			'node_i18n,node,node_page,node_to_cathegory',$where);
+		$objs = array();
 		while($row = xDB::getDB()->fetchObject($result))
-		{
-			$pages[] = xNodePageDAO::_nodepageFromRow($row,xCathegoryDAO::findNodeCathegories($row->id));
-		}
-		
-		
-		return $pages;
+			$objs[] = xNodePageDAO::_nodepageFromRow($row,xCathegoryDAO::findNodeCathegories($row->id));
+		return $objs;
 	}
 }
 

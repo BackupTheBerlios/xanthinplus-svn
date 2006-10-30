@@ -18,7 +18,6 @@
 
 $g_xanth_ob_before_notifications = '';
 $g_xanth_ob_after_notifications = '';
-$g_xanth_notifications = array();
 
 
 define('NOTIFICATION_NOTICE',2);
@@ -33,15 +32,17 @@ class xNotificationEntry
 {
 	var $m_severity;
 	var $m_message;
+	var $m_duration;
 	
-	
-	function xNotificationEntry($severity,$message)
+	function xNotificationEntry($severity,$message,$duration)
 	{
 		$this->m_severity = $severity;
 		$this->m_message = $message;
+		$this->m_duration = $duration;
 	}
 
 }
+
 
 /**
 * A static element that display all notifications emitted during ALL script execution. All
@@ -54,7 +55,6 @@ class xNotifications
 	*/
 	function xNotifications()
 	{
-		$this->xElement();
 	}
 	
 	/**
@@ -78,11 +78,11 @@ class xNotifications
 	 * - NOTIFICATION_WARNING
 	 * - NOTIFICATION_ERROR
 	 * @param string $message
+	 * @static
 	 */
-	function add($severity,$message)
+	function add($severity,$message,$duration = 1)
 	{
-		global $g_xanth_notifications;
-		$g_xanth_notifications[] = new xNotificationEntry($severity,$message);
+		$_SESSION['xanth_notifications'][] = new xNotificationEntry($severity,$message,$duration);
 	}
 	
 	
@@ -91,9 +91,32 @@ class xNotifications
 	 */
 	function _renderAll()
 	{
-		global $g_xanth_notifications;
-		return xTheme::render1('renderNotifications',$g_xanth_notifications);
+		if(!isset($_SESSION['xanth_notifications']))
+			$n = array();
+		else
+			$n = $_SESSION['xanth_notifications'];
+			
+		return xTheme::render1('renderNotifications',$n);
 	}
+	
+	/**
+	 * @access private
+	 */
+	function _clear()
+	{
+		$ret = array();
+		if(isset($_SESSION['xanth_notifications']))
+		{
+			foreach($_SESSION['xanth_notifications'] as $entry)
+			{
+				$entry->m_duration--;
+				if($entry->m_duration > 0)
+					$ret[] = $entry;
+			}
+		}
+		$_SESSION['xanth_notifications'] = $ret;
+	}
+	
 	
 	/**
 	 * @internal
@@ -108,6 +131,7 @@ class xNotifications
 		
 		echo $g_xanth_ob_before_notifications;
 		echo xNotifications::_renderAll();
+		xNotifications::_clear();
 		echo $g_xanth_ob_after_notifications;
 	}
 };

@@ -78,7 +78,7 @@ class xPageContentUserLogin extends xPageContent
 	// DOCS INHERITHED  ========================================================
 	function onCreate()
 	{
-		$form = new xForm($this->m_path->getLink());
+		$form = new xForm('login',$this->m_path->getLink());
 		$form->m_elements[] = new xFormElementTextField('username','Username','','',TRUE,new xInputValidatorText(255));
 		$form->m_elements[] = new xFormElementPassword('password','Password','',TRUE,new xInputValidatorText(255));
 		$form->m_elements[] = new xFormSubmit('submit','login');

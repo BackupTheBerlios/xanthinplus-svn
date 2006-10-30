@@ -37,7 +37,7 @@ function on_session_read($key)
 	}
 	else
 	{
-		return $result;
+		return '';
 	}
 }
 
@@ -53,17 +53,21 @@ function on_session_write($key, $val)
 		 xDB::getDB()->query("UPDATE sessions SET session_data = '%s',session_timestamp = NOW() WHERE session_id = '%s'",$val,$key);
 	}
 	
-	return '';
+	return TRUE;
 }
 
 function on_session_destroy($key) 
 {
 	 xDB::getDB()->query("DELETE FROM sessions WHERE session_id = '%s'",$key);
+	 return TRUE;
 }
 
 function on_session_gc($max_lifetime) 
 {
-	 xDB::getDB()->query("DELETE FROM sessions WHERE UNIX_TIMESTAMP(session_timestamp) < UNIX_TIMESTAMP(%d)", time() - $max_lifetime);
+	 xDB::getDB()->query("DELETE FROM sessions WHERE session_timestamp < '%s'", 
+		xDB::getDB()->encodeTimestamp(time() - $max_lifetime));
+		
+	return true;
 }
 
 

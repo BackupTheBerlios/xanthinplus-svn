@@ -193,7 +193,6 @@ class xPageContentNodeAdminPage extends xPageContent
 				}
 			}
 		}
-		
 		$out  .= "</table></div>\n";
 		
 		xPageContent::_set("Admin node page",$out,'','');
@@ -238,7 +237,7 @@ class xPageContentNodeTranslatePage extends xPageContentNodeTranslate
 		$node = xNodePage::load($this->m_path->m_id,xSettings::get('default_lang'));
 		
 		//create form
-		$form = new xForm(xanth_relative_path($this->m_path->m_full_path));
+		$form = new xForm('translate_page',xanth_relative_path($this->m_path->m_full_path));
 		
 		//item title
 		$form->m_elements[] = new xFormElementTextField('title','Title','','',true,new xInputValidatorText(256));
@@ -331,7 +330,7 @@ class xPageContentNodeEdittranslationPage extends xPageContentNodeEdittranslatio
 		$node = xNodePage::load($this->m_path->m_id,$this->m_path->m_lang);
 		
 		//create form
-		$form = new xForm(xanth_relative_path($this->m_path->m_full_path));
+		$form = new xForm('edit_page_translation',xanth_relative_path($this->m_path->m_full_path));
 		
 		//item title
 		$form->m_elements[] = new xFormElementTextField('title','Title','',$node->m_title,true,
@@ -417,7 +416,7 @@ class xPageContentNodePageCreate extends xPageContentNodeCreate
 	function onCreate()
 	{
 		//create form
-		$form = new xForm(xanth_relative_path($this->m_path->m_full_path));
+		$form = new xForm('create_page',xanth_relative_path($this->m_path->m_full_path));
 		
 		//no cathegory in path so let user choose according to its permissions
 		if($this->m_path->m_id == NULL)

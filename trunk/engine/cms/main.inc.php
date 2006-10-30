@@ -29,7 +29,7 @@ function xanth_include_modules()
 function xanth_main()
 {
 	xExecutionTime::executionStarted();
-	
+
 	ob_start();
 	
 	//select DB
@@ -66,10 +66,9 @@ function xanth_main()
 	xTheme::load(xSettings::get('theme',''));
 	echo $page->render();
 	
-	session_write_close();
-	
 	xNotifications::postProcessing();
 	
+	session_write_close();
 	ob_end_flush();
 }
 

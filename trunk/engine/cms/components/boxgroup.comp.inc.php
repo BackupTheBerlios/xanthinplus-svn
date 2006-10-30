@@ -144,7 +144,7 @@ class xPageContentBoxGroupEdit extends xPageContent
 		$boxgroup = xBoxGroup::load($this->m_path->m_id);
 		
 		//create form
-		$form = new xForm($this->m_path->getLink());
+		$form = new xForm('edit_group',$this->m_path->getLink());
 		
 		//description
 		$form->m_elements[] = new xFormElementTextField('description','Description','',$boxgroup->m_description,false,

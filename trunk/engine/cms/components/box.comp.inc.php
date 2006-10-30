@@ -173,6 +173,97 @@ class xPageContentBoxAdmin extends xPageContent
 
 
 /**
+ *
+ */
+class xPageContentBoxEditTranslation extends xPageContent
+{
+	var $m_box = NULL;
+	
+	function xPageContentBoxEditTranslation($path)
+	{
+		xPageContent::xPageContent($path);
+	}
+	
+	/**
+	 * Checks action permission, Box existence, box type, load and check box existence.
+	 */
+	function onCheckPreconditions()
+	{
+		//check action permission
+		if(!xAccessPermission::checkCurrentUserPermission('box',$this->m_path->m_type,NULL,'edit_translation'))
+			return new xPageContentNotAuthorized($this->m_path);
+		
+		//check box translation existence
+		if(! xBoxI18N::existsTranslation($this->m_path->m_id,$this->m_path->m_lang))
+			return new xPageContentError('A translation of this node does not exists',$this->m_path);
+		
+		//load and check box type existence
+		$class_name = xBox::getBoxTypeClass($this->m_path->m_type);
+		assert($class_name !== NULL);
+		$this->m_box = reset(call_user_func(array( $class_name,'find'),$this->m_path->m_id,$this->m_path->m_type,
+			$this->m_path->m_lang,true));
+		if($this->m_box === NULL)
+			return new xPageContentError('Box does not exists',$this->m_path);
+			
+		return true;
+	}
+	
+	
+	// DOCS INHERITHED  ========================================================
+	function onCreate()
+	{
+		return new xPageContentNotFound($this->m_path);
+	}
+}
+
+
+
+/**
+ *
+ */
+class xPageContentBoxTranslate extends xPageContent
+{
+	var $m_box = NULL;
+	
+	function xPageContentBoxTranslate($path)
+	{
+		xPageContent::xPageContent($path);
+	}
+	
+	/**
+	 * Checks action permission, Box existence, box type, load and check box existence.
+	 */
+	function onCheckPreconditions()
+	{
+		//check action permission
+		if(!xAccessPermission::checkCurrentUserPermission('box',$this->m_path->m_type,NULL,'translate'))
+			return new xPageContentNotAuthorized($this->m_path);
+		
+		//check box translation existence
+		if(xBoxI18N::existsTranslation($this->m_path->m_id,$this->m_path->m_lang))
+			return new xPageContentError('A translation of this node already exists',$this->m_path);
+		
+		//load and check box type existence
+		$class_name = xBox::getBoxTypeClass($this->m_path->m_type);
+		assert($class_name !== NULL);
+		$this->m_box = reset(call_user_func(array( $class_name,'find'),$this->m_path->m_id,$this->m_path->m_type,
+			$this->m_path->m_lang,true));
+		if($this->m_box === NULL)
+			return new xPageContentError('Box does not exists',$this->m_path);
+			
+		return true;
+	}
+	
+	// DOCS INHERITHED  ========================================================
+	function onCreate()
+	{
+		return new xPageContentNotFound($this->m_path);
+	}
+}
+
+
+
+/**
  * 
  */
 class xPageContentBoxCreate extends xPageContent
@@ -201,7 +292,7 @@ class xPageContentBoxCreate extends xPageContent
 	function onCreate()
 	{
 		//create form
-		$form = new xForm($this->m_path->getLink());
+		$form = new xForm('box_create',$this->m_path->getLink());
 		
 		//box name
 		$form->m_elements[] = new xFormElementTextField('name','Name','','',true,new xInputValidatorTextNameId(32));
@@ -312,7 +403,7 @@ class xPageContentBoxEdit extends xPageContent
 	function onCreate()
 	{
 		//create form
-		$form = new xForm($this->m_path->getLink());
+		$form = new xForm('box_edit',$this->m_path->getLink());
 		
 		//weight
 		$options = array();

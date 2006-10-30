@@ -131,11 +131,11 @@ class xPageContentNodeEdittranslation extends xPageContent
 	 */
 	function onCheckPreconditions()
 	{
-		if(! xNodeI18N::existsTranslation($this->m_path->m_id,$this->m_path->m_lang))
-			return new xPageContentError('A translation of this node does exists',$this->m_path);
-			
 		if(!xAccessPermission::checkCurrentUserPermission('node',$this->m_path->m_type,NULL,'edit_translation'))
 			return new xPageContentNotAuthorized($this->m_path);
+			
+		if(! xNodeI18N::existsTranslation($this->m_path->m_id,$this->m_path->m_lang))
+			return new xPageContentError('A translation of this node does exists',$this->m_path);
 			
 		return true;
 	}
@@ -182,7 +182,7 @@ class xPageContentNodeDeleteTranslation extends xPageContent
 	function onCreate()
 	{
 		//create form
-		$form = new xForm($this->m_path->getLink());
+		$form = new xForm('delete_node',$this->m_path->getLink());
 		
 		//submit buttom
 		$form->m_elements[] = new xFormSubmit('submit','Delete');

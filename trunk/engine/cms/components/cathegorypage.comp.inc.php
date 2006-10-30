@@ -208,7 +208,7 @@ class xPageContentCathegoryCreatePage extends xPageContentCathegoryCreate
 	function onCreate()
 	{
 		//create form
-		$form = new xForm(xanth_relative_path($this->m_path->m_full_path));
+		$form = new xForm('create_page_cathegory',xanth_relative_path($this->m_path->m_full_path));
 		
 		//no cathegory in path so let user choose according to its permissions
 		if($this->m_path->m_id == NULL)
