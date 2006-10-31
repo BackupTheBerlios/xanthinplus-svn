@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 /*
 * This file is part of the xanthin+ project.
 *
@@ -181,6 +181,7 @@ class xPageContentCathegoryAdminPage extends xPageContent
 						'">' . $lang . '</a>';
 				}
 			}
+			$out .= '</td></tr>';
 		}
 		
 		$out  .= "</table></div>\n";

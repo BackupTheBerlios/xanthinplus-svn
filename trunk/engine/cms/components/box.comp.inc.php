@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 /*
 * This file is part of the xanthin+ project.
 *
@@ -334,13 +334,9 @@ class xPageContentBoxCreate extends xPageContent
 					$ret->m_valid_data['title'],$this->m_path->m_lang);
 				
 				if($box->insert())
-				{
 					xNotifications::add(NOTIFICATION_NOTICE,'New box successfully created');
-				}
 				else
-				{
 					xNotifications::add(NOTIFICATION_ERROR,'Error: box was not created');
-				}
 				
 				$this->_set("Create new box",'','','');
 				return TRUE;

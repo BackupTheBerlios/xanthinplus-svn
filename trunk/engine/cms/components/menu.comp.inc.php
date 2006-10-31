@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 /*
 * This file is part of the xanthin+ project.
 *
@@ -39,7 +39,7 @@ class xModuleMenu extends xModule
 		}
 		elseif($path->m_resource === 'box' && $path->m_action === 'create' && $path->m_type === 'menu')
 		{
-			return new xPageContentBoxCreate($path);
+			return new xPageContentBoxCreateMenu($path);
 		}
 		elseif($path->m_resource === 'box' && $path->m_action === 'translate' && $path->m_type === 'menu'
 			&& $path->m_id !== NULL)
@@ -65,6 +65,92 @@ class xModuleMenu extends xModule
 
 xModule::registerDefaultModule(new xModuleMenu());
 
+
+
+
+/**
+ * 
+ */
+class xPageContentBoxCreateMenu extends xPageContentBoxCreate
+{
+	function xPageContentBoxCreateMenu($path)
+	{
+		$this->xPageContentBoxCreate($path);
+	}
+	
+	/**
+	 *
+	 */
+	function onCreate()
+	{
+		//create form
+		$form = new xForm('menu_create',$this->m_path->getLink());
+		
+		//box name
+		$form->m_elements[] = new xFormElementTextField('name','Name','','',true,new xInputValidatorTextNameId(32));
+		
+		//box title
+		$form->m_elements[] = new xFormElementTextField('title','Title','','',true,new xInputValidatorText(128));
+		
+		//weight
+		$options = array();
+		for($i = -12;$i <= 12; $i++)
+			$options[$i] = $i;
+		$form->m_elements[] = new xFormElementOptions('weight','Weight','',0,$options,false,TRUE,
+				new xInputValidatorInteger(-12,12));
+				
+		//show filter type
+		$show_filter_radio = new xFormRadioGroup('Show filter type');
+		$show_filter_radio->m_elements[] = new xFormElementRadio('show_filter_type','Exclusive filter',
+				'',XANTH_SHOW_FILTER_EXCLUSIVE,true,TRUE,new xInputValidatorInteger(1,3));
+		$show_filter_radio->m_elements[] = new xFormElementRadio('show_filter_type','Inclusive filter',
+				'',XANTH_SHOW_FILTER_INCLUSIVE,false,TRUE,new xInputValidatorInteger(1,3));
+		$show_filter_radio->m_elements[] = new xFormElementRadio('show_filter_type','PHP filter',
+				'',XANTH_SHOW_FILTER_PHP,false,TRUE,new xInputValidatorInteger(1,3));
+		$form->m_elements[] = $show_filter_radio;
+		
+		//show filter
+		$form->m_elements[] = new xFormElementTextArea('show_filter','Show filter','','',false,
+			new xInputValidatorText());
+		
+		//submit buttom
+		$form->m_elements[] = new xFormSubmit('submit','Create');
+		
+		$ret = $form->validate();
+		if(! $ret->isEmpty())
+		{
+			if(empty($ret->m_errors))
+			{
+				$box = new xBoxI18N($ret->m_valid_data['name'],$this->m_path->m_type,$ret->m_valid_data['weight'],
+					new xShowFilter($ret->m_valid_data['show_filter_type'],$ret->m_valid_data['show_filter']),
+					$ret->m_valid_data['title'],$this->m_path->m_lang);
+				
+				if($box->insert())
+				{
+					xNotifications::add(NOTIFICATION_NOTICE,'New box successfully created',2);
+				}
+				else
+				{
+					$this->m_headers[] = 'Location: ' . xPath::renderLink($this->m_path->m_lang,
+						'box','edit_translation',$this->m_path->m_type,$box->m_name);
+					xNotifications::add(NOTIFICATION_ERROR,'Error: box was not created');
+				}
+				
+				$this->_set("Create new box",'','','');
+				
+				return TRUE;
+			}
+			else
+			{
+				foreach($ret->m_errors as $error)
+					xNotifications::add(NOTIFICATION_WARNING,$error);
+			}
+		}
+
+		$this->_set("Create new box page",$form->render(),'','');
+		return TRUE;
+	}
+};
 
 
 

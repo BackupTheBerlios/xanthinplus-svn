@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 /*
 * This file is part of the xanthin+ project.
 *
@@ -843,14 +843,10 @@ class xFormElementRadio extends xFormElement
 	// DOCS INHERITHED  ========================================================
 	function isValid($method)
 	{
-		if($this->getInputValue($method) === $this->m_value)
-		{
+		if($this->getInputValue($method) == $this->m_value)
 			$this->m_checked = TRUE;
-		}
 		else
-		{
 			$this->m_checked = FALSE;
-		}
 		
 		return xFormElement::isValid($method);
 	}
@@ -946,13 +942,9 @@ class xFormGroup
 		foreach($this->m_elements as $element)
 		{
 			if(! $element->isValid($method))
-			{
 				$data->m_errors[] = $element->m_last_error;
-			}
 			else
-			{
 				$data->addValidData($element->m_name,$element->getInputValue($method));
-			}
 		}
 		
 		return $data;
@@ -969,9 +961,7 @@ class xFormGroup
 		$output .= "<legend>" . $this->m_label . "</legend> \n";
 		
 		foreach($this->m_elements as $element)
-		{
 			$output .= $element->render();
-		}
 		
 		$output .= "</fieldset> \n";
 		
@@ -1015,15 +1005,10 @@ class xFormRadioGroup extends xFormGroup
 		}
 		else
 		{
-			$in_array_elem->m_checked = TRUE;
 			if(! $in_array_elem->isValid($method))
-			{
 				$data->m_errors[] = $in_array_elem->m_last_error;
-			}
 			else
-			{
 				$data->addValidData($in_array_elem->m_name,$in_array_elem->getInputValue($method));
-			}
 		}
 		
 		return $data;

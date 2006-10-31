@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 /*
 * This file is part of the xanthin+ project.
 *
@@ -75,7 +75,10 @@ class xMenuItem extends xElement
 		usort($this->m_subitems, "_objWeightCompare");
 		$subitems = xTheme::render1('renderMenuItems',$this->m_subitems);
 
-		return xTheme::render3('renderMenuItem',$this->m_label,$this->m_link,$subitems);
+		$error = '';
+		$label = xContentFilterController::applyFilter('notags', $this->m_label, $error);
+		$link = xContentFilterController::applyFilter('notags', $this->m_link, $error);
+		return xTheme::render3('renderMenuItem',$label,$link,$subitems);
 	}
 };
 
