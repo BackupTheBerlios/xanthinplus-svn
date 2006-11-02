@@ -24,7 +24,22 @@ function &current_by_ref(&$arr)
 	return $arr[key($arr)];
 }
 
+/**
+ * 
+ */
+function in_array_by_properties($element,$obj_array,$property_name)
+{
+	$ret = array();
+	foreach($obj_array as $elem)
+		if($elem->$property_name == $element)
+			return true;
+	
+	return false;
+}
 
+/**
+ * 
+ */
 function array_diff_no_strict($array1,$array2)
 {
 	$ret = array();

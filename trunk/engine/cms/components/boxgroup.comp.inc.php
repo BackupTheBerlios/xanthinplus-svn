@@ -143,6 +143,7 @@ class xPageContentBoxGroupEdit extends xPageContent
 	function onCreate()
 	{
 		$boxgroup = xBoxGroup::load($this->m_path->m_id);
+		$boxgroup->loadBoxes();
 		
 		//create form
 		$form = new xForm('edit_group',$this->m_path->getLink());
@@ -160,7 +161,7 @@ class xPageContentBoxGroupEdit extends xPageContent
 		foreach($all_boxes as $box)
 		{
 			$selected = false;
-			if(in_array($boxgroup,$box->findBoxGroups()))
+			if(in_array_by_properties($box->m_name,$boxgroup->m_boxes,'m_name'))
 				$selected = true;
 				
 			$group->m_elements[] = new xFormElementCheckbox('box['.$box->m_name.']',$box->m_name,'',
