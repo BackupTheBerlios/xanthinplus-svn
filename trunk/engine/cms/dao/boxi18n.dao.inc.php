@@ -31,14 +31,15 @@ class xBoxI18NDAO
 	*/
 	function insert($box)
 	{
-		xDB::getDB()->startTransaction();
+		$db =& xDB::getDB();
+		$db->startTransaction();
 		
 		xBoxDAO::insert($box);
 		
-		xDB::getDB()->query("INSERT INTO box_i18n(box_name,title,lang) VALUES('%s','%s','%s')",
+		$db->query("INSERT INTO box_i18n(box_name,title,lang) VALUES('%s','%s','%s')",
 			$box->m_name,$box->m_title,$box->m_lang);
 		
-		if(!xDB::getDB()->commitTransaction())
+		if(!$db->commitTransaction())
 			return false;
 			
 		return true;
@@ -53,7 +54,8 @@ class xBoxI18NDAO
 	*/
 	function insertTranslation($box)
 	{
-		return xDB::getDB()->query("INSERT INTO box_i18n(box_name,title,lang) VALUES('%s','%s','%s')",
+		$db =& xDB::getDB();
+		return $db->query("INSERT INTO box_i18n(box_name,title,lang) VALUES('%s','%s','%s')",
 			$box->m_name,$box->m_title,$box->m_lang);
 	}
 	
@@ -66,7 +68,8 @@ class xBoxI18NDAO
 	*/
 	function deleteTranslation($box_name,$lang)
 	{
-		return xDB::getDB()->query("DELETE FROM box_i18n WHERE box_name = '%s', lang ='%s'",$box_name,$lang);
+		$db =& xDB::getDB();
+		return $db->query("DELETE FROM box_i18n WHERE box_name = '%s', lang ='%s'",$box_name,$lang);
 	}
 	
 	
@@ -79,14 +82,15 @@ class xBoxI18NDAO
 	 */
 	function update($box)
 	{
-		xDB::getDB()->startTransaction();
+		$db =& xDB::getDB();
+		$db->startTransaction();
 		
 		xBoxDAO::update($box);
 		
-		xDB::getDB()->query("UPDATE box_i18n SET title = '%s' WHERE box_name = '%s' AND lang = '%s'",
+		$db->query("UPDATE box_i18n SET title = '%s' WHERE box_name = '%s' AND lang = '%s'",
 			$box->m_title,$box->m_name,$box->m_lang);
 		
-		if(!xDB::getDB()->commitTransaction())
+		if(!$db->commitTransaction())
 			return false;
 			
 		return true;
@@ -107,6 +111,7 @@ class xBoxI18NDAO
 	 */
 	function _selectFlexiLang($boxes,$lang)
 	{
+		$db =& xDB::getDB();
 		//now group by name and lang
 		$grouped = array();
 		foreach($boxes as $box)
@@ -132,6 +137,7 @@ class xBoxI18NDAO
 	 */
 	function find($name,$type,$lang,$flexible_lang)
 	{
+		$db =& xDB::getDB();
 		if($flexible_lang && $lang !== NULL)
 		{
 			//now extract all menus with specified lang
@@ -155,9 +161,9 @@ class xBoxI18NDAO
 			$where[3]["connector"] = "AND";
 			$where[3]["value"] = $type;
 			
-			$result = xDB::getDB()->autoQuerySelect('*','box,box_i18n',$where);
+			$result = $db->autoQuerySelect('*','box,box_i18n',$where);
 			$objs = array();
-			while($row = xDB::getDB()->fetchObject($result))
+			while($row = $db->fetchObject($result))
 				$objs[] = xBoxI18NDAO::_boxi18nFromRow($row);
 			return $objs;
 		}
@@ -169,9 +175,10 @@ class xBoxI18NDAO
 	 */
 	function existsTranslation($name,$lang)
 	{
-		$result = xDB::getDB()->query("SELECT lang FROM box_i18n WHERE box_i18n.box_name = '%s' AND 
+		$db =& xDB::getDB();
+		$result = $db->query("SELECT lang FROM box_i18n WHERE box_i18n.box_name = '%s' AND 
 			box_i18n.lang = '%s'",$name,$lang);
-		if($row = xDB::getDB()->fetchObject($result))
+		if($row = $db->fetchObject($result))
 			return true;
 		
 		return false;

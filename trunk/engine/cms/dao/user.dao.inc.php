@@ -34,13 +34,14 @@ class xUserDAO
 	 */
 	function insert($user,$password)
 	{
-		xDB::getDB()->startTransaction();
+		$db =& xDB::getDB();
+		$db->startTransaction();
 			
 		$id = xUniqueId::generate('user');
-		xDB::getDB()->query("INSERT INTO user (id,username,password,email,cookie_token) VALUES (%d,'%s','%s','%s','%s')",
+		$db->query("INSERT INTO user (id,username,password,email,cookie_token) VALUES (%d,'%s','%s','%s','%s')",
 			$id,$user->m_username,xUserDAO::_passwordHash($password),$user->m_email,md5(uniqid(rand(),true)));
 		
-		if(!xDB::getDB()->commitTransaction())
+		if(!$db->commitTransaction())
 			return false;
 			
 		return $id;
@@ -55,7 +56,8 @@ class xUserDAO
 	 */
 	function delete($username)
 	{
-		return xDB::getDB()->query("DELETE FROM user WHERE username= '%s'",$username);
+		$db =& xDB::getDB();
+		return $db->query("DELETE FROM user WHERE username= '%s'",$username);
 	}
 
 	/**
@@ -80,13 +82,14 @@ class xUserDAO
 	 */
 	function update($user,$password = NULL)
 	{
+		$db =& xDB::getDB();
 		if(empty($password))
 		{
-			return xDB::getDB()->query("UPDATE user SET email = '%s' WHERE username = '%s'",$user->m_email,$user->m_username);
+			return $db->query("UPDATE user SET email = '%s' WHERE username = '%s'",$user->m_email,$user->m_username);
 		}
 		else
 		{
-			return xDB::getDB()->query("UPDATE user SET email = '%s',password= '%s' WHERE username = '%s'",
+			return $db->query("UPDATE user SET email = '%s',password= '%s' WHERE username = '%s'",
 				$user->m_email,xUserDAO::_passwordHash($password),$user->m_username);
 		}
 	}
@@ -109,8 +112,9 @@ class xUserDAO
 	 */
 	function loadByUid($uid)
 	{
-		$result = xDB::getDB()->query("SELECT * FROM user WHERE id = '%d'",$uid);
-		if($row = xDB::getDB()->fetchObject($result))
+		$db =& xDB::getDB();
+		$result = $db->query("SELECT * FROM user WHERE id = '%d'",$uid);
+		if($row = $db->fetchObject($result))
 		{
 			return xUserDAO::_userFromRow($row);
 		}
@@ -126,8 +130,9 @@ class xUserDAO
 	 */
 	function loadByUsername($username)
 	{
-		$result = xDB::getDB()->query("SELECT * FROM user WHERE username = '%s'",$username);
-		if($row = xDB::getDB()->fetchObject($result))
+		$db =& xDB::getDB();
+		$result = $db->query("SELECT * FROM user WHERE username = '%s'",$username);
+		if($row = $db->fetchObject($result))
 		{
 			return xUserDAO::_userFromRow($row);
 		}
@@ -143,14 +148,15 @@ class xUserDAO
 	 */
 	function findAll()
 	{
+		$db =& xDB::getDB();
 		$users = array();
-		$result = xDB::getDB()->query("SELECT * FROM user");
-		while($row = xDB::getDB()->fetchArray($result))
+		$result = $db->query("SELECT * FROM user");
+		while($row = $db->fetchArray($result))
 		{
 			$users[] = new xUser($row['id'],$row['username'],$row['email']);
 		}
 		
-		return $user;
+		return $users;
 	}
 
 	/**
@@ -163,7 +169,8 @@ class xUserDAO
 	 */
 	function giveRole($userid,$rolename)
 	{
-		return xDB::getDB()->query("INSERT INTO user_to_role(userid,roleName) VALUES (%d,'%s')",$userid,$rolename);
+		$db =& xDB::getDB();
+		return $db->query("INSERT INTO user_to_role(userid,roleName) VALUES (%d,'%s')",$userid,$rolename);
 	}
 	
 	
@@ -175,11 +182,12 @@ class xUserDAO
 	 */
 	function getRoles($userid)
 	{
-		$result = xDB::getDB()->query("SELECT role.name,role.description FROM role,user_to_role WHERE user_to_role.userid = %d 
+		$db =& xDB::getDB();
+		$result = $db->query("SELECT role.name,role.description FROM role,user_to_role WHERE user_to_role.userid = %d 
 			AND role.name = user_to_role.roleName",$userid);
 		
 		$roles = array();
-		while($row = xDB::getDB()->fetchObject($result))
+		while($row = $db->fetchObject($result))
 		{
 			$roles[] = xRoleDAO::_roleFromRow($row);
 		}
@@ -197,7 +205,8 @@ class xUserDAO
 	 */
 	function removeFromRole($userid,$rolename)
 	{
-		return xDB::getDB()->query("DELETE FROM user_to_role WHERE userid = %d AND roleName = '%s'",$userid,$rolename);
+		$db =& xDB::getDB();
+		return $db->query("DELETE FROM user_to_role WHERE userid = %d AND roleName = '%s'",$userid,$rolename);
 	}
 	
 	/**
@@ -209,9 +218,10 @@ class xUserDAO
 	 */
 	function findUserRoleNames($userid)
 	{
+		$db =& xDB::getDB();
 		$roles = array();
-		$result = xDB::getDB()->query("SELECT * FROM user_to_role WHERE userid = %d",$userid);
-		while($row = xDB::getDB()->fetchArray($result))
+		$result = $db->query("SELECT * FROM user_to_role WHERE userid = %d",$userid);
+		while($row = $db->fetchArray($result))
 		{
 			$roles[] = $row['roleName'];
 		}
@@ -228,10 +238,11 @@ class xUserDAO
 	 */
 	function haveRole($userid,$rolename)
 	{
-		$result = xDB::getDB()->query("SELECT * FROM user_to_role WHERE userid = %d AND roleName = '%s'",
+		$db =& xDB::getDB();
+		$result = $db->query("SELECT * FROM user_to_role WHERE userid = %d AND roleName = '%s'",
 			$userid,$rolename);
 		
-		if($row = xDB::getDB()->fetchArray($result))
+		if($row = $db->fetchArray($result))
 		{
 			return true;
 		}
@@ -250,8 +261,9 @@ class xUserDAO
 	 */
 	function checkLogin($username,$password)
 	{
-		$result = xDB::getDB()->query("SELECT * FROM user WHERE username = '%s'",$username);
-		if($row = xDB::getDB()->fetchObject($result))
+		$db =& xDB::getDB();
+		$result = $db->query("SELECT * FROM user WHERE username = '%s'",$username);
+		if($row = $db->fetchObject($result))
 		{
 			if(xUserDAO::_passwordHash($password) === $row->password)
 			{
@@ -272,8 +284,9 @@ class xUserDAO
 	 */
 	function checkCookieToken($username,$cookie_token) 
 	{
-		$result = xDB::getDB()->query("SELECT * FROM user WHERE username = '%s'",$username);
-		if($row = xDB::getDB()->fetchObject($result)) 
+		$db =& xDB::getDB();
+		$result = $db->query("SELECT * FROM user WHERE username = '%s'",$username);
+		if($row = $db->fetchObject($result)) 
 		{
 			if($row->cookie_token === $cookie_token)
 			{
@@ -293,9 +306,10 @@ class xUserDAO
 	 */
 	function updateCookieToken($username) 
 	{
+		$db =& xDB::getDB();
 		//generate a new login_token
 		$cookie_token = md5(uniqid(rand(),true));
-		xDB::getDB()->query("UPDATE user SET cookie_token = '%s' WHERE username = '%s'",$cookie_token,$username);
+		$db->query("UPDATE user SET cookie_token = '%s' WHERE username = '%s'",$cookie_token,$username);
 		
 		return $cookie_token;
 	}

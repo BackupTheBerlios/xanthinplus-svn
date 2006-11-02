@@ -33,14 +33,15 @@ class xCathegoryI18NDAO
 	 */
 	function insert($cathegory)
 	{
-		xDB::getDB()->startTransaction();
+		$db =& xDB::getDB();
+		$db->startTransaction();
 		
 		$id = xCathegoryDAO::insert($cathegory);
 		
-		xDB::getDB()->query("INSERT INTO cathegory_i18n(catid,name,title,description,lang) VALUES(%d,'%s','%s','%s','%s')",
+		$db->query("INSERT INTO cathegory_i18n(catid,name,title,description,lang) VALUES(%d,'%s','%s','%s','%s')",
 			$id,$cathegory->m_name,$cathegory->m_title,$cathegory->m_description,$cathegory->m_lang);
 		
-		if(! xDB::getDB()->commitTransaction())
+		if(! $db->commitTransaction())
 			return false;
 		
 		return $id;
@@ -55,7 +56,8 @@ class xCathegoryI18NDAO
 	 */
 	function insertTranslation($cathegory)
 	{
-		return xDB::getDB()->query("INSERT INTO cathegory_i18n(catid,name,title,description,lang) VALUES(%d,'%s','%s','%s','%s')",
+		$db =& xDB::getDB();
+		return $db->query("INSERT INTO cathegory_i18n(catid,name,title,description,lang) VALUES(%d,'%s','%s','%s','%s')",
 			$cathegory->m_id,$cathegory->m_name,$cathegory->m_title,$cathegory->m_description,$cathegory->m_lang);
 	}
 	
@@ -69,7 +71,8 @@ class xCathegoryI18NDAO
 	 */
 	function deleteTranslation($id,$lang)
 	{
-		xDB::getDB()->query("DELETE FROM cathegory_i18n WHERE catid = %d AND lang = '%s'",$id,$lang);
+		$db =& xDB::getDB();
+		$db->query("DELETE FROM cathegory_i18n WHERE catid = %d AND lang = '%s'",$id,$lang);
 	}
 	
 	/**
@@ -92,9 +95,10 @@ class xCathegoryI18NDAO
 	 */
 	function load($catid,$lang)
 	{
-		$result = xDB::getDB()->query("SELECT * FROM cathegory,cathegory_i18n WHERE cathegory.id = %d AND 
+		$db =& xDB::getDB();
+		$result = $db->query("SELECT * FROM cathegory,cathegory_i18n WHERE cathegory.id = %d AND 
 			cathegory_i18n.catid = cathegory.id AND cathegory_i18n.lang = '%s'",$catid,$lang);
-		if($row = xDB::getDB()->fetchObject($result))
+		if($row = $db->fetchObject($result))
 		{
 			return xCathegoryI18NDAO::_cathegoryi18nFromRow($row);
 		}
@@ -110,6 +114,7 @@ class xCathegoryI18NDAO
 	 */
 	function find($type = NULL,$parent_cathegory = NULL,$name = NULL,$lang = NULL)
 	{
+		$db =& xDB::getDB();
 		$where['cathegory']['id']['join'][] = "cathegory_i18n.catid";
 		$where['cathegory']['id']['connector'] = "AND";
 		
@@ -129,9 +134,9 @@ class xCathegoryI18NDAO
 		$where['cathegory_i18n']['lang']['connector'] = "AND";
 		$where['cathegory_i18n']['lang']['value'] = $lang;
 		
-		$result = xDB::getDB()->autoQuery('SELECT',array(),$where);
+		$result = $db->autoQuery('SELECT',array(),$where);
 		$cats = array();
-		while($row = xDB::getDB()->fetchObject($result))
+		while($row = $db->fetchObject($result))
 		{
 			$cats[] = xCathegoryI18NDAO::_cathegoryi18nFromRow($row);
 		}

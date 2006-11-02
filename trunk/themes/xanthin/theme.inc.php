@@ -44,7 +44,6 @@ class xThemeXanthin extends xTheme
 			<div class="title">' . $title . '</div>
 			<div class="content">' . $content . '</div>
 		</div>
-		
 		'
 		;
 		return $output;
@@ -56,6 +55,7 @@ class xThemeXanthin extends xTheme
 	 */
 	function renderPage($content,$groups)
 	{
+		$db =& xDB::getDB();
 		$output = 
 		'<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 		<html>
@@ -68,6 +68,8 @@ class xThemeXanthin extends xTheme
 			</head>
 			<body>
 				<div id="page">
+				<div id="page1"><div id="page2"><div id="page3"><div id="page4">
+				<div id="page5"><div id="page6"><div id="page7"><div id="page8">
 					<div id="header">
 						<div id="logo">
 						<img src="themes/xanthin/images/logo.png"/>
@@ -80,17 +82,17 @@ class xThemeXanthin extends xTheme
 						<div id="left-sidebar">'. $groups['left_group']->render() .'</div>
 						
 						<div id="contents">
-						<div id="contents-header">&nbsp;</div>
 						<div id="contents-center">
 						'; $output = xNotifications::render($output) . $content->render() . '
 						</div>
-						<div id="contents-footer">&nbsp;</div>
 						</div>
 						<div class="cleaner">&nbsp;</div>
 					</div>
-					<div id="footer"> Queries ' . xDB::getDB()->queryGetCount() . ', Execution time ' . xExecutionTime::render() . ' secs</div>
+					<div id="footer"> Queries ' . $db->queryGetCount() . ', Execution time ' . xExecutionTime::render() . ' secs</div>
 					' . xLogEntry::renderFromScreen() . '
 				</div>
+				</div></div></div></div>
+				</div></div></div></div>
 			</body>
 		</html>';
 		

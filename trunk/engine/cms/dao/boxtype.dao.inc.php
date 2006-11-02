@@ -31,11 +31,12 @@ class xBoxTypeDAO
 	*/
 	function insert($box_type)
 	{
+		$db =& xDB::getDB();
 		$field_names = "name,description";
 		$field_values = "'%s','%s'";
 		$values = array($box_type->m_name,$box_type->m_description);
 		
-		return xDB::getDB()->query("INSERT INTO box_type($field_names) VALUES($field_values)",$values);
+		return $db->query("INSERT INTO box_type($field_names) VALUES($field_values)",$values);
 	}
 	
 	/**
@@ -47,7 +48,8 @@ class xBoxTypeDAO
 	*/
 	function delete($box_type_name)
 	{
-		return xDB::getDB()->query("DELETE FROM box_type WHERE name = '%s'",$box_type_name);
+		$db =& xDB::getDB();
+		return $db->query("DELETE FROM box_type WHERE name = '%s'",$box_type_name);
 	}
 	
 	
@@ -56,6 +58,7 @@ class xBoxTypeDAO
 	 */ 
 	function _boxTypeFromRow($row)
 	{
+		$db =& xDB::getDB();
 		return new xBoxType($row->name,$row->description);
 	}
 	
@@ -68,9 +71,10 @@ class xBoxTypeDAO
 	 */
 	function findAll()
 	{
+		$db =& xDB::getDB();
 		$boxes = array();
-		$result = xDB::getDB()->query("SELECT * FROM box_type");
-		while($row = xDB::getDB()->fetchObject($result))
+		$result = $db->query("SELECT * FROM box_type");
+		while($row = $db->fetchObject($result))
 		{
 			$boxes[] = xBoxDAO::_boxTypeFromRow($row);
 		}

@@ -33,7 +33,8 @@ class xCathegoryDAO
 	 */
 	function insert($cathegory)
 	{
-		xDB::getDB()->startTransaction();
+		$db =& xDB::getDB();
+		$db->startTransaction();
 		
 		$id = xUniqueId::generate('cathegory');
 		
@@ -48,9 +49,9 @@ class xCathegoryDAO
 			$values[] = $cathegory->m_parent_cathegory;
 		}
 		
-		xDB::getDB()->query("INSERT INTO cathegory($field_names) VALUES($field_values)",$values);
+		$db->query("INSERT INTO cathegory($field_names) VALUES($field_values)",$values);
 		
-		if(! xDB::getDB()->commitTransaction())
+		if(! $db->commitTransaction())
 			return false;
 		
 		return $id;
@@ -65,7 +66,8 @@ class xCathegoryDAO
 	 */
 	function delete($catid)
 	{
-		return xDB::getDB()->query("DELETE FROM cathegory WHERE id = %d",$catid);
+		$db =& xDB::getDB();
+		return $db->query("DELETE FROM cathegory WHERE id = %d",$catid);
 	}
 	
 	
@@ -85,10 +87,11 @@ class xCathegoryDAO
 	 */
 	function findNodeCathegories($id)
 	{
+		$db =& xDB::getDB();
 		$cats = array();
-		$result = xDB::getDB()->query("SELECT * FROM cathegory,node_to_cathegory WHERE node_to_cathegory.nodeid = %d 
+		$result = $db->query("SELECT * FROM cathegory,node_to_cathegory WHERE node_to_cathegory.nodeid = %d 
 			AND cathegory.id = node_to_cathegory.catid",$id);
-		while($row = xDB::getDB()->fetchObject($result))
+		while($row = $db->fetchObject($result))
 		{
 			$cats[] = xCathegoryDAO::_cathegoryFromRow($row);
 		}
@@ -105,8 +108,9 @@ class xCathegoryDAO
 	 */
 	function load($catid)
 	{
-		$result = xDB::getDB()->query("SELECT * FROM cathegory WHERE id = %d",$catid);
-		if($row = xDB::getDB()->fetchObject($result))
+		$db =& xDB::getDB();
+		$result = $db->query("SELECT * FROM cathegory WHERE id = %d",$catid);
+		if($row = $db->fetchObject($result))
 		{
 			return xCathegoryDAO::_cathegoryFromRow($row);
 		}
@@ -122,6 +126,7 @@ class xCathegoryDAO
 	 */
 	function find($type = NULL,$parent_cathegory = NULL)
 	{
+		$db =& xDB::getDB();
 		$where['cathegory']['type']['type'] = "'%s'";
 		$where['cathegory']['type']['connector'] = "AND";
 		$where['cathegory']['type']['value'] = $type;
@@ -130,9 +135,9 @@ class xCathegoryDAO
 		$where['cathegory']['parent_cathegory']['connector'] = "AND";
 		$where['cathegory']['parent_cathegory']['value'] = $parent_cathegory;
 		
-		$result = xDB::getDB()->autoQuery('SELECT',array(),$where);
+		$result = $db->autoQuery('SELECT',array(),$where);
 		$cats = array();
-		while($row = xDB::getDB()->fetchObject($result))
+		while($row = $db->fetchObject($result))
 		{
 			$cats[] = xCathegoryDAO::_cathegoryFromRow($row);
 		}

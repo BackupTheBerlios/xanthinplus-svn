@@ -31,14 +31,15 @@ class xBoxCustomDAO
 	 */
 	function insert($box)
 	{
-		xDB::getDB()->startTransaction();
+		$db =& xDB::getDB();
+		$db->startTransaction();
 		
 		xBoxI18NDAO::insert($box);
 		
-		xDB::getDB()->query("INSERT INTO box_custom(box_name,lang,content,content_filter) VALUES('%s','%s','%s','%s')",
+		$db->query("INSERT INTO box_custom(box_name,lang,content,content_filter) VALUES('%s','%s','%s','%s')",
 			$box->m_name,$box->m_lang,$box->m_content,$box->m_content_filter);
 		
-		if(!xDB::getDB()->commitTransaction())
+		if(!$db->commitTransaction())
 			return false;
 		
 		return TRUE;
@@ -53,14 +54,15 @@ class xBoxCustomDAO
 	*/
 	function insertTranslation($box)
 	{
-		xDB::getDB()->startTransaction();
+		$db =& xDB::getDB();
+		$db->startTransaction();
 		
 		xBoxI18NDAO::insertTranslation($box);
 		
-		xDB::getDB()->query("INSERT INTO box_custom(box_name,lang,content,content_filter) VALUES('%s','%s','%s','%s')",
+		$db->query("INSERT INTO box_custom(box_name,lang,content,content_filter) VALUES('%s','%s','%s','%s')",
 			$box->m_name,$box->m_lang,$box->m_content,$box->m_content_filter);
 		
-		if(!xDB::getDB()->commitTransaction())
+		if(!$db->commitTransaction())
 			return false;
 		
 		return TRUE;
@@ -76,15 +78,16 @@ class xBoxCustomDAO
 	 */
 	function update($box)
 	{
-		xDB::getDB()->startTransaction();
+		$db =& xDB::getDB();
+		$db->startTransaction();
 		
 		xBoxI18NDAO::update($box);
 		
-		xDB::getDB()->query("UPDATE box_custom SET content = '%s',content_filter = '%s' 
+		$db->query("UPDATE box_custom SET content = '%s',content_filter = '%s' 
 			WHERE box_name = '%s' AND lang = '%s'",
 			$box->m_content,$box->m_content_filter,$box->m_name,$box->m_lang);
 		
-		if(!xDB::getDB()->commitTransaction())
+		if(!$db->commitTransaction())
 			return false;
 		
 		return TRUE;
@@ -95,6 +98,7 @@ class xBoxCustomDAO
 	 */
 	function _boxcustomFromRow($row)
 	{
+		$db =& xDB::getDB();
 		return new xBoxCustom($row->name,$row->type,$row->weight,
 			new xShowFilter($row->show_filters_type,$row->show_filters),$row->title,$row->lang,
 			$row->content,$row->content_filter);
@@ -107,8 +111,9 @@ class xBoxCustomDAO
 	 * @return xBoxCustom or NULL no error
 	 * @static
 	 */
-	function find($name,$type,$lang)
+	function find($name,$type,$lang,$flexible_lang)
 	{
+		$db =& xDB::getDB();
 		if($flexible_lang && $lang !== NULL)
 		{
 			//now extract all menus with specified lang
@@ -138,22 +143,14 @@ class xBoxCustomDAO
 			$where[3]["connector"] = "AND";
 			$where[3]["value"] = $type;
 			
-			$result = xDB::getDB()->autoQuerySelect('*','box,box_i18n,box_custom',$where);
+			$result = $db->autoQuerySelect('*','box,box_i18n,box_custom',$where);
 			$objs = array();
-			while($row = xDB::getDB()->fetchObject($result))
+			while($row = $db->fetchObject($result))
 				$objs[] = xBoxCustomDAO::_boxcustomFromRow($row);
 			return $objs;
 		}
 	}
 };
-
-
-
-
-
-
-
-
 
 
 

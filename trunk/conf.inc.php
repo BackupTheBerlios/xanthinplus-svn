@@ -23,7 +23,7 @@ $g_xanth_conf['db_user'] = 'root';
 $g_xanth_conf['db_pass'] = 'pass';
 //$g_xanth_conf['db_pass'] = 'dkiqe2e3';
 $g_xanth_conf['db_port'] = '';
-$g_xanth_conf['db_doc_path'] = 'xanthinplus/';
+$g_xanth_conf['db_doc_path'] = 'xanthin/';
 
 $g_xanth_conf['debug'] = true;
 

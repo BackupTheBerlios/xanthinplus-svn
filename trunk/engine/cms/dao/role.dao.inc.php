@@ -33,7 +33,8 @@ class xRoleDAO
 	 */
 	function insert($role)
 	{
-		return xDB::getDB()->query("INSERT INTO role(name,description) VALUES ('%s','%s')",$role->m_name,$role->m_description);
+		$db =& xDB::getDB();
+		return $db->query("INSERT INTO role(name,description) VALUES ('%s','%s')",$role->m_name,$role->m_description);
 	}
 	
 	/**
@@ -45,7 +46,8 @@ class xRoleDAO
 	 */
 	function delete($rolename)
 	{
-		return xDB::getDB()->query("DELETE FROM role WHERE name = '%s'",$rolename);
+		$db =& xDB::getDB();
+		return $db->query("DELETE FROM role WHERE name = '%s'",$rolename);
 	}
 	
 	/**
@@ -57,7 +59,8 @@ class xRoleDAO
 	 */
 	function update($role)
 	{
-		return xDB::getDB()->query("UPDATE role SET description = '%s' WHERE name = '%s')",$role->m_description,$role->m_name);
+		$db =& xDB::getDB();
+		return $db->query("UPDATE role SET description = '%s' WHERE name = '%s')",$role->m_description,$role->m_name);
 	}
 	
 	
@@ -81,9 +84,10 @@ class xRoleDAO
 	 */
 	function findAll()
 	{
+		$db =& xDB::getDB();
 		$roles = array();
-		$result = xDB::getDB()->query("SELECT * FROM role");
-		while($row = xDB::getDB()->fetchObject($result))
+		$result = $db->query("SELECT * FROM role");
+		while($row = $db->fetchObject($result))
 		{
 			$roles[] = xRoleDAO::_roleFromRow($row);
 		}

@@ -29,9 +29,8 @@ function xanth_include_modules()
 function xanth_main()
 {
 	xExecutionTime::executionStarted();
-
 	ob_start();
-	
+
 	//select DB
 	if(xConf::get('db_type','mysql') == 'mysql')
 	{
@@ -44,7 +43,6 @@ function xanth_main()
 	{
 		exit('Unknown database type');
 	}
-	xDB::getDB()->queryResetCount();
 	
 	// Setting the Content-Type header with charset
 	header('Content-Type: text/html; charset=utf-8');

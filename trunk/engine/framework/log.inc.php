@@ -56,8 +56,8 @@ class xStackTrace
 		$output = '';
 		foreach($this->m_trace as $stack)
 		{
-			$class = isset($stack['class'])?$stack['class']:'';
-			$type = isset($stack['type'])?$stack['type']:'';
+			$class = isset($stack['class']) ? $stack['class']:'';
+			$type = isset($stack['type']) ? $stack['type']:'';
 			$output .= '<i>'. $class .$type.$stack['function'] . '</i> in file ' . $stack['file'] .
 				'@' . $stack['line'] . '<br/>';
 		}
@@ -219,15 +219,16 @@ class xLogEntry
 	 */
 	function insert()
 	{
+		$db =& xDB::getDB();
 		//manual check to prevent deadlocks
 		if(!is_int($this->m_level) || !is_int($this->m_line))
 			return;
 		
-		xDB::getDB()->query("INSERT INTO xanth_log(level,message,filename,line,timestamp,stacktrace) VALUES(%d,'%s','%s',%d,NOW(),".
-			xDB::getDB()->encodeBlob(serialize($this->m_stacktrace)).")",
+		$db->query("INSERT INTO xanth_log(level,message,filename,line,timestamp,stacktrace) VALUES(%d,'%s','%s',%d,NOW(),".
+			$db->encodeBlob(serialize($this->m_stacktrace)).")",
 			$this->m_level ,$this->m_message,$this->m_filename,$this->m_line);
 			
-		$this->m_id = xDB::getDB()->getLastId();
+		$this->m_id = $db->getLastId();
 	}
 	
 	/**
@@ -235,7 +236,8 @@ class xLogEntry
 	 */
 	function delete()
 	{
-		xDB::getDB()->query("DELETE FROM xanth_log WHERE id = %d",$this->m_id);
+		$db =& xDB::getDB();
+		$db->query("DELETE FROM xanth_log WHERE id = %d",$this->m_id);
 	}
 	
 	/**
@@ -243,12 +245,13 @@ class xLogEntry
 	 */
 	function dbFindAll()
 	{
+		$db =& xDB::getDB();
 		$entries = array();
-		$result = xDB::getDB()->query("SELECT * FROM xanth_log");
-		while($row = xDB::getDB()->fetchObject($result))
+		$result = $db->query("SELECT * FROM xanth_log");
+		while($row = $db->fetchObject($result))
 		{
 			$entries[] = new xLogEntry($row->id,$row->level,$row->message,$row->filename,
-				$row->line,unserialize(xDB::getDB()->decodeBlob($row->stacktrace)));
+				$row->line,unserialize($db->decodeBlob($row->stacktrace)));
 		}
 		return $entries;
 	}

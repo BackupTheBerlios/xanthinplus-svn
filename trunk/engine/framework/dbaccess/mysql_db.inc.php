@@ -44,6 +44,7 @@ class xDBMysql extends xDB
 			$host = $host .':'. $port;
 
 		$this->m_connection = mysql_connect($host, $user, $pass, TRUE);
+		echo mysql_error();
 		if(!$this->m_connection) 
 			exit('Unable to connect to database server');
 		

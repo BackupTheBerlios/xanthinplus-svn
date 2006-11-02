@@ -31,9 +31,11 @@ class xInstallCMS
 	* Installs the cms in a Mysql db
 	*/
 	function installDBMySql()
-	{		
+	{
+		$db =& xDB::getDB();
+		
 		//log
-		xDB::getDB()->query("
+		$db->query("
 			CREATE TABLE xanth_log (
 			id INT UNSIGNED AUTO_INCREMENT NOT NULL,
 			level MEDIUMINT NOT NULL,
@@ -48,7 +50,7 @@ class xInstallCMS
 		
 		
 		//sessions
-		xDB::getDB()->query("
+		$db->query("
 			CREATE TABLE sessions (
 			session_id VARCHAR(32) NOT NULL,
 			session_data TEXT NOT NULL,
@@ -58,7 +60,7 @@ class xInstallCMS
 		);
 		
 		//uniqueid
-		xDB::getDB()->query("
+		$db->query("
 			CREATE TABLE uniqueid (
 			tablename VARCHAR(32) NOT NULL,
 			currentid INT UNSIGNED NOT NULL,
@@ -72,7 +74,7 @@ class xInstallCMS
 		
 		
 		//settings
-		xDB::getDB()->query("
+		$db->query("
 			CREATE TABLE settings (
 			name VARCHAR(32) NOT NULL,
 			value VARCHAR(512) NOT NULL,
@@ -81,7 +83,7 @@ class xInstallCMS
 		);
 
 		//Roles
-		xDB::getDB()->query("
+		$db->query("
 			CREATE TABLE role (
 			name VARCHAR(32) NOT NULL,
 			description VARCHAR(255) NOT NULL,
@@ -90,7 +92,7 @@ class xInstallCMS
 		);
 		
 		//Users
-		xDB::getDB()->query("
+		$db->query("
 			CREATE TABLE user (
 			id INT UNSIGNED AUTO_INCREMENT NOT NULL,
 			username VARCHAR(32) NOT NULL,
@@ -105,7 +107,7 @@ class xInstallCMS
 		xUniqueId::createNew('user');
 			
 		//User to role
-		xDB::getDB()->query("
+		$db->query("
 			CREATE TABLE user_to_role (
 			userid INT UNSIGNED NOT NULL,
 			roleName VARCHAR(32) NOT NULL,
@@ -118,7 +120,7 @@ class xInstallCMS
 		
 		
 		//access permission
-		xDB::getDB()->query("
+		$db->query("
 			CREATE TABLE access_permission (
 			resource VARCHAR(64) NOT NULL,
 			resource_type VARCHAR(64),
@@ -132,7 +134,7 @@ class xInstallCMS
 		
 		
 		//language
-		xDB::getDB()->query("
+		$db->query("
 			CREATE TABLE language (
 			name VARCHAR(2) NOT NULL,
 			full_name VARCHAR(32) NOT NULL,
@@ -142,7 +144,7 @@ class xInstallCMS
 		
 		
 		//box type
-		xDB::getDB()->query("
+		$db->query("
 			CREATE TABLE box_type (
 			name VARCHAR(32) NOT NULL,
 			user_editable TINYINT NOT NULL,
@@ -153,7 +155,7 @@ class xInstallCMS
 		
 		
 		//box
-		xDB::getDB()->query("
+		$db->query("
 			CREATE TABLE box(
 			name VARCHAR(32) NOT NULL,
 			type VARCHAR(32) NOT NULL,
@@ -167,7 +169,7 @@ class xInstallCMS
 		
 		
 		//box i18n
-		xDB::getDB()->query("
+		$db->query("
 			CREATE TABLE box_i18n(
 			box_name VARCHAR(32) NOT NULL,
 			title VARCHAR(128) NOT NULL,
@@ -180,7 +182,7 @@ class xInstallCMS
 		
 		
 		//static box
-		xDB::getDB()->query("
+		$db->query("
 			CREATE TABLE box_custom(
 			box_name VARCHAR(64) NOT NULL,
 			lang VARCHAR(2) NOT NULL,
@@ -193,7 +195,7 @@ class xInstallCMS
 		
 		
 		//menu_static_items
-		xDB::getDB()->query("
+		$db->query("
 			CREATE TABLE menu_item (
 			id INT UNSIGNED NOT NULL,
 			box_name VARCHAR(64) NOT NULL,
@@ -211,7 +213,7 @@ class xInstallCMS
 		xUniqueId::createNew('menu_item');
 		
 		
-		xDB::getDB()->query("
+		$db->query("
 			CREATE TABLE box_group(
 			name VARCHAR(32) NOT NULL,
 			render TINYINT NOT NULL,
@@ -222,7 +224,7 @@ class xInstallCMS
 		
 		
 		//box to group
-		xDB::getDB()->query("
+		$db->query("
 			CREATE TABLE box_to_group(
 			box_group VARCHAR(64) NOT NULL,
 			box_name VARCHAR(64) NOT NULL,
@@ -234,7 +236,7 @@ class xInstallCMS
 		
 		
 		//item type
-		xDB::getDB()->query("
+		$db->query("
 			CREATE TABLE node_and_cathegory_type (
 			name VARCHAR(32) NOT NULL,
 			description VARCHAR(256) NOT NULL,
@@ -244,7 +246,7 @@ class xInstallCMS
 		
 		
 		//item cathegory
-		xDB::getDB()->query("
+		$db->query("
 			CREATE TABLE cathegory (
 			id INT UNSIGNED NOT NULL,
 			title VARCHAR(128) NOT NULL,
@@ -260,7 +262,7 @@ class xInstallCMS
 		
 		
 		//cathegory i18n
-		xDB::getDB()->query("
+		$db->query("
 			CREATE TABLE cathegory_i18n (
 			catid INT UNSIGNED NOT NULL,
 			name VARCHAR(32) NOT NULL,
@@ -276,7 +278,7 @@ class xInstallCMS
 		
 		
 		//node
-		xDB::getDB()->query("
+		$db->query("
 			CREATE TABLE node (
 			id INT UNSIGNED NOT NULL,
 			type VARCHAR(32) NOT NULL,
@@ -292,7 +294,7 @@ class xInstallCMS
 		
 		
 		//node i18n
-		xDB::getDB()->query("
+		$db->query("
 			CREATE TABLE node_i18n (
 			nodeid INT UNSIGNED NOT NULL,
 			title VARCHAR(256) NOT NULL,
@@ -306,7 +308,7 @@ class xInstallCMS
 		);
 		
 		//pageitem
-		xDB::getDB()->query("
+		$db->query("
 			CREATE TABLE node_page (
 			nodeid INT UNSIGNED NOT NULL,
 			lang VARCHAR(2) NOT NULL,
@@ -322,7 +324,7 @@ class xInstallCMS
 		);
 		
 		//item to cathegory
-		xDB::getDB()->query("
+		$db->query("
 			CREATE TABLE node_to_cathegory (
 			nodeid INT UNSIGNED NOT NULL,
 			catid INT UNSIGNED NOT NULL,
@@ -334,7 +336,7 @@ class xInstallCMS
 		
 		
 		//pageitem
-		xDB::getDB()->query("
+		$db->query("
 			CREATE TABLE node_reply (
 			nodeid INT UNSIGNED NOT NULL,
 			parentid INT UNSIGNED NOT NULL,
@@ -442,8 +444,8 @@ function xanth_install_main()
 		xDB::setDB($db);
 		
 		$name = xConf::get('db_name','');
-		xDB::getDB()->query("DROP DATABASE $name");
-		xDB::getDB()->query("CREATE DATABASE $name");
+		$db->query("DROP DATABASE $name");
+		$db->query("CREATE DATABASE $name");
 		
 		$db->selectDB($name);
 	}

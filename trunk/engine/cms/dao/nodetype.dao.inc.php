@@ -33,7 +33,8 @@ class xNodeTypeDAO
 	 */
 	function insert($node_type)
 	{
-		return xDB::getDB()->query("INSERT INTO node_and_cathegory_type (name,description) 
+		$db =& xDB::getDB();
+		return $db->query("INSERT INTO node_and_cathegory_type (name,description) 
 			VALUES ('%s','%s')",$node_type->m_name,$node_type->m_description);
 	}
 	
@@ -47,7 +48,8 @@ class xNodeTypeDAO
 	 */
 	function delete($typename)
 	{
-		return xDB::getDB()->query("DELETE FROM node_and_cathegory_type WHERE name = '%s'",$typename);
+		$db =& xDB::getDB();
+		return $db->query("DELETE FROM node_and_cathegory_type WHERE name = '%s'",$typename);
 	}
 	
 	/**
@@ -60,7 +62,8 @@ class xNodeTypeDAO
 	 */
 	function update($node_type)
 	{
-		return xDB::getDB()->query("UPDATE node_and_cathegory_type SET description = '%s' WHERE name = '%s'",
+		$db =& xDB::getDB();
+		return $db->query("UPDATE node_and_cathegory_type SET description = '%s' WHERE name = '%s'",
 			$node_type->m_description,$node_type->m_name);
 	}
 	
@@ -84,8 +87,9 @@ class xNodeTypeDAO
 	 */
 	function load($typename)
 	{
-		$result = xDB::getDB()->query("SELECT * FROM node_and_cathegory_type WHERE name = '%s'",$typename);
-		if($row = xDB::getDB()->fetchObject($result))
+		$db =& xDB::getDB();
+		$result = $db->query("SELECT * FROM node_and_cathegory_type WHERE name = '%s'",$typename);
+		if($row = $db->fetchObject($result))
 		{
 			return xNodeTypeDAO::_itemtypeFromRow($row);
 		}
@@ -101,9 +105,10 @@ class xNodeTypeDAO
 	 */
 	function findAll()
 	{
+		$db =& xDB::getDB();
 		$types = array();
-		$result = xDB::getDB()->query("SELECT * FROM node_and_cathegory_type");
-		while($row = xDB::getDB()->fetchObject($result))
+		$result = $db->query("SELECT * FROM node_and_cathegory_type");
+		while($row = $db->fetchObject($result))
 		{
 			$types[] = xNodeTypeDAO::_itemtypeFromRow($row);
 		}

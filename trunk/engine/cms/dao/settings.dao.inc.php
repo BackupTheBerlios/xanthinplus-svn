@@ -36,7 +36,8 @@ class xSettingsDAO
 	 */
 	function insert($name,$value)
 	{
-		return xDB::getDB()->query("INSERT INTO settings (name,value) VALUES ('%s','%s')",$name,$value);
+		$db =& xDB::getDB();
+		return $db->query("INSERT INTO settings (name,value) VALUES ('%s','%s')",$name,$value);
 	}
 	
 	
@@ -47,9 +48,10 @@ class xSettingsDAO
 	 */
 	function save($settings)
 	{
+		$db =& xDB::getDB();
 		foreach($settings as $sett_name => $sett_value) 
 		{
-			xDB::getDB()->query("UPDATE settings SET value = '%s' WHERE name = '%s'",$sett_value,$sett_name);
+			$db->query("UPDATE settings SET value = '%s' WHERE name = '%s'",$sett_value,$sett_name);
 		}
 	}
 	
@@ -59,9 +61,10 @@ class xSettingsDAO
 	 */
 	function load()
 	{
+		$db =& xDB::getDB();
 		$settings = array();
-		$result = xDB::getDB()->query("SELECT * FROM settings");
-		while($row = xDB::getDB()->fetchObject($result))
+		$result = $db->query("SELECT * FROM settings");
+		while($row = $db->fetchObject($result))
 		{
 			$settings[$row->name] = $row->value;
 		}

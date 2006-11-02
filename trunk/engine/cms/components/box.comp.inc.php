@@ -153,14 +153,14 @@ class xPageContentBoxAdmin extends xPageContent
 				}
 			}
 			
-			$out .= '<td>';
+			$out .= '</td><td>';
 			$ops = call_user_func(array(xBox::getBoxTypeClass($box->m_type),'getOperations'));
 			foreach($ops as $op)
 			{
 				$out .= '<a href="'.$op->getLink('box',$box->m_type,$box->m_name,$this->m_path->m_lang).
 					'">'.$op->m_name.'</a> - ';
 			}
-			$out .= '</td>';
+			$out .= '</td></tr>';
 		}
 		
 		$out  .= "</table></div>\n";

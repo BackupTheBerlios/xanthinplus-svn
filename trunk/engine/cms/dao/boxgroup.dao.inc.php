@@ -31,14 +31,15 @@ class xBoxGroupDAO
 	*/
 	function insert($box_group)
 	{
-		xDB::getDB()->startTransaction();
+		$db =& xDB::getDB();
+		$db->startTransaction();
 			
-		xDB::getDB()->query("INSERT INTO box_group(name,description,render) VALUES('%s','%s',%d)",
+		$db->query("INSERT INTO box_group(name,description,render) VALUES('%s','%s',%d)",
 			$box_group->m_name,$box_group->m_description,$box_group->m_render);
 			
 		xBoxGroupDAO::_insertBoxes($box_group);
 			
-		if(!xDB::getDB()->commitTransaction())
+		if(!$db->commitTransaction())
 			return false;
 		
 		return true;
@@ -49,9 +50,10 @@ class xBoxGroupDAO
 	 */
 	function _insertBoxes($box_group)
 	{
+		$db =& xDB::getDB();
 		foreach($box_group->m_boxes as $box)
 		{
-			if(! xDB::getDB()->query("INSERT INTO box_to_group(box_group,box_name) VALUES('%s','%s')",
+			if(! $db->query("INSERT INTO box_to_group(box_group,box_name) VALUES('%s','%s')",
 				$box_group->m_name,$box->m_name))
 				return false;
 		}
@@ -68,7 +70,8 @@ class xBoxGroupDAO
 	 */
 	function update($box_group)
 	{
-		xDB::getDB()->startTransaction();
+		$db =& xDB::getDB();
+		$db->startTransaction();
 		
 		$where[0]["clause"] = "name = '%s'";
 		$where[0]["connector"] = "AND";
@@ -90,11 +93,11 @@ class xBoxGroupDAO
 		$record[2]["type"] = "%d";
 		$record[2]["value"] = $box_group->m_render;
 		
-		xDB::getDB()->autoQueryUpdate('box_group',$record,$where);
-		xDB::getDB()->query("DELETE FROM box_to_group WHERE box_group = '%s'",$box_group->m_name);
+		$db->autoQueryUpdate('box_group',$record,$where);
+		$db->query("DELETE FROM box_to_group WHERE box_group = '%s'",$box_group->m_name);
 		xBoxGroupDAO::_insertBoxes($box_group);
 			
-		if(!xDB::getDB()->commitTransaction())
+		if(!$db->commitTransaction())
 			return false;
 		
 		return true;
@@ -109,7 +112,8 @@ class xBoxGroupDAO
 	*/
 	function delete($box_group_name)
 	{
-		return xDB::getDB()->query("DELETE FROM box_group WHERE name = '%s'",$box_group_name);
+		$db =& xDB::getDB();
+		return $db->query("DELETE FROM box_group WHERE name = '%s'",$box_group_name);
 	}
 	
 	
@@ -126,10 +130,11 @@ class xBoxGroupDAO
 	 */
 	function findBoxNamesAndTypesByGroup($group_name)
 	{
+		$db =& xDB::getDB();
 		$boxes = array();
-		$result = xDB::getDB()->query("SELECT box.name,box.type FROM box,box_to_group WHERE 
+		$result = $db->query("SELECT box.name,box.type FROM box,box_to_group WHERE 
 			box_to_group.box_group = '%s' AND box.name = box_to_group.box_name",$group_name);
-		while($row = xDB::getDB()->fetchObject($result))
+		while($row = $db->fetchObject($result))
 		{
 			$boxes[] = $row;
 		}
@@ -145,6 +150,7 @@ class xBoxGroupDAO
 	 */
 	function findBoxGroups($name)
 	{
+		$db =& xDB::getDB();
 		$where[0]["clause"] = "box_to_group.box_name = '%s'";
 		$where[0]["connector"] = "AND";
 		$where[0]["value"] = $name;
@@ -152,9 +158,9 @@ class xBoxGroupDAO
 		$where[1]["clause"] = "box_group.name = box_to_group.box_group";
 		$where[1]["connector"] = "AND";
 		
-		$result = xDB::getDB()->autoQuerySelect('*','box_group,box_to_group',$where);
+		$result = $db->autoQuerySelect('*','box_group,box_to_group',$where);
 		$objs = array();
-		while($row = xDB::getDB()->fetchObject($result))
+		while($row = $db->fetchObject($result))
 			$objs[] = xBoxGroupDAO::_boxGroupFromRow($row,NULL);
 		return $objs;
 	}
@@ -167,13 +173,14 @@ class xBoxGroupDAO
 	 */
 	function load($name)
 	{
+		$db =& xDB::getDB();
 		$where['box_group']['name']['type'] = "'%s'";
 		$where['box_group']['name']['connector'] = "AND";
 		$where['box_group']['name']['value'] = $name;
 		
-		$result = xDB::getDB()->autoQuery('SELECT',array(),$where);
+		$result = $db->autoQuery('SELECT',array(),$where);
 		$objs = array();
-		if($row = xDB::getDB()->fetchObject($result))
+		if($row = $db->fetchObject($result))
 		{
 			return xBoxGroupDAO::_boxGroupFromRow($row,NULL);
 		}
@@ -189,13 +196,14 @@ class xBoxGroupDAO
 	 */
 	function find($renderizable)
 	{
+		$db =& xDB::getDB();
 		$where['box_group']['render']['type'] = "%d";
 		$where['box_group']['render']['connector'] = "AND";
 		$where['box_group']['render']['value'] = $renderizable;
 		
-		$result = xDB::getDB()->autoQuery('SELECT',array(),$where);
+		$result = $db->autoQuery('SELECT',array(),$where);
 		$objs = array();
-		while($row = xDB::getDB()->fetchObject($result))
+		while($row = $db->fetchObject($result))
 		{
 			$objs[] = xBoxGroupDAO::_boxGroupFromRow($row,NULL);
 		}

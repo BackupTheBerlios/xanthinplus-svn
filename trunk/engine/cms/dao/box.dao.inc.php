@@ -31,12 +31,13 @@ class xBoxDAO
 	*/
 	function insert($box)
 	{
+		$db =& xDB::getDB();
 		$field_names = "name,type,weight,show_filters_type,show_filters";
 		$field_values = "'%s','%s',%d,'%s','%s'";
 		$values = array($box->m_name,$box->m_type,$box->m_weight,
 			$box->m_show_filter->m_type,$box->m_show_filter->m_filters);
 		
-		return xDB::getDB()->query("INSERT INTO box($field_names) VALUES($field_values)",$values);
+		return $db->query("INSERT INTO box($field_names) VALUES($field_values)",$values);
 	}
 	
 	
@@ -49,11 +50,12 @@ class xBoxDAO
 	 */
 	function update($box)
 	{
+		$db =& xDB::getDB();
 		$fields = "weight = %d, show_filters_type = %d,show_filters = '%s'";
 		$values = array($box->m_weight,$box->m_show_filter->m_type,$box->m_show_filter->m_filters);
 		
 		$values[] = $box->m_name;
-		return xDB::getDB()->query("UPDATE box SET $fields WHERE name = '%s'",$values);
+		return $db->query("UPDATE box SET $fields WHERE name = '%s'",$values);
 	}
 	
 	
@@ -66,7 +68,8 @@ class xBoxDAO
 	*/
 	function delete($box_name)
 	{
-		return xDB::getDB()->query("DELETE FROM box WHERE name = '%s'",$box_name);
+		$db =& xDB::getDB();
+		return $db->query("DELETE FROM box WHERE name = '%s'",$box_name);
 	}
 	
 	
@@ -75,6 +78,7 @@ class xBoxDAO
 	 */ 
 	function _boxFromRow($row)
 	{
+		$db =& xDB::getDB();
 		return new xBox($row->name,$row->type,$row->weight,
 			new xShowFilter($row->show_filters_type,$row->show_filters));
 	}
@@ -87,6 +91,7 @@ class xBoxDAO
 	 */
 	function find($name,$type)
 	{
+		$db =& xDB::getDB();
 		$where[0]["clause"] = "box.name = '%s'";
 		$where[0]["connector"] = "AND";
 		$where[0]["value"] = $name;
@@ -95,9 +100,9 @@ class xBoxDAO
 		$where[1]["connector"] = "AND";
 		$where[1]["value"] = $type;
 		
-		$result = xDB::getDB()->autoQuerySelect('*','box',$where);
+		$result = $db->autoQuerySelect('*','box',$where);
 		$objs = array();
-		while($row = xDB::getDB()->fetchObject($result))
+		while($row = $db->fetchObject($result))
 			$objs[] = xBoxDAO::_boxFromRow($row,NULL);
 		return $objs;
 	}

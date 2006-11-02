@@ -506,7 +506,8 @@ class xBBCodeParser
 		
 		if(!empty($this->m_tag_stack))
 		{
-			$this->m_last_error = 'Not all tags has been closed,['. end($this->m_tag_stack)->name.']';
+			$tmp = end($this->m_tag_stack);
+			$this->m_last_error = 'Not all tags has been closed,['. $tmp->name.']';
 			return XBB_RET_ERROR;
 		}
 		return XBB_RET_TRUE;

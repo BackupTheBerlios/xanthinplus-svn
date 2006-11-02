@@ -403,7 +403,7 @@ class xDefaultTheme extends xTheme
 		<td id="content">
 		' . xNotifications::render($output) . $content->render() . '
 		</td></tr></table>
-		<div align="center"> Queries ' . xDB::getDB()->queryGetCount() . ', Execution time ' . xExecutionTime::render() . ' secs</div>
+		<div align="center"> Queries ' . $db->queryGetCount() . ', Execution time ' . xExecutionTime::render() . ' secs</div>
 		' . xLogEntry::renderFromScreen() . '
 		</body>
 		</html>';

@@ -31,7 +31,9 @@ class xUniqueId
 	 */
 	function createNew($tablename)
 	{
-		xDB::getDB()->query("INSERT INTO uniqueid (tablename,currentid) VALUES ('%s',%d)",$tablename,0);
+		$db =& xDB::getDB();
+		
+		$db->query("INSERT INTO uniqueid (tablename,currentid) VALUES ('%s',%d)",$tablename,0);
 	}
 	
 	
@@ -43,15 +45,16 @@ class xUniqueId
 	 */
 	function generate($tablename)
 	{
+		$db =& xDB::getDB();
 		$ret = 0;
 	
-		$result = xDB::getDB()->query("SELECT currentid FROM uniqueid WHERE tablename = '%s'",$tablename);
+		$result = $db->query("SELECT currentid FROM uniqueid WHERE tablename = '%s'",$tablename);
 
-		if($row = xDB::getDB()->fetchObject($result))
+		if($row = $db->fetchObject($result))
 		{
 			$ret = $row->currentid + 1;
 			
-			xDB::getDB()->query("UPDATE uniqueid SET currentid = %d WHERE tablename = '%s'",$ret,$tablename);
+			$db->query("UPDATE uniqueid SET currentid = %d WHERE tablename = '%s'",$ret,$tablename);
 		}
 		
 		return $ret;

@@ -31,9 +31,10 @@ class xNodeDAO
 	 */
 	function _linkToCathegories($nodeid,$cathegories)
 	{
+		$db =& xDB::getDB();
 		foreach($cathegories as $cathegory)
 		{
-			if(! xDB::getDB()->query("INSERT INTO node_to_cathegory(nodeid,catid) VALUES(%d,%d)",
+			if(! $db->query("INSERT INTO node_to_cathegory(nodeid,catid) VALUES(%d,%d)",
 					$nodeid,$cathegory->m_id))
 			{
 				return false;
@@ -52,7 +53,8 @@ class xNodeDAO
 	 */
 	function insert($node)
 	{
-		xDB::getDB()->startTransaction();
+		$db =& xDB::getDB();
+		$db->startTransaction();
 		
 		$id = xUniqueId::generate('node');
 		
@@ -60,12 +62,12 @@ class xNodeDAO
 		$field_values = "%d,'%s','%s','%s',NOW()";
 		$values = array($id,$node->m_type,$node->m_author,$node->m_content_filter);
 		
-		xDB::getDB()->query("INSERT INTO node($field_names) VALUES($field_values)",$values);
+		$db->query("INSERT INTO node($field_names) VALUES($field_values)",$values);
 		
 		//now cathegory link
 		xNodeDAO::_linkToCathegories($id,$node->m_parent_cathegories);
 
-		if(! xDB::getDB()->commitTransaction())
+		if(! $db->commitTransaction())
 		{
 			return false;
 		}
@@ -81,7 +83,8 @@ class xNodeDAO
 	 */
 	function delete($nodeid)
 	{
-		if(! xDB::getDB()->query("DELETE FROM node WHERE id = %d",$nodeid))
+		$db =& xDB::getDB();
+		if(! $db->query("DELETE FROM node WHERE id = %d",$nodeid))
 			return false;
 		
 		//automatic node_to_cathegory deletion
@@ -99,20 +102,21 @@ class xNodeDAO
 	 */
 	function update($node)
 	{
-		xDB::getDB()->startTransaction();
+		$db =& xDB::getDB();
+		$db->startTransaction();
 			
 		$fields = "content_filter = '%s',edit_time = NOW()";
 		$values = array($node->m_content_filter,$node->m_cathegory);
 		
 		$values[] = $node->m_id;
-		xDB::getDB()->query("UPDATE node SET $fields WHERE id = %d",$values);
+		$db->query("UPDATE node SET $fields WHERE id = %d",$values);
 		
 		//now cathegories
-		xDB::getDB()->query("DELETE FROM node_to_cathegory WHERE nodeid = %d",$node->m_id);
+		$db->query("DELETE FROM node_to_cathegory WHERE nodeid = %d",$node->m_id);
 		
 		xNodeDAO::_linkToCathegories($node->m_id,$node->m_cathegories);
 		
-		if(!xDB::getDB()->commitTransaction())
+		if(!$db->commitTransaction())
 			return false;
 		
 		return true;
@@ -123,8 +127,9 @@ class xNodeDAO
 	 */
 	function getNodeTypeById($id)
 	{
-		$result = xDB::getDB()->query("SELECT type FROM node WHERE id = %d",$id);
-		if($row = xDB::getDB()->fetchObject($result))
+		$db =& xDB::getDB();
+		$result = $db->query("SELECT type FROM node WHERE id = %d",$id);
+		if($row = $db->fetchObject($result))
 		{
 			return $row->type;
 		}
@@ -152,8 +157,9 @@ class xNodeDAO
 	 */
 	function load($id)
 	{
-		$result = xDB::getDB()->query("SELECT * FROM node WHERE id = %d",$id);
-		if($row = xDB::getDB()->fetchObject($result))
+		$db =& xDB::getDB();
+		$result = $db->query("SELECT * FROM node WHERE id = %d",$id);
+		if($row = $db->fetchObject($result))
 		{
 			return xNodeDAO::_nodeFromRow($row,xCathegoryDAO::findNodeCathegories($id));
 		}
@@ -169,9 +175,10 @@ class xNodeDAO
 	 */
 	function find()
 	{
+		$db =& xDB::getDB();
 		$nodes = array();
-		$result = xDB::getDB()->query("SELECT * FROM node WHERE");
-		while($row = xDB::getDB()->fetchObject($result))
+		$result = $db->query("SELECT * FROM node WHERE");
+		while($row = $db->fetchObject($result))
 		{
 			$nodes[] = xNodeDAO::_nodeFromRow($row,xCathegoryDAO::findNodeCathegories($id));
 		}

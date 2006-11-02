@@ -33,7 +33,8 @@ class xLanguageDAO
 	 */
 	function insert($language)
 	{
-		return xDB::getDB()->query("INSERT INTO language(name,full_name) 
+		$db =& xDB::getDB();
+		return $db->query("INSERT INTO language(name,full_name) 
 			VALUES ('%s','%s')",$language->m_name,$language->m_full_name);
 	}
 	
@@ -47,7 +48,8 @@ class xLanguageDAO
 	 */
 	function delete($name)
 	{
-		return xDB::getDB()->query("DELETE FROM language WHERE name = '%s'",$name);
+		$db =& xDB::getDB();
+		return $db->query("DELETE FROM language WHERE name = '%s'",$name);
 	}
 	
 	/**
@@ -70,8 +72,9 @@ class xLanguageDAO
 	 */
 	function load($name)
 	{
-		$result = xDB::getDB()->query("SELECT * FROM language WHERE name = '%s'",$name);
-		if($row = xDB::getDB()->fetchObject($result))
+		$db =& xDB::getDB();
+		$result = $db->query("SELECT * FROM language WHERE name = '%s'",$name);
+		if($row = $db->fetchObject($result))
 		{
 			return xLanguageDAO::_languageFromRow($row);
 		}
@@ -87,9 +90,10 @@ class xLanguageDAO
 	 */
 	function findNames()
 	{
+		$db =& xDB::getDB();
 		$languages = array();
-		$result = xDB::getDB()->query("SELECT name FROM language");
-		while($row = xDB::getDB()->fetchObject($result))
+		$result = $db->query("SELECT name FROM language");
+		while($row = $db->fetchObject($result))
 		{
 			$languages[] = $row->name;
 		}
@@ -107,8 +111,8 @@ class xLanguageDAO
 	function find()
 	{
 		$languages = array();
-		$result = xDB::getDB()->query("SELECT * FROM language");
-		while($row = xDB::getDB()->fetchObject($result))
+		$result = $db->query("SELECT * FROM language");
+		while($row = $db->fetchObject($result))
 		{
 			$languages[] = xLanguageDAO::_languageFromRow($row);
 		}

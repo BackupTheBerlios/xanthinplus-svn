@@ -36,13 +36,14 @@ class xMenuDAO
 	 */
 	function insert($menu)
 	{
-		xDB::getDB()->startTransaction();
+		$db =& xDB::getDB();
+		$db->startTransaction();
 		
 		xBoxI18NDAO::insert($menu);
 		
 		xMenuDAO::_insertItems($menu->m_name,$menu->m_items,0);
 		
-		if(!xDB::getDB()->commitTransaction())
+		if(!$db->commitTransaction())
 			return false;
 		
 		return true;
@@ -58,13 +59,14 @@ class xMenuDAO
 	*/
 	function insertTranslation($menu)
 	{
-		xDB::getDB()->startTransaction();
+		$db =& xDB::getDB();
+		$db->startTransaction();
 		
 		xBoxI18NDAO::insertTranslation($menu);
 		
 		xMenuDAO::_insertItems($menu->m_name,$menu->m_items,0);
 		
-		if(!xDB::getDB()->commitTransaction())
+		if(!$db->commitTransaction())
 			return false;
 		
 		return true;
@@ -78,6 +80,7 @@ class xMenuDAO
 	 */
 	function _insertItems($menuname,$items,$parentid)
 	{
+		$db =& xDB::getDB();
 		if(!empty($items))
 		{
 			foreach($items as $item)
@@ -95,7 +98,7 @@ class xMenuDAO
 				}
 				
 				
-				if(! xDB::getDB()->query("INSERT INTO menu_item($field_names) VALUES($field_values)",$values))
+				if(! $db->query("INSERT INTO menu_item($field_names) VALUES($field_values)",$values))
 					return false;
 				
 				if(! xMenuDAO::_insertItems($menuname,$item->m_subitems,$id))
@@ -115,18 +118,19 @@ class xMenuDAO
 	 */
 	function update($menu)
 	{
-		xDB::getDB()->startTransaction();
+		$db =& xDB::getDB();
+		$db->startTransaction();
 		
 		xBoxI18NDAO::update($menu);
 		
 		//clear all menu items
-		xDB::getDB()->query("DELETE FROM menu_item WHERE box_name = '%s' AND lang = '%s'",
+		$db->query("DELETE FROM menu_item WHERE box_name = '%s' AND lang = '%s'",
 			$menu->m_name,$menu->m_lang);
 		
 		//insert new
 		xMenuDAO::_insertItems($menu->m_name,$menu->m_items,0);
 		
-		if(!xDB::getDB()->commitTransaction())
+		if(!$db->commitTransaction())
 			return false;
 		
 		return true;
@@ -152,6 +156,7 @@ class xMenuDAO
 	 */
 	function _getMenuItems($parent,$menuname,$lang)
 	{
+		$db =& xDB::getDB();
 		$where[0]["clause"] = "menu_item.box_name = '%s'";
 		$where[0]["connector"] = "AND";
 		$where[0]["value"] = $menuname;
@@ -170,9 +175,9 @@ class xMenuDAO
 		$where[2]["connector"] = "AND";
 		
 		
-		$result = xDB::getDB()->autoQuerySelect('*','menu_item',$where);
+		$result = $db->autoQuerySelect('*','menu_item',$where);
 		$objs = array();
-		while($row = xDB::getDB()->fetchObject($result))
+		while($row = $db->fetchObject($result))
 		{
 			$newitem = xMenuDAO::_menuitemFromRow($row);
 			$newitem->m_subitems = xMenuDAO::_getMenuItems($row->id,$menuname,$lang);
@@ -199,6 +204,7 @@ class xMenuDAO
 	 */
 	function _find($name,$type,$lang,$flexible_lang)
 	{
+		$db =& xDB::getDB();
 		if($flexible_lang && $lang !== NULL)
 		{
 			//now extract all menus with specified lang
@@ -240,9 +246,9 @@ class xMenuDAO
 			$where[3]["connector"] = "AND";
 			$where[3]["value"] = $type;
 			
-			$result = xDB::getDB()->autoQuerySelect('*','box,box_i18n',$where);
+			$result = $db->autoQuerySelect('*','box,box_i18n',$where);
 			$objs = array();
-			while($row = xDB::getDB()->fetchObject($result))
+			while($row = $db->fetchObject($result))
 				$objs[] = xMenuDAO::_menuFromRow($row,NULL);
 			return $objs;
 		}
@@ -254,10 +260,13 @@ class xMenuDAO
 	 */
 	function find($name,$type,$lang,$flexible_lang)
 	{
+		$db =& xDB::getDB();
 		$menus = xMenuDAO::_find($name,$type,$lang,$flexible_lang);
-		foreach($menus as $menu)
-			$menu->m_items = xMenuDAO::_getMenuItems(NULL,$menu->m_name,$menu->m_lang);
 		
+		reset($menus);
+		while(list($key, $menu) = each($menus))
+			$menus[$key]->m_items = xMenuDAO::_getMenuItems(NULL,$menu->m_name,$menu->m_lang);
+
 		return $menus;
 	}
 };

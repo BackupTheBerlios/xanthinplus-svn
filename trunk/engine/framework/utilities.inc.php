@@ -16,6 +16,15 @@
 */
 
 
+/**
+ * Equivalent to current() php function, exept this return a reference instad of a value.
+ */
+function &current_by_ref(&$arr)
+{
+	return $arr[key($arr)];
+}
+
+
 function array_diff_no_strict($array1,$array2)
 {
 	$ret = array();
