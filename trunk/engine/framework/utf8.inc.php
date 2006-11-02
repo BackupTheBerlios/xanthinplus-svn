@@ -32,7 +32,15 @@ class xUTF8
 	 */
 	function strlen($string)
 	{
-		return strlen(utf8_decode($string));
+		if(function_exists('utf8_decode'))
+		{
+			return strlen(utf8_decode($string));
+		}
+		else
+		{
+			// Do not count UTF-8 continuation bytes.
+		    return strlen(preg_replace("/[\x80-\xBF]/", '', $text));
+		}
 	}
 	
 	
