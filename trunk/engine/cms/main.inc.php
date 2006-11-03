@@ -67,7 +67,14 @@ function xanth_main()
 	xNotifications::postProcessing();
 	
 	session_write_close();
-	ob_end_flush();
+	$content = ob_get_clean();
+	echo $content;
+	
+	/*
+	$handle = fopen('out', 'a');
+	fwrite($handle, $content);
+    fclose($handle);
+    */
 }
 
 ?>

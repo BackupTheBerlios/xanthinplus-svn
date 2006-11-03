@@ -77,13 +77,12 @@ class xPageContent extends xElement
 	/**
 	 * @access protected
 	 */
-	function _set($title,$content,$meta_description,$meta_keywords,$headers = array())
+	function _set($title,$content,$meta_description,$meta_keywords)
 	{
 		$this->m_title = $title;
 		$this->m_meta_description = $meta_description;
 		$this->m_meta_keywords = $meta_keywords;
 		$this->m_content = $content;
-		$this->m_headers = $headers;
 	}
 	
 	/**
@@ -93,9 +92,7 @@ class xPageContent extends xElement
 	{
 		//output headers
 		foreach($this->m_headers as $header)
-		{
 			header($header);
-		}
 		
 		return $this->m_content;
 	}
@@ -196,8 +193,8 @@ class xPageContentSimple extends xPageContent
 	 */
 	function xPageContentSimple($title,$content,$meta_description,$meta_keywords,$path,$headers = array())
 	{
-		xPageContent::_set($title,$content,$meta_description,$meta_keywords,$headers);
-		
+		xPageContent::_set($title,$content,$meta_description,$meta_keywords);
+		$this->m_headers = $headers;
 		$this->m_path = $path;
 	}
 	
@@ -231,9 +228,9 @@ class xPageContentError extends xPageContentSimple
 	 */
 	function xPageContentError($error,$path,$headers = array())
 	{
-		$content = '<b>There was an error while creating the page content: ' . $error . '</b>';
+		$content = '<b>Error: ' . $error . '</b>';
 		
-		xPageContentSimple::xPageContentSimple('Error',$content,'','',$headers);
+		xPageContentSimple::xPageContentSimple('Error',$content,'','',$path,$headers);
 	}
 };
 

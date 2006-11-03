@@ -128,16 +128,15 @@ class xPageContentBoxCreateMenu extends xPageContentBoxCreate
 				if($box->insert())
 				{
 					xNotifications::add(NOTIFICATION_NOTICE,'New box successfully created',2);
+					$this->m_headers[] = 'Location: ' . xPath::renderLink($this->m_path->m_lang,
+						'box','edit_translation',$this->m_path->m_type,$box->m_name);
 				}
 				else
 				{
-					$this->m_headers[] = 'Location: ' . xPath::renderLink($this->m_path->m_lang,
-						'box','edit_translation',$this->m_path->m_type,$box->m_name);
 					xNotifications::add(NOTIFICATION_ERROR,'Error: box was not created');
 				}
 				
 				$this->_set("Create new box",'','','');
-				
 				return TRUE;
 			}
 			else

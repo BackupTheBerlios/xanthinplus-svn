@@ -11,111 +11,73 @@ body
 #page 
 {
 	background-color: #fff;
-	margin: 0 5% 0 5%;
-	max-width: 1100px;
-	min-width: 760px;
+	margin: auto;
+	width: 785px;
 	text-align: left;
+	border: 2px solid #fff;
 }
 
 #page1
 {
-	background: url(images/page_left.png) left repeat-y;
+	position: relative; /*  Leave this to correct IE bug that make disappear some contents */
+	background: url(images/background.png) top no-repeat;
 }
-
-#page2
-{
-	background: url(images/page_right.png) right repeat-y;
-}
-
-#page3
-{
-	background: url(images/page_bottom.png) bottom repeat-x;
-}
-
-#page4
-{
-	background: url(images/page_top.png) top repeat-x;
-}
-
-#page5
-{
-	background: url(images/page_corner_ul.png) top left no-repeat;
-}
-
-#page6
-{
-	background: url(images/page_corner_ur.png) top right no-repeat;
-}
-
-#page7
-{
-	background: url(images/page_corner_bl.png) bottom left no-repeat;
-}
-
-#page8
-{
-	background: url(images/page_corner_br.png) bottom right no-repeat;
-	padding: 15px;
-}
-
 
 #contents
 {
-	margin-left: 170px;
+	float: none;
+	margin: 5px;
+	border: 2px #5f9259 dashed;
+	margin-right: 180px;
+	background-color: #fff;
 }
 
 #contents-center
 {
-	background-color: #ededff;
-	border: 1px dashed;
 	margin: 0 0 0 8px;
 	padding: 8px;
 }
 
 
-#contents-header
+#sidebar-right
 {
-}
-
-#contents-footer
-{
-}
-
-
-#left-sidebar
-{
-	float: left;
+	position: relative;
+	float: right;
 	width: 165px;
+	padding: 0px 5px 0 5px;
+	top: 0px;
 }
 
 #logo
 {
-	padding: 12px;
 	width: 400px;
-	height: 54px;
+	height: 83px;
 }
 
 #header
 {
-	width: 100%;
+	background: url(images/header_bg.png) repeat-x;
 }
 
 #links
 {
-	width: 100%;
-	background: url(images/links_bg.png) no-repeat;
+	padding: 5px 0 0 5px;
+	margin: 3px;
+	background: url(images/links_bg.png) repeat-x;
 	height: 25px;
-	padding: 0.45em;
-	margin-left: 10px;
 }
 
 
 #footer
 {
-	padding: 0.5em 0 1em;
 	font-size: 0.8em;
 	text-align: center;
-	vertical-align: bottom;
+	vertical-align: center;
+	height: 20px;
+	color: #fff;
+	background-color: #1c2033;
+	margin: 3px;
+	padding: 5px 0 0 0;
 }
 
 
@@ -152,29 +114,30 @@ body
 .box
 {
 	font-size: 1em;
-	background: url(images/box_background.png) repeat-y;
 	margin-bottom: 1em;
 	width: 162px;
+	background-color: #fff;
+	border: 2px solid #c0c0c0;
 }
 
 .box a
 {
-	color: #ddd;
+	color: #000;
 }
 
 .box .content
 {
-	background: url(images/box_footer.png) no-repeat left bottom;
 	padding: 0 0 1em 0;
 }
 
 .box .title
 {
 	font-weight: bold;
-	background: url(images/box_header.png) no-repeat;
-	padding: 0.5em 0 0 0;
-	color: #fff;
+	background: url(images/box_title_bg.png) no-repeat;
+	margin: 2px;
+	color: #000;
 	text-align: center;
+	padding-top: 5px;
 	height: 30px;
 }
 
@@ -198,7 +161,7 @@ body
 /*___________ MOVE to default._________________ */
 ul
 {
-  padding: 0 0 0 1em;
+  padding: 0 0 0 2em;
   margin: 0;
 }
 
@@ -206,6 +169,6 @@ ul
 li
 {
   list-style-type: disc;
-  padding: 0.2em 0 0 0;
+  padding: 0.1em 0 0 0;
   margin: 0;
 }
