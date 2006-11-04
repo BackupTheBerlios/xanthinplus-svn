@@ -147,44 +147,98 @@ class xNodeI18NDAO
 			$row_object->creation_time,$row_object->edit_time);
 	}
 	
-	/**
-	 * Retrieve a specific node
-	 *
-	 * @return xNode
-	 * @static
-	 */
-	function load($id,$lang)
-	{
-		$db =& xDB::getDB();
-		$result = $db->query("SELECT * FROM node,node_i18n WHERE node.id = %d AND node_i18n.nodeid = node.id AND 
-			node_i18n.lang = '%s'",$id,$lang);
-		if($row = $db->fetchObject($result))
-		{
-			return xNodeI18NDAO::_nodei18nFromRow($row,xCathegoryDAO::findNodeCathegories($id));
-		}
-		return NULL;
-	}
-	
 	
 	/**
-	 * Retrieve all nodes
-	 *
-	 * @return xNode
-	 * @static
+	 * @acces protected
 	 */
-	function findAll($lang)
+	function _selectFlexiLang($nodes,$lang)
 	{
 		$db =& xDB::getDB();
-		$nodes = array();
-		$result = $db->query("SELECT * FROM node,node_i18n WHERE node_i18n.nodeid = node.id AND 
-			node_i18n.lang = '%s'");
-		while($row = $db->fetchObject($result))
+		//now group by name and lang
+		$grouped = array();
+		foreach($nodes as $node)
+			$grouped[$node->m_id][$node->m_lang] = $node;
+			
+		$ret = array();
+		
+		//extract nodes
+		foreach($grouped as $id => $ignore)
 		{
-			$nodes[] = xNodeI18NDAO::_nodei18nFromRow($row,xCathegoryDAO::findNodeCathegories($row->id));
+			if(isset($grouped[$id][$lang])) //specific lang
+				$ret[] = $grouped[$id][$lang];
+			elseif(isset($grouped[$id][xSettings::get('default_lang')])) //default lang
+				$ret[] = $grouped[$id][xSettings::get('default_lang')];
+			else	//first found lang
+				$ret[] = reset($grouped[$id]);
 		}
 		
-		return $nodes;
+		return $ret;
 	}
+	
+	
+	/**
+	 * 
+	 */
+	function find($order,$limit,$id,$type,$author,$parent_cat,$lang,$flexible_lang,$translator)
+	{
+		$db =& xDB::getDB();
+		if($flexible_lang && $lang !== NULL)
+		{
+			//now extract all nodes with all languages
+			$objs = xNodeI18NDAO::find($order,$limit,$id,$type,$author,$parent_cat,NULL,FALSE,$translator);
+			return xNodeI18NDAO::_selectFlexiLang($objs,$lang);
+		}
+		else
+		{
+			$i = 0;
+			$where[$i]["clause"] = "node_i18n.nodeid = %d";
+			$where[$i]["connector"] = "AND";
+			$where[$i]["value"] = $id;
+			
+			$i++;
+			$where[$i]["clause"] = "node_i18n.lang = '%s'";
+			$where[$i]["connector"] = "AND";
+			$where[$i]["value"] = $lang;
+			
+			$i++;
+			$where[$i]["clause"] = "node_i18n.translator = '%s'";
+			$where[$i]["connector"] = "AND";
+			$where[$i]["value"] = $translator;
+		 
+		 	$i++;
+		 	$where[$i]["clause"] = "node.id = node_i18n.nodeid";
+			$where[$i]["connector"] = "AND";
+		 	
+		 	$i++;
+			$where[$i]["clause"] = "node.type = '%s'";
+			$where[$i]["connector"] = "AND";
+			$where[$i]["value"] = $type;
+			
+			$i++;
+			$where[$i]["clause"] = "node.author = '%s'";
+			$where[$i]["connector"] = "AND";
+			$where[$i]["value"] = $author;
+			
+			$i++;
+			$where[$i]["clause"] = "node_to_cathegory.catid = %d";
+			$where[$i]["connector"] = "AND";
+			$where[$i]["value"] = $parent_cat;
+			
+			$i++;
+			$where[$i]["clause"] = "node.id = node_to_cathegory.nodeid";
+			$where[$i]["connector"] = "AND";
+			if($parent_cat === NULL)
+				$where[$i]["value"] = NULL;
+			
+			$result = $db->autoQuerySelect('node.*,node_i18n.*','node,node_i18n,node_to_cathegory',
+				$where,$order,$limit);
+			$objs = array();
+			while($row = $db->fetchObject($result))
+				$objs[] = xNodeI18NDAO::_nodei18nFromRow($row,NULL);
+			return $objs;
+		}
+	}
+	
 	
 	/**
 	 *

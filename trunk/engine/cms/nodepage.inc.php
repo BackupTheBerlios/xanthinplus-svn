@@ -117,24 +117,13 @@ class xNodePage extends xNodeI18N
 		return xNodePageDAO::updateTranslation($this);
 	}
 	
-	
-	/**
-	 * Retrieve a specific Node page from db
-	 *
-	 * @return xNodePage
-	 * @static
-	 */
-	function load($id,$lang)
-	{
-		return xNodePageDAO::load($id,$lang);
-	}
-	
 	/**
 	 * @static
 	 */	
-	function find($type,$parent_cat,$author,$lang)
+	function find($order = array(),$limit = array(),$id = NULL,$type = NULL,$author = NULL,$parent_cat = NULL,$lang = NULL,$flexible_lang = TRUE,
+		$translator = NULL)
 	{
-		return xNodePageDAO::find($type,$parent_cat,$author,$lang);
+		return xNodePageDAO::find($order,$limit,$id,$type,$author,$parent_cat,$lang,$flexible_lang,$translator);
 	}
 	
 	/**

@@ -82,6 +82,7 @@ class xCathegoryDAO
 		return new xCathegory($row_object->id,$row_object->type,$row_object->parent_cathegory);
 	}
 	
+	
 	/**
 	 * @return array(xCathegory)
 	 */

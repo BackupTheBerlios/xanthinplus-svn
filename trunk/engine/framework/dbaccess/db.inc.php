@@ -444,7 +444,7 @@ class xDB
 					if(!empty($out_where))
 						$out_where = ' WHERE ' . $out_where;
 					
-					$out =  'UPDATE  ' . $table_name . ' SET ' . $out1 . $out_where . ' '. $extra_query;
+					$out =  'UPDATE  ' . $table_name . ' SET ' . $out_update . $out_where . ' '. $extra_query;
 					array_merge($values,$extra_values);
 					$this->query($out,$values);
 					
@@ -603,37 +603,103 @@ class xDB
 			}
 		}
 		
+		if(!empty($out))
+			$out = ' WHERE ' . $out;
 		return $out;
 	}
+	
+	/**
+	 * @access private
+	 */
+	function _generateOrderClause($order,&$values)
+	{
+		$out = '';
+		$first = true;
+		foreach($order as $clause)
+		{
+			if(isset($clause['column']))
+			{
+				if(!$first)
+					$out .= ',';
+				else
+					$first = false;
+				
+				if(strcasecmp($clause['direction'],'asc') !== 0 && strcasecmp($clause['direction'],'desc') !== 0)
+				{
+					xLog::log(LOG_LEVEL_ERROR,'Invalid direction for ORDER clause: "'.$clause['direction'].'"',
+						__FILE__,__LINE__);
+				}
+				else
+				{
+					$out .= '%s ' . $clause['direction'];
+					$values[] = $clause['column'];
+				}
+			}
+		}
+		
+		if(!empty($out))
+			$out = ' ORDER BY ' . $out;
+		return $out;
+	}
+	
+	/**
+	 * @access private
+	 */
+	function _generateLimitClause($limit,&$values)
+	{
+		if(!empty($limit))
+		{
+			$out = ' LIMIT %d,%d';
+			$values[] = $limit['offset'];
+			$values[] = $limit['elements'];
+			
+			return $out;
+		}
+		
+		return '';
+	}
+	
+	
 	
 	
 	/**
 	 * 
 	 * @param string $columns The columns to select.
 	 * @param string $tables The tables to select colums from
-	 * @param array() $where An array so structured: \n
-	 * \n
-	 * $where[0]["clause"] = "table.column = '%s'";\n
-	 * $where[0]["connector"] = "AND";\n
-	 * $where[0]["value"] = $val (or an array of values);\n
-	 * You can also create nested where clause by defining another sub array:\n
-	 * 
-	 * $where[0]["connector"] = "AND";\n
-	 * $where[0][0]["clause"] = "table.column = '%s'";\n
-	 * $where[0][0]["connector"] = "AND";\n
-	 * $where[0][0]["value"] = $val;\n
-	 * \n
-	 * @notice If ['value'] exists and is null the whole clause will be ingored,
+	 * @param array $where An array so structured: <br>
+	 * <code>
+	 * $where[0]["clause"] = "table.column = '%s'"; 
+	 * $where[0]["connector"] = "AND";
+	 * $where[0]["value"] = $val (or an array of values);
+	 * </code>
+	 * You can also create nested where clause by defining another sub array:
+	 * <code>
+	 * $where[0]["connector"] = "AND";
+	 * $where[0][0]["clause"] = "table.column = '%s'";
+	 * $where[0][0]["connector"] = "AND";
+	 * $where[0][0]["value"] = $val;
+	 * <code>
+	 * <b>NOTE:</b> If ['value'] exists and is null the whole clause will be ingored,
 	 * if ['value'] does not exists at all the clause is inserted normally but no values are inserted.
+	 * @param array $limit An array so structured:
+	 * <code>
+	 * $limit['offset'] = 0
+	 * $limit['elements'] = 10
+	 * </code>
+	 * @param array $order An array so structured:
+	 * <code>
+	 * $order[0]['column'] = 0
+	 * $order[0]['direction'] = [ASC | DESC]
+	 * </code> 
 	 */
-	function autoQuerySelect($columns,$tables,$where,$debug = FALSE)
+	function autoQuerySelect($columns,$tables,$where,$order = array(),$limit = array(),$debug = FALSE)
 	{
 		$values = array();
 		$out_where = $this->_generateWhereClause($where,$values);
-		if(!empty($out_where))
-			$out_where = ' WHERE ' . $out_where;
-			
-		$query = 'SELECT '.$columns.' FROM '.$tables.$out_where;
+		$out_order = $this->_generateOrderClause($order,$values);
+		$out_limit = $this->_generateLimitClause($limit,$values);
+		
+		$query = 'SELECT '.$columns.' FROM '.$tables.$out_where.$out_order.$out_limit;
 		
 		if($debug)
 		{
@@ -648,13 +714,13 @@ class xDB
 	/**
 	 * 
 	 * @param string $table The table to insert into.
-	 * @param string $records An array so structured: \n
-	 * \n
-	 * $records[0]["name"] = "column_name";\n
-	 * $records[0]["type"] = "'%s'";\n
-	 * $records[0]["value"] = $val;\n
-	 * \n
-	 * @notice If ['value'] exists and is null NULL is inserted,
+	 * @param string $records An array so structured:
+	 * <code>
+	 * $records[0]["name"] = "column_name";
+	 * $records[0]["type"] = "'%s'";
+	 * $records[0]["value"] = $val;
+	 * </code>
+	 * <b>NOTE:</b> If ['value'] exists and is null, NULL is inserted,
 	 * if ['value'] does not exists the whole clause is ignored so default is inserted.
 	 */
 	function autoQueryInsert($table,$records,$debug = FALSE)
@@ -664,7 +730,7 @@ class xDB
 		$first = true;
 		$out_columns = '';
 		$out_values = '';
-		foreach($redords as $record)
+		foreach($records as $record)
 		{
 			$type = $record['type'];
 			if(array_key_exists('value',$record))
@@ -703,10 +769,10 @@ class xDB
 	/**
 	 * 
 	 * @param string $table The table to insert into.
-	 * @param array() $where An in autoQuerySelect
-	 * @param string $records An in autoQueryInsert
+	 * @param array() $where As in autoQuerySelect()
+	 * @param string $records As in autoQueryInsert()
 	 *
-	 * @notice If ['value'] exists and is null NULL is inserted,
+	 * <b>NOTE:</b> If ['value'] exists and is null NULL is inserted,
 	 * if ['value'] does not exists the whole clause is ignored so default is inserted.
 	 */
 	function autoQueryUpdate($table,$records,$where,$debug = FALSE)

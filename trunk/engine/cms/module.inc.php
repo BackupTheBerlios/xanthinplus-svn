@@ -454,6 +454,14 @@ class xDummyModule extends xModule
 	function xm_fetchPermissionDescriptors()
 	{
 	}
+	
+	/**
+	 * Called after framework initialization but before page fetching.
+	 * 
+	 */
+	function xm_onInit()
+	{
+	}
 }
 
 

@@ -39,12 +39,7 @@ class xModuleNodePage extends xModule
 		
 		elseif($path->m_resource === 'node' && $path->m_action === 'view' && $path->m_type === 'page')
 		{
-			$node = xNodePage::load($path->m_id,$path->m_lang);
-			if($node === NULL)
-			{
-				return new xPageContentNotFound($path);
-			}
-			return new xPageContentNodePageView($path,$node);
+			return new xPageContentNodeViewPage($path);
 		}
 		
 		elseif($path->m_resource === 'node' && $path->m_type === 'page' && $path->m_action === 'create')
@@ -132,9 +127,7 @@ class xPageContentNodeAdminPage extends xPageContent
 	{
 		$out = array();
 		foreach($nodes as $node)
-		{
 			$out[$node->m_id][$node->m_lang] = $node;
-		}
 		
 		return $out;
 	}
@@ -144,9 +137,9 @@ class xPageContentNodeAdminPage extends xPageContent
 	 */
 	function onCreate()
 	{
-		$nodes = xNodePage::find(NULL,NULL,NULL,NULL);
+		$nodes = xNodePage::find(array(),array(),NULL,NULL,NULL,NULL,NULL,FALSE);
 		$nodes = $this->_groupNodes($nodes);
-		$out = '<a href="'.xanth_relative_path($this->m_path->m_lang. '/node/create/page').'">Create new node page</a><br/><br/>';
+		$out = '<a href="'.xPath::renderLink($this->m_path->m_lang,'node','create','page').'">Create new node page</a><br/><br/>';
 		$out .= "<div class = 'admin'><table>\n";
 		$out .= "<tr><th>ID</th><th>Title</th><th>In your lang?</th><th>Translated in</th><th>Translate in</th></tr>\n";
 		$langs = xLanguage::findNames();
@@ -155,17 +148,12 @@ class xPageContentNodeAdminPage extends xPageContent
 			$node = NULL;
 			
 			if(isset($node_array[$this->m_path->m_lang])) 				//select current language node
-			{
 				$node = $node_array[$this->m_path->m_lang];
-			}
 			elseif(isset($node_array[xSettings::get('default_lang')]))	//select default language node
-			{
 				$node = $node_array[xSettings::get('default_lang')];
-			}
 			else														//select first found language node
-			{
 				$node = reset($node_array);
-			}
+				
 			$error = '';
 			$out .= '<tr><td>'.$id.'</td><td><a href="'.
 				xPath::renderLink($node->m_lang,'node','view',$node->m_type,$node->m_id) . '">'.
@@ -195,7 +183,7 @@ class xPageContentNodeAdminPage extends xPageContent
 		}
 		$out  .= "</table></div>\n";
 		
-		xPageContent::_set("Admin node page",$out,'','');
+		xPageContent::_set('Manage "'.$this->m_path->m_type.'" nodes',$out,'','');
 		return true;
 	}
 };
@@ -269,12 +257,12 @@ class xPageContentNodeTranslatePage extends xPageContentNodeTranslate
 				
 				if($node->insertTranslation())
 				{
-					xNotifications::add(NOTIFICATION_NOTICE,'Node successfully translated');
+					xNotifications::add(NOTIFICATION_NOTICE,'Node successfully translated',2);
+					$this->m_headers[] = 'Location: ' . xPath::renderLink($this->m_path->m_lang,'node','view',
+						$this->m_path->m_type,$this->m_path->m_id);
 				}
 				else
-				{
-					xNotifications::add(NOTIFICATION_ERROR,'Error inserting translation');
-				}
+					xNotifications::add(NOTIFICATION_ERROR,'There was an error while creating translation');
 				
 				$this->_set("Translate node page",'','','');
 				return TRUE;
@@ -350,7 +338,7 @@ class xPageContentNodeEdittranslationPage extends xPageContentNodeEdittranslatio
 		$form->m_elements[] = $group;
 		
 		//submit buttom
-		$form->m_elements[] = new xFormSubmit('submit','Edit');
+		$form->m_elements[] = new xFormSubmit('submit','Update');
 		
 		$ret = $form->validate();
 		if(! $ret->isEmpty())
@@ -365,14 +353,14 @@ class xPageContentNodeEdittranslationPage extends xPageContentNodeEdittranslatio
 				
 				if($node->updateTranslation())
 				{
-					xNotifications::add(NOTIFICATION_NOTICE,'Node translation successfully updated');
+					xNotifications::add(NOTIFICATION_NOTICE,'Node translation successfully updated',2);
+					$this->m_headers[] = 'Location: ' . xPath::renderLink($this->m_path->m_lang,'node',
+						'view',$this->m_path->m_type,$this->m_path->m_id);
 				}
 				else
-				{
-					xNotifications::add(NOTIFICATION_ERROR,'Error during translation update');
-				}
+					xNotifications::add(NOTIFICATION_ERROR,'There was an error while updating translation');
 				
-				$this->_set("Edit node page translation",'','','');
+				$this->_set("Edit \"page\" node translation",'','','');
 				return TRUE;
 			}
 			else
@@ -384,7 +372,7 @@ class xPageContentNodeEdittranslationPage extends xPageContentNodeEdittranslatio
 			}
 		}
 
-		$this->_set("Edit node page translation",$form->render(),'','');
+		$this->_set("Edit \"page\" node translation",$form->render(),'','');
 		return TRUE;
 	}
 };
@@ -424,9 +412,7 @@ class xPageContentNodePageCreate extends xPageContentNodeCreate
 			$cathegories = xCathegoryI18N::find($this->m_path->m_type,NULL,NULL,'en');
 			$options = array();
 			foreach($cathegories as $cathegory)
-			{
 				$options[$cathegory->m_name] = $cathegory->m_id;
-			}
 			
 			$form->m_elements[] = new xFormElementOptions('cathegory','Cathegories','','',$options,TRUE,TRUE,
 				new xCreateIntoCathegoryValidator($this->m_path->m_type));
@@ -450,8 +436,12 @@ class xPageContentNodePageCreate extends xPageContentNodeCreate
 		$content_filter_radio_group = new xFormRadioGroup('Content filter');
 		foreach($filters as $filter)
 		{
+			$checked = false;
+			if($filter['name'] == 'html')
+				$checked = true;
+				
 			$content_filter_radio_group->m_elements[] = new xFormElementRadio('filter',$filter['name'],
-				$filter['description'],$filter['name'],false,TRUE,new xInputValidatorContentFilter(64));
+				$filter['description'],$filter['name'],$checked,TRUE,new xInputValidatorContentFilter(64));
 		}
 		$form->m_elements[] = $content_filter_radio_group;
 		
@@ -498,12 +488,12 @@ class xPageContentNodePageCreate extends xPageContentNodeCreate
 					
 				if($node->insert())
 				{
-					xNotifications::add(NOTIFICATION_NOTICE,'New node successfully created');
+					xNotifications::add(NOTIFICATION_NOTICE,'New node successfully created',2);
+					$this->m_headers[] = 'Location: ' . xPath::renderLink($this->m_path->m_lang,'node','view',
+						$this->m_path->m_type,$node->m_id);
 				}
 				else
-				{
-					xNotifications::add(NOTIFICATION_ERROR,'Error: node was not created');
-				}
+					xNotifications::add(NOTIFICATION_ERROR,'There was an error while creating the node');
 				
 				$this->_set("Create new node page",'','','');
 				return TRUE;
@@ -511,9 +501,7 @@ class xPageContentNodePageCreate extends xPageContentNodeCreate
 			else
 			{
 				foreach($ret->m_errors as $error)
-				{
 					xNotifications::add(NOTIFICATION_WARNING,$error);
-				}
 			}
 		}
 
@@ -527,11 +515,11 @@ class xPageContentNodePageCreate extends xPageContentNodeCreate
 /**
  * 
  */
-class xPageContentNodePageView extends xPageContentNodeView
+class xPageContentNodeViewPage extends xPageContentNodeViewI18N
 {	
-	function xPageContentNodePageView($path,$node)
+	function xPageContentNodeViewPage($path)
 	{
-		xPageContentNodeView::xPageContentNodeView($path,$node);
+		$this->xPageContentNodeViewI18N($path);
 	}
 	
 	/**
@@ -540,7 +528,7 @@ class xPageContentNodePageView extends xPageContentNodeView
 	function onCheckPreconditions()
 	{
 		//todo check approved,sticky,published ecc...
-		return xPageContentNodeView::onCheckPreconditions();
+		return xPageContentNodeViewI18N::onCheckPreconditions();
 	}
 	
 	
@@ -550,7 +538,7 @@ class xPageContentNodePageView extends xPageContentNodeView
 	 */
 	function onCreate()
 	{
-		$res = xPageContentNodeView::onCreate();
+		$res = xPageContentNodeViewI18N::onCreate();
 		if($res !== TRUE)
 			return $res;
 		

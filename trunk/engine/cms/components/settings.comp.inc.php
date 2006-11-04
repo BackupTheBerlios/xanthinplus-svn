@@ -41,7 +41,7 @@ class xModuleSettings extends xModule
 	
 	
 	// DOCS INHERITHED  ========================================================
-	function xm_onPageCreation()
+	function xm_onInit()
 	{
 		//load settings
 		xSettings::load();

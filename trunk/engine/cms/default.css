@@ -24,6 +24,13 @@
 	background-color: #ddd;
 }
 
+/*___________ LOG_________________ */
+.log-entry
+{
+	border: 1px solid #000;
+	margin-bottom: 1em;
+}
+
 /*___________ FORM_________________ */
 
 .form-element

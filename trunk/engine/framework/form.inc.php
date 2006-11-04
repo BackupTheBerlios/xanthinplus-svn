@@ -592,7 +592,7 @@ class xFormElementHidden extends xFormElement
 		}
 		else
 		{
-			if(! $this->m_validator->isValid($element))
+			if(! $this->m_validator->isValid($posted_value))
 			{
 				$this->m_invalid = TRUE;
 				$this->m_last_error = $this->m_label . ': ' .$this->m_validator->m_last_error;

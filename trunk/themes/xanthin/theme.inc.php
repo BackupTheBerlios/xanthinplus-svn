@@ -79,6 +79,7 @@ class xThemeXanthin extends xTheme
 					<div id="middle">
 						<div id="sidebar-right">'. $groups['left_group']->render() .'</div>
 						<div id="contents">
+						<div id="title">'.$content->m_title.'</div>
 						<div id="contents-center">
 						'; $output = xNotifications::render($output) . $content->render() . '
 						</div>

@@ -22,42 +22,47 @@
 class xPath
 {
 	/**
-	* @var string
-	*/
+	 * @var string
+	 */
 	var $m_full_path;
 	
 	/**
-	* @var string
-	*/
+	 * @var string
+	 */
 	var $m_resource;
 	
 	/**
-	* @var string
-	*/
+	 * @var string
+	 */
 	var $m_action;
 	
 	/**
-	* @var string
-	*/
+	 * @var string
+	 */
 	var $m_type;
 	
 	/**
-	* @var mixed
-	*/
+	 * @var mixed
+	 */
 	var $m_id;
 	
 	/**
-	* @var int
-	*/
+	 * @var int
+	 */
 	var $m_page;
 	
 	/**
-	* @var string
-	*/
+	 * @var string
+	 */
 	var $m_lang;
 	
+	/**
+	 * @var array(array([name] => value))
+	 */
+	var $m_params;
 	
-	function xPath($lang,$resource,$action,$type = NULL,$id = NULL,$page = NULL,$full_path = NULL)
+	
+	function xPath($lang,$resource,$action,$type = NULL,$id = NULL,$page = NULL,$params = array(),$full_path = NULL)
 	{
 		$this->m_resource = $resource;
 		$this->m_action = $action;
@@ -65,7 +70,7 @@ class xPath
 		$this->m_id = $id;
 		$this->m_page = $page;
 		$this->m_lang = $lang;
-		
+		$this->m_params = $params;
 		
 		if($full_path === NULL) //generate the path dinamically
 		{
@@ -89,24 +94,6 @@ class xPath
 	}
 	
 	/**
-	 * Retrieve the current complete path as a simple string. Note that this method does not check
-	 * the validity of the path.
-	 *
-	 * @return string
-	 */
-	function getCurrentAsString()
-	{
-		if(isset($_GET['p']))
-		{
-			return $_GET['p'];
-		}
-		else
-		{
-			return '';
-		}
-	}
-	
-	/**
 	 * Return a valid xXanthPath object on success, NULL on parsing error.
 	 *
 	 * @return xPath
@@ -117,30 +104,17 @@ class xPath
 		if(isset($_GET['p']))
 		{
 			$p = $_GET['p'];
+			$path = xPath::_parse($p);
+			if($path !== NULL)
+			{
+				return $path;
+			}
+			else
+				xLog::log(LOG_LEVEL_WARNING,'Invalid path',__FILE__,__LINE__);
 		}
-		else
-		{
-			return new xPath();
-		}
-		
-		return xPath::_parse($p);
-	}
-	
-	/**
-	 * @access private
-	 * @return bool 
-	 */
-	function _isActionWithId($act)
-	{
-		switch($act)
-		{
-			case 'view':
-			case 'edit':
-			case 'translate':
-			return true;
-		}
-		
-		return false;
+
+		$path = new xPath(xSettings::get('default_lang'),NULL,NULL);
+		return $path;
 	}
 	
 
@@ -159,7 +133,7 @@ class xPath
 	    }
 		else
 		{
-			$path = new xPath(NULL,NULL,NULL,NULL,NULL,NULL,NULL);
+			$path = new xPath(NULL,NULL,NULL);
 			$path->m_full_path = $pieces[0];
 			$exploded = explode('/',$pieces[0]);
 			

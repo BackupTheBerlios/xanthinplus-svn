@@ -23,6 +23,12 @@ body
 	background: url(images/background.png) top no-repeat;
 }
 
+#contents #title
+{
+	text-align: center;
+	font-size: 2em;
+}
+
 #contents
 {
 	float: none;
@@ -151,6 +157,7 @@ body
 .node .operations, .node-brief .operations, .cathegory .operations
 {
 	display: block;
+	text-align: center;
 }
 
 .node .operation, .node-brief .operation, .cathegory .operation

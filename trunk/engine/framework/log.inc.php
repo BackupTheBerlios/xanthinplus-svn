@@ -79,14 +79,22 @@ class xLogEntry
 	var $m_filename;
 	var $m_line;
 	var $m_stacktrace;
+	var $m_referer;
+	var $m_url;
+	var $m_time;
+	var $m_ip;
 	
-	function xLogEntry($id,$level,$message,$filename,$line,$stacktrace = NULL)
+	function xLogEntry($id,$level,$message,$filename,$line,$referer,$url,$time,$ip,$stacktrace = NULL)
 	{
 		$this->m_id = $id;
 		$this->m_level = $level;
 		$this->m_message = $message;
 		$this->m_filename = $filename;
 		$this->m_line = $line;
+		$this->m_referer = $referer;
+		$this->m_url = $url;
+		$this->m_time = $time;
+		$this->m_ip = $ip;
 		$this->m_stacktrace = $stacktrace;
 	}
 	
@@ -98,61 +106,33 @@ class xLogEntry
 	function insertToScreen()
 	{
 		global $xanth_screen_log;
-		if(!isSet($xanth_screen_log))
+		if(!isset($xanth_screen_log))
 			$xanth_screen_log = array();
 		$xanth_screen_log[] = $this;
 	}
 
 	/**
 	 * Get screen log entries as an array of objects xLogEntry
-	 * @param int $level  if not equal to -1, only log entries with this level will be returned.
 	 * @return array(xLogEntry) An array of requested log entries
 	 * @static 
 	 */
-	function getFromScreen($level = -1)
+	function getFromScreen()
 	{
 		global $xanth_screen_log;
 		if(!isSet($xanth_screen_log))
 			$xanth_screen_log = array();
 			
-		if($level == -1)
-		{
-			return $xanth_screen_log;
-		}
-		else
-		{
-			$retArr = array();
-			foreach($xanth_screen_log as $log_entry)
-			{
-				if($log_entry->level == $level)
-					$retArr[] = $log_entry;
-			}
-			return $retArr;
-		}
+		return $xanth_screen_log;
 	}
 
 	/**
 	 * Clears screen log queue.
-	 * @param int $level if not equal to -1,clears only log entries with this level.
 	 * @static
 	 */
-	function clearScreen($level = -1)
+	function clearScreen()
 	{
 		global $xanth_screen_log;
-		if($level == -1)
-		{
-			unset($xanth_screen_log);
-		}
-		else
-		{
-			for($i = 0;$i < count($xanth_screen_log);)
-			{
-				if($xanth_screen_log[$i]->level == $level)
-					array_splice($xanth_screen_log,$i,1);
-				else
-					$i++;
-			}
-		}
+		$xanth_screen_log = array();
 	}
 	
 	/**
@@ -163,54 +143,29 @@ class xLogEntry
 	 */
 	function renderFromScreen()
 	{
-		$output = "";
+		$output = '<div class="log">';
 		foreach(xLogEntry::getFromScreen() as $entry)
 		{
-			$output .= '<div class="log"><table border="1"><tr><td>Log</td><td>';
-			
-			$output .= "<table border='1'><tr><th>id</th><th>level</th><th>message</th><th>filename</th><th>line</th></tr>";
-			$output .= '<tr><td>' . $entry->m_id . '</td><td>' . $entry->m_level . '</td><td>' .
-				$entry->m_message . '</td><td>' . $entry->m_filename .'</td><td>' . $entry->m_line . '</td></tr>';
-			$output .= "</table>";
-			$output .= "</td><tr>";
-			
-			$output .= "<tr><td>Stacktrace</td><td>";
-			if($entry->m_stacktrace != NULL)
-			{
-				$output .= $entry->m_stacktrace->renderTrace();			
-			}
-			$output .= "</td><tr>";
-			$output .= "</table></div>";
+			$output .= 
+			'<div class = "log-entry">
+			<ul>
+				<li><span class="log-entry-name">ID</span>: <span class="log-entry-value">'.$entry->m_id.'</span></li>
+				<li><span class="log-entry-name">Level</span>: <span class="log-entry-value">'.$entry->m_level.'</span></li>
+				<li><span class="log-entry-name">Message</span>: <span class="log-entry-value">'.$entry->m_message.'</span></li>
+				<li><span class="log-entry-name">Filename</span>: <span class="log-entry-value">'.$entry->m_filename.'</span></li>
+				<li><span class="log-entry-name">Line</span>: <span class="log-entry-value">'.$entry->m_line.'</span></li>
+				<li><span class="log-entry-name">Url</span>: <span class="log-entry-value">'.$entry->m_url.'</span></li>
+				<li><span class="log-entry-name">Ip</span>: <span class="log-entry-value">'.$entry->m_ip.'</span></li>
+				<li><span class="log-entry-name">Referer</span>: <span class="log-entry-value">'.$entry->m_referer.'</span></li>
+				<li><span class="log-entry-name">Time</span>: <span class="log-entry-value">'.strftime('%c',$entry->m_time).'</span></li>
+				<li><span class="log-entry-name">Stack Trace</span>: <span class="log-entry-value"><br/>'.
+					$entry->m_stacktrace->renderTrace(). '</span></li>
+			</ul>
+			</div>
+			';
 		}
 		
-		return $output;
-	}
-	
-	/**
-	 *
-	 */
-	function renderFromDB()
-	{
-		$output = "";
-		foreach(xLogEntry::dbFindAll() as $entry)
-		{
-			$output .= "<table border='1'><tr><td>Log</td><td>";
-			
-			$output .= "<table border='1'><tr><th>id</th><th>level</th><th>message</th><th>filename</th><th>line</th></tr>";
-			$output .= '<tr><td>' . $entry->m_id . '</td><td>' . $entry->m_level . '</td><td>' .
-				$entry->m_message . '</td><td>' . $entry->m_filename .'</td><td>' . $entry->m_line . '</td></tr>';
-			$output .= "</table>";
-			$output .= "</td><tr>";
-			
-			$output .= "<tr><td>Stacktrace</td><td>";
-			if($entry->m_stacktrace != NULL)
-			{
-				$output .= $entry->m_stacktrace->renderTrace();			
-			}
-			$output .= "</td><tr>";
-			$output .= "</table>";
-		}
-		
+		$output .= '</div>';
 		return $output;
 	}
 	
@@ -224,10 +179,53 @@ class xLogEntry
 		if(!is_int($this->m_level) || !is_int($this->m_line))
 			return;
 		
-		$db->query("INSERT INTO xanth_log(level,message,filename,line,timestamp,stacktrace) VALUES(%d,'%s','%s',%d,NOW(),".
-			$db->encodeBlob(serialize($this->m_stacktrace)).")",
-			$this->m_level ,$this->m_message,$this->m_filename,$this->m_line);
-			
+		$i = 0;
+		$records[$i]["name"] = "level";
+		$records[$i]["type"] = "%d";
+		$records[$i]["value"] = $this->m_level;
+		
+		$i++;
+		$records[$i]["name"] = "message";
+		$records[$i]["type"] = "'%s'";
+		$records[$i]["value"] = $this->m_message;
+		
+		$i++;
+		$records[$i]["name"] = "filename";
+		$records[$i]["type"] = "'%s'";
+		$records[$i]["value"] = $this->m_filename;
+		
+		$i++;
+		$records[$i]["name"] = "line";
+		$records[$i]["type"] = "%d";
+		$records[$i]["value"] = $this->m_line;
+		
+		$i++;
+		$records[$i]["name"] = "time";
+		$records[$i]["type"] = "'%s'";
+		$records[$i]["value"] = $db->encodeTimestamp($this->m_time);
+		
+		$i++;
+		$records[$i]["name"] = "ip";
+		$records[$i]["type"] = "'%s'";
+		$records[$i]["value"] = $this->m_ip;
+		
+		$i++;
+		$records[$i]["name"] = "referer";
+		$records[$i]["type"] = "'%s'";
+		$records[$i]["value"] = $this->m_referer;
+		
+		$i++;
+		$records[$i]["name"] = "url";
+		$records[$i]["type"] = "'%s'";
+		$records[$i]["value"] = $this->m_url;
+		
+		$i++;
+		$records[$i]["name"] = "stacktrace";
+		$records[$i]["type"] = "%b";
+		$records[$i]["value"] = $db->encodeBlob(serialize($this->m_stacktrace));
+		
+		
+		$db->autoQueryInsert('xanth_log',$records);
 		$this->m_id = $db->getLastId();
 	}
 	
@@ -263,9 +261,7 @@ define('LOG_LEVEL_FATAL_ERROR',2);
 define('LOG_LEVEL_ERROR',4);
 define('LOG_LEVEL_WARNING',8);
 define('LOG_LEVEL_NOTICE',16);
-define('LOG_LEVEL_USER_MESSAGE',32);
-define('LOG_LEVEL_AUDIT',64);
-define('LOG_LEVEL_DEBUG',128);
+define('LOG_LEVEL_DEBUG',32);
 
 /**
 * The xLog class contains static functions for message and error logging.
@@ -274,44 +270,40 @@ class xLog
 {
 
 	/**
-	* Function for logging messages and error. For every logging level a specific action will be taken.
-	* - LOG_LEVEL_FATAL_ERROR: Application will die immediately and message will be displayed only on screen.
-	* - LOG_LEVEL_ERROR: Application will stop execution, but a basic environment will be created for displaying message on screen,a log entry is added in db
-	* - LOG_LEVEL_WARNING/LOG_LEVEL_NOTICE: Application will continue execution and a message is displayed on a region of screen,a log entry is added in db
-	* - LOG_LEVEL_USER_MESSAGE: A message is displayed to the user
-	* - LOG_LEVEL_AUDIT: Application will log a message only in database
-	* - LOG_LEVEL_DEBUG: Print debug message only in database if $debug is defined in config
-	*
+	* Function for logging messages and errors. The log will be added in db (it will be not added 
+	* if level is DEBUG and the conf variable "debug" is set to false), a log is shown on screen 
+	* if conf variable "display_log" is set to true. If the level is LOG_LEVEL_FATAL_ERROR the
+	* application will die immediately.
+	* 
 	* @param int $level One of the predefined level constants
+	* - LOG_LEVEL_FATAL_ERROR
+	* - LOG_LEVEL_ERROR
+	* - LOG_LEVEL_WARNING
+	* - LOG_LEVEL_NOTICE
+	* - LOG_LEVEL_DEBUG
 	* @param string $message Description og the log entry
-	* @param string$filename The filename where the log was generated (can use the __FILE__ keyword)
+	* @param string $filename The filename where the log was generated (can use the __FILE__ keyword)
 	* @param string $line The line where the log was generated (can use the __LINE__ keyword)
 	* @static
 	*/
 	function log($level,$message,$filename = '',$line = 0)
 	{
-		$log_entry = new xLogEntry(0,$level,$message,$filename,$line);
+		$log_entry = new xLogEntry(0,$level,$message,$filename,$line,
+			isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '',
+			$_SERVER['REQUEST_URI'],time(),$_SERVER['REMOTE_ADDR'],NULL);
 		
-		if($level == LOG_LEVEL_FATAL_ERROR)
-		{
-			exit("Fatal Error ($filename_or_function@$line), $message");
-		}
-		
-		if($level == LOG_LEVEL_ERROR || $level == LOG_LEVEL_WARNING || $level == LOG_LEVEL_NOTICE || $level == LOG_LEVEL_USER_MESSAGE)
+		if($level != LOG_LEVEL_DEBUG || xConf::get('debug', false))
 		{
 			$log_entry->m_stacktrace = xStackTrace::getCurrent(2);
-			$log_entry->insertToScreen();
-		}
-		
-		if($level > LOG_LEVEL_FATAL_ERROR && $level < LOG_LEVEL_DEBUG && $level != LOG_LEVEL_USER_MESSAGE)
-		{
+			
+			if(xConf::get('display_log', false))
+				$log_entry->insertToScreen();
+			
 			$log_entry->insert();
 		}
 		
-		if($level == LOG_LEVEL_DEBUG && xanth_conf_get('debug', false))
-		{
-			$log_entry->insert();
-		}
+		if($level == LOG_LEVEL_FATAL_ERROR)
+			exit("Fatal Error, please contact the webmaster");
 	}
 };
 
@@ -324,18 +316,14 @@ class xLog
  */
 function xanth_php_error_handler($errno, $message, $filename, $line) 
 {
+	
+	
 	if($errno == E_USER_ERROR)
-	{
 		xLog::log(LOG_LEVEL_ERROR,$message, $filename, $line);
-	}
 	elseif($errno == E_USER_WARNING || $errno == E_WARNING || $errno == E_NOTICE)
-	{
 		xLog::log(LOG_LEVEL_WARNING,$message, $filename, $line);
-	}
 	elseif($errno == E_USER_NOTICE)
-	{
 		xLog::log(LOG_LEVEL_NOTICE,$message, $filename, $line);
-	}
 }
 
 

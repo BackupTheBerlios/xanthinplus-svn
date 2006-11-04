@@ -24,8 +24,8 @@ function xanth_include_modules()
 }
 
 /**
-*
-*/
+ *
+ */
 function xanth_main()
 {
 	xExecutionTime::executionStarted();
@@ -56,6 +56,9 @@ function xanth_main()
 	session_set_save_handler("on_session_start","on_session_end","on_session_read","on_session_write","on_session_destroy","on_session_gc");
 	session_start();
 	
+	//broadcast onPageCreation event
+	xModule::callWithNoResult0('xm_onInit');
+			
 	//extract current path
 	$path = xPath::getCurrent();
 	

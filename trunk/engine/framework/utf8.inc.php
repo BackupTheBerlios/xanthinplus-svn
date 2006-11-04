@@ -39,7 +39,7 @@ class xUTF8
 		else
 		{
 			// Do not count UTF-8 continuation bytes.
-		    return strlen(preg_replace("/[\x80-\xBF]/", '', $text));
+		    return strlen(preg_replace("/[\x80-\xBF]/", '', $string));
 		}
 	}
 	

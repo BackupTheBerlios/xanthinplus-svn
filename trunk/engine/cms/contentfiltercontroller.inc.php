@@ -200,7 +200,7 @@ class xInputValidatorContentFilter extends xInputValidatorTextNameId
 	 */
 	function xInputValidatorDynamicContentFilter($maxlength)
 	{
-		xInputValidatorTextNameId::xInputValidatorTextNameId($method);
+		xInputValidatorTextNameId::xInputValidatorTextNameId($maxlength);
 	}
 	
 	// DOCS INHERITHED  ========================================================

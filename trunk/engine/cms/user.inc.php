@@ -124,13 +124,13 @@ class xUser
 			
 			//...and the cookie if necessary
 			if($remember)
-			{
 				xUser::_updatePersistentLogin($username);
-			}
 			
+			xLog::log(LOG_LEVEL_NOTICE,'Logged in user: '.$user->m_username);
 			return $user;
 		}
 		
+		xLog::log(LOG_LEVEL_NOTICE,'Login failed for username: '.$username);
 		xUser::logout();
 		return NULL;
 	}

@@ -265,6 +265,8 @@ class xPageContentNotFound extends xPageContentSimple
 	{
 		xPageContentSimple::xPageContentSimple('Page not found','The page you requested was not found' . $extra_content,
 			'','',$path,$headers);
+		
+		xLog::log(LOG_LEVEL_WARNING,'Page not found','',0);
 	}
 };
 

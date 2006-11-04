@@ -42,7 +42,10 @@ class xInstallCMS
 			message TEXT NOT NULL,
 			filename  VARCHAR(255) NOT NULL,
 			line MEDIUMINT NOT NULL,
-			timestamp DATETIME NOT NULL,
+			referer TEXT NOT NULL,
+			url TEXT NOT NULL,
+			ip VARCHAR(16) NOT NULL,
+			time DATETIME NOT NULL,
 			stacktrace BLOB,
 			PRIMARY KEY(id)
 			)TYPE=InnoDB DEFAULT CHARACTER SET utf8"

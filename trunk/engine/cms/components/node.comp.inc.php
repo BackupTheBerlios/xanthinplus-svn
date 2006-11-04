@@ -202,20 +202,19 @@ class xPageContentNodeDeleteTranslation extends xPageContent
 						xNotifications::add(NOTIFICATION_NOTICE,'Node translation successfully deleted');
 					}
 					else
-					{
-						xNotifications::add(NOTIFICATION_ERROR,'Error deleting translation');
-					}
-					
-					$this->_set("Delete node translation",'','','');
-					return TRUE;
+						xNotifications::add(NOTIFICATION_ERROR,'There was an error while deleting translation');
 				}
 				else
 				{
-					$js = new xJavascriptRedirect(xPath::renderLink($this->m_path->m_lang,'node','view',
-						$this->m_path->m_type,$this->m_path->m_id),true,0);
-					$this->_set("Delete node translation",$js->render(),'','');
+					$this->_set("Delete node translation",'','','');
+					$this->m_headers[] = 'Location: ' . Path::renderLink($this->m_path->m_lang,'node','view',
+						$this->m_path->m_type,$this->m_path->m_id);
+					
 					return TRUE;
 				}
+				
+				$this->_set("Delete node translation",'','','');
+				return TRUE;
 			}
 			else
 			{
@@ -270,7 +269,7 @@ class xPageContentAdminNode extends xPageContent
 		
 		$out  .= "</ul>\n";
 		
-		xPageContent::_set("Create node: choose type",$out,'','');
+		xPageContent::_set("Manage nodes: choose type",$out,'','');
 		return true;
 	}
 };
@@ -340,12 +339,11 @@ class xPageContentNodeView extends xPageContent
 	/**
 	 * @var xNode
 	 */
-	var $m_node;
+	var $m_node = NULL;
 	
-	function xPageContentNodeView($path,$node)
+	function xPageContentNodeView($path)
 	{
 		$this->xPageContent($path);
-		$this->m_node = $node;
 	}
 	
 	/**
@@ -355,18 +353,25 @@ class xPageContentNodeView extends xPageContent
 	 */
 	function onCheckPreconditions()
 	{
-		assert($this->m_node != NULL);
-		
 		//check type permission
-		if(!xAccessPermission::checkCurrentUserPermission('node',$this->m_node->m_type,NULL,'view'))
+		if(!xAccessPermission::checkCurrentUserPermission('node',$this->m_path->m_type,NULL,'view'))
 			return new xPageContentNotAuthorized($this->m_path);
 			
+		//load node
+		$class_name = xNode::getNodeTypeClass($this->m_path->m_type);
+		if(empty($class_name))
+			return new xPageContentNotFound($this->m_path);
+			
+		if(($this->m_node = 
+			reset(call_user_func(array($class_name,'find'),array(),array(),$this->m_path->m_id))) === FALSE)
+			return new xPageContentNotFound($this->m_path);
+			
+		$this->m_node->loadCathegories();
+		
 		//check cathegory permission
 		foreach($this->m_node->m_parent_cathegories as $cathegory)
-		{
 			if(! $cathegory->checkCurrentUserPermissionRecursive('view'))
 				return new xPageContentNotAuthorized($this->m_path);
-		}
 		
 		return TRUE;
 	}
@@ -383,5 +388,57 @@ class xPageContentNodeView extends xPageContent
 
 };
 
+
+/**
+ * 
+ */
+class xPageContentNodeViewI18N extends xPageContentNodeView
+{	
+	function xPageContentNodeView($path)
+	{
+		$this->xPageContentNodeView($path);
+	}
+	
+	/**
+	 * Checks that node exists, checks cathegory and type view permission.
+	 * If you inherit the xPageContentNodeView clas and override this member, remember
+	 * to call the xPageContentNodeView::onCheckPreconditions() before your checks.
+	 */
+	function onCheckPreconditions()
+	{
+		//check type permission
+		if(!xAccessPermission::checkCurrentUserPermission('node',$this->m_path->m_type,NULL,'view'))
+			return new xPageContentNotAuthorized($this->m_path);
+			
+		//load node
+		$class_name = xNode::getNodeTypeClass($this->m_path->m_type);
+		if(empty($class_name))
+			return new xPageContentNotFound($this->m_path);
+			
+		if(($this->m_node = reset(call_user_func(array($class_name,'find'),
+			array(),array(),$this->m_path->m_id,NULL,NULL,NULL,$this->m_path->m_lang))) === FALSE)
+			return new xPageContentNotFound($this->m_path);
+			
+		$this->m_node->loadCathegories();
+		
+		//check cathegory permission
+		foreach($this->m_node->m_parent_cathegories as $cathegory)
+			if(! $cathegory->checkCurrentUserPermissionRecursive('view'))
+				return new xPageContentNotAuthorized($this->m_path);
+		
+		return TRUE;
+	}
+	
+	
+	/**
+	 * Do nothing. Only asserts node != NULL and returns true.
+	 */
+	function onCreate()
+	{
+		assert($this->m_node != NULL);
+		return true;
+	}
+
+};
 
 ?>

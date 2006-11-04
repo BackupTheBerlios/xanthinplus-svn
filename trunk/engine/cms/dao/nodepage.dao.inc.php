@@ -143,26 +143,6 @@ class xNodePageDAO
 	}
 	
 	/**
-	 * Retrieve a specific Node page
-	 *
-	 * @return xNodePage
-	 * @static
-	 */
-	function load($id,$lang)
-	{
-		$db =& xDB::getDB();
-		$result = $db->query("SELECT * FROM node,node_i18n,node_page WHERE 
-			node.id = %d AND node_i18n.nodeid = node.id AND node_i18n.lang = '%s' AND 
-			node_page.nodeid = node_i18n.nodeid",$id,$lang);
-		if($row = $db->fetchObject($result))
-		{
-			return xNodePageDAO::_nodepageFromRow($row,xCathegoryDAO::findNodeCathegories($id));
-		}
-		
-		return NULL;
-	}
-	
-	/**
 	 * @static
 	 */
 	function isNodePage($id)
@@ -178,51 +158,76 @@ class xNodePageDAO
 		return false;
 	}
 	
-	
 	/**
-	 * Retrieve nodes
-	 *
-	 * @return array(xNodePage)
-	 * @static
+	 * 
 	 */
-	function find($type,$parent_cat,$author,$lang)
+	function find($order,$limit,$id,$type,$author,$parent_cat,$lang,$flexible_lang,$translator)
 	{
 		$db =& xDB::getDB();
-		$where[0]["clause"] = "node_page.lang = '%s'";
-		$where[0]["connector"] = "AND";
-		$where[0]["value"] = $lang;
+		if($flexible_lang && $lang !== NULL)
+		{
+			//now extract all nodes with all languages
+			$objs = xNodePageDAO::find($order,$limit,$id,$type,$author,$parent_cat,NULL,FALSE,$translator);
+			return xNodeI18NDAO::_selectFlexiLang($objs,$lang);
+		}
+		else
+		{
+			$i = 0;
+			$where[$i]["clause"] = "node_page.nodeid = %d";
+			$where[$i]["connector"] = "AND";
+			$where[$i]["value"] = $id;
+			
+			$i++;
+			$where[$i]["clause"] = "node_page.lang = '%s'";
+			$where[$i]["connector"] = "AND";
+			$where[$i]["value"] = $lang;
+			
+			$i++;
+			$where[$i]["clause"] = "node_i18n.nodeid = node_page.nodeid";
+			$where[$i]["connector"] = "AND";
+			
+			$i++;
+			$where[$i]["clause"] = "node_i18n.lang = node_page.lang";
+			$where[$i]["connector"] = "AND";
+			
+			$i++;
+			$where[$i]["clause"] = "node_i18n.translator = '%s'";
+			$where[$i]["connector"] = "AND";
+			$where[$i]["value"] = $translator;
+		 
+		 	$i++;
+		 	$where[$i]["clause"] = "node.id = node_i18n.nodeid";
+			$where[$i]["connector"] = "AND";
+		 	
+		 	$i++;
+			$where[$i]["clause"] = "node.type = '%s'";
+			$where[$i]["connector"] = "AND";
+			$where[$i]["value"] = $type;
+			
+			$i++;
+			$where[$i]["clause"] = "node.author = '%s'";
+			$where[$i]["connector"] = "AND";
+			$where[$i]["value"] = $author;
+			
+			$i++;
+			$where[$i]["clause"] = "node_to_cathegory.catid = %d";
+			$where[$i]["connector"] = "AND";
+			$where[$i]["value"] = $parent_cat;
+			
+			$i++;
+			$where[$i]["clause"] = "node.id = node_to_cathegory.nodeid";
+			$where[$i]["connector"] = "AND";
+			if($parent_cat === NULL)
+				$where[$i]["value"] = NULL;
+			
+			$result = $db->autoQuerySelect('node.*,node_i18n.*,node_page.*',
+				'node,node_i18n,node_to_cathegory,node_page',$where,$order,$limit);
+			$objs = array();
+			while($row = $db->fetchObject($result))
+				$objs[] = xNodePageDAO::_nodepageFromRow($row,NULL);
 		
-		$where[1]["clause"] = "node_i18n.nodeid = node_page.nodeid";
-		$where[1]["connector"] = "AND";
-
-		$where[2]["clause"] = "node_i18n.lang = node_page.lang";
-		$where[2]["connector"] = "AND";
-		
-		$where[3]["clause"] = "node.id = node_i18n.nodeid";
-		$where[3]["connector"] = "AND";
-		
-		$where[4]["clause"] = "node.type = '%s'";
-		$where[4]["connector"] = "AND";
-		$where[4]["value"] = $type;
-		
-		$where[4]["clause"] = "node.author = '%s'";
-		$where[4]["connector"] = "AND";
-		$where[4]["value"] = $author;
-		
-		$where[4]["clause"] = "node_to_cathegory.catid = %d";
-		$where[4]["connector"] = "AND";
-		$where[4]["value"] = $parent_cat;
-		
-		$where[5]["clause"] = "node.id = node_to_cathegory.nodeid";
-		$where[5]["connector"] = "AND";
-		$where[5]["value"] = $parent_cat;
-		
-		$result = $db->autoQuerySelect('node_i18n.*,node.*,node_page.*',
-			'node_i18n,node,node_page,node_to_cathegory',$where);
-		$objs = array();
-		while($row = $db->fetchObject($result))
-			$objs[] = xNodePageDAO::_nodepageFromRow($row,xCathegoryDAO::findNodeCathegories($row->id));
-		return $objs;
+			return $objs;
+		}
 	}
 }
 

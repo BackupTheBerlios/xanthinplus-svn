@@ -92,14 +92,10 @@ class xNode extends xElement
 				}
 			}
 			else
-			{
 				$this->m_parent_cathegories = $parent_cathegories;
-			}
 		}
 		else
-		{
 			$this->m_parent_cathegories =  array();
-		}
 	}
 	
 	/**
@@ -132,21 +128,9 @@ class xNode extends xElement
 	}
 	
 	
-	/**
-	 * Retrieve a node from db.
-	 *
-	 * @return xItem
-	 * @static
-	 */
-	function load($id)
+	function find($order = array(),$limit = array(),$id = NULL,$type = NULL,$author = NULL,$parent_cat = NULL)
 	{
-		return xNodeDAO::load($id);
-	}
-	
-	
-	function find($type,$parent_cat,$author)
-	{
-		//todo
+		return xNodeDAO::find($id,$type,$author,$parent_cat);
 	}
 	
 	/**
@@ -178,6 +162,12 @@ class xNode extends xElement
 			return $xanth_node_type_classes[$node_type];
 		
 		return NULL;
+	}
+	
+	
+	function loadCathegories()
+	{
+		$this->m_parent_cathegories = xCathegoryDAO::findNodeCathegories($this->m_id);	
 	}
 };
 
@@ -238,7 +228,7 @@ class xNodeI18N extends xNode
 		foreach($ops as $op)
 			$formatted[$op->m_name] = array('link' => $op->getLink('node',$this->m_type,$this->m_id,$this->m_lang),
 				'description' => $op->m_description);
-			
+		
 		$operations = xTheme::render1('renderNodeOperations',$formatted);
 		
 		return xTheme::render4('renderNode',$this->m_type,$title,$content,$operations);
@@ -264,18 +254,6 @@ class xNodeI18N extends xNode
 		return xTheme::render4('renderBriefNode',$this->m_type,$title,$content,$operations);
 	}
 	
-	
-	/**
-	 * Retrieve a node from db.
-	 *
-	 * @return xItem
-	 * @static
-	 */
-	function load($id,$lang)
-	{
-		return xNodeI18NDAO::load($id,$lang);
-	}
-	
 	/** 
 	 * Delete the node translation and if this is the last translation deletes the node at all.
 	 */
@@ -285,9 +263,10 @@ class xNodeI18N extends xNode
 	}
 	
 	
-	function find($type,$parent_cat,$author,$lang)
+	function find($order = array(),$limit = array(),$id = NULL,$type = NULL,$author = NULL,$parent_cat = NULL,$lang = NULL,$flexible_lang = TRUE,
+		$translator = NULL)
 	{
-		//todo
+		return xNodeI18NDAO::find($order,$limit,$id,$type,$author,$parent_cat,$lang,$flexible_lang,$translator);
 	}
 	
 	/**

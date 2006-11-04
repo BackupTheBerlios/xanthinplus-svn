@@ -157,8 +157,6 @@ class xAccessPermission
 			//check for other roles
 			return xAccessPermission::checkUserPermission($resource,$resource_type,$resource_id,$action,$uid);
 		}
-		
-		return FALSE;
 	}
 	
 	

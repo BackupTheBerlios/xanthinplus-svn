@@ -438,9 +438,6 @@ class xDefaultTheme extends xTheme
 		$out = 
 		'<div class="cathegory">
 			'.$operations.'
-			<div class = "title">
-			'.$title.'
-			</div>
 			<div class="node-list">';
 			
 		foreach($nodes as $node)
@@ -525,7 +522,7 @@ class xDefaultTheme extends xTheme
 	 */
 	function renderNode($type,$title,$content,$operations)
 	{
-		$output = '<div class="node">' . $operations . '<div class="node-title">' . $title . '</div>
+		$output = '<div class="node">' . $operations . '
 		<div class="node-content">' . $content . '</div></div>';
 		
 		return $output;
