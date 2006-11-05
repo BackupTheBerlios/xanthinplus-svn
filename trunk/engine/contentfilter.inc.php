@@ -17,6 +17,128 @@
 
 
 /**
+ * An object that excecutes trnasformations on text inputs.
+ * @abstract
+ */
+class xContentFilter
+{	
+	/**
+	 * @var string
+	 * @access public
+	 */
+	var $m_last_error;
+	
+	function xContentFilter()
+	{	
+		$this->m_last_error = '';
+	}
+	
+	/**
+	 * Executes a filtering
+	 *
+	 * @return string The filtered text of NULL on error (an error description is placed in the member $m_last_error).
+	 * @abstract
+	 */
+	function filter($input)
+	{
+		//virtual funciton
+		assert(FALSE);
+	}
+};
+
+
+/**
+ * A dummy filter object
+ */
+class xContentFilterBypass extends xContentFilter
+{	
+	function xContentFilterBypass()
+	{	
+		xContentFilter::xContentFilter();
+	}
+	
+	// DOCS INHERITHED  ========================================================
+	function filter($input)
+	{
+		return $input;
+	}
+};
+
+
+/**
+ * This filter evalutate the input as php code and return the result.
+ */
+class xContentFilterPhp extends xContentFilter
+{
+	function xContentFilterPhp()
+	{	
+		xContentFilter::xContentFilter();
+	}
+	
+	// DOCS INHERITHED  ========================================================
+	function filter($input)
+	{
+		$ret = @eval($input);
+		
+		if($ret === FALSE)
+		{
+			$this->m_last_error = 'There was an error on an evalutate php code';
+			return NULL;
+		}
+		
+		return $ret;
+	}
+};
+
+
+
+/**
+ * Convert a bbcode input into XHTL code
+ */
+class xContentFilterBBCode extends xContentFilter
+{	
+	function xContentFilterBBCode()
+	{	
+		xContentFilter::xContentFilter();
+	}
+	
+	// DOCS INHERITHED  ========================================================
+	function filter($input)
+	{
+		$bbparser = new xBBCodeParser($input);
+		$res = $bbparser->parse();
+		if($res === FALSE)
+		{
+			$this->m_last_error = 'There was an error in BBCode parsing: ' . $bbparser->m_last_error;
+			return NULL;
+		}
+		
+		return $bbparser->m_htmltext;
+	}
+};
+
+
+
+/**
+ * Clear the input text from all tags
+ */
+class xContentFilterNoTags extends xContentFilter
+{	
+	function xContentFilterNoTags()
+	{	
+		xContentFilter::xContentFilter();
+	}
+	
+	// DOCS INHERITHED  ========================================================
+	function filter($input)
+	{
+		return htmlentities($input,ENT_QUOTES,'UTF-8');
+	}
+};
+
+
+
+/**
  * A helper class for content filtering
  */
 class xContentFilterController
@@ -218,7 +340,4 @@ class xInputValidatorContentFilter extends xInputValidatorTextNameId
 		return true;
 	}
 }
-
-
-
 ?>

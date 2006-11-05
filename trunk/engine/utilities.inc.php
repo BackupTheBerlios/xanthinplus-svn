@@ -16,6 +16,21 @@
 */
 
 
+
+/**
+ * 
+ */
+function in_array_by_properties($element,$obj_array,$property_name)
+{
+	$ret = array();
+	foreach($obj_array as $elem)
+		if($elem->$property_name == $element)
+			return true;
+	
+	return false;
+}
+
+
 /**
  * 
  */

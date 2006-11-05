@@ -397,4 +397,164 @@ class xUser
 };
 
 
+
+class xRole
+{
+	/**
+	 * @var string
+	 * @access public
+	 */
+	var $m_name;
+	
+	/**
+	 * @var string
+	 * @access public
+	 */
+	var $m_description;
+	
+	
+	function xRole($name,$description)
+	{
+		$this->m_name = $name;
+		$this->m_description = $description;
+	}
+	
+	/**
+	 * Insert this xRole into database
+	 *
+	 * @return bool FALSE on error
+	 */ 
+	function insert()
+	{
+		return xRoleDAO::insert($this);
+	}
+	
+	/**
+	 * Delete this xRole from db. Using name.
+	 *
+	 * @return bool FALSE on error
+	 */ 
+	function delete()
+	{
+		return xRoleDAO::delete($this->m_name);
+	}
+	
+	/**
+	 * Update this xRole in database.
+	 *
+	 * @return bool FALSE on error
+	 */
+	function update()
+	{
+		return xRoleDAO::update($this);
+	}
+	
+	/**
+	 * Retrieves all roles from db.
+	 *
+	 * @return array(xRole)
+	 */
+	function findAll()
+	{
+		return xRoleDAO::findAll();
+	}
+}
+
+
+
+
+/**
+* Module responsible of user management
+*/
+class xModuleUser extends xModule
+{
+	function xModuleUser()
+	{
+		$this->xModule();
+	}
+
+
+	// DOCS INHERITHED  ========================================================
+	function xm_fetchContent($path)
+	{
+		if($path->m_resource === 'user' && $path->m_action === 'login')
+		{
+			return new xResult(new xPageContentUserLogin($path));
+		}
+		elseif($path->m_resource === 'user' && $path->m_action === 'logout')
+		{
+			xUser::logout();
+			return new xResult(new xPageContentSimple("User logout",'Logged out','','',$path));
+		}
+		
+		return NULL;
+	}
+	
+	
+	
+	// DOCS INHERITHED  ========================================================
+	function xm_onPageCreation()
+	{
+		//check the login
+		xUser::checkUserLogin();
+	}
+};
+
+xModule::registerDefaultModule(new xModuleUser());
+
+
+
+
+/**
+ * @internal
+ */
+class xPageContentUserLogin extends xPageContent
+{	
+	function xPageContentUserLogin($path)
+	{
+		$this->xPageContent($path);
+	}
+	
+	// DOCS INHERITHED  ========================================================
+	function onCheckPreconditions()
+	{
+		return TRUE;
+	}
+	
+	
+	// DOCS INHERITHED  ========================================================
+	function onCreate()
+	{
+		$form = new xForm('login',$this->m_path->getLink());
+		$form->m_elements[] = new xFormElementTextField('username','Username','','',TRUE,new xInputValidatorText(255));
+		$form->m_elements[] = new xFormElementPassword('password','Password','',TRUE,new xInputValidatorText(255));
+		$form->m_elements[] = new xFormSubmit('submit','login');
+		
+		$ret = $form->validate();
+		if(isset($ret->m_valid_data['submit']))
+		{
+			if(empty($ret->m_errors))
+			{
+				if($user = xUser::login($ret->m_valid_data['username'],$ret->m_valid_data['password'],TRUE) != NULL)
+				{
+					xPageContent::_set("User login",'Logged in','','');
+					return TRUE;
+				}
+			}
+			else
+			{
+				foreach($ret->m_errors as $error)
+				{
+					xNotifications::add(NOTIFICATION_WARNING,$error);
+				}
+			}
+		}
+
+		xPageContent::_set("User login",$form->render(),'','');
+		return TRUE;
+	}
+};
+
+
+
 ?>

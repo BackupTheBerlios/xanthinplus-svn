@@ -16,6 +16,87 @@
 */
 
 
+class xRoleDAO
+{
+	function xRoleDAO()
+	{
+		//non instaltiable
+		assert(FALSE);
+	}
+	
+	/**
+	 * Insert a new role 
+	 *
+	 * @param xRole $role The role to insert
+	 * @return bool FALSE on error
+	 * @static
+	 */
+	function insert($role)
+	{
+		$db =& xDB::getDB();
+		return $db->query("INSERT INTO role(name,description) VALUES ('%s','%s')",$role->m_name,$role->m_description);
+	}
+	
+	/**
+	 * Deletes a role. Based on key.
+	 *
+	 * @param string $rolename
+	 * @return bool FALSE on error
+	 * @static
+	 */
+	function delete($rolename)
+	{
+		$db =& xDB::getDB();
+		return $db->query("DELETE FROM role WHERE name = '%s'",$rolename);
+	}
+	
+	/**
+	 * Updates a role.
+	 *
+	 * @param xRole $role The role to update
+	 * @return bool FALSE on error
+	 * @static
+	 */
+	function update($role)
+	{
+		$db =& xDB::getDB();
+		return $db->query("UPDATE role SET description = '%s' WHERE name = '%s')",$role->m_description,$role->m_name);
+	}
+	
+	
+	/**
+	 *
+	 * @return xItem
+	 * @static
+	 * @access private
+	 */
+	function _roleFromRow($row_object)
+	{
+		return new xRole($row_object->name,$row_object->description);
+	}
+	
+	
+	/**
+	 * Retrieves all roles.
+	 *
+	 * @return array(xRole)
+	 * @static
+	 */
+	function findAll()
+	{
+		$db =& xDB::getDB();
+		$roles = array();
+		$result = $db->query("SELECT * FROM role");
+		while($row = $db->fetchObject($result))
+		{
+			$roles[] = xRoleDAO::_roleFromRow($row);
+		}
+		return $roles;
+	}
+}
+
+
+
 class xUserDAO
 {
 	function xUser()

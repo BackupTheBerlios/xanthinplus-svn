@@ -15,13 +15,32 @@
 * PURPOSE ARE DISCLAIMED.SEE YOUR CHOOSEN LICENSE FOR MORE DETAILS.
 */
 
+require_once($_SERVER['DOCUMENT_ROOT'] . $g_xanth_conf['installation_path'] . '/engine/base.inc.php');
+require_once($xanth_working_dir . '/engine/bbcode.inc.php');
+require_once($xanth_working_dir . '/engine/element.inc.php');
+require_once($xanth_working_dir . '/engine/form.inc.php');
+require_once($xanth_working_dir . '/engine/contentfilter.inc.php');
+require_once($xanth_working_dir . '/engine/install.inc.php');
+require_once($xanth_working_dir . '/engine/log.inc.php');
+require_once($xanth_working_dir . '/engine/module.inc.php');
+require_once($xanth_working_dir . '/engine/notifications.inc.php');
+require_once($xanth_working_dir . '/engine/operation.inc.php');
+require_once($xanth_working_dir . '/engine/path.inc.php');
+require_once($xanth_working_dir . '/engine/page.inc.php');
+require_once($xanth_working_dir . '/engine/pagecontent.inc.php');
+require_once($xanth_working_dir . '/engine/result.inc.php');
+require_once($xanth_working_dir . '/engine/session.inc.php');
+require_once($xanth_working_dir . '/engine/showfilter.inc.php');
+require_once($xanth_working_dir . '/engine/theme.inc.php');
+require_once($xanth_working_dir . '/engine/uniqueid.inc.php');
+require_once($xanth_working_dir . '/engine/utf8.inc.php');
+require_once($xanth_working_dir . '/engine/utilities.inc.php');
 
-/**
-* @todo
-*/
-function xanth_include_modules()
-{
-}
+require_once($xanth_working_dir . '/engine/dbaccess/db.inc.php');
+require_once($xanth_working_dir . '/engine/dbaccess/mysql_db.inc.php');
+
+require_once($xanth_working_dir . '/engine/components/components.inc.php');
+
 
 /**
  *

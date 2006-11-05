@@ -210,7 +210,7 @@ class xDefaultTheme extends xTheme
 	 */
 	function getCss()
 	{
-		return new xResult("engine/cms/default.css");
+		return new xResult("engine/default.css");
 	}
 	
 	
