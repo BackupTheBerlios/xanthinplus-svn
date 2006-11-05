@@ -27,8 +27,27 @@
 /*___________ LOG_________________ */
 .log-entry
 {
-	border: 1px solid #000;
 	margin-bottom: 1em;
+}
+
+.screen-log-level-notice
+{
+	border: 3px solid green;
+}
+
+.screen-log-level-error, .screen-log-level-fatal_error
+{
+	border: 3px solid red;
+}
+
+.screen-log-level-warning
+{
+	border: 3px solid orange;
+}
+
+.screen-log-level-debug
+{
+	border: 3px solid black;
 }
 
 /*___________ FORM_________________ */

@@ -300,7 +300,7 @@ class xBoxCustom extends xBoxI18N
 		$title = xContentFilterController::applyFilter('notags',$this->m_title,$error);
 		$content = xContentFilterController::applyFilter($this->m_content_filter,$this->m_content,$error);
 		
-		return xTheme::render3('renderBox',$this->m_name,$this->m_title,$this->m_content);
+		return xTheme::render('renderBox',array($this->m_name,$this->m_title,$this->m_content));
 	}
 	
 	/**

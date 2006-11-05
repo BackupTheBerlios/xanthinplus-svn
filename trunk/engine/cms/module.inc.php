@@ -90,27 +90,30 @@ class xModule
 	
 	
 	/**
-	 * Make a method call to all modules and return the first result !== NULL (0 argument version).
+	 * Make a method call to all modules until a not-NULL result is returned.
 	 *
 	 * @param string $function The method to call
-	 * @return mixed
+	 * @param args An array containing the arguments to pass to the function
+	 * @return xResult
 	 */
-	function callWithSingleResult0($function)
+	function invoke($function,$args = array())
 	{
-		//first to user modules then default
-		$all_modules = array(xModule::getModules(),xModule::getDefaultModules());
+		//first user modules then default modules
+		$modules = array_merge(xModule::getModules(),xModule::getDefaultModules());
 		
-		foreach($all_modules as $modules)
+		foreach($modules as $module)
 		{
-			foreach($modules as $module)
+			if(method_exists($module,$function))
 			{
-				if(method_exists($module,$function))
+				$result = call_user_func_array(array(&$module,$function),$args);
+				if($result !== NULL)
 				{
-					$result = $module->$function();
-					if($result !== NULL)
-					{
+					if(xanth_instanceof($result,'xResult'))
 						return $result;
-					}
+					else
+						xLog::log(LOG_LEVEL_WARNING,'Module function returned an invalid result. Function: '.
+							$function . '. Module: '. get_class($module) . '. Result dump :' 
+							. var_export($result,true),__FILE__,__LINE__);
 				}
 			}
 		}
@@ -118,288 +121,39 @@ class xModule
 		return NULL;
 	}
 	
-	/**
-	 * Make a method call to all modules and return the first result !== NULL (1 argument version).
-	 *
-	 * @param string $function The method to call
-	 * @return mixed
-	 */
-	function callWithSingleResult1($function,&$arg1)
-	{
-		//first to user modules then default
-		$all_modules = array(xModule::getModules(),xModule::getDefaultModules());
-		
-		foreach($all_modules as $modules)
-		{
-			foreach($modules as $module)
-			{
-				if(method_exists($module,$function))
-				{
-					$result = $module->$function($arg1);
-					if($result !== NULL)
-					{
-						return $result;
-					}
-				}
-			}
-		}
-		
-		return NULL;
-	}
 	
 	/**
-	 * Make a method call to all modules and return the first result !== NULL (2 argument version).
+	 * Make a method call to all modules.
 	 *
 	 * @param string $function The method to call
-	 * @return mixed
+	 * @param args An array containing the arguments to pass to the function
+	 * @return xResultSet
 	 */
-	function callWithSingleResult2($function,&$arg1,&$arg2)
+	function invokeAll($function,$args = array())
 	{
-		//first to user modules then default
-		$all_modules = array(xModule::getModules(),xModule::getDefaultModules());
-		
-		foreach($all_modules as $modules)
-		{
-			foreach($modules as $module)
-			{
-				if(method_exists($module,$function))
-				{
-					$result = $module->$function($arg1,$arg2);
-					if($result !== NULL)
-					{
-						return $result;
-					}
-				}
-			}
-		}
-		
-		return NULL;
-	}
-	
-	/**
-	 * Make a method call to all modules and return the first result !== NULL (3 argument version).
-	 *
-	 * @param string $function The method to call
-	 * @return mixed
-	 */
-	function callWithSingleResult3($function,&$arg1,&$arg2,&$arg3)
-	{
-		//first to user modules then default
-		$all_modules = array(xModule::getModules(),xModule::getDefaultModules());
-		foreach($all_modules as $modules)
-		{
-			foreach($modules as $module)
-			{
-				if(method_exists($module,$function))
-				{
-					
-					$result = $module->$function($arg1,$arg2,$arg3);
-					if($result !== NULL)
-					{
-						return $result;
-					}
-				}
-			}
-		}
-		
-		return NULL;
-	}
-	
-	/**
-	 * Make a method call to all modules and return an array that is the union
-	 * of all results != NULL returned. (0 argument version).
-	 *
-	 * @param string $function The method to call
-	 * @return array(mixed)
-	 */
-	function callWithArrayResult0($function)
-	{
-		$array_result = array();
+		//first user modules then default modules
 		$modules = array_merge(xModule::getModules(),xModule::getDefaultModules());
+		$rs = new xResultSet();
+		
 		foreach($modules as $module)
 		{
 			if(method_exists($module,$function))
 			{
-				$result = $module->$function();
+				$result = call_user_func_array(array(&$module,$function),$args);
 				if($result !== NULL)
 				{
-					if(is_array($result))
-					{
-						foreach($result as $one_result)
-						{
-							$array_result[] = $one_result;
-						}
-					}
+					if(xanth_instanceof($result,'xResult'))
+						$rs->m_results[] = $result;
 					else
-					{
-						$array_result[] = $result;
-					}
+						xLog::log(LOG_LEVEL_WARNING,'Module function returned an invalid result. Function: '.
+							$function . '. Module: '. get_class($module) . '. Result dump :' 
+							. var_export($result,true),__FILE__,__LINE__);
 				}
 			}
 		}
 		
-		return $array_result;
+		return $rs;
 	}
-	
-	/**
-	 * Make a method call to all modules and return an array that is the union
-	 * of all results != NULL returned. (1 argument version).
-	 *
-	 * @param string $function The method to call
-	 * @return array(mixed)
-	 */
-	function callWithArrayResult1($function,&$arg1)
-	{
-		$array_result = array();
-		$modules = array_merge(xModule::getModules(),xModule::getDefaultModules());
-		foreach($modules as $module)
-		{
-			if(method_exists($module,$function))
-			{
-				$result = $module->$function($arg1);
-				if($result !== NULL)
-				{
-					if(is_array($result))
-					{
-						foreach($result as $one_result)
-						{
-							$array_result[] = $one_result;
-						}
-					}
-					else
-					{
-						$array_result[] = $result;
-					}
-				}
-			}
-		}
-		
-		return $array_result;
-	}
-	
-	/**
-	 * Make a method call to all modules and return an array that is the union
-	 * of all results != NULL returned. (2 argument version).
-	 *
-	 * @param string $function The method to call
-	 * @return array(mixed)
-	 */
-	function callWithArrayResult2($function,&$arg1,&$arg2)
-	{
-		$array_result = array();
-		$modules = array_merge(xModule::getModules(),xModule::getDefaultModules());
-		foreach($modules as $module)
-		{
-			if(method_exists($module,$function))
-			{
-				$result = $module->$function($arg1,$arg2);
-				if($result !== NULL)
-				{
-					if(is_array($result))
-					{
-						foreach($result as $one_result)
-						{
-							$array_result[] = $one_result;
-						}
-					}
-					else
-					{
-						$array_result[] = $result;
-					}
-				}
-			}
-		}
-		
-		return $array_result;
-	}
-	
-	/**
-	 * Make a method call to all modules and return an array that is the union
-	 * of all results != NULL returned. (3 argument version).
-	 *
-	 * @param string $function The method to call
-	 * @return array(mixed)
-	 */
-	function callWithArrayResult3($function,&$arg1,&$arg2,&$arg3)
-	{
-		$array_result = array();
-		$modules = array_merge(xModule::getModules(),xModule::getDefaultModules());
-		foreach($modules as $module)
-		{
-			if(method_exists($module,$function))
-			{
-				$result = $module->$function($arg1,$arg2,$arg3);
-				if($result !== NULL)
-				{
-					if(is_array($result))
-					{
-						foreach($result as $one_result)
-						{
-							$array_result[] = $one_result;
-						}
-					}
-					else
-					{
-						$array_result[] = $result;
-					}
-				}
-			}
-		}
-		
-		return $array_result;
-	}
-	
-	/**
-	 * Make a method call to all modules. (0 argument version).
-	 *
-	 * @param string $function The method to call
-	 */
-	function callWithNoResult0($function)
-	{
-		$modules = array_merge(xModule::getModules(),xModule::getDefaultModules());
-		foreach($modules as $module)
-		{
-			if(method_exists($module,$function))
-			{
-				$module->$function();
-			}
-		}
-	}
-	
-	/**
-	 * Make a method call to all modules. (1 argument version).
-	 *
-	 * @param string $function The method to call
-	 */
-	function callWithNoResult1($function,&$arg1)
-	{
-		$modules = array_merge(xModule::getModules(),xModule::getDefaultModules());
-		foreach($modules as $module)
-		{	
-			if(method_exists($module,$function))
-			{
-				$module->$function($arg1);
-			}
-		}
-	}
-	
-	/**
-	 * Make a method call to all modules. (2 argument version).
-	 *
-	 * @param string $function The method to call
-	 */
-	function callWithNoResult2($function,&$arg1,&$arg2)
-	{
-		$modules = array_merge(xModule::getModules(),xModule::getDefaultModules());
-		foreach($modules as $module)
-		{
-			if(method_exists($module,$function))
-			{
-				$module->$function($arg1,$arg2);
-			}
-		}
-	}
-	
 };
 
 /**

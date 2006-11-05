@@ -96,7 +96,7 @@ class xNotifications
 		else
 			$n = $_SESSION['xanth_notifications'];
 			
-		return xTheme::render1('renderNotifications',$n);
+		return xTheme::render('renderNotifications',array($n));
 	}
 	
 	/**

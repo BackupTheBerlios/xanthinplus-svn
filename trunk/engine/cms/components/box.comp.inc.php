@@ -34,7 +34,7 @@ class xModuleBox extends xModule
 	{
 		if($path->m_resource === 'box' && $path->m_action === 'admin' && $path->m_type === NULL)
 		{
-			return new xPageContentBoxAdmin($path);
+			return new xResult(new xPageContentBoxAdmin($path));
 		}
 		
 		return NULL;
@@ -47,7 +47,7 @@ class xModuleBox extends xModule
 	{
 		$descrs = array();
 		$descr[] = new xAccessPermissionDescriptor('admin/box',NULL,NULL,'create','Create a custom box of any type');
-		return $descrs;
+		return new xResult($descrs);
 	}
 };
 
@@ -195,7 +195,7 @@ class xPageContentBoxEditTranslation extends xPageContent
 		
 		//check box translation existence
 		if(! xBoxI18N::existsTranslation($this->m_path->m_id,$this->m_path->m_lang))
-			return new xPageContentError('A translation of this node does not exists',$this->m_path);
+			return new xPageContentError($this->m_path,'A translation of this node does not exists');
 		
 		//load and check box type existence
 		$class_name = xBox::getBoxTypeClass($this->m_path->m_type);
@@ -203,7 +203,7 @@ class xPageContentBoxEditTranslation extends xPageContent
 		$this->m_box = reset(call_user_func(array( $class_name,'find'),$this->m_path->m_id,$this->m_path->m_type,
 			$this->m_path->m_lang,true));
 		if($this->m_box === NULL)
-			return new xPageContentError('Box does not exists',$this->m_path);
+			return new xPageContentError($this->m_path,'Box does not exists');
 			
 		return true;
 	}
@@ -241,7 +241,7 @@ class xPageContentBoxTranslate extends xPageContent
 		
 		//check box translation existence
 		if(xBoxI18N::existsTranslation($this->m_path->m_id,$this->m_path->m_lang))
-			return new xPageContentError('A translation of this node already exists',$this->m_path);
+			return new xPageContentError($this->m_path,'A translation of this node already exists');
 		
 		//load and check box type existence
 		$class_name = xBox::getBoxTypeClass($this->m_path->m_type);
@@ -249,7 +249,7 @@ class xPageContentBoxTranslate extends xPageContent
 		$this->m_box = reset(call_user_func(array( $class_name,'find'),$this->m_path->m_id,$this->m_path->m_type,
 			$this->m_path->m_lang,true));
 		if($this->m_box === NULL)
-			return new xPageContentError('Box does not exists',$this->m_path);
+			return new xPageContentError($this->m_path,'Box does not exists');
 			
 		return true;
 	}

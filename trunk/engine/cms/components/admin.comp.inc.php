@@ -34,12 +34,12 @@ class xModuleAdmin extends xModule
 	{
 		if($path->m_resource === "admin" && $path->m_type == NULL && $path->m_action == NULL)
 		{
-			return new xPageContentAdmin($path);
+			return new xResult(new xPageContentAdmin($path));
 		}
 		
 		if($path->m_resource === "admin" && $path->m_type == NULL && $path->m_action == NULL)
 		{
-			return new xPageContentAdmin($path);
+			return new xResult(new xPageContentAdmin($path));
 		}
 		
 		return NULL;
@@ -59,7 +59,7 @@ class xModuleAdmin extends xModule
 			$descrs[] = new xAccessPermissionDescriptor('filter',$filter["name"],NULL,'use','Use "'.$filter["name"].'" content filter');
 		}
 		
-		return $descrs;
+		return new xResult($descrs);
 	}
 	
 };

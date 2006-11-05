@@ -73,12 +73,12 @@ class xMenuItem extends xElement
 	function render()
 	{
 		usort($this->m_subitems, "_objWeightCompare");
-		$subitems = xTheme::render1('renderMenuItems',$this->m_subitems);
+		$subitems = xTheme::render('renderMenuItems',array($this->m_subitems));
 
 		$error = '';
 		$label = xContentFilterController::applyFilter('notags', $this->m_label, $error);
 		$link = xContentFilterController::applyFilter('notags', $this->m_link, $error);
-		return xTheme::render3('renderMenuItem',$label,$link,$subitems);
+		return xTheme::render('renderMenuItem',array($label,$link,$subitems));
 	}
 };
 
@@ -118,9 +118,9 @@ class xMenu extends xBoxI18N
 	function render()
 	{
 		usort($this->m_items, "_objWeightCompare");
-		$content = xTheme::render1('renderMenuItems',$this->m_items);
+		$content = xTheme::render('renderMenuItems',array($this->m_items));
 		
-		return xTheme::render3('renderBox',$this->m_name,$this->m_title,$content);
+		return xTheme::render('renderBox',array($this->m_name,$this->m_title,$content));
 	}
 	
 	/**

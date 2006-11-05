@@ -43,6 +43,7 @@ require_once('engine/cms/menu.inc.php');
 require_once('engine/cms/settings.inc.php');
 require_once('engine/cms/language.inc.php');
 require_once('engine/cms/operation.inc.php');
+require_once('engine/cms/result.inc.php');
 
 require_once('engine/cms/components/components.inc.php');
 ?>

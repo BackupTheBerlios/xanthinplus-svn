@@ -34,20 +34,20 @@ class xModuleCathegoryPage extends xModule
 	{
 		if($path->m_resource === "cathegory" && $path->m_type === 'page' && $path->m_action == 'admin')
 		{
-			return new xPageContentCathegoryAdminPage($path);
+			return new xResult(new xPageContentCathegoryAdminPage($path));
 		}
 		elseif($path->m_resource === "cathegory" && $path->m_type == 'page' && $path->m_action == 'create')
 		{
-			return new xPageContentCathegoryCreatePage($path);
+			return new xResult(new xPageContentCathegoryCreatePage($path));
 		}
 		elseif($path->m_resource === "cathegory" && $path->m_type == 'page' && $path->m_action == 'view')
 		{
 			$cat = xCathegoryPage::load($path->m_id,$path->m_lang);
 			if($cat === NULL)
 			{
-				return new xPageContentNotFound($path);
+				return new xResult(new xPageContentNotFound($path));
 			}
-			return new xPageContentCathegoryViewPage($path,$cat);
+			return new xResult(new xPageContentCathegoryViewPage($path,$cat));
 		}
 		return NULL;
 	}

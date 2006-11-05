@@ -34,12 +34,12 @@ class xModuleBoxGroup extends xModule
 	{
 		if($path->m_resource === 'boxgroup' && $path->m_action === 'admin' && $path->m_type === NULL)
 		{
-			return new xPageContentBoxGroupAdmin($path);
+			return new xResult(new xPageContentBoxGroupAdmin($path));
 		}
 		
 		elseif($path->m_resource === 'boxgroup' && $path->m_action === 'edit' && $path->m_id !== NULL)
 		{
-			return new xPageContentBoxGroupEdit($path);
+			return new xResult(new xPageContentBoxGroupEdit($path));
 		}
 		
 		return NULL;

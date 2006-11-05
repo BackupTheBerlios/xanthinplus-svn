@@ -35,21 +35,21 @@ class xModuleMenu extends xModule
 		if($path->m_resource === 'box' && $path->m_action === 'edit' && $path->m_type === 'menu' 
 			&& $path->m_id !== NULL)
 		{
-			return new xPageContentBoxEdit($path);
+			return new xResult(new xPageContentBoxEdit($path));
 		}
 		elseif($path->m_resource === 'box' && $path->m_action === 'create' && $path->m_type === 'menu')
 		{
-			return new xPageContentBoxCreateMenu($path);
+			return new xResult(new xPageContentBoxCreateMenu($path));
 		}
 		elseif($path->m_resource === 'box' && $path->m_action === 'translate' && $path->m_type === 'menu'
 			&& $path->m_id !== NULL)
 		{
-			return new xPageContentBoxTranslateMenu($path);
+			return new xResult(new xPageContentBoxTranslateMenu($path));
 		}
 		elseif($path->m_resource === 'box' && $path->m_action === 'edit_translation' && $path->m_type === 'menu'
 			&& $path->m_id !== NULL)
 		{
-			return new xPageContentBoxEditTranslationMenu($path);
+			return new xResult(new xPageContentBoxEditTranslationMenu($path));
 		}
 		
 		return NULL;

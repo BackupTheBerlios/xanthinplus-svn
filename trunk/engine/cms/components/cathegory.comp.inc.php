@@ -34,7 +34,7 @@ class xModuleCathegory extends xModule
 	{
 		if($path->m_resource === "cathegory" && $path->m_type === NULL && $path->m_action == 'admin')
 		{
-			return new xPageContentCathegoryAdmin($path);
+			return new xResult(new xPageContentCathegoryAdmin($path));
 		}
 		
 		return NULL;
@@ -60,7 +60,7 @@ class xModuleCathegory extends xModule
 				'Create cathegory '.$type->m_name);
 		}
 		
-		return $descrs;
+		return new xResult($descrs);
 	}
 	
 };

@@ -70,13 +70,12 @@ class xTheme
 	 */
 	function renderAllCss()
 	{
-		$csses = xTheme::callWithArrayResult0('getCss');
+		$csses = xTheme::invokeAll('getCss');
+		$csses = $csses->getValidValues(true);
 		
 		$output = '';
 		foreach($csses as $css)
-		{
 			$output .= '<style type="text/css" media="all">@import "'.$css.'";</style>';
-		}
 		
 		return $output;
 	}
@@ -136,184 +135,57 @@ class xTheme
 	
 	
 	/**
-	 * Make a method call to all themes and return an array that is the union
-	 * of all results != NULL returned. (0 argument version).
+	 * Make a method call to all themes.
 	 *
 	 * @param string $function The method to call
-	 * @return array(mixed)
+	 * @param args An array containing the arguments to pass to the function
+	 * @return xResultSet
 	 */
-	function callWithArrayResult0($function)
+	function invokeAll($function,$args = array())
 	{
-		$array_result = array();
+		//first user modules then default modules
 		$themes = array_merge(xTheme::getThemes(),xTheme::getDefaultThemes());
+		$rs = new xResultSet();
+		
 		foreach($themes as $theme)
 		{
 			if(method_exists($theme,$function))
 			{
-				$result = $theme->$function();
+				$result = call_user_func_array(array(&$theme,$function),$args);
 				if($result !== NULL)
 				{
-					if(is_array($result))
-					{
-						foreach($result as $one_result)
-						{
-							$array_result[] = $one_result;
-						}
-					}
+					if(xanth_instanceof($result,'xResult'))
+						$rs->m_results[] = $result;
 					else
-					{
-						$array_result[] = $result;
-					}
+						xLog::log(LOG_LEVEL_WARNING,'Theme function returned an invalid result. Function: '.
+							$function . '. Theme: '. get_class($theme) . '. Result dump :' 
+							. var_export($result,true),__FILE__,__LINE__);
 				}
 			}
 		}
-		
-		return $array_result;
+		return $rs;
 	}
 	
 	
 	/**
-	 * Make a method call to all themes and return the first result !== NULL (0 argument version).
+	 * Make a method call to all themes and return the first result !== NULL.
 	 *
 	 * @param string $function
+	 * @param args An array containing the arguments to pass to the function
 	 * @return string The renderung output
 	 */
-	function render0($function)
+	function render($function,$args = array())
 	{
 		//first to user modules then default
-		$all_themes = array(xTheme::getThemes(),xTheme::getDefaultThemes());
+		$themes = array_merge(xTheme::getThemes(),xTheme::getDefaultThemes());
 		
-		foreach($all_themes as $themes)
+		foreach($themes as $theme)
 		{
-			foreach($themes as $theme)
+			if(method_exists($theme,$function))
 			{
-				if(method_exists($theme,$function))
-				{
-					$result = $theme->$function();
-					if($result !== NULL)
-					{
-						return $result;
-					}
-				}
-			}
-		}
-		
-		return NULL;
-	}
-	
-	
-	/**
-	 * Make a method call to all themes and return the first result !== NULL (1 argument version).
-	 *
-	 * @param string $function
-	 * @return string The renderung output
-	 */
-	function render1($function,&$arg1)
-	{
-		//first to user modules then default
-		$all_themes = array(xTheme::getThemes(),xTheme::getDefaultThemes());
-		
-		foreach($all_themes as $themes)
-		{
-			foreach($themes as $theme)
-			{
-				if(method_exists($theme,$function))
-				{
-					$result = $theme->$function($arg1);
-					if($result !== NULL)
-					{
-						return $result;
-					}
-				}
-			}
-		}
-		
-		return NULL;
-	}
-	
-	/**
-	 * Make a method call to all themes and return the first result !== NULL (2 argument version).
-	 *
-	 * @param string $function
-	 * @return string The renderung output
-	 */
-	function render2($function,&$arg1,&$arg2)
-	{
-		//first to user modules then default
-		$all_themes = array(xTheme::getThemes(),xTheme::getDefaultThemes());
-		
-		foreach($all_themes as $themes)
-		{
-			foreach($themes as $theme)
-			{
-				if(method_exists($theme,$function))
-				{
-					$result = $theme->$function($arg1,$arg2);
-					if($result !== NULL)
-					{
-						return $result;
-					}
-				}
-			}
-		}
-		
-		return NULL;
-	}
-	
-	
-	/**
-	 * Make a method call to all themes and return the first result !== NULL (3 argument version).
-	 *
-	 * @param string $function
-	 * @return string The renderung output
-	 */
-	function render3($function,&$arg1,&$arg2,&$arg3)
-	{
-		//first to user modules then default
-		$all_themes = array(xTheme::getThemes(),xTheme::getDefaultThemes());
-		
-		foreach($all_themes as $themes)
-		{
-			foreach($themes as $theme)
-			{
-				if(method_exists($theme,$function))
-				{
-					$result = $theme->$function($arg1,$arg2,$arg3);
-					if($result !== NULL)
-					{
-						return $result;
-					}
-				}
-			}
-		}
-		
-		return NULL;
-	}
-	
-	
-	/**
-	 * Make a method call to all themes and return the first result !== NULL (4 argument version).
-	 *
-	 * @param string $function
-	 * @return string The renderung output
-	 */
-	function render4($function,&$arg1,&$arg2,&$arg3,&$arg4)
-	{
-		//first to user modules then default
-		$all_themes = array(xTheme::getThemes(),xTheme::getDefaultThemes());
-		
-		foreach($all_themes as $themes)
-		{
-			foreach($themes as $theme)
-			{
-				if(method_exists($theme,$function))
-				{
-					$result = $theme->$function($arg1,$arg2,$arg3,$arg4);
-					if($result !== NULL)
-					{
-						return $result;
-					}
-				}
+				$result = call_user_func_array(array(&$theme,$function),$args);
+				if($result !== NULL)
+					return $result;
 			}
 		}
 		
@@ -334,11 +206,11 @@ class xDefaultTheme extends xTheme
 	/**
 	 * Return the path to theme css file or an array of it.
 	 *
-	 * @return mixed
+	 * @return xResult
 	 */
 	function getCss()
 	{
-		return "engine/cms/default.css";
+		return new xResult("engine/cms/default.css");
 	}
 	
 	

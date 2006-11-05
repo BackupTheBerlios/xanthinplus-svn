@@ -52,8 +52,8 @@ class xConf
 
 
 /**
-*
-*/
+ *
+ */
 function xanth_instanceof($object,$class_name)
 {
 	//todo

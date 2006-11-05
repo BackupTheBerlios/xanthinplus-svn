@@ -147,7 +147,7 @@ class xLogEntry
 		foreach(xLogEntry::getFromScreen() as $entry)
 		{
 			$output .= 
-			'<div class = "log-entry">
+			'<div class = "log-entry screen-log-level-'.xLog::getLevelString($entry->m_level).'">
 			<ul>
 				<li><span class="log-entry-name">ID</span>: <span class="log-entry-value">'.$entry->m_id.'</span></li>
 				<li><span class="log-entry-name">Level</span>: <span class="log-entry-value">'.$entry->m_level.'</span></li>
@@ -304,6 +304,28 @@ class xLog
 		
 		if($level == LOG_LEVEL_FATAL_ERROR)
 			exit("Fatal Error, please contact the webmaster");
+	}
+	
+	/**
+	 * Return a string representation of the provided log level
+	 */
+	function getLevelString($level)
+	{
+		switch($level)
+		{
+			case LOG_LEVEL_FATAL_ERROR:
+				return 'error';
+			case LOG_LEVEL_FATAL_ERROR:
+				return 'fatal_error';
+			case LOG_LEVEL_WARNING:
+				return 'warning';
+			case LOG_LEVEL_DEBUG:
+				return 'debug';
+			case LOG_LEVEL_NOTICE:
+				return 'notice';
+			default:
+				return 'unknown';
+		}
 	}
 };
 

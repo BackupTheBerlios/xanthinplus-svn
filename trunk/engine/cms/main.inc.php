@@ -57,7 +57,8 @@ function xanth_main()
 	session_start();
 	
 	//broadcast onPageCreation event
-	xModule::callWithNoResult0('xm_onInit');
+	//todo check for errors
+	xModule::invokeAll('xm_onInit',array());
 			
 	//extract current path
 	$path = xPath::getCurrent();

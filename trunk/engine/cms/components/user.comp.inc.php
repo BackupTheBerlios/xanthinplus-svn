@@ -32,12 +32,12 @@ class xModuleUser extends xModule
 	{
 		if($path->m_resource === 'user' && $path->m_action === 'login')
 		{
-			return new xPageContentUserLogin($path);
+			return new xResult(new xPageContentUserLogin($path));
 		}
 		elseif($path->m_resource === 'user' && $path->m_action === 'logout')
 		{
 			xUser::logout();
-			return new xPageContentSimple("User logout",'Logged out','','',$path);
+			return new xResult(new xPageContentSimple("User logout",'Logged out','','',$path));
 		}
 		
 		return NULL;

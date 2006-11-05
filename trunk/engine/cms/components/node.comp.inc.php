@@ -34,12 +34,12 @@ class xModuleNode extends xModule
 	{
 		if($path->m_resource === 'node' && $path->m_action === 'admin' && $path->m_type === NULL)
 		{
-			return new xPageContentAdminNode($path);
+			return new xResult(new xPageContentAdminNode($path));
 		}
 		
 		elseif($path->m_resource === 'node' && $path->m_action === 'translate' && $path->m_type === NULL)
 		{
-			return new xPageContentNodeTranslate($path);
+			return new xResult(new xPageContentNodeTranslate($path));
 		}
 		
 		return NULL;
@@ -67,7 +67,7 @@ class xModuleNode extends xModule
 		
 		//todo insert permission for cathegory in cat.comp
 		
-		return $descr;
+		return new xResult($descr);
 	}
 	
 };
@@ -91,11 +91,11 @@ class xPageContentNodeTranslate extends xPageContent
 	function onCheckPreconditions()
 	{
 		if(! xNodeI18N::isTranslatable($this->m_path->m_id))
-			return new xPageContentError('Cannot translate this node',$this->m_path);
+			return new xPageContentError($this->m_path,'Cannot translate this node');
 			
 		
 		if(xNodeI18N::existsTranslation($this->m_path->m_id,$this->m_path->m_lang))
-			return new xPageContentError('A translation of this node in this language already exists',$this->m_path);
+			return new xPageContentError($this->m_path,'A translation of this node in this language already exists');
 			
 		
 		if(!xAccessPermission::checkCurrentUserPermission('node',$this->m_path->m_type,NULL,'translate'))
@@ -135,7 +135,7 @@ class xPageContentNodeEdittranslation extends xPageContent
 			return new xPageContentNotAuthorized($this->m_path);
 			
 		if(! xNodeI18N::existsTranslation($this->m_path->m_id,$this->m_path->m_lang))
-			return new xPageContentError('A translation of this node does exists',$this->m_path);
+			return new xPageContentError($this->m_path,'A translation of this node does exists');
 			
 		return true;
 	}
@@ -168,7 +168,7 @@ class xPageContentNodeDeleteTranslation extends xPageContent
 	function onCheckPreconditions()
 	{
 		if(! xNodeI18N::existsTranslation($this->m_path->m_id,$this->m_path->m_lang))
-			return new xPageContentError('A translation of this node does exists',$this->m_path);
+			return new xPageContentError($this->m_path,'A translation of this node does exists');
 			
 		if(!xAccessPermission::checkCurrentUserPermission('node',$this->m_path->m_type,NULL,'delete_translation'))
 			return new xPageContentNotAuthorized($this->m_path);

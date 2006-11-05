@@ -33,7 +33,7 @@ class xModuleSettings extends xModule
 	{
 		if($path->m_resource == 'settings' && $path->m_action == 'admin' && $path->m_type == NULL)
 		{
-			return new xPageContentAdminSettings($path);
+			return new xResult(new xPageContentAdminSettings($path));
 		}
 		
 		return NULL;

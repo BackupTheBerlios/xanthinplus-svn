@@ -229,9 +229,9 @@ class xNodeI18N extends xNode
 			$formatted[$op->m_name] = array('link' => $op->getLink('node',$this->m_type,$this->m_id,$this->m_lang),
 				'description' => $op->m_description);
 		
-		$operations = xTheme::render1('renderNodeOperations',$formatted);
+		$operations = xTheme::render('renderNodeOperations',array($formatted));
 		
-		return xTheme::render4('renderNode',$this->m_type,$title,$content,$operations);
+		return xTheme::render('renderNode',array($this->m_type,$title,$content,$operations));
 	}
 	
 	
@@ -249,9 +249,9 @@ class xNodeI18N extends xNode
 			$formatted[$op->m_name] = array('link' => $op->getLink('node',$this->m_type,$this->m_id,$this->m_lang),
 				'description' => $op->m_description);
 			
-		$operations = xTheme::render1('renderNodeOperations',$formatted);
+		$operations = xTheme::render('renderNodeOperations',array($formatted));
 		
-		return xTheme::render4('renderBriefNode',$this->m_type,$title,$content,$operations);
+		return xTheme::render('renderBriefNode',array($this->m_type,$title,$content,$operations));
 	}
 	
 	/** 

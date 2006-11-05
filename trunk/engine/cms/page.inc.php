@@ -54,7 +54,7 @@ class xPage extends xElement
 	// DOCS INHERITHED  ========================================================
 	function render()
 	{
-		return xTheme::render2('renderPage',$this->m_content,$this->m_box_groups);
+		return xTheme::render('renderPage',array($this->m_content,$this->m_box_groups));
 	}
 	
 	/**
@@ -68,7 +68,8 @@ class xPage extends xElement
 		if($path !== NULL)
 		{
 			//broadcast onPageCreation event
-			xModule::callWithNoResult1('xm_onPageCreation',$path);
+			//todo check for errors
+			xModule::invokeAll('xm_onPageCreation',array($path));
 		
 			//ask for content
 			$content = xPageContent::fetchContent($path);

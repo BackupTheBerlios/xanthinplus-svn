@@ -34,7 +34,7 @@ class xModuleBoxCustom extends xModule
 	{
 		if($path->m_resource === 'box' && $path->m_action === 'create' && $path->m_type === 'custom')
 		{
-			return new xPageContentAdminBoxCreateCustom($path);
+			return new xResult(new xPageContentAdminBoxCreateCustom($path));
 		}
 		
 		return NULL;

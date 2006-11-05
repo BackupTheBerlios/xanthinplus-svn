@@ -73,7 +73,7 @@ class xBoxGroup extends xElement
 				$rendered_boxes[] = $box->render();
 		}
 		
-		return xTheme::render2('renderBoxGroup',$this->m_name,$rendered_boxes);
+		return xTheme::render('renderBoxGroup',array($this->m_name,$rendered_boxes));
 	}
 	
 	

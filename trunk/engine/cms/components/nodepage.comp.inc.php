@@ -34,35 +34,35 @@ class xModuleNodePage extends xModule
 	{
 		if($path->m_resource === 'node' && $path->m_action === 'admin' && $path->m_type === 'page')
 		{
-			return new xPageContentNodeAdminPage($path);
+			return new xResult(new xPageContentNodeAdminPage($path));
 		}
 		
 		elseif($path->m_resource === 'node' && $path->m_action === 'view' && $path->m_type === 'page')
 		{
-			return new xPageContentNodeViewPage($path);
+			return new xResult(new xPageContentNodeViewPage($path));
 		}
 		
 		elseif($path->m_resource === 'node' && $path->m_type === 'page' && $path->m_action === 'create')
 		{
-			return new xPageContentNodePageCreate($path);
+			return new xResult(new xPageContentNodePageCreate($path));
 		}
 		
 		elseif($path->m_resource === 'node' && $path->m_type === 'page' && $path->m_action === 'translate'
 			&& $path->m_id !== NULL)
 		{
-			return new xPageContentNodeTranslatePage($path);
+			return new xResult(new xPageContentNodeTranslatePage($path));
 		}
 		
 		elseif($path->m_resource === 'node' && $path->m_type === 'page' && $path->m_action === 'edit_translation'
 			&& $path->m_id !== NULL)
 		{
-			return new xPageContentNodeEdittranslationPage($path);
+			return new xResult(new xPageContentNodeEdittranslationPage($path));
 		}
 		
 		elseif($path->m_resource === 'node' && $path->m_type === 'page' && $path->m_action === 'delete_translation'
 			&& $path->m_id !== NULL)
 		{
-			return new xPageContentNodeDeleteTranslation($path);
+			return new xResult(new xPageContentNodeDeleteTranslation($path));
 		}
 		
 		return NULL;
@@ -90,7 +90,7 @@ class xModuleNodePage extends xModule
 		
 		//todo insert permission for cathegory in cat.comp
 		
-		return $descr;
+		return new xResult($descr);
 	}
 	
 };
@@ -211,7 +211,7 @@ class xPageContentNodeTranslatePage extends xPageContentNodeTranslate
 			return $ret;
 		
 		if(! xNodePage::isNodePage($this->m_path->m_id))
-			return new xPageContentError('The node is not of type page',$this->m_path);
+			return new xPageContentError($this->m_path,'The node is not of type page');
 			
 		return true;
 	}
@@ -304,7 +304,7 @@ class xPageContentNodeEdittranslationPage extends xPageContentNodeEdittranslatio
 			return $ret;
 		
 		if(! xNodePage::isNodePage($this->m_path->m_id))
-			return new xPageContentError('The node is not of type page',$this->m_path);
+			return new xPageContentError($this->m_path,'The node is not of type page');
 			
 		return true;
 	}

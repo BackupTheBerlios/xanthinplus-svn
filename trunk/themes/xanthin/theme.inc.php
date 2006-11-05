@@ -31,7 +31,7 @@ class xThemeXanthin extends xTheme
 	 */
 	function getCss()
 	{
-		return "themes/xanthin/default.css";
+		return new xResult("themes/xanthin/default.css");
 	}
 	
 	/**

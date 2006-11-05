@@ -137,17 +137,19 @@ class xPageContent extends xElement
 	 */
 	function  _processContent($content,$path)
 	{
-		//not found
-		if($content === NULL)
-			return new xPageContentNotFound($path);
-		
 		$res = $content->onCheckPreconditions();
 		if($res !== TRUE)
 		{
 			if(xanth_instanceof($res,'xPageContent'))
+			{
 				return xPageContent::_processContent($res,$path);
+			}
 			else
-				assert('FALSE');
+			{
+				xLog::log(LOG_LEVEL_ERROR,'Invalid result from onCheckPreconditions(). PageContent: '.
+					var_export($content,true).' . Result: '. var_export($res,true));
+				return xPageContent::_processContent(new xPageContentError(),$path);
+			}
 		}
 		else
 		{
@@ -175,9 +177,11 @@ class xPageContent extends xElement
 	{
 		$content = NULL;
 		$emptystr = '';
-		$content = xModule::callWithSingleResult1('xm_fetchContent',$path);
-		
-		return xPageContent::_processContent($content,$path);
+		$result = xModule::invoke('xm_fetchContent',array($path));
+		if($result !== NULL)
+			return xPageContent::_processContent($result->m_value,$path);
+		else
+			return new xPageContentNotFound($path);
 	}
 };
 
@@ -226,10 +230,10 @@ class xPageContentError extends xPageContentSimple
 	/**
 	 * 
 	 */
-	function xPageContentError($error,$path,$headers = array())
+	function xPageContentError($path,$error = 'An unexpected error occurs. Please contact administrator',
+		$headers = array())
 	{
 		$content = '<b>Error: ' . $error . '</b>';
-		
 		xPageContentSimple::xPageContentSimple('Error',$content,'','',$path,$headers);
 	}
 };

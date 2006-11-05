@@ -107,6 +107,8 @@ class xPath
 			$path = xPath::_parse($p);
 			if($path !== NULL)
 			{
+				$path->m_params = $_GET;
+				unset($path->m_params['p']);
 				return $path;
 			}
 			else
@@ -171,13 +173,47 @@ class xPath
 	
 	/**
 	 * Outputs a link based on this path.
-	 *
+	 * 
+	 * @param array() $forward_params A list of params to forward, if NULL all params are forwarded.
 	 * @return string
 	 */
-	function getLink()
+	function getLink($forward_params = NULL)
 	{
+		$query = '';
+		$first = TRUE;
+		if($forward_params !== NULL) //forward all specified params
+		{
+			foreach($forward_params as $param)
+			{
+				if(isset($this->m_params[$param]))
+				{
+					if($first)
+						$query .= '&';
+					else
+						$first = FALSE;
+					
+					$query .= $param .'='. urlencode($this->m_params[$param]);
+				}
+			}
+		}
+		else //forward all params
+		{
+			$first = TRUE;
+			foreach($this->m_params as $key => $value)
+			{
+				if($first)
+					$query .= '&';
+				else
+					$first = FALSE;
+				
+				$query .= $key .'='. urlencode($value);
+			}
+		}
+		
+		if(!empty($query))
+			$query = '&'.$query;
 		//todo
-		return '?p='.$this->m_full_path;
+		return '?p='.$this->m_full_path.$query;
 	}
 	
 	
@@ -187,10 +223,11 @@ class xPath
 	 * @return string
 	 * @static
 	 */
-	function renderLink($lang,$resource,$action,$type = NULL,$id = NULL,$page = NULL)
+	function renderLink($lang,$resource,$action,$type = NULL,$id = NULL,$page = NULL,$params = array(),
+		$forward_params = NULL)
 	{
-		$path = new xPath($lang,$resource,$action,$type,$id,$page);
-		return $path->getLink();
+		$path = new xPath($lang,$resource,$action,$type,$id,$page,$params);
+		return $path->getLink($forward_params);
 	}
 	
 };

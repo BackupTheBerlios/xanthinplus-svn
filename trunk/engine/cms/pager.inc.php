@@ -16,42 +16,19 @@
 */
 
 
-/**
-* Represent an operation on resource.
-*/
-class xOperation
+class xPager extends xElement
 {
-	/**
-	 * @var string
-	 */
-	var $m_action;
-	
-	/**
-	* @var string
-	*/
-	var $m_name;
-	
-	/**
-	* @var string
-	*/
-	var $m_description;
-	
-
-	function xOperation($action,$name,$description)
+	function xPager($elements_count,$elements_per_page,$current_page)
 	{
-		$this->m_action = $action;
-		$this->m_name = $name;
-		$this->m_description = $description;
+		$this->xElement();	
 	}
 	
-	
 	/**
-	 * Outputs the link corresponding to this operation.
+	 * @see xElement::render()
 	 */
-	function getLink($resource,$resource_type,$resource_id,$lang)
+	function render()
 	{
-		return xPath::renderLink($lang,$resource,$this->m_action,$resource_type,$resource_id);
+		
 	}
-};
-
+}
 ?>
