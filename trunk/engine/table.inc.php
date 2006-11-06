@@ -23,16 +23,16 @@
 class xTable extends xElement
 {
 	var $m_model;
-	var $m_class;
+	var $m_css_class;
 	var $m_path;
 	
-	function xTable($path,$table_model,$class)
+	function xTable($path,$table_model,$css_class)
 	{
 		$this->xElement();
 		
 		$this->m_path = $path;
 		$this->m_model = $table_model;
-		$this->m_class = $class;
+		$this->m_css_class = $css_class;
 	}
 	
 	/**
@@ -40,24 +40,26 @@ class xTable extends xElement
 	 */
 	function render()
 	{
-		$out = '<div class="'. $this->m_class . '"><table>';
+		$out = '<div class="'. $this->m_css_class . '"><table>';
 		$column_count = $this->m_model->getColumnCount();
 		$row_count = $this->m_model->getRowCount();
 		
 		$out .= '<tr>';
-		for($i = 0;$i < $column_count;$i++)
+		for($i = 0;$i < $column_count;$i++)  //header
 		{
 			$column = $this->m_model->getColumn($i);
 			if(! $column->m_sortable)
 				$out .= '<th>'.$column->m_label.'</th>';
 			else
 			{
-				$p_copy = $this->m_path;
+				$p_copy = xanth_clone($this->m_path);
 				$p_copy->m_params['order'] = $column->m_name;
-				$direction = 'asc';
-				if(isset($p_copy->m_params['direction']))
-					if($p_copy->m_params['direction'] == 'asc')
-						$direction = 'desc';
+				$direction = 'desc';
+				if(isset($p_copy->m_params['direction']) && isset($p_copy->m_params['order']))
+				{
+					if($p_copy->m_params['order'] === $column->m_name && $p_copy->m_params['direction'] === 'desc')
+						$direction = 'asc';
+				}
 				
 				$p_copy->m_params['direction'] = $direction;
 				
@@ -66,11 +68,11 @@ class xTable extends xElement
 		}
 		$out .= '</tr>';
 		
-		for($i = 0;$i < $row_count;$i++)
+		for($i = 0;$i < $row_count;$i++)  //contents
 		{
 			$odd_even = 'tr-odd';
 			if($i % 2 == 0)
-				$out .= 'tr-even';
+				$odd_even = 'tr-even';
 				
 			$out .= '<tr class="'.$odd_even.' '. $this->m_model->getRowClass($i) .'">';
 			
@@ -79,7 +81,7 @@ class xTable extends xElement
 				$column = $this->m_model->getColumn($j);
 				$odd_even = 'td-odd';
 					if($i % 2 == 0)
-				$out .= 'td-even';
+						$odd_even = 'td-even';
 				
 				$out .= '<td class="'.$odd_even.' '. $column->m_name .'">';
 				$out .= $this->m_model->getValueAt($i,$j);
@@ -89,6 +91,8 @@ class xTable extends xElement
 			$out .= '</tr>';
 		}
 		$out .= '</table></div>';
+		
+		return $out;
 	}
 }
 
@@ -114,7 +118,7 @@ class xColumn
 
 
 /**
- *
+ * @abstract
  */
 class xAbstractTableModel
 {
@@ -164,11 +168,22 @@ class xAbstractTableModel
  */
 class xDefaultTableModel extends xAbstractTableModel
 {
+	var $m_columns;
+	var $m_data;
+	var $m_row_css_classes;
+	
 	/**
 	 * 
 	 */
-	function xDefaultTableModel($columns,$data)
+	function xDefaultTableModel($columns,$data,$row_css_classes = NULL)
 	{
+		$this->m_columns = $columns;
+		$this->m_data = $data;
+		
+		if(!empty($row_css_classes))
+			$this->m_row_css_classes = $row_css_classes;
+		else
+			$row_css_classes = array_fill (0,count($data),'');
 	}
 	
 	/**
@@ -176,13 +191,15 @@ class xDefaultTableModel extends xAbstractTableModel
 	 */
 	function getColumn($col)
 	{
+		return $this->m_columns[$col];
 	}
 
 	/**
 	 * @see xAbstractTableModel::getRowCount()
 	 */
     function getRowCount()
-	{   
+	{
+		return count($this->m_data);
 	}
     
     /**
@@ -190,6 +207,7 @@ class xDefaultTableModel extends xAbstractTableModel
      */
 	function getColumnCount() 
 	{
+		return count($this->m_columns);
 	}
 	
 	/**
@@ -197,6 +215,7 @@ class xDefaultTableModel extends xAbstractTableModel
      */
     function getValueAt($row, $col)
 	{
+		return $this->m_data[$row][$col];
 	}
 	
 	/**
@@ -204,6 +223,7 @@ class xDefaultTableModel extends xAbstractTableModel
      */
 	function getRowClass($row)
 	{
+		return $this->m_row_css_classes[$row];
 	}
 }
 ?>

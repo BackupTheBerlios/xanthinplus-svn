@@ -173,7 +173,7 @@ class xDummyModule extends xModule
 	* call onCreate() on the content object before you return it.
 	*
 	* @param xPath $path
-	* @return xPageContent A valid xPageContent object for the given path, NULL otherwise.
+	* @return xResult A result containing a valid xPageContent object for the given path, NULL otherwise.
 	*/
 	function xm_fetchContent($path)
 	{
@@ -184,9 +184,18 @@ class xDummyModule extends xModule
 	* Returns a valid box corresponding to the given name/type
 	*
 	* @param xPath $path
-	* @return xPageContent A valid xPageContent object for the given path, NULL otherwise.
+	* @return xResult A result containing a valid xBox object, NULL otherwise.
 	*/
 	function xm_fetchBuiltinBox($box_name,$lang)
+	{
+	}
+	
+	/**
+	 * Returns the name of the class responsible for the given node type.
+	 * 
+	 * @return xResult A result containing a string representing the class name, NULL otherwise.
+	 */
+	function xm_fetchNodeTypeClassName($node_type)
 	{
 	}
 	

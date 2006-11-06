@@ -179,39 +179,26 @@ class xPath
 	 */
 	function getLink($forward_params = NULL)
 	{
-		$query = '';
-		$first = TRUE;
+		$query = array();
 		if($forward_params !== NULL) //forward all specified params
 		{
 			foreach($forward_params as $param)
-			{
 				if(isset($this->m_params[$param]))
-				{
-					if($first)
-						$query .= '&';
-					else
-						$first = FALSE;
+					$query[] =  $param .'='. urlencode($this->m_params[$param]);
 					
-					$query .= $param .'='. urlencode($this->m_params[$param]);
-				}
-			}
+			$query = implode('&',$query);
 		}
 		else //forward all params
 		{
-			$first = TRUE;
 			foreach($this->m_params as $key => $value)
-			{
-				if($first)
-					$query .= '&';
-				else
-					$first = FALSE;
+				$query[] = $key .'='. urlencode($value);
 				
-				$query .= $key .'='. urlencode($value);
-			}
+			$query = implode('&',$query);
 		}
 		
 		if(!empty($query))
 			$query = '&'.$query;
+			
 		//todo
 		return '?p='.$this->m_full_path.$query;
 	}

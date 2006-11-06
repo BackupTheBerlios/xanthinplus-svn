@@ -31,6 +31,7 @@ require_once($xanth_working_dir . '/engine/pagecontent.inc.php');
 require_once($xanth_working_dir . '/engine/result.inc.php');
 require_once($xanth_working_dir . '/engine/session.inc.php');
 require_once($xanth_working_dir . '/engine/showfilter.inc.php');
+require_once($xanth_working_dir . '/engine/table.inc.php');
 require_once($xanth_working_dir . '/engine/theme.inc.php');
 require_once($xanth_working_dir . '/engine/uniqueid.inc.php');
 require_once($xanth_working_dir . '/engine/utf8.inc.php');

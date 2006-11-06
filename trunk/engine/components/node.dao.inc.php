@@ -146,7 +146,7 @@ class xNodeDAO
 	{
 		return new xNode($row_object->id,$row_object->type,$row_object->author,
 			$row_object->content_filter,$cathegories,
-			$row_object->creation_time,$row_object->edit_time);
+			$db->decodeTimestamp($row_object->creation_time),$db->decodeTimestamp($row_object->edit_time));
 	}
 	
 	
@@ -320,7 +320,7 @@ class xNodeI18NDAO
 		return new xNodeI18N($row_object->id,$row_object->type,$row_object->author,
 			$row_object->content_filter,$row_object->title,$row_object->content,$row_object->m_lang,
 			$row_object->translator,$cathegories,
-			$row_object->creation_time,$row_object->edit_time);
+			$db->decodeTimestamp($row_object->creation_time),$db->decodeTimestamp($row_object->edit_time));
 	}
 	
 	
@@ -585,12 +585,14 @@ class xNodePageDAO
 	 */
 	function _nodepageFromRow($row_object,$cathegories)
 	{
+		$db =& xDB::getDB();
+		
 		return new xNodePage($row_object->id,$row_object->type,
-			$row_object->author,$row_object->content_filter,$row_object->title,$row_object->content,$row_object->lang,
-			$row_object->translator,$cathegories,
-			$row_object->creation_time,$row_object->edit_time,$row_object->published,$row_object->sticky,
-			$row_object->accept_replies,
-			$row_object->approved,$row_object->meta_description,$row_object->meta_keywords);
+			$row_object->author,$row_object->content_filter,$row_object->title,$row_object->content,
+			$row_object->lang,$row_object->translator,$cathegories,
+			$db->decodeTimestamp($row_object->creation_time),$db->decodeTimestamp($row_object->edit_time),
+			$row_object->published,$row_object->sticky,$row_object->accept_replies,$row_object->approved,
+			$row_object->meta_description,$row_object->meta_keywords);
 	}
 	
 	/**
@@ -668,8 +670,6 @@ class xNodePageDAO
 			$i++;
 			$where[$i]["clause"] = "node.id = node_to_cathegory.nodeid";
 			$where[$i]["connector"] = "AND";
-			if($parent_cat === NULL)
-				$where[$i]["value"] = NULL;
 			
 			$result = $db->autoQuerySelect('node.*,node_i18n.*,node_page.*',
 				'node,node_i18n,node_to_cathegory,node_page',$where,$order,$limit);

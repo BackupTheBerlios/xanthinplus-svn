@@ -14,8 +14,8 @@
 * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR 
 * PURPOSE ARE DISCLAIMED.SEE YOUR CHOOSEN LICENSE FOR MORE DETAILS.
 */
-
-
+	
+	
 /**
 * Permits interaction with globally defined configuration variables.
 */
@@ -53,25 +53,15 @@ class xConf
 $xanth_working_dir = $_SERVER['DOCUMENT_ROOT'] . xConf::get('installation_path','xanthin');
 
 
-/**
- *
- */
-function xanth_instanceof($object,$class_name)
+if(version_compare(PHP_VERSION,"5.0") < 0)
 {
-	//todo
-	return is_a($object,$class_name);
-	/**
-	if(version_compare(PHP_VERSION,"5.0.0") < 0)
-	{
-		return is_a($object,$class_name);
-	}
-	else
-	{
-		return $object instanceof $class_name;
-	}*/
+	require($xanth_working_dir . '/engine/php4compat.inc.php');
 }
-
-
+else
+{
+	require($xanth_working_dir . '/engine/php5compat.inc.php');
+}
+ 
 /**
 *
 */

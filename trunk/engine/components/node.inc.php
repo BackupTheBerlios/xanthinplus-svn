@@ -16,7 +16,6 @@
 */
 
 
-
 /**
  * A node and cathegory type
  */
@@ -34,7 +33,6 @@ class xNodeType
 	 */
 	var $m_description;
 	
-
 	/**
 	 *
 	 */
@@ -114,7 +112,9 @@ class xNodeType
 };
 
 
-
+//###########################################################################
+//###########################################################################
+//###########################################################################
 
 /**
  * Represent a node in the CMS.
@@ -165,10 +165,11 @@ class xNode extends xElement
 
 	/**
 	 *
-	 * @param array(mixed) $parent_cathegories An array of xCathegory objects or an array of cathegories ids
+	 * @param array(mixed) $parent_cathegories An array of xCathegory objects 
+	 * or an array of cathegories ids
 	 */
-	function xNode($id,$type,$author,$content_filter,$parent_cathegories = array(),
-		$creation_time = NULL,$edit_time = NULL)
+	function xNode($id,$type,$author,$content_filter,
+		$parent_cathegories = array(),$creation_time = NULL,$edit_time = NULL)
 	{
 		$this->xElement();
 		
@@ -227,7 +228,8 @@ class xNode extends xElement
 	}
 	
 	
-	function find($order = array(),$limit = array(),$id = NULL,$type = NULL,$author = NULL,$parent_cat = NULL)
+	function find($order = array(),$limit = array(),$id = NULL,$type = NULL,
+		$author = NULL,$parent_cat = NULL)
 	{
 		return xNodeDAO::find($id,$type,$author,$parent_cat);
 	}
@@ -244,31 +246,30 @@ class xNode extends xElement
 	/**
 	 * @static
 	 */
-	function registerNodeTypeClass($node_type,$class_name)
-	{
-		global $xanth_node_type_classes;
-		$xanth_node_type_classes[$node_type] = $class_name;
-	}
-	
-	
-	/**
-	 * @static
-	 */
 	function getNodeTypeClass($node_type)
 	{
-		global $xanth_node_type_classes;
-		if(isset($xanth_node_type_classes[$node_type]))
-			return $xanth_node_type_classes[$node_type];
+		$res = xModule::invoke('xm_fetchNodeTypeClassName',array($node_type));
+		if(!$res->isError())
+			return $res->m_value;
 		
 		return NULL;
 	}
 	
 	
+	/**
+	 * 
+	 */
 	function loadCathegories()
 	{
-		$this->m_parent_cathegories = xCathegoryDAO::findNodeCathegories($this->m_id);	
+		$this->m_parent_cathegories = 
+			xCathegoryDAO::findNodeCathegories($this->m_id);	
 	}
 };
+
+
+//###########################################################################
+//###########################################################################
+//###########################################################################
 
 
 /**
@@ -300,12 +301,15 @@ class xNodeI18N extends xNode
 	
 	/**
 	 *
-	 * @param array(mixed) $parent_cathegories An array of xCathegory objects or an array of cathegories ids
+	 * @param array(mixed) $parent_cathegories An array of xCathegory 
+	 * objects or an array of cathegories ids
 	 */
-	function xNodeI18N($id,$type,$author,$content_filter,$title,$content,$lang,$translator,$parent_cathegories = array(),
-		$creation_time = NULL,$edit_time = NULL)
+	function xNodeI18N($id,$type,$author,$content_filter,$title,$content,
+		$lang,$translator,$parent_cathegories = array(),$creation_time = NULL,
+		$edit_time = NULL)
 	{
-		$this->xNode($id,$type,$author,$content_filter,$parent_cathegories,$creation_time,$edit_time);
+		$this->xNode($id,$type,$author,$content_filter,$parent_cathegories,
+			$creation_time,$edit_time);
 		
 		$this->m_title = $title;
 		$this->m_content = $content;
@@ -318,19 +322,23 @@ class xNodeI18N extends xNode
 	function render()
 	{
 		$error = '';
-		$content = xContentFilterController::applyFilter($this->m_content_filter,$this->m_content,$error);
-		$title = xContentFilterController::applyFilter('notags',$this->m_title,$error);
+		$content = xContentFilterController::applyFilter(
+			$this->m_content_filter,$this->m_content,$error);
+		$title = xContentFilterController::applyFilter(
+			'notags',$this->m_title,$error);
 		
 		//format operations
 		$ops = $this->getOperations();
 		$formatted = array();
 		foreach($ops as $op)
-			$formatted[$op->m_name] = array('link' => $op->getLink('node',$this->m_type,$this->m_id,$this->m_lang),
+			$formatted[$op->m_name] = array('link' => 
+				$op->getLink('node',$this->m_type,$this->m_id,$this->m_lang),
 				'description' => $op->m_description);
 		
 		$operations = xTheme::render('renderNodeOperations',array($formatted));
 		
-		return xTheme::render('renderNode',array($this->m_type,$title,$content,$operations));
+		return xTheme::render('renderNode',array($this->m_type,$title,$content,
+			$operations));
 	}
 	
 	
@@ -369,9 +377,18 @@ class xNodeI18N extends xNode
 	}
 	
 	/**
+	 * 
+	 */
+	function getNodeTranslations()
+	{
+		return xNodeI18NDAO::getNodeTranslations($this->m_id);
+	}
+	
+	
+	/**
 	 * @static
 	 */
-	function getNodeTranslations($nodeid)
+	function s_getNodeTranslations($nodeid)
 	{
 		return xNodeI18NDAO::getNodeTranslations($nodeid);
 	}
@@ -409,6 +426,9 @@ class xNodeI18N extends xNode
 
 
 
+//###########################################################################
+//###########################################################################
+//###########################################################################
 
 
 /**
@@ -543,9 +563,11 @@ class xNodePage extends xNodeI18N
 			);
 	}
 };
-xNode::registerNodeTypeClass('page','xNodePage');
 
 
+//###########################################################################
+//###########################################################################
+//###########################################################################
 
 /**
 * Module responsible of user management
@@ -563,16 +585,66 @@ class xModuleNode extends xModule
 	 */ 
 	function xm_fetchContent($path)
 	{
-		if($path->m_resource === 'node' && $path->m_action === 'admin' && $path->m_type === NULL)
+		if($path->m_resource === 'node')
 		{
-			return new xResult(new xPageContentAdminNode($path));
+			if($path->m_type === NULL)
+			{
+				if($path->m_action === 'admin')
+				{
+					return new xResult(new xPageContentAdminNode($path));
+				}
+				elseif($path->m_action === 'translate')
+				{
+					return new xResult(new xPageContentNodeTranslate($path));
+				}
+			}
+			
+			elseif($path->m_type === 'page')
+			{
+				if($path->m_action === 'admin')
+				{
+					return new xResult(new xPageContentNodeAdminPage($path));
+				}
+				
+				elseif($path->m_action === 'view')
+				{
+					return new xResult(new xPageContentNodeViewPage($path));
+				}
+				
+				elseif($path->m_action === 'create')
+				{
+					return new xResult(new xPageContentNodePageCreate($path));
+				}
+				
+				elseif($path->m_action === 'translate' && $path->m_id !== NULL)
+				{
+					return new xResult(new xPageContentNodeTranslatePage($path));
+				}
+				
+				elseif($path->m_action === 'edit_translation' && $path->m_id !== NULL)
+				{
+					return new xResult(new xPageContentNodeEdittranslationPage($path));
+				}
+				
+				elseif($path->m_action === 'delete_translation'	&& $path->m_id !== NULL)
+				{
+					return new xResult(new xPageContentNodeDeleteTranslation($path));
+				}
+			}
 		}
 		
-		elseif($path->m_resource === 'node' && $path->m_action === 'translate' && $path->m_type === NULL)
-		{
-			return new xResult(new xPageContentNodeTranslate($path));
-		}
-		
+		return NULL;
+	}
+	
+	
+	/**
+	 * @see xDummyModule::xm_fetchNodeTypeClassName()
+	 */
+	function xm_fetchNodeTypeClassName($type)
+	{
+		if($type == 'page')
+			return new xResult('xNodePage');
+			
 		return NULL;
 	}
 	
@@ -604,6 +676,10 @@ class xModuleNode extends xModule
 };
 xModule::registerDefaultModule(new xModuleNode());
 
+
+//###########################################################################
+//###########################################################################
+//###########################################################################
 
 
 /**
@@ -646,6 +722,10 @@ class xPageContentNodeTranslate extends xPageContent
 };
 
 
+//###########################################################################
+//###########################################################################
+//###########################################################################
+
 
 /**
  * 
@@ -682,6 +762,9 @@ class xPageContentNodeEdittranslation extends xPageContent
 };
 
 
+//###########################################################################
+//###########################################################################
+//###########################################################################
 
 /**
  * 
@@ -764,6 +847,9 @@ class xPageContentNodeDeleteTranslation extends xPageContent
 };
 
 
+//###########################################################################
+//###########################################################################
+//###########################################################################
 
 /**
  * 
@@ -784,7 +870,7 @@ class xPageContentAdminNode extends xPageContent
 	}
 	
 	/**
-	 * Do nothing
+	 * Let choose node type.
 	 */
 	function onCreate()
 	{
@@ -804,6 +890,11 @@ class xPageContentAdminNode extends xPageContent
 		return true;
 	}
 };
+
+
+//###########################################################################
+//###########################################################################
+//###########################################################################
 
 
 /**
@@ -860,6 +951,10 @@ class xPageContentNodeCreate extends xPageContent
 	}
 };
 
+
+//###########################################################################
+//###########################################################################
+//###########################################################################
 
 
 /**
@@ -919,6 +1014,10 @@ class xPageContentNodeView extends xPageContent
 
 };
 
+//###########################################################################
+//###########################################################################
+//###########################################################################
+
 
 /**
  * 
@@ -973,88 +1072,9 @@ class xPageContentNodeViewI18N extends xPageContentNodeView
 };
 
 
-
-/**
-* Module responsible of user management
-*/
-class xModuleNodePage extends xModule
-{
-	function xModuleNodePage()
-	{
-		$this->xModule();
-	}
-
-
-	/**
-	 * @see xDummyModule::xm_fetchContent()
-	 */ 
-	function xm_fetchContent($path)
-	{
-		if($path->m_resource === 'node' && $path->m_action === 'admin' && $path->m_type === 'page')
-		{
-			return new xResult(new xPageContentNodeAdminPage($path));
-		}
-		
-		elseif($path->m_resource === 'node' && $path->m_action === 'view' && $path->m_type === 'page')
-		{
-			return new xResult(new xPageContentNodeViewPage($path));
-		}
-		
-		elseif($path->m_resource === 'node' && $path->m_type === 'page' && $path->m_action === 'create')
-		{
-			return new xResult(new xPageContentNodePageCreate($path));
-		}
-		
-		elseif($path->m_resource === 'node' && $path->m_type === 'page' && $path->m_action === 'translate'
-			&& $path->m_id !== NULL)
-		{
-			return new xResult(new xPageContentNodeTranslatePage($path));
-		}
-		
-		elseif($path->m_resource === 'node' && $path->m_type === 'page' && $path->m_action === 'edit_translation'
-			&& $path->m_id !== NULL)
-		{
-			return new xResult(new xPageContentNodeEdittranslationPage($path));
-		}
-		
-		elseif($path->m_resource === 'node' && $path->m_type === 'page' && $path->m_action === 'delete_translation'
-			&& $path->m_id !== NULL)
-		{
-			return new xResult(new xPageContentNodeDeleteTranslation($path));
-		}
-		
-		return NULL;
-	}
-	
-	
-	/**
-	 * @see xDummyModule::xm_fetchContent()
-	 */
-	function xm_fetchPermissionDescriptors()
-	{
-		$descr = array();
-		
-		//extract types
-		$types = xNodeType::findAll();
-		foreach($types as $type)
-		{
-			$descr[] = new xAccessPermissionDescriptor('node',$type->m_name,NULL,'view','View node '.$type->m_name);
-		}
-		
-		foreach($types as $type)
-		{
-			$descr[] = new xAccessPermissionDescriptor('node',$type->m_name,NULL,'create','Create node '.$type->m_name);
-		}
-		
-		//todo insert permission for cathegory in cat.comp
-		
-		return new xResult($descr);
-	}
-	
-};
-xModule::registerDefaultModule(new xModuleNodePage());
-
-
+//###########################################################################
+//###########################################################################
+//###########################################################################
 
 
 /**
@@ -1078,68 +1098,50 @@ class xPageContentNodeAdminPage extends xPageContent
 		return true;
 	}
 	
-	/**
-	 * @access private
-	 */
-	function _groupNodes($nodes)
-	{
-		$out = array();
-		foreach($nodes as $node)
-			$out[$node->m_id][$node->m_lang] = $node;
-		
-		return $out;
-	}
 	
 	/**
 	 * 
 	 */
 	function onCreate()
 	{
-		$nodes = xNodePage::find(array(),array(),NULL,NULL,NULL,NULL,NULL,FALSE);
-		$nodes = $this->_groupNodes($nodes);
-		$out = '<a href="'.xPath::renderLink($this->m_path->m_lang,'node','create','page').'">Create new node page</a><br/><br/>';
-		$out .= "<div class = 'admin'><table>\n";
-		$out .= "<tr><th>ID</th><th>Title</th><th>In your lang?</th><th>Translated in</th><th>Translate in</th></tr>\n";
-		$langs = xLanguage::findNames();
-		foreach($nodes as $id => $node_array)
+		$order = array();
+		if(isset($this->m_path->m_params['order']))
 		{
-			$node = NULL;
-			
-			if(isset($node_array[$this->m_path->m_lang])) 				//select current language node
-				$node = $node_array[$this->m_path->m_lang];
-			elseif(isset($node_array[xSettings::get('default_lang')]))	//select default language node
-				$node = $node_array[xSettings::get('default_lang')];
-			else														//select first found language node
-				$node = reset($node_array);
-				
-			$error = '';
-			$out .= '<tr><td>'.$id.'</td><td><a href="'.
-				xPath::renderLink($node->m_lang,'node','view',$node->m_type,$node->m_id) . '">'.
-				xContentFilterController::applyFilter('notags',$node->m_title,$error) . '</a></td><td>';
-			if($node->m_lang == $this->m_path->m_lang)
-				$out .= 'Yes';
-			else			
-				$out .= 'No';
-			
-			$out .= '</td><td>';
-			foreach($node_array as $lang => $node_ignore)
-			{
-				$out .= $lang . '  ';
-			}
-			$out .= '</td><td>';
-			
-			
-			foreach($langs as $lang)
-			{
-				if(!array_key_exists($lang, $node_array))
-				{
-					$out .= '<a href="'. 
-						xanth_relative_path($lang . '/node/translate/'. $node->m_type . '/' . $id). 
-						'">' . $lang . '</a>';
-				}
-			}
+			$order[0]['column'] = $this->m_path->m_params['order'];
+			$order[0]['direction'] = $this->m_path->m_params['direction'];
 		}
-		$out  .= "</table></div>\n";
+		$nodes = xNodePage::find($order,array(),NULL,NULL,NULL,NULL,NULL,TRUE);
+		$columns = array();
+		$columns[] = new xColumn('ID','id',true);
+		$columns[] = new xColumn('Created','creation_time',true);
+		$columns[] = new xColumn('Title','title',false);
+		$columns[] = new xColumn('Translations','translations',false);
+		
+		$data = array();
+		$i = 0;
+		foreach($nodes as $node)
+		{
+			$data[$i][] = (string) $node->m_id;
+			$data[$i][] = strftime('%c',$node->m_creation_time);
+			
+			$error = '';
+			$data[$i][] = '<a href="'.
+				xPath::renderLink($node->m_lang,'node','view',$node->m_type,$node->m_id) . '">'.
+				xContentFilterController::applyFilter('notags',$node->m_title,$error) . '</a>';
+			
+			$translations = $node->getNodeTranslations();
+			$tmp = array();
+			foreach($translations as $translation)
+				$tmp[] = $translation->m_name;
+				
+			$data[$i][] = implode(', ',$tmp);
+			
+			$i++;
+		}
+		
+		$table = new xTable($this->m_path,new xDefaultTableModel($columns,$data),'admin');
+		$out = '<a href="'.xPath::renderLink($this->m_path->m_lang,'node','create','page').
+			'">Create new node page</a><br/><br/>' . $table->render();
 		
 		xPageContent::_set('Manage "'.$this->m_path->m_type.'" nodes',$out,'','');
 		return true;
@@ -1147,6 +1149,9 @@ class xPageContentNodeAdminPage extends xPageContent
 };
 
 
+//###########################################################################
+//###########################################################################
+//###########################################################################
 
 /**
  * 
@@ -1239,6 +1244,10 @@ class xPageContentNodeTranslatePage extends xPageContentNodeTranslate
 	}
 };
 
+
+//###########################################################################
+//###########################################################################
+//###########################################################################
 
 
 /**
@@ -1334,6 +1343,10 @@ class xPageContentNodeEdittranslationPage extends xPageContentNodeEdittranslatio
 		return TRUE;
 	}
 };
+
+//###########################################################################
+//###########################################################################
+//###########################################################################
 
 
 /**
@@ -1468,6 +1481,11 @@ class xPageContentNodePageCreate extends xPageContentNodeCreate
 	}
 };
 
+
+
+//###########################################################################
+//###########################################################################
+//###########################################################################
 
 
 /**
