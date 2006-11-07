@@ -216,7 +216,6 @@ class xPath
 		$path = new xPath($lang,$resource,$action,$type,$id,$page,$params);
 		return $path->getLink($forward_params);
 	}
-	
 };
 
 ?>

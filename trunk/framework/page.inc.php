@@ -33,7 +33,7 @@ class xPage extends xElement
 	var $m_box_groups;
 	
 	/**
-	 * @var xPageContent
+	 * @var xContent
 	 * @access public
 	 */
 	var $m_content;
@@ -72,11 +72,11 @@ class xPage extends xElement
 			xModule::invokeAll('xm_onPageCreation',array($path));
 		
 			//ask for content
-			$content = xPageContent::fetchContent($path);
+			$content = xContent::fetchContent($path);
 		}
 		else
 		{
-			$content = new xPageContentSimple('Error','ERROR: Invalid path','','',$path);
+			$content = new xContentSimple('Error','ERROR: Invalid path','','',$path);
 		}
 		
 		//ask for areas

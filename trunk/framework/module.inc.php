@@ -19,10 +19,11 @@ $g_xanth_builtin_modules = array();
 $g_xanth_modules = array();
 
 /**
-* The base class for modules.
-* 
-* See xDummyModule for a list of methods you can implement to respond to various events/request.
-*/
+ * The base class for modules.
+ * 
+ * See xDummyModule for a list of methods you can implement to respond to various events/request.
+ * @package modules
+ */
 class xModule
 {
 	/**
@@ -173,7 +174,7 @@ class xDummyModule extends xModule
 	* call onCreate() on the content object before you return it.
 	*
 	* @param xPath $path
-	* @return xResult A result containing a valid xPageContent object for the given path, NULL otherwise.
+	* @return xResult A result containing a valid xContent object for the given path, NULL otherwise.
 	*/
 	function xm_fetchContent($path)
 	{

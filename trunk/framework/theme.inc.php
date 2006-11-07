@@ -254,7 +254,7 @@ class xDefaultTheme extends xTheme
 	/**
 	 * Render the whole page.
 	 * 
-	 * @param xPageContent $content
+	 * @param xContent $content
 	 * @param array(xBoxGroup) $groups
 	 * @return string the renderized element.
 	 */

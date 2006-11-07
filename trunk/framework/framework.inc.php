@@ -27,7 +27,7 @@ require_once($xanth_working_dir . '/engine/notifications.inc.php');
 require_once($xanth_working_dir . '/engine/operation.inc.php');
 require_once($xanth_working_dir . '/engine/path.inc.php');
 require_once($xanth_working_dir . '/engine/page.inc.php');
-require_once($xanth_working_dir . '/engine/pagecontent.inc.php');
+require_once($xanth_working_dir . '/engine/content.inc.php');
 require_once($xanth_working_dir . '/engine/result.inc.php');
 require_once($xanth_working_dir . '/engine/session.inc.php');
 require_once($xanth_working_dir . '/engine/showfilter.inc.php');
