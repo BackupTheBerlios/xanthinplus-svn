@@ -15,39 +15,55 @@
 * PURPOSE ARE DISCLAIMED.SEE YOUR CHOOSEN LICENSE FOR MORE DETAILS.
 */
 
+
 /**
- * A dummy module class for documentation purpose only.
- * @package modules
+ * 
  */
-class xDummyModule extends xModule
-{	
+class xError
+{
 	/**
-	* Called when the page creation occur. Use this method to do all the stuff befor a the page is created.
-	*
-	* @param xPath $path
-	*/
-	function xm_onPageCreation($path)
-	{
-	}
-	
-	/**
-	* Returns a single permission descriptor or array of permission descriptor that corresponds to
-	* all access permissions that a module uses.
-	*
-	* @return xAccessPermissionDescriptor
-	*/
-	function xm_fetchPermissionDescriptors()
-	{
-	}
-	
-	/**
-	 * Called after framework initialization but before page fetching.
-	 * 
+	 * @var int
 	 */
-	function xm_onInit()
+	var $m_error;
+	
+	/**
+	 * @var string
+	 */
+	var $m_description;
+	
+	
+	function xError($error,$description = NULL)
 	{
+		$this->m_error = $error;
+		$this->m_description = $description;
+	}
+	
+	
+	/**
+	 * Returns true if the given object represent an error.
+	 */
+	function sIsError(&$obj)
+	{
+		return xanth_instanceof($obj,'xError');
 	}
 }
+
+
+/**
+ * 
+ */
+class xErrorPageNotFound extends xError
+{
+
+	/**
+	 * 
+	 */
+	function xErrorPageNotFound($description = NULL)
+	{
+		$this->xError('Page not found',$description);
+	}
+}
+
 
 
 ?>

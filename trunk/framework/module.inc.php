@@ -18,6 +18,24 @@
 $g_xanth_builtin_modules = array();
 $g_xanth_modules = array();
 
+
+/**
+ * 
+ */
+class xModuleDTO
+{
+	var $m_path;
+	var $m_enabled;
+	var $m_installed;
+	
+	function xModuleDTO($path,$enabled,$installed)
+	{
+		$this->m_path = $path;
+		$this->m_enabled = (bool) $enabled;
+		$this->m_installed = (bool) $installed;	
+	}
+}
+
 /**
  * The base class for modules.
  * 
@@ -26,47 +44,106 @@ $g_xanth_modules = array();
  */
 class xModule
 {
+	var $m_weight;
+	
+	
 	/**
-	 *
+	 * @param int $weight Defines the position of a module during a method invokation.
+	 * Modules with higher weights are processed after. Weights between 1000 and -1000 are 
+	 * reserved for xanthin default modules.
 	 */
-	function xModule()
+	function xModule($weight)
 	{
+		$this->m_weight = $weight;
+	}
+}
+
+//###########################################################################
+//###########################################################################
+//###########################################################################
+
+/**
+ * @package modules
+ */
+class xModuleManager
+{
+	function xModuleManager()
+	{
+		assert(false);	
 	}
 	
-	//----------------STATIC FUNCTIONS----------------------------------------------
-	//----------------STATIC FUNCTIONS----------------------------------------------
-	//----------------STATIC FUNCTIONS----------------------------------------------
+	/**
+	 * @param string $search_dir The relative path to search
+	 * @return array An array of strings representing modules path
+	 */
+	function findAllModules($search_dir)
+	{
+		global $xanth_working_dir;
+		$search_dir =  $xanth_working_dir . '/' . $search_dir;
+		if($handle = opendir($search_dir)) 
+		{
+			$ret = array();
+			while(false !== ($file = readdir($handle))) 
+			{
+				$mod_file = $search_dir .'/'. $file . '/'.$file.'module.php';
+				if($file != "." && $file != ".." && is_file($search_dir .'/'. $file . '/'))
+					$ret[] = $mod_file;
+			}
+			closedir($handle);
+		}
+		else
+			xLog::log(LOG_LEVEL_FATAL_ERROR,'Invalid search directory for modules. Dump: '.
+				var_export($search_dir,true),__FILE__,__LINE__);
+	}
+	
+	
+	/**
+	 * @static
+	 */
+	function includeModule($search_dir,$name)
+	{
+		include_once($search_dir . '/' . $name . '/' . $name . '.module.php');
+	}
+	
+	
+	/**
+	 * @static
+	 */
+	function initModules($enabled,$installed)
+	{
+		global $xanth_working_dir;
+		if($enabled || $installed)
+		{
+			$modules = xModuleDAO::find(NULL,$enabled,$installed);
+			usort($modules,'objWeightCompare');
+			foreach($modules as $module)
+			{
+				$mod_file = $xanth_working_dir . '/' . $module->m_path . '/' . basename($module->m_path) .
+					'.module.php';
+				if(is_file($mod_file))
+				{
+					include_once($mod_file);
+					$mod = call_user_func('xm_load_' . basename($module->m_path));
+					
+					if(xanth_instanceof($mod,'xModule'))
+						xModuleManager::registerModule($mod);
+				}
+			}
+		}
+	}
+	
+	
+	/**
+	 * 
+	 */
+	function dbUpdateModule($path,$enabled,$installed)
+	{
+		return xModuleDAO::update($path,$enabled,$installed);
+	}
+	
 	
 	/**
 	* Register a module.
-	*
-	* @param xModule $module The module to register.
-	* @internal
-	* @static
-	*/
-	function registerDefaultModule($module)
-	{
-		global $g_xanth_builtin_modules;
-		$g_xanth_builtin_modules[] = $module;
-	}
-	
-	
-	/**
-	* Retrieve all registered modules as an array.
-	*
-	* @return array(xModule) all registered modules.
-	* @internal
-	* @static
-	*/
-	function getDefaultModules()
-	{
-		global $g_xanth_builtin_modules;
-		return $g_xanth_builtin_modules;
-	}
-	
-	/**
-	* Register a module.
-	*
 	* @param xModule $module The module to register.
 	* @static
 	*/
@@ -95,12 +172,13 @@ class xModule
 	 *
 	 * @param string $function The method to call
 	 * @param args An array containing the arguments to pass to the function
-	 * @return xResult
+	 * @static
+	 * @return mixed
 	 */
 	function invoke($function,$args = array())
 	{
 		//first user modules then default modules
-		$modules = array_merge(xModule::getModules(),xModule::getDefaultModules());
+		$modules = xModuleManager::getModules();
 		
 		foreach($modules as $module)
 		{
@@ -108,14 +186,7 @@ class xModule
 			{
 				$result = call_user_func_array(array(&$module,$function),$args);
 				if($result !== NULL)
-				{
-					if(xanth_instanceof($result,'xResult'))
-						return $result;
-					else
-						xLog::log(LOG_LEVEL_WARNING,'Module function returned an invalid result. Function: '.
-							$function . '. Module: '. get_class($module) . '. Result dump :' 
-							. var_export($result,true),__FILE__,__LINE__);
-				}
+					return $result;
 			}
 		}
 		
@@ -128,12 +199,13 @@ class xModule
 	 *
 	 * @param string $function The method to call
 	 * @param args An array containing the arguments to pass to the function
+	 * @static
 	 * @return xResultSet
 	 */
 	function invokeAll($function,$args = array())
 	{
 		//first user modules then default modules
-		$modules = array_merge(xModule::getModules(),xModule::getDefaultModules());
+		$modules = xModuleManager::getModules();
 		$rs = new xResultSet();
 		
 		foreach($modules as $module)
@@ -142,14 +214,7 @@ class xModule
 			{
 				$result = call_user_func_array(array(&$module,$function),$args);
 				if($result !== NULL)
-				{
-					if(xanth_instanceof($result,'xResult'))
-						$rs->m_results[] = $result;
-					else
-						xLog::log(LOG_LEVEL_WARNING,'Module function returned an invalid result. Function: '.
-							$function . '. Module: '. get_class($module) . '. Result dump :' 
-							. var_export($result,true),__FILE__,__LINE__);
-				}
+					$rs->m_results[] = $result;
 			}
 		}
 		
@@ -157,76 +222,106 @@ class xModule
 	}
 };
 
+
+//###########################################################################
+//###########################################################################
+//###########################################################################
+
+
 /**
- * A dummy module class for documentation purpose only.
+ * A set of results
  */
-class xDummyModule extends xModule
+class xResultSet
 {
-	/**
-	* This method should executes all sql queries needed to install a module in a mysql db.
-	*/
-	function xm_installDBMySql()
-	{
-	}
+	var $m_results;
 	
-	/**
-	* Returns a valid content for the given path. Note that you SHOULD NOT call onCheckPrecontitions() or
-	* call onCreate() on the content object before you return it.
-	*
-	* @param xPath $path
-	* @return xResult A result containing a valid xContent object for the given path, NULL otherwise.
-	*/
-	function xm_fetchContent($path)
+	function xResultSet($results = array())
 	{
+		$this->m_results = $results;
 	}
 	
 	
 	/**
-	* Returns a valid box corresponding to the given name/type
-	*
-	* @param xPath $path
-	* @return xResult A result containing a valid xBox object, NULL otherwise.
-	*/
-	function xm_fetchBuiltinBox($box_name,$lang)
-	{
-	}
-	
-	/**
-	 * Returns the name of the class responsible for the given node type.
-	 * 
-	 * @return xResult A result containing a string representing the class name, NULL otherwise.
+	 * Returns true if the result set contains no results
 	 */
-	function xm_fetchNodeTypeClassName($node_type)
+	function isEmpty()
 	{
+		return empty($this->m_results);
 	}
 	
 	/**
-	* Called when the page creation occur. Use this method to do all the stuff befor a the page is created.
-	*
-	* @param xPath $path
-	*/
-	function xm_onPageCreation($path)
-	{
-	}
-	
-	/**
-	* Returns a single permission descriptor or array of permission descriptor that corresponds to
-	* all access permissions that a module uses.
-	*
-	* @return xAccessPermissionDescriptor
-	*/
-	function xm_fetchPermissionDescriptors()
-	{
-	}
-	
-	/**
-	 * Called after framework initialization but before page fetching.
+	 * Returns true if the current result set contains errors
 	 * 
+	 * @return bool
 	 */
-	function xm_onInit()
+	function containsErrors()
 	{
+		foreach($this->m_results as $result)
+			if(xError::sIsError($result))
+				true;
+		
+		return false;
+	}
+	
+	
+	/**
+	 * Returns an array containing all errors contained in results.
+	 */
+	function getErrors()
+	{
+		$ret = array();
+		foreach($this->m_results as $result)
+			if(xError::sIsError($result))
+				$ret[] = $result;
+		
+		return $ret;
+	}
+	
+	/**
+	 * Returns an array containing all not NULL values contained in a result without errors 
+	 * in this result set.
+	 * 
+	 * @param bool $merge_arrays
+	 */
+	function getValidValues($merge_arrays = false)
+	{
+		$ret = array();
+		
+		if($merge_arrays)
+		{
+			foreach($this->m_results as $result)
+				if(!xError::sIsError($result))
+					if(is_array($result))
+						$ret = array_merge($ret,$result);
+					else
+						$ret[] = $result;
+		}
+		else
+		{
+			foreach($this->m_results as $result)
+				if(xError::sIsError($result))
+					$ret[] = $result;
+		}
+		
+		return $ret;
 	}
 }
 
+//###########################################################################
+//###########################################################################
+//###########################################################################
+
+/**
+ * Module to manage basic functions to default.
+ * <strong>Weight = 0</strong>.
+ */
+class xModuleXanthin extends xModule
+{
+	function xModuleXanthin()
+	{
+		$this->xModule(0);
+	}	
+}
+xModuleManager::registerModule(new xModuleXanthin());
 
 ?>

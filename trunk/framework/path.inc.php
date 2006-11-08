@@ -101,6 +101,19 @@ class xPath
 	 */
 	function getCurrent()
 	{
+		global $g_xanth_current_path;
+		if(! isset($g_xanth_current_path))
+			$g_xanth_current_path = xPath::_getCurrent();
+
+		return $g_xanth_current_path;
+	}
+	
+	
+	/**
+	 * 
+	 */
+	function _getCurrent()
+	{
 		if(isset($_GET['p']))
 		{
 			$p = $_GET['p'];
@@ -115,10 +128,9 @@ class xPath
 				xLog::log(LOG_LEVEL_WARNING,'Invalid path',__FILE__,__LINE__);
 		}
 
-		$path = new xPath(xSettings::get('default_lang'),NULL,NULL);
+		$path = new xPath(NULL,NULL,NULL);
 		return $path;
 	}
-	
 
 	/**
 	* Return NULL if fails to parse, otherwise a xXanthPath object

@@ -55,11 +55,11 @@ $xanth_working_dir = $_SERVER['DOCUMENT_ROOT'] . xConf::get('installation_path',
 
 if(version_compare(PHP_VERSION,"5.0") < 0)
 {
-	require($xanth_working_dir . '/engine/php4compat.inc.php');
+	require($xanth_working_dir . '/framework/php4compat.inc.php');
 }
 else
 {
-	require($xanth_working_dir . '/engine/php5compat.inc.php');
+	require($xanth_working_dir . '/framework/php5compat.inc.php');
 }
  
 /**

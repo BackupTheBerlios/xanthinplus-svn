@@ -19,7 +19,7 @@
 /**
  * 
  */
-function xanth_instanceof($object,$class_name)
+function xanth_instanceof(&$object,$class_name)
 {
 	return is_a($object,$class_name);
 }
