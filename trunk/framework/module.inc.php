@@ -44,17 +44,37 @@ class xModuleDTO
  */
 class xModule
 {
+	/**
+	 * @var int
+	 */
 	var $m_weight;
 	
+	/**
+	 * @ver string
+	 */
+	var $m_version;
+	
+	/**
+	 * @var string
+	 */
+	var $m_description;
+	
+	/**
+	 * @var string
+	 */
+	var $m_authors;
 	
 	/**
 	 * @param int $weight Defines the position of a module during a method invokation.
 	 * Modules with higher weights are processed after. Weights between 1000 and -1000 are 
 	 * reserved for xanthin default modules.
 	 */
-	function xModule($weight)
+	function xModule($weight,$description,$authors,$version)
 	{
 		$this->m_weight = $weight;
+		$this->m_description = $description;
+		$this->m_authors = $authors;
+		$this->m_version = $version;
 	}
 }
 
@@ -257,7 +277,22 @@ class xResultSet
 	function containsErrors()
 	{
 		foreach($this->m_results as $result)
-			if(xError::sIsError($result))
+			if(xError::isError($result))
+				true;
+		
+		return false;
+	}
+	
+	
+	/**
+	 * Returns true if the current result set contains errors
+	 * 
+	 * @return bool
+	 */
+	function containsValue($value)
+	{
+		foreach($this->m_results as $result)
+			if($result === $value)
 				true;
 		
 		return false;
@@ -271,7 +306,7 @@ class xResultSet
 	{
 		$ret = array();
 		foreach($this->m_results as $result)
-			if(xError::sIsError($result))
+			if(xError::isError($result))
 				$ret[] = $result;
 		
 		return $ret;
@@ -290,7 +325,7 @@ class xResultSet
 		if($merge_arrays)
 		{
 			foreach($this->m_results as $result)
-				if(!xError::sIsError($result))
+				if(!xError::isError($result))
 					if(is_array($result))
 						$ret = array_merge($ret,$result);
 					else
@@ -299,29 +334,12 @@ class xResultSet
 		else
 		{
 			foreach($this->m_results as $result)
-				if(xError::sIsError($result))
+				if(xError::isError($result))
 					$ret[] = $result;
 		}
 		
 		return $ret;
 	}
 }
-
-//###########################################################################
-//###########################################################################
-//###########################################################################
-
-/**
- * Module to manage basic functions to default.
- * <strong>Weight = 0</strong>.
- */
-class xModuleXanthin extends xModule
-{
-	function xModuleXanthin()
-	{
-		$this->xModule(0);
-	}	
-}
-xModuleManager::registerModule(new xModuleXanthin());
 
 ?>

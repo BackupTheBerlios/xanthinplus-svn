@@ -23,13 +23,93 @@ class xDummyModule extends xModule
 {
 	/**
 	 * This method should executes all sql queries needed to install a module.
+	 * 
+	 * @return NULL.
 	 */
 	function xm_install($db_name)
 	{
 	}
 	
 	/**
-	 * Renders a renderable object
+	 * This method is called to create the full web page.
+	 * <br> Called with xModuleManager::invoke();
+	 * 
+	 * @return NULL.
+	 */
+	function xm_createPage(&$path)
+	{
+	}
+	
+	/**
+	 * This method is called after module load.
+	 * <br> Called with xModuleManager::invokeAll();
+	 * 
+	 * @return NULL.
+	 */
+	function xm_initModules()
+	{
+	}
+	
+	
+	/**
+	 * This method is called after module load and init.
+	 * <br> Called with xModuleManager::invokeAll();
+	 * 
+	 * @return NULL.
+	 */
+	function xm_initUtilities()
+	{
+	}
+	
+	
+	/**
+	 * This method is called to finalize all modules.
+	 * <br> Called with xModuleManager::invokeAll();
+	 * 
+	 * @return NULL.
+	 */
+	function xm_finalModules()
+	{
+	}
+	
+	
+	/**
+	 * This method is called to finalize all utilities.
+	 * <br> Called with xModuleManager::invokeAll();
+	 * 
+	 * @return NULL.
+	 */
+	function xm_finalUtilities()
+	{
+	}
+	
+	/**
+	 * Returns true if object precontitions are valid, in this case 
+	 * all other preconditions are ignored.
+	 * 
+	 * <br> Called with xModuleManager::invoke();
+	 * @return mixed Returns true on success (this method should not return an xError).
+	 */
+	function xm_checkPreconditionsExclusive(&$renderable_obj)
+	{	
+	}
+	
+	
+	/**
+	 * Returns true if object precontitions are valid, in this case 
+	 * other modules precontitions are checked.
+	 * 
+	 * <br> Called with xModuleManager::invokeAll();
+	 * @return mixed Returns true on valid preconditions, false if the creation workflow
+	 * should fail silently, an xError object on fatal error.
+	 */
+	function xm_checkPreconditionsInclusive(&$renderable_obj)
+	{
+	}
+	
+	
+	/**
+	 * Renders a renderable object.
 	 * 
 	 * @return string Returns the rendered element or a xError object on error.
 	 */
@@ -73,21 +153,6 @@ class xDummyModule extends xModule
 	 * @return NULL
 	 */
 	function xm_postfilter(&$renderable_obj)
-	{
-	}
-	
-	/**
-	 * Called when the page creation occur. Use this method to do all the stuff befor a the page is created
-	 */
-	function xm_onPageCreation()
-	{
-	}
-	
-	/**
-	 * Called after framework initialization but before page fetching.
-	 * 
-	 */
-	function xm_onInit()
 	{
 	}
 }

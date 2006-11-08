@@ -42,9 +42,26 @@ class xError
 	/**
 	 * Returns true if the given object represent an error.
 	 */
-	function sIsError(&$obj)
+	function isError(&$obj)
 	{
 		return xanth_instanceof($obj,'xError');
+	}
+}
+
+/**
+ * 
+ */
+class xErrorGroup extends xError
+{
+	var $m_errors;
+	
+	/**
+	 * 
+	 */
+	function xErrorGroup($errors = array(),$description = NULL)
+	{
+		$this->xError('Multiple errors',$description);
+		$this->m_errors = $errors;
 	}
 }
 

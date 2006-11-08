@@ -19,6 +19,6 @@ error_reporting(E_ALL);
 require_once('conf.inc.php');
 require_once('framework/xanthin.inc.php');
 
-xanth_main();
+xXanthin::main();
 
 ?>

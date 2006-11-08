@@ -24,19 +24,56 @@ class xRenderable
 	/**
 	 * 
 	 */
+	var $m_processed;
+	
+	/**
+	 * 
+	 */
+	var $m_checked;
+	
+	/**
+	 * 
+	 */
+	var $m_filtered;
+	
+	/**
+	 * 
+	 */
 	function xRenderable()
 	{
+		$this->m_processed = false;
+		$this->m_checked = false;
+		$this->m_filtered = NULL;
 	}
 	
 	/**
 	 * Check preconditions for the current object, before render it.
 	 * Usually you do not need to override this method. Override _preconditions() method otherwise.
 	 * 
-	 * @return mixed Returns an xError object on error
+	 * @return mixed Returns true on valid preconditions, false if the creation workflow
+	 * should fail silently, an xError object on fatal error.
 	 */
 	function preconditions()
 	{
-		xModuleManager::invoke('xm_checkPreconditions',array(&$copy));
+		$ret = $this->_preconditions();
+		if($ret !== true)
+			return $ret;
+		
+		$ret = xModuleManager::invoke('xm_checkPreconditionsExlusive',array(&$this));
+		if($ret === true)
+		{
+			$this->m_checked = true;
+			return true;
+		}
+		
+		$ret = xModuleManager::invokeAll('xm_checkPreconditionsInclusive',array(&$this));
+		if($ret->containsError())
+			return new xErrorGroup($ret->getErrors());
+		elseif($ret->containsValue(false))
+			return false;
+		
+		$this->m_checked = true;
+		return true;
 	}
 	
 	
@@ -44,11 +81,10 @@ class xRenderable
 	 * Check preconditions for the current element, before render it.
 	 * Usually you do not need to override this method. Override _preconditions() method otherwise.
 	 * 
-	 * @return mixed Returns an xError object on error
+	 * @return @see xRenderable::preconditions()
 	 */
 	function _preconditions()
 	{
-		xModuleManager::invoke('xm_checkPreconditions',array(&$copy));
 	}
 	
 	
@@ -60,9 +96,18 @@ class xRenderable
 	 */
 	function process()
 	{
+		if(!$this->m_checked)
+		{
+			xLog::log(LOG_LEVEL_WARNING,'This object must be checked before to be processed. Dump: '.
+				var_export($this,true),__FILE__,__LINE__);
+			return;					
+		}
+		
 		xModuleManager::invokeAll('xm_preprocess',array(&$this));
 		$this->_process();
 		xModuleManager::invokeAll('xm_postprocess',array(&$this));
+		
+		$this->m_processed = true;
 	}
 	
 	
@@ -78,20 +123,27 @@ class xRenderable
 	
 	/**
 	 * Create a copy of this object and filters its contents before rendering. 
-	 * This function returns a copy of the object, becouse after
+	 * This function creates a copy of the object in $this->m_filtered, becouse after
 	 * processing its contents, they are usually non consistent with the original object logic.
 	 * Usually you do not need to override this method. Override _filter() method otherwise.
 	 * 
-	 * @return xRenderable
+	 * @return NULL
 	 */
 	function filter()
 	{
+		if(!$this->m_processed)
+		{
+			xLog::log(LOG_LEVEL_WARNING,'This object must be processed before to be filtered. Dump: '.
+				var_export($this,true),__FILE__,__LINE__);
+			return;					
+		}
+		
 		$copy = xanth_clone($this);
 		xModuleManager::invokeAll('xm_prefilter',array(&$copy));
 		$copy->_filter();
 		xModuleManager::invokeAll('xm_postfilter',array(&$copy));
 		
-		return $copy;
+		$this->m_filtered = $copy;
 	}
 	
 	
@@ -108,16 +160,18 @@ class xRenderable
 	}
 	
 	/**
-	 * Render the widget using a module call after processing it's contents. 
+	 * Render the widget using a module call. This function have some effect only 
+	 * if the object was checked with preconditions(), processed and filtered.
 	 * Usually you do not need to override this method.
 	 *
 	 * @return string A string representing the renderized element.
 	 */
 	function render()
 	{
-		$this->process();
-		$filtered = $this->filter();
-		return xModuleManager::invoke('xm_render',array(&$filtered));
+		if($this->m_checked && $this->m_processed && $this->m_filtered !== NULL)
+			return xModuleManager::invoke('xm_render',array(&$this->filtered));
+		
+		return '';
 	}
 }
 

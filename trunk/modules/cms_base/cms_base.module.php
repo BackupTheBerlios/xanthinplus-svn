@@ -29,11 +29,13 @@ class xModuleCmsBase extends xModule
 {
 	function xModuleCmsBase()
 	{
-		$this->xModule(0);	
+		$this->xModule(0,'Provides xWidgetGroup,xPage,xContent objects and starts page creation workflow',
+			'Mario Casciaro <xshadow [at] email (dot) it>','pre-alhpa5');	
 	}
 	
+	
 	/**
-	 * {@inheritdoc}
+	 * @see xDummyModule::xm_install()
 	 */
 	function xm_install($db_name)
 	{
@@ -58,8 +60,22 @@ class xModuleCmsBase extends xModule
 			)TYPE=InnoDB DEFAULT CHARACTER SET utf8"
 		);
 	}
+	
+	
+	/**
+	 * @see xDummyModule::xm_createPage()
+	 */
+	function xm_createPage(&$path)
+	{
+		
+	}
 }
 
+
+
+//###########################################################################
+//###########################################################################
+//###########################################################################
 
 
 /**
@@ -74,7 +90,7 @@ class xWidgetGroup extends xWidget
 	 */
 	function xWidgetGroup($name,$widgets = array())
 	{
-		$this->xWidget();	
+		$this->xWidget($name);	
 	}
 	
 	
@@ -102,6 +118,45 @@ class xWidgetGroup extends xWidget
 	{
 		xWidgetGroupDAO::find();
 	}
+	
+	
+	/**
+	 * {@inheritdoc}
+	 */
+	function _preconditions()
+	{
+		$result_set = new xResultSet();
+		foreach($this->m_widgets as $widget)
+			$result_set = $widget->preconditions();
+		
+		if($result_set->containsError())
+			return new xErrorGroup($result_set->getErrors());
+		elseif($result_set->containsValue(false))
+			return false;
+			
+		return true;
+	}
+	
+}
+
+
+//###########################################################################
+//###########################################################################
+//###########################################################################
+
+
+/**
+ * Represent the whole web page
+ */
+class xPage extends xWidgetGroup
+{
+	function xPage(&$path)
+	{
+		$this->xWidgetGroup('page');
+	}
+	
+	
+	
 }
 
 

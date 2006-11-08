@@ -29,6 +29,7 @@ require_once($xanth_working_dir . '/framework/framework.dao.php');
 require_once($xanth_working_dir . '/framework/path.inc.php');
 require_once($xanth_working_dir . '/framework/session.inc.php');
 require_once($xanth_working_dir . '/framework/theme.inc.php');
+require_once($xanth_working_dir . '/framework/notifications.inc.php');
 require_once($xanth_working_dir . '/framework/uniqueid.inc.php');
 require_once($xanth_working_dir . '/framework/utf8.inc.php');
 require_once($xanth_working_dir . '/framework/utilities.inc.php');
@@ -37,55 +38,144 @@ require_once($xanth_working_dir . '/framework/dbaccess/db.inc.php');
 require_once($xanth_working_dir . '/framework/dbaccess/mysql_db.inc.php');
 
 
-/**
- *
- */
-function xanth_main()
+class xXanthin
 {
-	ob_start();
-
-	//select DB
-	if(xConf::get('db_type','mysql') == 'mysql')
+	/**
+	 * 
+	 */
+	function initDatabase()
 	{
-		$db = new xDBMysql();
-		$db->connect(xConf::get('db_host',''),xConf::get('db_user',''),xConf::get('db_pass',''),xConf::get('db_port',''));
-		$db->selectDB(xConf::get('db_name',''));
-		xDB::setDB($db);
+		//select DB
+		if(xConf::get('db_type','mysql') == 'mysql')
+		{
+			$db = new xDBMysql();
+			$db->connect(xConf::get('db_host',''),xConf::get('db_user',''),xConf::get('db_pass',''),xConf::get('db_port',''));
+			$db->selectDB(xConf::get('db_name',''));
+			xDB::setDB($db);
+		}
+		else
+		{
+			exit('Unknown database type');
+		}
 	}
-	else
+	
+	/**
+	 * 
+	 */
+	function initUtilities()
 	{
-		exit('Unknown database type');
+		xanth_fix_gpc_magic();
+		
+		//error handler
+		set_error_handler('xanth_php_error_handler');
+		
+		xModuleManager::invokeAll('xm_initUtilities',array());
 	}
 	
-	// Setting the Content-Type header with charset
-	header('Content-Type: text/html; charset=utf-8');
-
-	//error handler
-	set_error_handler('xanth_php_error_handler');
+	/**
+	 * 
+	 */
+	function initSession()
+	{
+		//session
+		session_set_save_handler("on_session_start","on_session_end","on_session_read","on_session_write","on_session_destroy","on_session_gc");
+		session_start();
+	}
 	
-	xanth_fix_gpc_magic();
 	
-	//session
-	session_set_save_handler("on_session_start","on_session_end","on_session_read","on_session_write","on_session_destroy","on_session_gc");
-	session_start();
+	/**
+	 * 
+	 */
+	function initModules()
+	{
+		xModuleManager::initModules(true,true);
+		xModuleManager::invokeAll('xm_initModules',array());
+	}
 	
-	//broadcast onPageCreation event
-	//todo check for errors
-	xModuleManager::invokeAll('xm_onInit',array());
+	
+	/**
+	 * 
+	 */
+	function finalDatabase()
+	{
+	}
+	
+	
+	/**
+	 * 
+	 */
+	function finalUtilities()
+	{
+		xNotificationsManager::postProcessing();
+		xModuleManager::invokeAll('xm_finalUtilities',array());
+	}
+	
+	/**
+	 * 
+	 */
+	function finalSession()
+	{
+		session_write_close();
+	}
+	
+	/**
+	 * 
+	 */
+	function finalModules()
+	{
+		xModuleManager::invokeAll('xm_finalModules',array());
+	}
+	
+	
+	/**
+	 * Entry point for xanthin application framework
+	 */
+	function main()
+	{
+		ob_start();
+	
+		xXanthin::initDatabase();
+		xXanthin::initSession();
+		xXanthin::initUtilities();
+		xXanthin::initModules();
+		
+		// Setting the Content-Type header with charset
+		header('Content-Type: text/html; charset=utf-8');
+		
+		$path = xPath::getCurrent();
+		xModuleManager::invoke('xm_createPage',array(&$path));
 			
-	//extract current path
-	$path = xPath::getCurrent();
+		xXanthin::finalModules();
+		xXanthin::finalUtilities();
+		xXanthin::finalSession();
+		xXanthin::finalDatabase();
+		
+		ob_end_flush;
+	}
 	
-	
-	session_write_close();
-	$content = ob_get_clean();
-	echo $content;
-	
-	/*
-	$handle = fopen('out', 'a');
-	fwrite($handle, $content);
-    fclose($handle);
-    */
 }
+
+
+
+//###########################################################################
+//###########################################################################
+//###########################################################################
+
+
+/**
+ * Module to manage basic fucntionalities.
+ * <br><strong>Weight = -900</strong>.
+ */
+ 
+/*
+class xModuleXanthin extends xModule
+{
+	function xModuleXanthin()
+	{
+		$this->xModule(-900);
+	}
+}
+xModuleManager::registerModule(new xModuleXanthin());
+*/
 
 ?>
