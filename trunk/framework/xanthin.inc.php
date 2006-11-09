@@ -28,7 +28,7 @@ require_once($xanth_working_dir . '/framework/operation.inc.php');
 require_once($xanth_working_dir . '/framework/framework.dao.php');
 require_once($xanth_working_dir . '/framework/path.inc.php');
 require_once($xanth_working_dir . '/framework/session.inc.php');
-require_once($xanth_working_dir . '/framework/theme.inc.php');
+require_once($xanth_working_dir . '/framework/headermanager.inc.php');
 require_once($xanth_working_dir . '/framework/notifications.inc.php');
 require_once($xanth_working_dir . '/framework/uniqueid.inc.php');
 require_once($xanth_working_dir . '/framework/utf8.inc.php');

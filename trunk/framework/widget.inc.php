@@ -135,7 +135,7 @@ class xRenderable
 		{
 			xLog::log(LOG_LEVEL_WARNING,'This object must be processed before to be filtered. Dump: '.
 				var_export($this,true),__FILE__,__LINE__);
-			return;					
+			return;
 		}
 		
 		$copy = xanth_clone($this);
@@ -149,7 +149,7 @@ class xRenderable
 	
 	/**
 	 * Apply object-specific filters before its contents are rendered. 
-	 * Usually this method is called on a copy of the original object, and after
+	 * Usually this method <strong>is called on a copy</string> of the original object, and after
 	 * the prefilter stage, so it should not return nothing.
 	 * Override this method to satisfy you class specific processing needs.
 	 * 
@@ -168,10 +168,29 @@ class xRenderable
 	 */
 	function render()
 	{
-		if($this->m_checked && $this->m_processed && $this->m_filtered !== NULL)
-			return xModuleManager::invoke('xm_render',array(&$this->filtered));
+		if(!($this->m_checked && $this->m_processed && $this->m_filtered !== NULL))
+		{
+			xLog::log(LOG_LEVEL_WARNING,'This object must be filtered before to be rendered. Dump: '.
+				var_export($this,true),__FILE__,__LINE__);
+			return '';
+		}		
 		
-		return '';
+		$res = xModuleManager::invoke('xm_render',array(&$this->m_filtered));
+		$this->m_filtered->_render($res);
+		return $res;
+	}
+	
+	
+	/**
+	 * Executes object specific rendering needs.Usually this method <strong>is called on a copy</string> ,
+	 * specifically on the filtered copy.
+	 * Override this method to satisfy you class specific processing needs.
+	 *
+	 * @param string $res The pre-rendered output.
+	 * @return string A string representing the renderized element.
+	 */
+	function _render(&$res)
+	{
 	}
 }
 

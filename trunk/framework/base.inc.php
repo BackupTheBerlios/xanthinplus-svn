@@ -63,8 +63,8 @@ else
 }
  
 /**
-*
-*/
+ *
+ */
 function xanth_valid_email($email)
 {
    if(preg_match("#^([a-z0-9&\-_.]+?@[\w\-]+\.([\w\-\.]+\.)?[\w]+)$#i", $email))
@@ -102,6 +102,9 @@ function xanth_fix_gpc_magic()
 		$fixed = true;
 	}
 }
+
+
+
 
 
 ?>

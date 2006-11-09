@@ -29,7 +29,8 @@ class xModuleCmsBase extends xModule
 {
 	function xModuleCmsBase()
 	{
-		$this->xModule(0,'Provides xWidgetGroup,xPage,xContent objects and starts page creation workflow',
+		$this->xModule(0,'Provides xWidgetGroup,xPage,xContent,xContentManager objects'.
+			'and starts page creation workflow',
 			'Mario Casciaro <xshadow [at] email (dot) it>','pre-alhpa5');	
 	}
 	
@@ -137,6 +138,25 @@ class xWidgetGroup extends xWidget
 		return true;
 	}
 	
+	
+	/**
+	 * {@inheritdoc}
+	 */
+	function _process()
+	{
+		foreach($this->m_widgets as $widget)
+			$result_set = $widget->process();
+	}
+	
+	
+	/**
+	 * {@inheritdoc}
+	 */
+	function _filter()
+	{
+		foreach($this->m_widgets as $widget)
+			$result_set = $widget->filter();
+	}
 }
 
 
@@ -152,12 +172,191 @@ class xPage extends xWidgetGroup
 {
 	function xPage(&$path)
 	{
-		$this->xWidgetGroup('page');
+		$this->xWidgetGroup('default');
+	}
+}
+
+
+
+//###########################################################################
+//###########################################################################
+//###########################################################################
+
+
+/**
+ * Represent the main content of a web page
+ */
+class xContentManager extends xWidget
+{
+	/**
+	 * @var xContent
+	 * @access public
+	 */
+	var $m_content;
+	
+	/**
+	 * 
+	 */
+	var $m_path;
+	
+	/**
+	 * Creates an empty content. Call preconditions(),process() and filter() to fill out this object.
+	 */
+	function xContentManager(&$path)
+	{
+		$this->xWidget('default');
+		$this->m_path = $path;
+		$this->m_content = xModuleManager::invoke('xm_fetchContent',array($this->m_path));
 	}
 	
 	
-	
+	/**
+	 * {@inheritdoc}
+	 * <br> The xContent version fetch the content manager and check its preconditions
+	 */
+	function _process()
+	{
+		if($this->m_content === NULL)
+			$this->m_content = xContentPageNotFound($this->m_path);
+		
+		echo '';
+	}
 }
+
+
+
+/**
+ * Represent the main content of a web page
+ */
+class xContent extends xRenderable
+{
+	/**
+	 * @var string
+	 * @access public
+	 */
+	var $m_title;
+	
+	/**
+	 * @var string
+	 * @access public
+	 */
+	var $m_content;
+	
+	/**
+	 * @var string
+	 * @access public
+	 */
+	var $m_meta_description;
+	
+	/**
+ 	 * @var array(string)
+	 * @access public
+	 */
+	var $m_meta_keywords;
+	
+	/**
+	 * @var array(string)
+	 * @access public
+	 */
+	var $m_headers;
+	
+	/**
+	 * @var xPath 
+	 */
+	var $m_path;
+	
+	
+	/**
+	 * Creates an empty content manager. Call preconditions(),process() and filter() to fill out this object.
+	 */
+	function xContent(&$path)
+	{
+		$this->xRenderable();
+		$this->m_title = '';
+		$this->m_content = '';
+		$this->m_meta_description = '';
+		$this->m_meta_keywords = array();
+		$this->m_headers = array();
+	}
+	
+	
+	/**
+	 * @access protected
+	 */
+	function _set($title,$content,$meta_description,$meta_keywords)
+	{
+		$this->m_title = $title;
+		$this->m_meta_description = $meta_description;
+		$this->m_meta_keywords = $meta_keywords;
+		$this->m_content = $content;
+	}
+	
+	
+	/**
+	 * {@inheritdoc}
+	 * 
+	 * <br> The xContent version convert special characters in html 
+	 * entities in title, description and keywords. 
+	 */
+	function _filter()
+	{
+		$this->m_title = htmlspecialchars($this->m_title);
+		
+		foreach($this->m_keywords as $k => $v)
+			$this->m_meta_keywords[$k] = htmlspecialchars($v);
+		
+		$this->m_meta_description = htmlspecialchars($this->m_meta_description);
+	}
+	
+	
+	/**
+	 * {@inheritdoc}
+	 * 
+	 * <br> The xContent version set http-headers, and html header metadata and title.
+	 */
+	function _render(&$res)
+	{
+		//output headers
+		foreach($this->m_headers as $header)
+			header($header);
+			
+		$tmp =& xHeaderManager::getTitle();
+		$tmp = $this->m_title;
+		
+		$tmp =& xHeaderManager::getKeywords();
+		$tmp = array_merge($tmp,$this->m_keywords);
+		
+		$tmp =& xHeaderManager::getDescription();
+		$tmp = $this->m_description;
+	}
+}
+
+
+
+
+/**
+ * Represent the main content of a web page
+ */
+class xContentPageNotFound extends xContent
+{
+	/**
+	 * 
+	 */
+	function xContentPageNotFound($path)
+	{
+		$this->xContent($path);
+	}
+	
+	/**
+	 * {@inheritdoc}
+	 */
+	function _process()
+	{
+		parent::_process();
+		$this->_set('Page not found','The page you requested was not found','',array());
+	}
+}
+
 
 
 ?>
