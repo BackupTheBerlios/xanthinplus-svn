@@ -15,27 +15,27 @@
 * PURPOSE ARE DISCLAIMED.SEE YOUR CHOOSEN LICENSE FOR MORE DETAILS.
 */
 
-require_once($_SERVER['DOCUMENT_ROOT'] . $g_xanth_conf['installation_path'] . '/framework/base.inc.php');
-require_once($xanth_working_dir . '/framework/bbcode.inc.php');
-require_once($xanth_working_dir . '/framework/error.inc.php');
-require_once($xanth_working_dir . '/framework/widget.inc.php');
-require_once($xanth_working_dir . '/framework/contentfilter.inc.php');
-require_once($xanth_working_dir . '/framework/install.inc.php');
-require_once($xanth_working_dir . '/framework/log.inc.php');
-require_once($xanth_working_dir . '/framework/language.inc.php');
-require_once($xanth_working_dir . '/framework/module.inc.php');
-require_once($xanth_working_dir . '/framework/operation.inc.php');
-require_once($xanth_working_dir . '/framework/framework.dao.php');
-require_once($xanth_working_dir . '/framework/path.inc.php');
-require_once($xanth_working_dir . '/framework/session.inc.php');
-require_once($xanth_working_dir . '/framework/headermanager.inc.php');
-require_once($xanth_working_dir . '/framework/notifications.inc.php');
-require_once($xanth_working_dir . '/framework/uniqueid.inc.php');
-require_once($xanth_working_dir . '/framework/utf8.inc.php');
-require_once($xanth_working_dir . '/framework/utilities.inc.php');
+require_once(dirname(__FILE__) . '/base.inc.php');
+require_once(dirname(__FILE__) . '/bbcode.inc.php');
+require_once(dirname(__FILE__) . '/error.inc.php');
+require_once(dirname(__FILE__) . '/widget.inc.php');
+require_once(dirname(__FILE__) . '/contentfilter.inc.php');
+require_once(dirname(__FILE__) . '/install.inc.php');
+require_once(dirname(__FILE__) . '/log.inc.php');
+require_once(dirname(__FILE__) . '/language.inc.php');
+require_once(dirname(__FILE__) . '/module.inc.php');
+require_once(dirname(__FILE__) . '/operation.inc.php');
+require_once(dirname(__FILE__) . '/framework.dao.php');
+require_once(dirname(__FILE__) . '/path.inc.php');
+require_once(dirname(__FILE__) . '/session.inc.php');
+require_once(dirname(__FILE__) . '/headermanager.inc.php');
+require_once(dirname(__FILE__) . '/notifications.inc.php');
+require_once(dirname(__FILE__) . '/uniqueid.inc.php');
+require_once(dirname(__FILE__) . '/utf8.inc.php');
+require_once(dirname(__FILE__) . '/utilities.inc.php');
 
-require_once($xanth_working_dir . '/framework/dbaccess/db.inc.php');
-require_once($xanth_working_dir . '/framework/dbaccess/mysql_db.inc.php');
+require_once(dirname(__FILE__) . '/dbaccess/db.inc.php');
+require_once(dirname(__FILE__) . '/dbaccess/mysql_db.inc.php');
 
 
 class xXanthin
@@ -144,7 +144,7 @@ class xXanthin
 		
 		$path = xPath::getCurrent();
 		xModuleManager::invoke('xm_createPage',array(&$path));
-			
+		
 		xXanthin::finalModules();
 		xXanthin::finalUtilities();
 		xXanthin::finalSession();

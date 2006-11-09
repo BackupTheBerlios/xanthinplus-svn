@@ -92,7 +92,7 @@ class xInstallCMS
 		
 		global $xanth_working_dir;
 		
-		$mod = new xModuleDTO('modules/widgetgroup',true,true);
+		$mod = new xModuleDTO('modules/cms_base',true,true);
 		xModuleDAO::update($mod);
 	}
 };

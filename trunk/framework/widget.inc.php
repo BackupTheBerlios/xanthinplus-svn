@@ -67,7 +67,7 @@ class xRenderable
 		}
 		
 		$ret = xModuleManager::invokeAll('xm_checkPreconditionsInclusive',array(&$this));
-		if($ret->containsError())
+		if($ret->containsErrors())
 			return new xErrorGroup($ret->getErrors());
 		elseif($ret->containsValue(false))
 			return false;
@@ -85,9 +85,10 @@ class xRenderable
 	 */
 	function _preconditions()
 	{
+		return true;
 	}
 	
-	
+
 	/**
 	 * Process and fills the contents of this object if necessary, so they are ready to be rendered.
 	 * Usually you do not need to override this method. Override _process() method otherwise.
@@ -109,7 +110,7 @@ class xRenderable
 		
 		$this->m_processed = true;
 	}
-	
+
 	
 	/**
 	 * Excecutes class-specific content processing functions.
@@ -176,7 +177,11 @@ class xRenderable
 		}		
 		
 		$res = xModuleManager::invoke('xm_render',array(&$this->m_filtered));
+		if($res === NULL)
+			$res = '';
+			
 		$this->m_filtered->_render($res);
+		
 		return $res;
 	}
 	
@@ -210,6 +215,16 @@ class xWidget extends xRenderable
 	{
 		$this->xRenderable();
 		$this->m_name = $name;
+	}
+	
+	
+	/**
+	 * Loads this widget
+	 * Override this method to satisfy you class specific processing needs.
+	 */
+	function load($name)
+	{
+		return new xWidget($name);
 	}
 };
 

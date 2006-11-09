@@ -16,6 +16,10 @@
 */
 
 
+require_once(dirname(__FILE__) . '/cms_base.dao.php');
+
+
+
 function xm_load_cms_base()
 {
 	return new xModuleCmsBase();
@@ -60,6 +64,20 @@ class xModuleCmsBase extends xModule
 			FOREIGN KEY (group_name) REFERENCES widget_group(name)
 			)TYPE=InnoDB DEFAULT CHARACTER SET utf8"
 		);
+		
+		//insert page (is a widget group)
+		$page = new xWidgetGroup('page');
+		$page->m_widgets[] = new xContentManager();
+		$page->dbInsert();
+	}
+	
+	
+	/**
+	 * 
+	 */
+	function xm_declareWidget()
+	{
+		
 	}
 	
 	
@@ -68,7 +86,22 @@ class xModuleCmsBase extends xModule
 	 */
 	function xm_createPage(&$path)
 	{
+		$page = xWidgetGroup::load('page');
+		$res = $page->preconditions();
+		if(xError::isError($res))
+			var_dump($res);
 		
+		$page->process();
+		$page->filter();
+		echo $page->render();
+	}
+	
+	/**
+	 * 
+	 */
+	function xm_fetchContent($path)
+	{
+			
 	}
 }
 
@@ -84,23 +117,23 @@ class xModuleCmsBase extends xModule
  */
 class xWidgetGroup extends xWidget
 {
-	var $m_widgets;
+	var $m_widgets = array();
 	
 	/**
-	 * 
+	 * On creation automatically loads all child widgets
 	 */
 	function xWidgetGroup($name,$widgets = array())
 	{
-		$this->xWidget($name);	
+		$this->xWidget($name);
+		$this->m_widgets = $widgets;
 	}
-	
 	
 	/**
 	 * 
 	 */
 	function dbInsert()
 	{
-		xWidgetGroupDAO::insert($this);
+		return xWidgetGroupDAO::insert($this);
 	}
 	
 	/**
@@ -108,16 +141,23 @@ class xWidgetGroup extends xWidget
 	 */
 	function dbUpdate()
 	{
-		xWidgetGroupDAO::update($this);
+		return xWidgetGroupDAO::update($this);
 	}
 	
+	/**
+	 * Loads a widget group
+	 */
+	function load($name)
+	{
+		return reset(xWidgetGroupDAO::find($name));
+	}
 	
 	/**
-	 * @static
+	 * Loads a widget group
 	 */
-	function find($name)
+	function find($name = NULL)
 	{
-		xWidgetGroupDAO::find();
+		return xWidgetGroupDAO::find($name);
 	}
 	
 	
@@ -128,13 +168,11 @@ class xWidgetGroup extends xWidget
 	{
 		$result_set = new xResultSet();
 		foreach($this->m_widgets as $widget)
-			$result_set = $widget->preconditions();
+			$result_set->m_results[] = $widget->preconditions();
 		
-		if($result_set->containsError())
+		if($result_set->containsErrors())
 			return new xErrorGroup($result_set->getErrors());
-		elseif($result_set->containsValue(false))
-			return false;
-			
+		
 		return true;
 	}
 	
@@ -145,7 +183,7 @@ class xWidgetGroup extends xWidget
 	function _process()
 	{
 		foreach($this->m_widgets as $widget)
-			$result_set = $widget->process();
+			$widget->process();
 	}
 	
 	
@@ -157,26 +195,19 @@ class xWidgetGroup extends xWidget
 		foreach($this->m_widgets as $widget)
 			$result_set = $widget->filter();
 	}
-}
-
-
-//###########################################################################
-//###########################################################################
-//###########################################################################
-
-
-/**
- * Represent the whole web page
- */
-class xPage extends xWidgetGroup
-{
-	function xPage(&$path)
+	
+	
+	/**
+	 * {@inheritdoc}
+	 * 
+	 * @todo sostituire con theme
+	 */
+	function _render(&$pre)
 	{
-		$this->xWidgetGroup('default');
+		foreach($this->m_widgets as $widget)
+			$pre .= $widget->render();
 	}
 }
-
-
 
 //###########################################################################
 //###########################################################################
@@ -195,18 +226,23 @@ class xContentManager extends xWidget
 	var $m_content;
 	
 	/**
-	 * 
-	 */
-	var $m_path;
-	
-	/**
 	 * Creates an empty content. Call preconditions(),process() and filter() to fill out this object.
 	 */
-	function xContentManager(&$path)
+	function xContentManager()
 	{
 		$this->xWidget('default');
-		$this->m_path = $path;
-		$this->m_content = xModuleManager::invoke('xm_fetchContent',array($this->m_path));
+		$path = xPath::getCurrent();
+		$this->m_content = xModuleManager::invoke('xm_fetchContent',array($path));
+		if($this->m_content === NULL)
+			$this->m_content = new xContentPageNotFound($this->m_path);
+	}
+
+	/**
+	 * 
+	 */
+	function load($name)
+	{
+		return new xContentManager();	
 	}
 	
 	
@@ -216,10 +252,44 @@ class xContentManager extends xWidget
 	 */
 	function _process()
 	{
-		if($this->m_content === NULL)
-			$this->m_content = xContentPageNotFound($this->m_path);
+		parent::_process();
+		$this->m_content->process();
+	}
+	
+	/**
+	 * {@inheritdoc}
+	 * <br> The xContent version fetch the content manager and check its preconditions
+	 */
+	function _filter()
+	{
+		parent::_filter();
+		$this->m_content->filter();
+	}
+	
+	/**
+	 * {@inheritdoc}
+	 * <br> The xContent version fetch the content manager and check its preconditions
+	 */
+	function _preconditions()
+	{
+		$res = parent::_preconditions();
+		if(xError::isError($res))
+			return $res;
+			
+		$res = $this->m_content->preconditions();
+		if(xError::isError($res))
+			echo "here error";
 		
-		echo '';
+		return true;
+	}
+	
+	
+	/**
+	 * {@inheritdoc}
+	 */
+	function _render(&$pre)
+	{
+		$pre .= $this->m_content->m_content;
 	}
 }
 

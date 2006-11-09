@@ -24,17 +24,37 @@ class xDummyModule extends xModule
 	/**
 	 * This method should executes all sql queries needed to install a module.
 	 * 
-	 * @return NULL.
+	 * @return NULL
 	 */
 	function xm_install($db_name)
 	{
 	}
 	
+	
+	/**
+	 * Must return an array describing a widget (or an array of such arrays)
+	 * <br> Called with xModuleManager::invoke();
+	 * 
+	 * @return array() An array so composed: 
+	 * <code>
+	 * array(
+	 * 		'class name' => [class name],
+	 * 		'widget name' => [widget name],
+	 * 		'description' => [description]
+	 * 		)
+	 * </code>
+	 * Called with xModuleManager::invokeAll();
+	 */
+	function xm_declareWidget()
+	{
+	}
+	
+	
 	/**
 	 * This method is called to create the full web page.
 	 * <br> Called with xModuleManager::invoke();
 	 * 
-	 * @return NULL.
+	 * @return NULL
 	 */
 	function xm_createPage(&$path)
 	{
@@ -44,7 +64,7 @@ class xDummyModule extends xModule
 	 * This method is called after module load.
 	 * <br> Called with xModuleManager::invokeAll();
 	 * 
-	 * @return NULL.
+	 * @return NULL
 	 */
 	function xm_initModules()
 	{
@@ -55,7 +75,7 @@ class xDummyModule extends xModule
 	 * This method is called after module load and init.
 	 * <br> Called with xModuleManager::invokeAll();
 	 * 
-	 * @return NULL.
+	 * @return NULL
 	 */
 	function xm_initUtilities()
 	{
@@ -66,7 +86,7 @@ class xDummyModule extends xModule
 	 * This method is called to finalize all modules.
 	 * <br> Called with xModuleManager::invokeAll();
 	 * 
-	 * @return NULL.
+	 * @return NULL
 	 */
 	function xm_finalModules()
 	{
@@ -77,7 +97,7 @@ class xDummyModule extends xModule
 	 * This method is called to finalize all utilities.
 	 * <br> Called with xModuleManager::invokeAll();
 	 * 
-	 * @return NULL.
+	 * @return NULL
 	 */
 	function xm_finalUtilities()
 	{

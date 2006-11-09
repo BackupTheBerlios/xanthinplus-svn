@@ -14,8 +14,19 @@
 * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR 
 * PURPOSE ARE DISCLAIMED.SEE YOUR CHOOSEN LICENSE FOR MORE DETAILS.
 */
-	
-	
+
+
+if(version_compare(PHP_VERSION,"5.0") < 0)
+{
+	require(dirname(__FILE__) . '/php4compat.inc.php');
+}
+else
+{
+	require(dirname(__FILE__) . '/php5compat.inc.php');
+}
+
+
+
 /**
 * Permits interaction with globally defined configuration variables.
 */
@@ -53,14 +64,7 @@ class xConf
 $xanth_working_dir = $_SERVER['DOCUMENT_ROOT'] . xConf::get('installation_path','xanthin');
 
 
-if(version_compare(PHP_VERSION,"5.0") < 0)
-{
-	require($xanth_working_dir . '/framework/php4compat.inc.php');
-}
-else
-{
-	require($xanth_working_dir . '/framework/php5compat.inc.php');
-}
+
  
 /**
  *
