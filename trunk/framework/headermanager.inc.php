@@ -132,7 +132,7 @@ class xHeaderManager
 	 */
 	function renderStylesheets()
 	{
-		$csses = xModule::invokeAll('fetchStylesheet');
+		$csses = xModuleManager::invokeAll('fetchStylesheet');
 		$csses = $csses->getValidValues(true);
 		
 		$output = '';

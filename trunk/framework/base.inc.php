@@ -26,10 +26,152 @@ else
 }
 
 
+/**
+ * Defines some basic object features,and permits the use of __contruct
+ * under php4.
+ */
+class xObject
+{
+	/**
+	 * A hack to support __construct() on PHP 4. 
+	 * Child class must not have php4 styòe contructor.
+	 */
+	function xObject()
+	{
+		$args = func_get_args();
+		call_user_func_array(array(&$this, '__construct'), $args);
+	}
+
+	/**
+	 * Class constructor, override in descendant classes.
+	 */
+	function __construct()
+	{
+	}
+
+
+	/**
+	 * @param string The name of the property
+	 * @param mixed The value of the property to set
+	 */
+	function set($property, $value)
+	{
+		$this->$property = $value;
+    }
+    
+    
+	/**
+	 * @param string The name of the property
+	 * @return mixed The value of the property
+	 */
+	function get($property)
+	{
+		return $this->$property;
+	}
+	
+	/**
+	 * @param string The name of the property
+	 * @return mixed The value of the property
+	 */
+	function &getRef($property)
+	{
+		return $this->$property;
+	}
+}
+
 
 /**
-* Permits interaction with globally defined configuration variables.
-*/
+ * Represents a domain class.
+ */
+class xDomainObject extends xObject
+{
+	/**
+	 * {@inheritdoc}
+	 */
+	function __construct()
+	{
+		parent::__construct();
+	}
+	
+	/**
+	 * Inserts this object into the persistent data source
+	 * 
+	 * @return bool true on success, false otherwise 
+	 */
+	function insert()
+	{}
+	
+	/**
+	 * Deletes this object from persistent data source.
+	 * 
+	 * @return bool true on success, false otherwise 
+	 */
+	function delete()
+	{}
+	
+	/**
+	 * Deletes an object from persistent data source given its key.
+	 * 
+	 * @static
+	 * @return bool true on success, false otherwise 
+	 */
+	function deleteByKey()
+	{}
+	
+	/**
+	 * Updates this object int the persistent data source.
+	 * 
+	 * @return bool true on success, false otherwise 
+	 */
+	function update()
+	{}
+	
+	/**
+	 * Finds objects from the persistent data source.
+	 * 
+	 * @static
+	 * @return array() An array containing all objects found.
+	 */
+	function find()
+	{
+		assert(false);
+	}
+}
+
+
+/**
+ * A factory of DAO objects. Uses pattern decorator to add new DAOs
+ */
+class xDAOFactory extends xObject
+{
+	/**
+	 * {@inheritdoc}
+	 */
+	function __construct()
+	{
+		parent::__construct();
+	}
+}
+
+
+/**
+ * Represent the whole document. Implements singletone pattern 
+ */
+class xDocument extends xObject
+{
+	/**
+	 * {@inheritdoc}
+	 */
+	function __construct()
+	{
+		parent::__construct();
+	}
+}
+
+
+/**
+ * Permits interaction with configuration variables.
+ */
 class xConf
 {
 	/**
@@ -58,14 +200,63 @@ class xConf
 		global $g_xanth_conf;
 		$g_xanth_conf[$name] = $value;
 	}
-	
 };
 
-$xanth_working_dir = $_SERVER['DOCUMENT_ROOT'] . xConf::get('installation_path','xanthin');
 
 
+/**
+ * Provide methods to generate unique ids in relation to a table name.
+ */
+class xUniqueId
+{	
+	function xUniqueId()
+	{	
+		assert(FALSE);
+	}
+	
+	/**
+	 * Create a new association between a table and a unique id generator.
+	 */
+	function createNew($tablename)
+	{
+		$db =& xDB::getDB();
+		$db->query("INSERT INTO uniqueid (tablename,currentid) VALUES ('%s',%d)",$tablename,0);
+	}
+	
+	
+	/**
+	 * Generate a unique id in relation to a table name. For a correct use put this inside a transaction.
+	 *
+	 * @param string $tablename
+	 * @return int
+	 */
+	function generate($tablename)
+	{
+		$db =& xDB::getDB();
+		$ret = 0;
+	
+		$result = $db->query("SELECT currentid FROM uniqueid WHERE tablename = '%s'",$tablename);
 
- 
+		if($row = $db->fetchObject($result))
+		{
+			$ret = $row->currentid + 1;
+			
+			$db->query("UPDATE uniqueid SET currentid = %d WHERE tablename = '%s'",$ret,$tablename);
+		}
+		
+		return $ret;
+	}
+};
+
+
+/**
+ * 
+ */
+function &ref($ref)
+{
+	return $ref;
+}
+
 /**
  *
  */

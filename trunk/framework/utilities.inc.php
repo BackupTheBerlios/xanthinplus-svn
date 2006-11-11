@@ -44,21 +44,7 @@ function objWeightCompare($a, $b)
 
 
 /**
- * Analyze the type of the current path alias/no alias and format properly the provided relative path
- *
- * @deprecated
- * @param string $path
- * @return string
- */
-function xanth_relative_path($path)
-{
-	//todo
-	return '?p='.$path;
-}
-
-
-/**
- * Parse and extract data from an array given the path in a string
+ * Parse and extract data from an array wich structure is represented in a string
  */
 class xArrayString
 {
@@ -123,7 +109,9 @@ class xArrayString
 	}
 	
 	
-	
+	/**
+	 * @access private
+	 */
 	function _generateArray($keys,$value,$out_array)
 	{
 		$key = array_shift($keys);
@@ -138,5 +126,49 @@ class xArrayString
 		return $out_array;
 	}
 };
+
+
+
+
+/**
+* An element to count the exexution time of the script.
+*/
+class xTimer
+{
+	function xTimer($name)
+	{
+		assert(false);
+	}
+	
+	/**
+	 * @static
+	 */
+	function stop($name)
+	{
+		global $g_execution_started;
+		return xTimer::_getmicrotime() - $g_execution_started[$name];
+	}
+	
+	/**
+	 * @static
+	 */
+	function start($name)
+	{
+		global $g_execution_started;
+		$g_execution_started[$name] = xTimer::_getmicrotime();
+	}
+	
+	/**
+	 * Necessary for PHP4
+	 * @access private
+	 */
+	function _getmicrotime()
+	{
+	   list($usec, $sec) = explode(' ', microtime());
+	   return ((float)$usec + (float)$sec);
+	}
+};
+
+
 
 ?>

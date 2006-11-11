@@ -16,21 +16,17 @@
 */
 
 require_once(dirname(__FILE__) . '/base.inc.php');
-require_once(dirname(__FILE__) . '/bbcode.inc.php');
 require_once(dirname(__FILE__) . '/error.inc.php');
 require_once(dirname(__FILE__) . '/widget.inc.php');
-require_once(dirname(__FILE__) . '/contentfilter.inc.php');
 require_once(dirname(__FILE__) . '/install.inc.php');
 require_once(dirname(__FILE__) . '/log.inc.php');
 require_once(dirname(__FILE__) . '/language.inc.php');
 require_once(dirname(__FILE__) . '/module.inc.php');
-require_once(dirname(__FILE__) . '/operation.inc.php');
 require_once(dirname(__FILE__) . '/framework.dao.php');
 require_once(dirname(__FILE__) . '/path.inc.php');
 require_once(dirname(__FILE__) . '/session.inc.php');
 require_once(dirname(__FILE__) . '/headermanager.inc.php');
 require_once(dirname(__FILE__) . '/notifications.inc.php');
-require_once(dirname(__FILE__) . '/uniqueid.inc.php');
 require_once(dirname(__FILE__) . '/utf8.inc.php');
 require_once(dirname(__FILE__) . '/utilities.inc.php');
 
@@ -64,6 +60,7 @@ class xXanthin
 	 */
 	function initUtilities()
 	{
+		xTimer::start('script_execution_time');
 		xanth_fix_gpc_magic();
 		
 		//error handler
@@ -108,6 +105,13 @@ class xXanthin
 	{
 		xNotificationsManager::postProcessing();
 		xModuleManager::invokeAll('xm_finalUtilities',array());
+		
+		if(xConf::get('debug',false))
+		{
+			$db =& xDB::getDB(); 
+			echo '<br><br><br>Execution Time: ' . xTimer::stop('script_execution_time').' Queries: '. var_export($db->dumpGet(),true);
+			echo xLogEntry::renderFromScreen();
+		}
 	}
 	
 	/**

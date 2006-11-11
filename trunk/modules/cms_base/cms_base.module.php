@@ -64,11 +64,6 @@ class xModuleCmsBase extends xModule
 			FOREIGN KEY (group_name) REFERENCES widget_group(name)
 			)TYPE=InnoDB DEFAULT CHARACTER SET utf8"
 		);
-		
-		//insert page (is a widget group)
-		$page = new xWidgetGroup('page');
-		$page->m_widgets[] = new xContentManager();
-		$page->dbInsert();
 	}
 	
 	
@@ -86,11 +81,10 @@ class xModuleCmsBase extends xModule
 	 */
 	function xm_createPage(&$path)
 	{
-		$page = xWidgetGroup::load('page');
+		$page = new xPageManager();
 		$res = $page->preconditions();
 		if(xError::isError($res))
 			var_dump($res);
-		
 		$page->process();
 		$page->filter();
 		echo $page->render();
@@ -102,6 +96,38 @@ class xModuleCmsBase extends xModule
 	function xm_fetchContent($path)
 	{
 			
+	}
+	
+	
+	/**
+	 * Renders page by default
+	 */
+	function xm_render($renderable)
+	{
+		if(xanth_instanceof($renderable,'xPageManager'))
+		{
+			$contents = new xContentManager();
+			$output = 
+			'<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+			<html>
+				<head>
+					<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+					'.xHeaderManager::renderTitle().
+					xHeaderManager::renderKeywords().
+					xHeaderManager::renderDescription().
+					xHeaderManager::renderStylesheets().'
+				</head>
+				<body>
+					<div id="page">
+						<div id="content">
+							'.$contents->display().'
+						</div>
+					</div>
+				</body>
+			</html>';
+			
+			return $output;
+		}
 	}
 }
 
@@ -160,7 +186,6 @@ class xWidgetGroup extends xWidget
 		return xWidgetGroupDAO::find($name);
 	}
 	
-	
 	/**
 	 * {@inheritdoc}
 	 */
@@ -172,10 +197,11 @@ class xWidgetGroup extends xWidget
 		
 		if($result_set->containsErrors())
 			return new xErrorGroup($result_set->getErrors());
-		
-		return true;
+		if($result_set->containsValue(true))
+			return true;
+			
+		return false;
 	}
-	
 	
 	/**
 	 * {@inheritdoc}
@@ -184,6 +210,8 @@ class xWidgetGroup extends xWidget
 	{
 		foreach($this->m_widgets as $widget)
 			$widget->process();
+			
+		return true;
 	}
 	
 	
@@ -213,11 +241,26 @@ class xWidgetGroup extends xWidget
 //###########################################################################
 //###########################################################################
 
+/**
+ * 
+ */
+class xPageManager extends xStaticWidget
+{
+	/**
+	 * Creates an empty content. Call preconditions(),process() and filter() to fill out this object.
+	 */
+	function xPageManager()
+	{
+		$this->xStaticWidget();
+	}
+}
+
+
 
 /**
  * Represent the main content of a web page
  */
-class xContentManager extends xWidget
+class xContentManager extends xStaticWidget
 {
 	/**
 	 * @var xContent
@@ -230,11 +273,11 @@ class xContentManager extends xWidget
 	 */
 	function xContentManager()
 	{
-		$this->xWidget('default');
+		$this->xStaticWidget();
 		$path = xPath::getCurrent();
 		$this->m_content = xModuleManager::invoke('xm_fetchContent',array($path));
 		if($this->m_content === NULL)
-			$this->m_content = new xContentPageNotFound($this->m_path);
+			$this->m_content = new xContentPageNotFound($path);
 	}
 
 	/**
@@ -372,7 +415,7 @@ class xContent extends xRenderable
 	{
 		$this->m_title = htmlspecialchars($this->m_title);
 		
-		foreach($this->m_keywords as $k => $v)
+		foreach($this->m_meta_keywords as $k => $v)
 			$this->m_meta_keywords[$k] = htmlspecialchars($v);
 		
 		$this->m_meta_description = htmlspecialchars($this->m_meta_description);
@@ -398,6 +441,8 @@ class xContent extends xRenderable
 		
 		$tmp =& xHeaderManager::getDescription();
 		$tmp = $this->m_description;
+		
+		var_dump();
 	}
 }
 
@@ -415,6 +460,41 @@ class xContentPageNotFound extends xContent
 	function xContentPageNotFound($path)
 	{
 		$this->xContent($path);
+	}
+	
+	/**
+	 * {@inheritdoc}
+	 */
+	function _process()
+	{
+		parent::_process();
+		$this->_set('Page not found','The page you requested was not found','',array());
+	}
+}
+
+
+/**
+ * Represent the main content of a web page
+ */
+class xContentError extends xContent
+{
+	var $m_error;
+	
+	/**
+	 * 
+	 */
+	function xContentError($path,$error)
+	{
+		$this->xContent($path);
+		$this->m_error = $error;
+	}
+	
+	/**
+	 * 
+	 */
+	function _preconditions()
+	{
+		return true;
 	}
 	
 	/**

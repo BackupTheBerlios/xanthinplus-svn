@@ -16,6 +16,31 @@
 */
 
 
+
+/**
+ * 
+ */
+class xAccessControl
+{
+	function xAccessControl()
+	{
+		assert(false);
+	}
+	
+	/**
+	 * 
+	 */
+	function checkAccess($lang,$resource,$action,$resource_type = NULL,$resource_id = NULL)
+	{
+		//todo
+		//xModuleManager::invokeAll('xm_checkAccess',array(&$this));
+		
+		return true;
+	}
+}
+
+
+
 /**
  * Represents all objects ables to be rendered.
  */
@@ -29,7 +54,12 @@ class xRenderable
 	/**
 	 * 
 	 */
-	var $m_checked;
+	var $m_prec_checked;
+	
+	/**
+	 * 
+	 */
+	var $m_perm_checked;
 	
 	/**
 	 * 
@@ -41,36 +71,37 @@ class xRenderable
 	 */
 	function xRenderable()
 	{
-		$this->m_processed = false;
-		$this->m_checked = false;
+		$this->m_processed = NULL;
+		$this->m_checked = NULL;
 		$this->m_filtered = NULL;
 	}
+	
+	
+	/**
+	 * @access private
+	 */
+	function _recursive_preconditions()
+	{
+		
+	}
+	
 	
 	/**
 	 * Check preconditions for the current object, before render it.
 	 * Usually you do not need to override this method. Override _preconditions() method otherwise.
 	 * 
-	 * @return mixed Returns true on valid preconditions, false if the creation workflow
-	 * should fail silently, an xError object on fatal error.
+	 * @return mixed Returns a checked widget(that can or cannot be the same object you 
+	 * called preconditions()) or false if the creation workflow of this widget should fail silently.
 	 */
 	function preconditions()
 	{
+		$this->m_checked = false;
+		
 		$ret = $this->_preconditions();
 		if($ret !== true)
 			return $ret;
 		
-		$ret = xModuleManager::invoke('xm_checkPreconditionsExlusive',array(&$this));
-		if($ret === true)
-		{
-			$this->m_checked = true;
-			return true;
-		}
 		
-		$ret = xModuleManager::invokeAll('xm_checkPreconditionsInclusive',array(&$this));
-		if($ret->containsErrors())
-			return new xErrorGroup($ret->getErrors());
-		elseif($ret->containsValue(false))
-			return false;
 		
 		$this->m_checked = true;
 		return true;
@@ -78,10 +109,28 @@ class xRenderable
 	
 	
 	/**
+	 * 
+	 */
+	function permissions()
+	{
+		
+	}
+	
+	/**
+	 * 
+	 */
+	function _permissions()
+	{
+		
+	}
+	
+	
+	/**
 	 * Check preconditions for the current element, before render it.
 	 * Usually you do not need to override this method. Override _preconditions() method otherwise.
 	 * 
-	 * @return @see xRenderable::preconditions()
+	 * @return mixed 
+	 * @see xRenderable::preconditions()
 	 */
 	function _preconditions()
 	{
@@ -90,25 +139,37 @@ class xRenderable
 	
 
 	/**
-	 * Process and fills the contents of this object if necessary, so they are ready to be rendered.
+	 * Process and fills the contents of this object if necessary, so they are ready to be 
+	 * filtered and rendered.
 	 * Usually you do not need to override this method. Override _process() method otherwise.
 	 * 
-	 * @return NULL
+	 * @return bool true on success false otherwise
 	 */
 	function process()
 	{
-		if(!$this->m_checked)
+		$this->m_processed = false;
+		if($this->m_checked === true)
 		{
+			$res = xModuleManager::invokeAll('xm_preprocess',array(&$this));
+			if($res->containsValue(false))
+				return false;
+			
+			if($this->_process() === false)
+				return false;
+				
+			$res = xModuleManager::invokeAll('xm_postprocess',array(&$this));
+			if($res->containsValue(false))
+				return false;
+			
+			$this->m_processed = true;
+			return true;
+			
+		}
+		elseif($this->m_checked === NULL)
 			xLog::log(LOG_LEVEL_WARNING,'This object must be checked before to be processed. Dump: '.
 				var_export($this,true),__FILE__,__LINE__);
-			return;					
-		}
-		
-		xModuleManager::invokeAll('xm_preprocess',array(&$this));
-		$this->_process();
-		xModuleManager::invokeAll('xm_postprocess',array(&$this));
-		
-		$this->m_processed = true;
+
+		return false;
 	}
 
 	
@@ -120,6 +181,7 @@ class xRenderable
 	 */
 	function _process()
 	{
+		return true;
 	}
 	
 	/**
@@ -128,23 +190,34 @@ class xRenderable
 	 * processing its contents, they are usually non consistent with the original object logic.
 	 * Usually you do not need to override this method. Override _filter() method otherwise.
 	 * 
-	 * @return NULL
+	 * @return bool true on success false otherwise
 	 */
 	function filter()
 	{
-		if(!$this->m_processed)
+		$this->m_filtered = false;
+		if($this->m_processed === true)
 		{
+			$copy = xanth_clone($this);
+		
+			$res = xModuleManager::invokeAll('xm_prefilter',array(&$copy));
+			if($res->containsValue(false))
+				return false;
+				
+			if($copy->_filter() === false)
+				return false;
+				
+			$res = xModuleManager::invokeAll('xm_postfilter',array(&$copy));
+			if($res->containsValue(false))
+				return false;
+			
+			$this->m_filtered = $copy;
+			return true;
+		}
+		elseif($this->m_processed == FALSE)
 			xLog::log(LOG_LEVEL_WARNING,'This object must be processed before to be filtered. Dump: '.
 				var_export($this,true),__FILE__,__LINE__);
-			return;
-		}
 		
-		$copy = xanth_clone($this);
-		xModuleManager::invokeAll('xm_prefilter',array(&$copy));
-		$copy->_filter();
-		xModuleManager::invokeAll('xm_postfilter',array(&$copy));
-		
-		$this->m_filtered = $copy;
+		return false;
 	}
 	
 	
@@ -158,6 +231,7 @@ class xRenderable
 	 */
 	function _filter()
 	{
+		return true;
 	}
 	
 	/**
@@ -168,21 +242,21 @@ class xRenderable
 	 * @return string A string representing the renderized element.
 	 */
 	function render()
-	{
-		if(!($this->m_checked && $this->m_processed && $this->m_filtered !== NULL))
+	{	
+		if(xanth_instanceof($this->m_filtered,get_class($this)))
 		{
+			$res = xModuleManager::invoke('xm_render',array(&$this->m_filtered));
+			if($res === NULL)
+				$res = '';
+				
+			$this->m_filtered->_render($res);
+			return $res;
+		}
+		elseif($this->m_filtered === NULL)
 			xLog::log(LOG_LEVEL_WARNING,'This object must be filtered before to be rendered. Dump: '.
 				var_export($this,true),__FILE__,__LINE__);
-			return '';
-		}		
-		
-		$res = xModuleManager::invoke('xm_render',array(&$this->m_filtered));
-		if($res === NULL)
-			$res = '';
-			
-		$this->m_filtered->_render($res);
-		
-		return $res;
+	
+		return '';	
 	}
 	
 	
@@ -197,9 +271,45 @@ class xRenderable
 	function _render(&$res)
 	{
 	}
+	
+	
+	/**
+	 * Executes preconditions(), process(),filter() and render() and return the string
+	 * resulting from this workflow. 
+	 * Usually you do not need to override this method.
+	 */
+	function display()
+	{
+		$res = $this->preconditions();
+		if(xError::isError($res))
+		{
+			//todo
+			return var_export($res,true);
+		}
+		elseif($res === true)
+		{
+			if($this->process())
+				if($this->filter())
+					return $this->render();
+		}
+		
+		return '';
+	}
 }
 
 
+/**
+ * 
+ */
+class xRenderableDecorator extends xRenderable
+{
+	
+	function render()
+	{
+		$this->m_decorated->render();
+			
+	}
+}
 
 /**
  * Widgets are visual elements easily identifiable by a name, a type.
@@ -219,14 +329,65 @@ class xWidget extends xRenderable
 	
 	
 	/**
-	 * Loads this widget
+	 * Loads a widget.
 	 * Override this method to satisfy you class specific processing needs.
 	 */
 	function load($name)
 	{
-		return new xWidget($name);
+		return new  xWidget($name);
 	}
 };
+
+
+/**
+ * 
+ */
+class xWidgetDecorator extends xWidget
+{
+	
+}
+
+
+
+/**
+ * Static widgets are widgets in wich you can call display() statically
+ */
+class xStaticWidget extends xWidget
+{
+	/**
+	 * 
+	 */
+	function xStaticWidget()
+	{
+		$this->xWidget('static');
+	}
+	
+	
+	/**
+	 * Loads a widget.
+	 * Override this method to satisfy you class specific processing needs.
+	 */
+	function load($name)
+	{
+		return new xStaticWidget();
+	}
+};
+
+
+/**
+ * 
+ */
+class xWidgetUtilities
+{
+	/**
+	 * 
+	 */
+	function xWidgetUtilities()
+	{
+		assert(false);
+	}
+}
+
 
 
 ?>

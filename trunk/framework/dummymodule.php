@@ -103,27 +103,16 @@ class xDummyModule extends xModule
 	{
 	}
 	
-	/**
-	 * Returns true if object precontitions are valid, in this case 
-	 * all other preconditions are ignored.
-	 * 
-	 * <br> Called with xModuleManager::invoke();
-	 * @return mixed Returns true on success (this method should not return an xError).
-	 */
-	function xm_checkPreconditionsExclusive(&$renderable_obj)
-	{	
-	}
-	
 	
 	/**
 	 * Returns true if object precontitions are valid, in this case 
-	 * other modules precontitions are checked.
+	 * other precontitions are checked.
 	 * 
 	 * <br> Called with xModuleManager::invokeAll();
 	 * @return mixed Returns true on valid preconditions, false if the creation workflow
 	 * should fail silently, an xError object on fatal error.
 	 */
-	function xm_checkPreconditionsInclusive(&$renderable_obj)
+	function xm_checkPreconditions(&$renderable_obj)
 	{
 	}
 	

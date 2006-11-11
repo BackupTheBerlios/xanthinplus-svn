@@ -22,10 +22,10 @@
 class xDB
 {
 	/**
-	* @var int
-	* @access protected
-	*/
-	var $m_query_count;
+	 * @var int
+	 * @access protected
+	 */
+	var $m_query_dump;
 	
 	/**
 	* @var int
@@ -44,7 +44,7 @@ class xDB
 	*/
 	function xDB()
 	{
-		$this->m_query_count = 0;
+		$this->m_query_dump = array();
 		$this->m_transaction_nesting = 0;
 		$this->m_transaction_failed = FALSE;
 	}
@@ -283,17 +283,17 @@ class xDB
 	*
 	* @access protected
 	*/
-	function _queryIncrementCount() 
+	function _dumpAddQuery($query) 
 	{
-		$this->m_query_count++;
+		$this->m_query_dump[] = $query;
 	}
 
 	/**
 	* Reset the actual query count,in the current script execution.
 	*/
-	function queryResetCount() 
+	function dumpReset() 
 	{
-		$this->m_query_count = 0;
+		$this->m_query_dump = array();
 	}
 
 	/**
@@ -301,9 +301,9 @@ class xDB
 	*
 	* @return int
 	*/
-	function queryGetCount()
+	function dumpGet()
 	{
-		return $this->m_query_count;
+		return $this->m_query_dump;
 	}
 
 	/**
@@ -338,8 +338,6 @@ class xDB
 	{
 		if($this->m_transaction_nesting > 0 && $this->m_transaction_failed === TRUE)
 			return false;
-			
-		$this->_queryIncrementCount();
 		
 		$args = func_get_args();
 		array_shift($args);
@@ -350,6 +348,9 @@ class xDB
 		
 		$foo($args, TRUE);
 		$query = preg_replace_callback('/(%d|%s|%%|%f|%b)/', $foo, $query);
+		if(xConf::get('debug',true))
+			$this->_dumpAddQuery($query);
+			
 		$result = $this->_query($query);
 		
 		if($result === FALSE)
