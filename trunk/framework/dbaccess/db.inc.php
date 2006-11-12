@@ -19,55 +19,55 @@
 /**
 * Base class for all DB classes. A DB class provide an abstraction layer to Database access.
 */
-class xDB
+class xDB extends xObject
 {
 	/**
 	 * @var int
 	 * @access protected
 	 */
-	var $m_query_dump;
+	var $m_query_dump = array();
 	
 	/**
-	* @var int
-	* @access protected
-	*/
-	var $m_transaction_nesting;
+	 * @var int
+	 * @access protected
+	 */
+	var $m_transaction_nesting = 0;
 	
 	/**
-	* @var bool
-	* @access protected
-	*/
-	var $m_transaction_failed;
+	 * @var bool
+	 * @access protected
+	 */
+	var $m_transaction_failed = FALSE;
+	
 	
 	/**
-	* Constructor
-	*/
-	function xDB()
+	 * Constructor
+	 */
+	function __construct()
 	{
-		$this->m_query_dump = array();
-		$this->m_transaction_nesting = 0;
-		$this->m_transaction_failed = FALSE;
 	}
 	
+	
 	/**
-	* Initialize a databse connection.
-	*
-	* @param string $host databse hostname
-	* @param string $user database username
-	* @param string $pass database password for username
-	* @param string $port database listening port (give blank for default)
-	* @abstract
-	*/
+	 * Initialize a databse connection.
+	 *
+	 * @param string $host databse hostname
+	 * @param string $user database username
+	 * @param string $pass database password for username
+	 * @param string $port database listening port (give blank for default)
+	 * @abstract
+	 */
 	function connect($host,$user,$pass,$port = '')
 	{
 		//must override this function
 		assert(FALSE);
 	}
 	
+	
 	/**
-	* select a database
-	* @abstract
-	*/
+	 * select a database
+	 * @abstract
+	 */
 	function selectDB($name)
 	{
 		//must override this function
@@ -355,6 +355,8 @@ class xDB
 		
 		if($result === FALSE)
 		{
+			xLog::log('Database',LOG_LEVEL_ERROR,'Database errno: '.$this->errno().'. Error: '.$this->error(),
+				__FILE__,__LINE__);
 			$this->m_transaction_failed = TRUE;
 		}
 			
@@ -627,7 +629,7 @@ class xDB
 				
 				if(strcasecmp($clause['direction'],'asc') !== 0 && strcasecmp($clause['direction'],'desc') !== 0)
 				{
-					xLog::log(LOG_LEVEL_ERROR,'Invalid direction for ORDER clause: "'.$clause['direction'].'"',
+					xLog::log('Database',LOG_LEVEL_ERROR,'Invalid direction for ORDER clause: "'.$clause['direction'].'"',
 						__FILE__,__LINE__);
 				}
 				else

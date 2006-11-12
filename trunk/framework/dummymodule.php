@@ -32,25 +32,6 @@ class xDummyModule extends xModule
 	
 	
 	/**
-	 * Must return an array describing a widget (or an array of such arrays)
-	 * <br> Called with xModuleManager::invoke();
-	 * 
-	 * @return array() An array so composed: 
-	 * <code>
-	 * array(
-	 * 		'class name' => [class name],
-	 * 		'widget name' => [widget name],
-	 * 		'description' => [description]
-	 * 		)
-	 * </code>
-	 * Called with xModuleManager::invokeAll();
-	 */
-	function xm_declareWidget()
-	{
-	}
-	
-	
-	/**
 	 * This method is called to create the full web page.
 	 * <br> Called with xModuleManager::invoke();
 	 * 
@@ -105,63 +86,9 @@ class xDummyModule extends xModule
 	
 	
 	/**
-	 * Returns true if object precontitions are valid, in this case 
-	 * other precontitions are checked.
-	 * 
-	 * <br> Called with xModuleManager::invokeAll();
-	 * @return mixed Returns true on valid preconditions, false if the creation workflow
-	 * should fail silently, an xError object on fatal error.
+	 * Sets daos for a db. $db->m_daos['[dao name]'] = new DAO();
 	 */
-	function xm_checkPreconditions(&$renderable_obj)
-	{
-	}
-	
-	
-	/**
-	 * Renders a renderable object.
-	 * 
-	 * @return string Returns the rendered element or a xError object on error.
-	 */
-	function xm_render(&$renderable_obj)
-	{
-	}
-	
-	/**
-	 * Pre-process the contents of a renderable object.
-	 * 
-	 * @return NULL 
-	 */
-	function xm_preprocess(&$renderable_obj)
-	{
-	}
-	
-	
-	/**
-	 * Post-process the contents of a renderable object.
-	 * 
-	 * @return NULL
-	 */
-	function xm_postprocess(&$renderable_obj)
-	{
-	}
-	
-	
-	/**
-	 * Pre-filter the contents of a renderable object.
-	 * 
-	 * @return NULL 
-	 */
-	function xm_prefilter(&$renderable_obj)
-	{
-	}
-	
-	
-	/**
-	 * Post-filter the contents of a renderable object.
-	 * 
-	 * @return NULL
-	 */
-	function xm_postfilter(&$renderable_obj)
+	function xm_DAO(&$db)
 	{
 	}
 }

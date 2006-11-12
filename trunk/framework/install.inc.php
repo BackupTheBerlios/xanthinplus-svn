@@ -38,6 +38,7 @@ class xInstallCMS
 		$db->query("
 			CREATE TABLE xanth_log (
 			id INT UNSIGNED AUTO_INCREMENT NOT NULL,
+			cathegory VARCHAR(32) NOT NULL,
 			level MEDIUMINT NOT NULL,
 			message TEXT NOT NULL,
 			filename  VARCHAR(255) NOT NULL,

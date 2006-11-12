@@ -79,96 +79,6 @@ class xObject
 	}
 }
 
-
-/**
- * Represents a domain class.
- */
-class xDomainObject extends xObject
-{
-	/**
-	 * {@inheritdoc}
-	 */
-	function __construct()
-	{
-		parent::__construct();
-	}
-	
-	/**
-	 * Inserts this object into the persistent data source
-	 * 
-	 * @return bool true on success, false otherwise 
-	 */
-	function insert()
-	{}
-	
-	/**
-	 * Deletes this object from persistent data source.
-	 * 
-	 * @return bool true on success, false otherwise 
-	 */
-	function delete()
-	{}
-	
-	/**
-	 * Deletes an object from persistent data source given its key.
-	 * 
-	 * @static
-	 * @return bool true on success, false otherwise 
-	 */
-	function deleteByKey()
-	{}
-	
-	/**
-	 * Updates this object int the persistent data source.
-	 * 
-	 * @return bool true on success, false otherwise 
-	 */
-	function update()
-	{}
-	
-	/**
-	 * Finds objects from the persistent data source.
-	 * 
-	 * @static
-	 * @return array() An array containing all objects found.
-	 */
-	function find()
-	{
-		assert(false);
-	}
-}
-
-
-/**
- * A factory of DAO objects. Uses pattern decorator to add new DAOs
- */
-class xDAOFactory extends xObject
-{
-	/**
-	 * {@inheritdoc}
-	 */
-	function __construct()
-	{
-		parent::__construct();
-	}
-}
-
-
-/**
- * Represent the whole document. Implements singletone pattern 
- */
-class xDocument extends xObject
-{
-	/**
-	 * {@inheritdoc}
-	 */
-	function __construct()
-	{
-		parent::__construct();
-	}
-}
-
-
 /**
  * Permits interaction with configuration variables.
  */
@@ -297,9 +207,5 @@ function xanth_fix_gpc_magic()
 		$fixed = true;
 	}
 }
-
-
-
-
 
 ?>

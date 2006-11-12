@@ -15,9 +15,6 @@
 * PURPOSE ARE DISCLAIMED.SEE YOUR CHOOSEN LICENSE FOR MORE DETAILS.
 */
 
-$g_xanth_builtin_modules = array();
-$g_xanth_modules = array();
-
 
 /**
  * 
@@ -35,6 +32,7 @@ class xModuleDTO
 		$this->m_installed = (bool) $installed;	
 	}
 }
+
 
 /**
  * The base class for modules.
@@ -87,42 +85,58 @@ class xModule
  */
 class xModuleManager
 {
-	function xModuleManager()
+	var $m_modules = array();
+	
+	var $m_search_dir = '';
+	
+	var $m_suffix = '';
+	
+	var $m_full_search_dir = '';
+	
+	/**
+	 * 
+	 * @param string $search_dir The directory to search for modules
+	 * @param string $suffix The suffix of the module file (eg. modulename.[suffix].php)
+	 */
+	function xModuleManager($search_dir, $suffix)
 	{
-		assert(false);	
+		$this->m_search_dir = $search_dir;
+		$this->m_suffix = $suffix;
+		$this->m_full_search_dir = x_full_path($search_dir); 
 	}
 	
 	/**
 	 * @param string $search_dir The relative path to search
-	 * @return array An array of strings representing modules path
+	 * @return array An array of strings representing modules full paths
 	 */
-	function findAllModules($search_dir)
+	function findAllModules()
 	{
-		global $xanth_working_dir;
-		$search_dir =  $xanth_working_dir . '/' . $search_dir;
-		if($handle = opendir($search_dir)) 
+		if($handle = opendir($this->m_full_search_dir)) 
 		{
 			$ret = array();
 			while(false !== ($file = readdir($handle))) 
 			{
-				$mod_file = $search_dir .'/'. $file . '/'.$file.'module.php';
-				if($file != "." && $file != ".." && is_file($search_dir .'/'. $file . '/'))
-					$ret[] = $mod_file;
+				if($file != "." && $file != "..")
+				{
+					$mod_file = $this->m_full_search_dir .'/'. $file . '/'.$file.'.'.$this->m_suffix.'.php';
+					if(is_file($mod_file))
+						$ret[] = $mod_file;
+				}
 			}
 			closedir($handle);
 		}
 		else
-			xLog::log(LOG_LEVEL_FATAL_ERROR,'Invalid search directory for modules. Dump: '.
-				var_export($search_dir,true),__FILE__,__LINE__);
+			xLog::log('Framework',LOG_LEVEL_ERROR,'Invalid search directory for modules. Dump: '.
+				var_export($this->m_full_search_dir,true),__FILE__,__LINE__);
 	}
 	
 	
 	/**
 	 * @static
 	 */
-	function includeModule($search_dir,$name)
+	function includeModule($name)
 	{
-		include_once($search_dir . '/' . $name . '/' . $name . '.module.php');
+		include_once($this->m_full_search_dir . '/' . $name . '/' . $name . '.'.$this->m_suffix.'.php');
 	}
 	
 	
@@ -131,61 +145,29 @@ class xModuleManager
 	 */
 	function initModules($enabled,$installed)
 	{
-		global $xanth_working_dir;
 		if($enabled || $installed)
 		{
 			$modules = xModuleDAO::find(NULL,$enabled,$installed);
-			usort($modules,'objWeightCompare');
+			usort($modules,'x_objWeightCompare');
 			foreach($modules as $module)
 			{
-				$mod_file = $xanth_working_dir . '/' . $module->m_path . '/' . basename($module->m_path) .
-					'.module.php';
-				if(is_file($mod_file))
+				if(basename($module->m_path) == $this->m_search_dir)
 				{
-					include_once($mod_file);
-					$mod = call_user_func('xm_load_' . basename($module->m_path));
-					
-					if(xanth_instanceof($mod,'xModule'))
-						xModuleManager::registerModule($mod);
+					$name = basename($module->m_path);
+					$mod_file = x_full_path($module->m_path) . '/' . $name .
+						'.' . $this->m_suffix.'.php';
+					if(is_file($mod_file))
+					{
+						include_once($mod_file);
+						$mod = call_user_func('xm_load_' . $name);
+						
+						if(xanth_instanceof($mod,'xModule'))
+							$this->m_modules = $mod;
+					}
 				}
 			}
 		}
 	}
-	
-	
-	/**
-	 * 
-	 */
-	function dbUpdateModule($path,$enabled,$installed)
-	{
-		return xModuleDAO::update($path,$enabled,$installed);
-	}
-	
-	
-	/**
-	* Register a module.
-	* @param xModule $module The module to register.
-	* @static
-	*/
-	function registerModule($module)
-	{
-		global $g_xanth_modules;
-		$g_xanth_modules[] = $module;
-	}
-	
-	
-	/**
-	* Retrieve all registered modules as an array.
-	*
-	* @return array(xModule) all registered modules.
-	* @static
-	*/
-	function getModules()
-	{
-		global $g_xanth_modules;
-		return $g_xanth_modules;
-	}
-	
 	
 	/**
 	 * Make a method call to all modules until a not-NULL result is returned.
@@ -197,10 +179,7 @@ class xModuleManager
 	 */
 	function invoke($function,$args = array())
 	{
-		//first user modules then default modules
-		$modules = xModuleManager::getModules();
-		
-		foreach($modules as $module)
+		foreach($this->m_modules as $module)
 		{
 			if(method_exists($module,$function))
 			{
@@ -224,11 +203,8 @@ class xModuleManager
 	 */
 	function invokeAll($function,$args = array())
 	{
-		//first user modules then default modules
-		$modules = xModuleManager::getModules();
 		$rs = new xResultSet();
-		
-		foreach($modules as $module)
+		foreach($this->m_modules as $module)
 		{
 			if(method_exists($module,$function))
 			{

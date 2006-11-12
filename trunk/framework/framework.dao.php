@@ -20,11 +20,10 @@
 /**
  * 
  */
-class xModuleDAO
+class xModuleDAO extends xObject
 {
-	function xModuleDAO()
+	function __construct()
 	{
-		assert(FALSE);
 	}
 	
 	/**
@@ -67,7 +66,7 @@ class xModuleDAO
 	 * @static
 	 * @access private
 	 */
-	function _moduleFromRow($row_object)
+	function _dtoFromRow($row_object)
 	{
 		return new xModuleDTO($row_object->path,$row_object->enabled,$row_object->installed);
 	}
@@ -78,7 +77,7 @@ class xModuleDAO
 	function find($path,$enabled,$installed)
 	{
 		$db =& xDB::getDB();
-	
+		
 		$where[0]["clause"] = "path = '%s'";
 		$where[0]["connector"] = "AND";
 		$where[0]["value"] = $path;
@@ -94,120 +93,9 @@ class xModuleDAO
 		$result = $db->autoQuerySelect('*','active_modules',$where);
 		$objs = array();
 		while($row = $db->fetchObject($result))
-			$objs[] = xModuleDAO::_moduleFromRow($row);
+			$objs[] = xModuleDAO::_dtoFromRow($row);
 		return $objs;
 	}
 }
 
-//###########################################################################
-//###########################################################################
-//###########################################################################
-
-/**
- * 
- */
-class xLanguageDAO
-{
-	function xLanguageDAO()
-	{
-		//non instaltiable
-		assert(FALSE);
-	}
-	
-	/**
-	 * Insert a new node type
-	 *
-	 * @param xLanguage $node_type
-	 * @return bool FALSE on error
-	 * @static
-	 */
-	function insert($language)
-	{
-		$db =& xDB::getDB();
-		return $db->query("INSERT INTO language(name,full_name) 
-			VALUES ('%s','%s')",$language->m_name,$language->m_full_name);
-	}
-	
-	/**
-	 * Deletes an item type.
-	 *
-	 * 
-	 * @param string $typename
-	 * @return bool FALSE on error
-	 * @static
-	 */
-	function delete($name)
-	{
-		$db =& xDB::getDB();
-		return $db->query("DELETE FROM language WHERE name = '%s'",$name);
-	}
-	
-	/**
-	 *
-	 * @return xLanguage
-	 * @static
-	 * @access private
-	 */
-	function _languageFromRow($row_object)
-	{
-		return new xLanguage($row_object->name,$row_object->full_name);
-	}
-	
-	
-	/**
-	 * Load an Item type from db.
-	 *
-	 * @return xLanguage
-	 * @static
-	 */
-	function load($name)
-	{
-		$db =& xDB::getDB();
-		$result = $db->query("SELECT * FROM language WHERE name = '%s'",$name);
-		if($row = $db->fetchObject($result))
-		{
-			return xLanguageDAO::_languageFromRow($row);
-		}
-		
-		return NULL;
-	}
-	
-	/**
-	 * Retrieves all language names.
-	 *
-	 * @return array(string)
-	 * @static
-	 */
-	function findNames()
-	{
-		$db =& xDB::getDB();
-		$languages = array();
-		$result = $db->query("SELECT name FROM language");
-		while($row = $db->fetchObject($result))
-		{
-			$languages[] = $row->name;
-		}
-		
-		return $languages;
-	}
-	
-	
-	/**
-	 * Retrieves all item type.
-	 *
-	 * @return array(xItemType)
-	 * @static
-	 */
-	function find()
-	{
-		$languages = array();
-		$result = $db->query("SELECT * FROM language");
-		while($row = $db->fetchObject($result))
-		{
-			$languages[] = xLanguageDAO::_languageFromRow($row);
-		}
-		
-		return $languages;
-	}
-}
 ?>

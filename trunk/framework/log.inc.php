@@ -74,6 +74,7 @@ class xStackTrace
 class xLogEntry
 {
 	var $m_id;
+	var $m_cathegory;
 	var $m_level;
 	var $m_message;
 	var $m_filename;
@@ -84,10 +85,11 @@ class xLogEntry
 	var $m_time;
 	var $m_ip;
 	
-	function xLogEntry($id,$level,$message,$filename,$line,$referer,$url,$time,$ip,$stacktrace = NULL)
+	function xLogEntry($id,$cathegory,$level,$message,$filename,$line,$referer,$url,$time,$ip,$stacktrace = NULL)
 	{
 		$this->m_id = $id;
 		$this->m_level = $level;
+		$this->m_cathegory = $cathegory;
 		$this->m_message = $message;
 		$this->m_filename = $filename;
 		$this->m_line = $line;
@@ -150,6 +152,7 @@ class xLogEntry
 			'<div class = "log-entry screen-log-level-'.xLog::getLevelString($entry->m_level).'">
 			<ul>
 				<li><span class="log-entry-name">ID</span>: <span class="log-entry-value">'.$entry->m_id.'</span></li>
+				<li><span class="log-entry-name">Cathegory</span>: <span class="log-entry-value">'.$entry->m_cathegory.'</span></li>
 				<li><span class="log-entry-name">Level</span>: <span class="log-entry-value">'.$entry->m_level.'</span></li>
 				<li><span class="log-entry-name">Message</span>: <span class="log-entry-value">'.$entry->m_message.'</span></li>
 				<li><span class="log-entry-name">Filename</span>: <span class="log-entry-value">'.$entry->m_filename.'</span></li>
@@ -183,6 +186,11 @@ class xLogEntry
 		$records[$i]["name"] = "level";
 		$records[$i]["type"] = "%d";
 		$records[$i]["value"] = $this->m_level;
+		
+		$i++;
+		$records[$i]["name"] = "cathegory";
+		$records[$i]["type"] = "'%s'";
+		$records[$i]["value"] = $this->m_cathegory;
 		
 		$i++;
 		$records[$i]["name"] = "message";
@@ -248,7 +256,7 @@ class xLogEntry
 		$result = $db->query("SELECT * FROM xanth_log");
 		while($row = $db->fetchObject($result))
 		{
-			$entries[] = new xLogEntry($row->id,$row->level,$row->message,$row->filename,
+			$entries[] = new xLogEntry($row->id,$row->cathegory,$row->level,$row->message,$row->filename,
 				$row->line,unserialize($db->decodeBlob($row->stacktrace)));
 		}
 		return $entries;
@@ -263,6 +271,7 @@ define('LOG_LEVEL_WARNING',8);
 define('LOG_LEVEL_NOTICE',16);
 define('LOG_LEVEL_DEBUG',32);
 
+
 /**
 * The xLog class contains static functions for message and error logging.
 */
@@ -275,6 +284,7 @@ class xLog
 	* if conf variable "display_log" is set to true. If the level is LOG_LEVEL_FATAL_ERROR the
 	* application will die immediately.
 	* 
+	* @param string $cathegory The cathegory of the error
 	* @param int $level One of the predefined level constants
 	* - LOG_LEVEL_FATAL_ERROR
 	* - LOG_LEVEL_ERROR
@@ -286,9 +296,9 @@ class xLog
 	* @param string $line The line where the log was generated (can use the __LINE__ keyword)
 	* @static
 	*/
-	function log($level,$message,$filename = '',$line = 0)
+	function log($cathegory,$level,$message,$filename = '',$line = 0)
 	{
-		$log_entry = new xLogEntry(0,$level,$message,$filename,$line,
+		$log_entry = new xLogEntry(0,$cathegory,$level,$message,$filename,$line,
 			isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '',
 			$_SERVER['REQUEST_URI'],time(),$_SERVER['REMOTE_ADDR'],NULL);
 		
@@ -338,14 +348,12 @@ class xLog
  */
 function xanth_php_error_handler($errno, $message, $filename, $line) 
 {
-	
-	
 	if($errno == E_USER_ERROR)
-		xLog::log(LOG_LEVEL_ERROR,$message, $filename, $line);
+		xLog::log('PHP',LOG_LEVEL_ERROR,$message, $filename, $line);
 	elseif($errno == E_USER_WARNING || $errno == E_WARNING || $errno == E_NOTICE)
-		xLog::log(LOG_LEVEL_WARNING,$message, $filename, $line);
+		xLog::log('PHP',LOG_LEVEL_WARNING,$message, $filename, $line);
 	elseif($errno == E_USER_NOTICE)
-		xLog::log(LOG_LEVEL_NOTICE,$message, $filename, $line);
+		xLog::log('PHP',LOG_LEVEL_NOTICE,$message, $filename, $line);
 }
 
 

@@ -32,10 +32,58 @@ require_once(dirname(__FILE__) . '/utilities.inc.php');
 
 require_once(dirname(__FILE__) . '/dbaccess/db.inc.php');
 require_once(dirname(__FILE__) . '/dbaccess/mysql_db.inc.php');
+require_once(dirname(__FILE__) . '/dbaccess/daomanager.inc.php');
 
 
+/**
+ * 
+ */
 class xXanthin
 {
+	/**
+	 * 
+	 */
+	var $m_module_manager = NULL;
+	
+	/**
+	 * 
+	 */
+	var $m_theme_manager = NULL;
+	
+	/**
+	 * 
+	 */
+	var $m_dao_manager = NULL;
+	
+	/**
+	 * 
+	 */
+	function &getModuleManager()
+	{
+		return $this->m_module_manager;
+	}
+	
+	/**
+	 * 
+	 */
+	function &getThemeManager()
+	{
+		return $this->m_theme_manager;
+	}
+	
+	
+	/**
+	 * 
+	 */
+	function &getInstance()
+	{
+		global $g_xanthin;
+		if(!isset($g_xanthin))
+			$g_xanthin = new xXanthin();
+			
+		return $g_xanthin;
+	}
+	
 	/**
 	 * 
 	 */
@@ -66,7 +114,7 @@ class xXanthin
 		//error handler
 		set_error_handler('xanth_php_error_handler');
 		
-		xModuleManager::invokeAll('xm_initUtilities',array());
+		$this->m_module_manager->invokeAll('xm_initUtilities',array());
 	}
 	
 	/**
@@ -85,8 +133,16 @@ class xXanthin
 	 */
 	function initModules()
 	{
-		xModuleManager::initModules(true,true);
-		xModuleManager::invokeAll('xm_initModules',array());
+		$this->m_module_manager = new xModuleManager('modules','module');
+		$this->m_module_manager->initModules(true,true);
+		$this->m_module_manager->invokeAll('xm_initModules',array());
+		
+		$this->m_dao_manager = new xDAOManager(xConf::get('db_name',''));
+		
+		//set framework daos
+		$this->m_dao_manager->setDAO('modules',new xModuleDAO());
+		
+		$this->m_module_manager->invokeAll('xm_fillDAOManager',array(&$this->m_dao_manager));
 	}
 	
 	
@@ -104,7 +160,7 @@ class xXanthin
 	function finalUtilities()
 	{
 		xNotificationsManager::postProcessing();
-		xModuleManager::invokeAll('xm_finalUtilities',array());
+		$this->m_module_manager->invokeAll('xm_finalUtilities',array());
 		
 		if(xConf::get('debug',false))
 		{
@@ -127,7 +183,7 @@ class xXanthin
 	 */
 	function finalModules()
 	{
-		xModuleManager::invokeAll('xm_finalModules',array());
+		$this->m_module_manager->invokeAll('xm_finalModules',array());
 	}
 	
 	
@@ -138,25 +194,24 @@ class xXanthin
 	{
 		ob_start();
 	
-		xXanthin::initDatabase();
-		xXanthin::initSession();
-		xXanthin::initUtilities();
-		xXanthin::initModules();
+		$this->initDatabase();
+		$this->initSession();
+		$this->initUtilities();
+		$this->initModules();
 		
 		// Setting the Content-Type header with charset
 		header('Content-Type: text/html; charset=utf-8');
 		
 		$path = xPath::getCurrent();
-		xModuleManager::invoke('xm_createPage',array(&$path));
+		$this->m_module_manager->invoke('xm_createPage',array(&$path));
 		
-		xXanthin::finalModules();
-		xXanthin::finalUtilities();
-		xXanthin::finalSession();
-		xXanthin::finalDatabase();
+		$this->finalModules();
+		$this->finalUtilities();
+		$this->finalSession();
+		$this->finalDatabase();
 		
 		ob_end_flush;
 	}
-	
 }
 
 

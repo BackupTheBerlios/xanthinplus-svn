@@ -125,7 +125,7 @@ class xPath
 				return $path;
 			}
 			else
-				xLog::log(LOG_LEVEL_WARNING,'Invalid path',__FILE__,__LINE__);
+				xLog::log('Framework',LOG_LEVEL_WARNING,'Invalid path',__FILE__,__LINE__);
 		}
 
 		$path = new xPath(NULL,NULL,NULL);

@@ -20,7 +20,7 @@
 /**
  * 
  */
-function in_array_by_properties($element,$obj_array,$property_name)
+function x_in_array_by_properties($element,$obj_array,$property_name)
 {
 	$ret = array();
 	foreach($obj_array as $elem)
@@ -34,7 +34,7 @@ function in_array_by_properties($element,$obj_array,$property_name)
 /**
  * 
  */
-function objWeightCompare($a, $b)
+function x_objWeightCompare($a, $b)
 {
     if ($a->m_weight == $b->m_weight) 
         return 0;
@@ -42,6 +42,13 @@ function objWeightCompare($a, $b)
     return ($a->m_weight < $b->m_weight) ? -1 : 1;
 }
 
+/**
+ * 
+ */
+function x_full_path($rel_path)
+{
+	return $_SERVER['DOCUMENT_ROOT'] . xConf::get('install_path','xanthin') . '/' . $rel_path;
+}
 
 /**
  * Parse and extract data from an array wich structure is represented in a string

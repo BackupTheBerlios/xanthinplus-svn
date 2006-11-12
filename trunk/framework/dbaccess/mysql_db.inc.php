@@ -23,14 +23,17 @@
 class xDBMysql extends xDB
 {
 	//! @private
-	var $m_connection;
+	var $m_connection = NULL;
 	
-	// DOCS INHERITHED  ========================================================
-	function xDBMysql()
+	
+	/**
+	 * Constructor
+	 */
+	function __construct()
 	{
-		xDB::xDB();
-		$m_connection = NULL;
+		parent::__construct();
 	}
+	
 	
 	// DOCS INHERITHED  ========================================================
 	function connect($host,$user,$pass,$port = '')
@@ -65,15 +68,7 @@ class xDBMysql extends xDB
 	// DOCS INHERITHED  ========================================================
 	function _query($query)
 	{
-		$result = mysql_query($query,$this->m_connection);
-
-		if($result === FALSE)
-		{
-			trigger_error("(errno: ". $this->errno() .")" . $this->error()."\nquery: ". $query, E_USER_WARNING);
-			return FALSE;
-		}
-		
-		return $result;
+		return mysql_query($query,$this->m_connection);
 	}
 	
 	
