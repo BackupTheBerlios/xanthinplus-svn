@@ -363,207 +363,6 @@ class xDB extends xObject
 		return $result;
 	}
 	
-	
-	/**
-	 * Automatically construct and executes a query from an associative arrays. A transaction is created if
-	 * Inserting/Updating multiple tables.
-	 *
-	 * @param string $action on between 'SELECT','INSERT','UPDATE'.
-	 *
-	 *
-	 * @param array $records An array with this structure :\n
-	 * $params[<table name>][<column_name>]["type"] = a param substituted into the query using printf() syntax (eg. '%s').\n
-	 * $params[<table name>][<column_name>]["connector"] = A boolean connector to select this column (eg. AND/OR)(OPTIONAL).\n
-	 * $params[<table name>][<column_name>]["value"] = The value of the column. If this is NULL in a select query,
-	 * simply this column will be ignored, in a insert/update query it sets the column to null.\n
-	 * $params[<table name>][<column_name>]["comparator"] = A comparator for use with value (eg =,<>,<,>)(OPTIONAL).\n
-	 * $params[<table name>][<column_name>]["join"] = A table.columnname to join this column with (eg. table.column)(OPTIONAL).\n
-	 * \n
-	 * You can add another array $params[<table name>][<column_name>]["value"][] for join,value,connector,comparator 
-	 * to generate a query between round brackets(only valid for where). In this case you can define 
-	 * an outer connector ($params[<table name>][<column_name>]["outer_connector"] = AND/OR).
-	 * @param array $where An array as for $records
-	 * @param string $append
-	 * @deprecated
-	 */
-	function autoQuery($action,$records,$where,$extra_query = '',$extra_values = array(),$debug = false)
-	{
-		$out = '';
-		$values = array();
-		switch($action)
-		{
-			case 'UPDATE':
-			
-				$this->startTransaction();
-				
-				foreach($records as $table_name => $column)
-				{
-					$out_update = '';
-					$out_where = '';
-					
-					$isfirst_update = TRUE;
-					foreach($column as $colname => $param)
-					{
-						if(!$isfirst_update)
-							$out_update .= ',';
-						else
-							$isfirst_update = FALSE;
-						
-						
-						if(isset($param['value']))
-						{
-							$out_update .= $colname . '=' . $param['type'];
-							$values[] = $param['value'];
-						}
-						else
-						{
-							$out_update .= $colname . ' SET NULL ';
-						}
-					}
-					
-					$isfirst_where = TRUE;
-					foreach($where[$table_name] as $colname => $param)
-					{
-						$connector = 'AND';
-						if(isset($param['connector']))
-							$connector = $param['connector'];
-						
-						$comparator = '=';
-						if(isset($param['comparator']))
-							$comparator = $param['comparator'];
-							
-						if(isset($param['value']))
-						{
-							if(!$isfirst_where)
-								$out_where .= ' ' . $connector . ' ';
-							else
-								$isfirst_where = FALSE;
-						
-							$out_where .= $colname . $comparator . $param['type'];
-							$values[] = $param['value'];
-						}
-					}
-					
-					if(!empty($out_where))
-						$out_where = ' WHERE ' . $out_where;
-					
-					$out =  'UPDATE  ' . $table_name . ' SET ' . $out_update . $out_where . ' '. $extra_query;
-					array_merge($values,$extra_values);
-					$this->query($out,$values);
-					
-					if($debug)
-						echo "<br/>Query: $out";
-				}
-				
-				return $this->commitTransaction();
-				
-				
-			case 'INSERT':
-			
-				$this->startTransaction();
-				
-				foreach($records as $table_name => $column)
-				{
-					$out_values = '';
-					$out_bind = '';
-					
-					$isfirst = TRUE;
-					foreach($column as $colname => $param)
-					{
-						if(isset($param['value']))
-						{
-							if(!$isfirst)
-							{
-								$out_values .= ',';
-								$out_bind .= ',';
-							}
-							else
-							{
-								$isfirst = FALSE;
-							}
-							
-							$out_bind .= $colname;
-							$out_values .= $param['type'];
-							$values[] = $param['value'];
-						}
-					}
-					
-					$out =  'INSERT INTO  ' . $table_name . ' (' .$out_bind  . ') VALUES (' .$out_values . ') ' . $extra_query;
-					array_merge($values,$extra_values);
-					$this->query($out,$values);
-					
-					if($debug)
-						var_dump($out);
-				}
-				
-				return $this->commitTransaction();
-		
-			case 'SELECT':
-				$out_select = 'SELECT * FROM ';
-				$out_where = '';
-				
-				$isfirst_select = TRUE;
-				$isfirst_where = TRUE;
-				foreach($where as $table_name => $column)
-				{
-					if(!$isfirst_select)
-						$out_select .= ',';
-					else
-						$isfirst_select = FALSE;
-					
-					$out_select .= $table_name;
-					
-					$connector = 'AND';
-					if(isset($param['connector']))
-						$connector = $param['connector'];
-					
-					$comparator = '=';
-					if(isset($param['comparator']))
-						$comparator = $param['comparator'];
-							
-					//set column value
-					if(isset($param['value']))
-					{
-						if(!$isfirst_where)
-							$out_where .= ' ' . $connector . ' ';
-						else
-							$isfirst_where = FALSE;
-						
-						$out_where .= $table_name . '.' . $colname . $comparator . $param['type'];
-						$values[] = $param['value'];
-					}
-					
-					//now join
-					if(isset($param['join']))
-					{
-						foreach($param['join'] as $join)
-						{
-							if(!$isfirst)
-								$out_where .= ' ' . $connector . ' ';
-							else
-								$isfirst_where = false;
-							
-							$out_where .= $table_name . '.' . $colname . $comparator . $join;
-						}
-					}
-				}
-				if(!empty($out_where))
-					$out = $out_select . ' WHERE ' . $out_where;
-				else
-					$out = $out_select;
-					
-				$out .=  ' ' . $extra_query;
-				array_merge($values,$extra_values);
-				if($debug)
-					var_dump($out);
-				return $this->query($out,$values);
-				
-			default: 
-				assert(FALSE);
-		}
-		
-		
-	}
 
 	/**
 	 * @access private
@@ -663,12 +462,10 @@ class xDB extends xObject
 	}
 	
 	
-	
-	
 	/**
 	 * 
-	 * @param string $columns The columns to select.
-	 * @param string $tables The tables to select colums from
+	 * @param array $columns The columns to select.
+	 * @param array $tables The tables to select colums from
 	 * @param array $where An array so structured: <br>
 	 * <code>
 	 * $where[0]["clause"] = "table.column = '%s'"; 
@@ -702,7 +499,7 @@ class xDB extends xObject
 		$out_order = $this->_generateOrderClause($order,$values);
 		$out_limit = $this->_generateLimitClause($limit,$values);
 		
-		$query = 'SELECT '.$columns.' FROM '.$tables.$out_where.$out_order.$out_limit;
+		$query = 'SELECT '.implode(',',$columns).' FROM '.implode(',',$tables).$out_where.$out_order.$out_limit;
 		
 		if($debug)
 		{

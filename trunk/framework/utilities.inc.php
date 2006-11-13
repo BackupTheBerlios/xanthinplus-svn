@@ -50,6 +50,8 @@ function x_full_path($rel_path)
 	return $_SERVER['DOCUMENT_ROOT'] . xConf::get('install_path','xanthin') . '/' . $rel_path;
 }
 
+
+
 /**
  * Parse and extract data from an array wich structure is represented in a string
  */

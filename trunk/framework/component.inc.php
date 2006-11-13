@@ -21,21 +21,55 @@ define('X_CM_SUCCESS',1);
 define('X_CM_BYPASS',3);
 
 
+define('X_COMPONENT_NOT_INITIALIZED',0);
+define('X_COMPONENT_INIT_FAILED',1);
+define('X_COMPONENT_PREPROCESS_FAILED',2);
+define('X_COMPONENT_AUTHORIZE_FAILED',3);
+define('X_COMPONENT_PROCESS_FAILED',4);
+define('X_COMPONENT_FILTER_FAILED',5);
+
+define('X_COMPONENT_INITIALIZED',10);
+define('X_COMPONENT_PREPROCESSED',11);
+define('X_COMPONENT_AUTHORIZED',12);
+define('X_COMPONENT_PROCESSED',13);
+define('X_COMPONENT_FILTERED',14);
+
+
+
+/**
+ * Represent a component in a form ready to be rendered.
+ */
+class xVisualComponent extends xObject
+{
+	function __construct()
+	{
+		parent::__construct();
+	}
+	
+	/**
+	 * 
+	 */
+	function render()
+	{
+	}
+}
+
+
 /**
  * A component is a part of a web document. A component is composed by one or more
- * managers, the contents and behaviour of a component is defined by such managers. 
+ * extensions, the contents and behaviour of a component is defined by such extensions. 
  */
 class xComponent extends xObject
-{
-	/**
-	 * @var array
-	 */
-	var $m_managers = array();
-	
+{	
 	/**
 	 * @var string
 	 */
-	var $m_type = 'default';
+	var $m_state = X_COMPONENT_NOT_INITIALIZED;
+	
+	/**
+	 * @var xVisualComponent
+	 */
+	var $m_visual_component = NULL;
 	
 	
 	/**
@@ -47,13 +81,16 @@ class xComponent extends xObject
 		$this->m_type = $type;
 	}
 	
+	
 	/**
-	 * Insert this component into db.
+	 * Insert this component into db. All operations are wrapped in a transaction.
 	 * 
 	 * @return bool
 	 */
 	function insert()
-	{}
+	{
+	}
+	
 	
 	/**
 	 * Delete this component from db
@@ -61,7 +98,8 @@ class xComponent extends xObject
 	 * @return bool
 	 */
 	function delete()
-	{}
+	{
+	}
 	
 	/**
 	 * Update this component into db
@@ -69,39 +107,36 @@ class xComponent extends xObject
 	 * @return bool
 	 */
 	function update()
-	{}
+	{
+
+	}
+	
 	
 	/**
 	 * Finds components
-	 * 
-	 * @param string $type The type of the component
-	 * @param array $properties An array structured in this manner
-	 * <code>
-	 * array(
-	 * [property name] => [property value]
-	 * )
-	 * </code>
 	 * @return array An array containing the elements found
 	 */
-	function find($type,$properties)
-	{}
-	
+	function find()
+	{
+
+	}
 	
 	/**
-	 * Preprocess this component
-	 * 
+	 * Init this component
+	 *
 	 * @return mixed True on success, an xError object on error
 	 */
-	function preprocess()
-	{}
+	function init()
+	{
+	}
 	
 	
 	/**
-	 * Check permissions for this components
+	 * Check authorization for this components
 	 * 
 	 * @return bool True if the access is permitted
 	 */
-	function permissions()
+	function authorize()
 	{}
 	
 	
@@ -143,119 +178,6 @@ class xComponent extends xObject
 	{}
 }
 
-//###########################################################################
-//###########################################################################
-//###########################################################################
-
-
-/**
- * Represent the object that manage a component.
- */
-class xComponentManager extends xObject
-{
-	/**
-	 * @var int
-	 */
-	var $m_priority;
-	
-	
-	/**
-	 * {@inheritdoc}
-	 */
-	function __construct()
-	{
-		parent::__construct();
-	}
-	
-	/**
-	 * Insert given component into db.
-	 * 
-	 * @return bool
-	 */
-	function insert(&$component)
-	{}
-	
-	/**
-	 * Delete given component from db
-	 * 
-	 * @return bool
-	 */
-	function delete(&$component)
-	{}
-	
-	/**
-	 * Update given component into db
-	 * 
-	 * @return bool
-	 */
-	function update(&$component)
-	{}
-	
-	/**
-	 * Finds components
-	 * 
-	 * @param string $type The type of the component
-	 * @param array $properties An array structured in this manner
-	 * <code>
-	 * array(
-	 * [property name] => [property value]
-	 * )
-	 * </code>
-	 * @return array An array containing the elements found
-	 */
-	function find(&$component,$properties)
-	{}
-	
-	
-	/**
-	 * 
-	 * @return NULL
-	 */
-	function componentFromRow(&$component,$row)
-	{}
-	
-	
-	/**
-	 * Preprocess given component
-	 * 
-	 * @return mixed X_CM_SUCCESS on success,X_CM_BYPASS if this manager must bypass others, 
-	 * an xError object on error
-	 */
-	function preprocess(&$component)
-	{}
-	
-	
-	/**
-	 * Check permissions for given component
-	 * 
-	 * @return mixed X_CM_SUCCESS on success,X_CM_BYPASS if this manager must bypass others.
-	 */
-	function permissions(&$component)
-	{}
-	
-	
-	/**
-	 * Crete and process contents for this component
-	 * 
-	 * @return mixed X_CM_SUCCESS on success,X_CM_BYPASS if this manager must bypass others, 
-	 * an xError object on error
-	 */
-	function process(&$component)
-	{}
-	
-	
-	/**
-	 * Create a copy of this object and filters its contents before rendering. 
-	 * This function creates a copy of the object in $this->m_filtered, becouse after
-	 * processing its contents, they are usually non consistent with the original object logic.
-	 * 
-	 * @return mixed X_CM_SUCCESS on success,X_CM_BYPASS if this manager must bypass others, 
-	 * an xError object on error
-	 */
-	function filter(&$filtered_component)
-	{}
-}
-
 
 //###########################################################################
 //###########################################################################
@@ -265,7 +187,7 @@ class xComponentManager extends xObject
 /**
  * Represent the whole document. Implements singletone pattern 
  */
-class xDocument extends xObject
+class xDocument extends xComponent
 {
 	/**
 	 * {@inheritdoc}

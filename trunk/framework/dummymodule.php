@@ -91,6 +91,29 @@ class xDummyModule extends xModule
 	function xm_DAO(&$db)
 	{
 	}
+	
+	
+	/**
+	 * Called on component init, returns a component extension or null
+	 * <br> Called with xModuleManager::invokeAll();
+	 * 
+	 * @return xComponentExtension
+	 */
+	function xm_componentExtensions(&$component)
+	{
+	}
+	
+	
+	/**
+	 * Called on component init, returns a list of extension to block in the provided
+	 * component
+	 * <br> Called with xModuleManager::invokeAll();
+	 * 
+	 * @return string
+	 */
+	function xm_componentBlockedExtensions(&$component)
+	{
+	}
 }
 
 

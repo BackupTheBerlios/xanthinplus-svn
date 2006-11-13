@@ -77,7 +77,41 @@ class xObject
 	{
 		return $this->$property;
 	}
+	
+	
+	/**
+	 * @return bool
+	 */
+	function isA($class_name)
+	{
+		return xanth_instanceof($this,$class_name);
+	}
+	
+	
+	/**
+	 * @return bool
+	 */
+	function equals(&$object)
+	{
+		if(is_object($object) && (serialize($this) == serialize($object)))
+			return TRUE;
+		else
+			return FALSE;
+	}
+	
+	
+	/**
+	 * @return string
+	 */
+	function __toString() 
+	{
+		ob_start();
+		var_dump($this);
+		return ob_get_clean();
+	}
 }
+
+
 
 /**
  * Permits interaction with configuration variables.

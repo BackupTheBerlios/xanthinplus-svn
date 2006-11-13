@@ -32,7 +32,7 @@ require_once(dirname(__FILE__) . '/utilities.inc.php');
 
 require_once(dirname(__FILE__) . '/dbaccess/db.inc.php');
 require_once(dirname(__FILE__) . '/dbaccess/mysql_db.inc.php');
-require_once(dirname(__FILE__) . '/dbaccess/daomanager.inc.php');
+require_once(dirname(__FILE__) . '/dbaccess/dao.inc.php');
 
 
 /**
@@ -44,11 +44,6 @@ class xXanthin
 	 * 
 	 */
 	var $m_module_manager = NULL;
-	
-	/**
-	 * 
-	 */
-	var $m_theme_manager = NULL;
 	
 	/**
 	 * 
@@ -66,9 +61,9 @@ class xXanthin
 	/**
 	 * 
 	 */
-	function &getThemeManager()
+	function &getDAOManager()
 	{
-		return $this->m_theme_manager;
+		return $this->m_dao_manager;
 	}
 	
 	
@@ -137,10 +132,13 @@ class xXanthin
 		$this->m_module_manager->initModules(true,true);
 		$this->m_module_manager->invokeAll('xm_initModules',array());
 		
-		$this->m_dao_manager = new xDAOManager(xConf::get('db_name',''));
-		
-		//set framework daos
-		$this->m_dao_manager->setDAO('modules',new xModuleDAO());
+		if(xConf::get('db_name','') == 'mysql')
+		{
+			$this->m_dao_manager = new xDAOManagerMysql();
+			
+			//set framework daos
+			$this->m_dao_manager->setDAO('modules',new xModuleDAO());
+		}
 		
 		$this->m_module_manager->invokeAll('xm_fillDAOManager',array(&$this->m_dao_manager));
 	}
