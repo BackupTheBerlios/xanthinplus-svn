@@ -50,18 +50,7 @@ class xDummyModule extends xModule
 	function xm_initModules()
 	{
 	}
-	
-	
-	/**
-	 * This method is called after module load and init.
-	 * <br> Called with xModuleManager::invokeAll();
-	 * 
-	 * @return NULL
-	 */
-	function xm_initUtilities()
-	{
-	}
-	
+
 	
 	/**
 	 * This method is called to finalize all modules.
@@ -75,20 +64,9 @@ class xDummyModule extends xModule
 	
 	
 	/**
-	 * This method is called to finalize all utilities.
-	 * <br> Called with xModuleManager::invokeAll();
-	 * 
-	 * @return NULL
+	 * Return the specified dao for the specified db type.
 	 */
-	function xm_finalUtilities()
-	{
-	}
-	
-	
-	/**
-	 * Sets daos for a db. $db->m_daos['[dao name]'] = new DAO();
-	 */
-	function xm_DAO(&$db)
+	function xm_fetchDAO($db_type,$name)
 	{
 	}
 	

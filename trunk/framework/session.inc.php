@@ -47,7 +47,7 @@ function on_session_write($key, $val)
 {
 	$db =& xDB::getDB();
 	
-	$result =  $db->query("SELECT * FROM sessions WHERE session_id ='%s'",$key);
+	$result =  $db->query("SELECT session_id FROM sessions WHERE session_id ='%s'",$key);
 	if(! $db->fetchArray($result))
 	{
 		 $db->query("INSERT INTO sessions(session_id,session_data,session_timestamp) VALUES('%s','%s',NOW())",$key,$val);

@@ -17,10 +17,11 @@
 
 error_reporting(E_ALL);
 require_once('conf.inc.php');
-require_once('framework/xanthin.inc.php');
+require_once('framework/application.inc.php');
 
 
-xanth_install_main();
+$app =& xApplication::getInstance();
+$app->install();
 
 
 ?>

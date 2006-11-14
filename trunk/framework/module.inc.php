@@ -40,7 +40,7 @@ class xModuleDTO
  * See xDummyModule for a list of methods you can implement to respond to various events/request.
  * @package modules
  */
-class xModule
+class xModule extends xObject
 {
 	/**
 	 * @var int
@@ -67,7 +67,7 @@ class xModule
 	 * Modules with higher weights are processed after. Weights between 1000 and -1000 are 
 	 * reserved for xanthin default modules.
 	 */
-	function xModule($weight,$description,$authors,$version)
+	function __construct($weight,$description,$authors,$version)
 	{
 		$this->m_weight = $weight;
 		$this->m_description = $description;
@@ -83,91 +83,114 @@ class xModule
 /**
  * @package modules
  */
-class xModuleManager
+class xModuleManager extends xObject
 {
 	var $m_modules = array();
-	
-	var $m_search_dir = '';
-	
-	var $m_suffix = '';
-	
-	var $m_full_search_dir = '';
 	
 	/**
 	 * 
 	 * @param string $search_dir The directory to search for modules
 	 * @param string $suffix The suffix of the module file (eg. modulename.[suffix].php)
 	 */
-	function xModuleManager($search_dir, $suffix)
+	function __construct()
 	{
-		$this->m_search_dir = $search_dir;
-		$this->m_suffix = $suffix;
-		$this->m_full_search_dir = x_full_path($search_dir); 
 	}
 	
 	/**
 	 * @param string $search_dir The relative path to search
-	 * @return array An array of strings representing modules full paths
+	 * @return array An array of strings representing modules relative paths
+	 * @static
 	 */
-	function findAllModules()
+	function findAllModules($search_dir,$suffix)
 	{
-		if($handle = opendir($this->m_full_search_dir)) 
+		$full_search_dir = x_full_path($search_dir);
+		$ret = array();
+		if($handle = opendir($full_search_dir)) 
 		{
-			$ret = array();
 			while(false !== ($file = readdir($handle))) 
 			{
 				if($file != "." && $file != "..")
 				{
-					$mod_file = $this->m_full_search_dir .'/'. $file . '/'.$file.'.'.$this->m_suffix.'.php';
-					if(is_file($mod_file))
+					//search for spare file module
+					$mod_file = $search_dir .'/'.$file.'.'.$suffix.'.php';
+					if(is_file($mod_file))  
+					{
 						$ret[] = $mod_file;
+					}
+					//search for file module inside directories
+					else			
+					{
+						$mod_file = $search_dir .'/'. $file . '/'.$file.'.'.$suffix.'.php';
+						if(is_file($mod_file))
+							$ret[] = $mod_file;
+					}
 				}
 			}
 			closedir($handle);
 		}
 		else
 			xLog::log('Framework',LOG_LEVEL_ERROR,'Invalid search directory for modules. Dump: '.
-				var_export($this->m_full_search_dir,true),__FILE__,__LINE__);
+				var_export($full_search_dir,true),__FILE__,__LINE__);
+				
+		return $ret;
 	}
 	
 	
 	/**
+	 * @todo Resolv dao
 	 * @static
 	 */
-	function includeModule($name)
-	{
-		include_once($this->m_full_search_dir . '/' . $name . '/' . $name . '.'.$this->m_suffix.'.php');
-	}
-	
-	
-	/**
-	 * @static
-	 */
-	function initModules($enabled,$installed)
+	function initModules($search_dir,$suffix,$enabled,$installed,$additionalModules = array())
 	{
 		if($enabled || $installed)
 		{
-			$modules = xModuleDAO::find(NULL,$enabled,$installed);
-			usort($modules,'x_objWeightCompare');
-			foreach($modules as $module)
+			$modules = array();
+			$dao =& x_getDAO('module');
+			$dtos = $dao->find(NULL,$enabled,$installed);
+			foreach($dtos as $dto)
+				$modules[] = $dto->m_path;
+		}
+		else
+			$modules = xModuleManager::findAllModules($search_dir,$suffix);
+		
+		foreach($modules as $module)
+		{
+			if(strpos($module->m_path,$this->m_search_dir) === 0)
 			{
-				if(basename($module->m_path) == $this->m_search_dir)
+				if(is_file($module->m_path))
 				{
-					$name = basename($module->m_path);
-					$mod_file = x_full_path($module->m_path) . '/' . $name .
-						'.' . $this->m_suffix.'.php';
-					if(is_file($mod_file))
-					{
-						include_once($mod_file);
-						$mod = call_user_func('xm_load_' . $name);
-						
-						if(xanth_instanceof($mod,'xModule'))
-							$this->m_modules = $mod;
-					}
+					$name = basename($module->m_path,'.'.$suffix.'.php');
+					include_once($module->m_path);
+					$mod = call_user_func('xm_load_' . $name);
+					
+					if(xanth_instanceof($mod,'xModule'))
+						$this->m_modules[] = $mod;
 				}
 			}
 		}
+		
+		$this->m_modules = array_merge($this->m_modules,$additionalModules);
+		$this->sort();
 	}
+	
+	
+	/**
+	 * 
+	 */
+	function sort()
+	{
+		usort($this->m_modules,'x_objWeightCompare');
+	}
+	
+	/**
+	 * 
+	 */
+	function merge($other_module_manager)
+	{
+		$this->m_modules = array_merge($this->m_modules,$other_module_manager->m_modules);
+		$this->sort();
+	}
+	
 	
 	/**
 	 * Make a method call to all modules until a not-NULL result is returned.
@@ -192,6 +215,8 @@ class xModuleManager
 		return NULL;
 	}
 	
+	
+
 	
 	/**
 	 * Make a method call to all modules.
@@ -227,12 +252,16 @@ class xModuleManager
 /**
  * A set of results
  */
-class xResultSet
+class xResultSet extends xObject
 {
 	var $m_results;
 	
-	function xResultSet($results = array())
+	/**
+	 * 
+	 */
+	function __construct($results = array())
 	{
+		parent::__construct();
 		$this->m_results = $results;
 	}
 	

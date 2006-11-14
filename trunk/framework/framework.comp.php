@@ -17,20 +17,41 @@
 
 
 /**
-* An object for installing the core cms database.
-*/
-class xInstallCMS
+ * The component to manage xanthin framework.
+ * <br><strong>Weight = 0</strong>
+ */
+class xFrameworkComponent extends xModule
 {
-	function xModuleInstallCMS()
+	/**
+	 * 
+	 */
+	function __construct()
 	{
-		//not instantiable
-		assert(FALSE);
+		parent::__construct(0,'Manager framework function','Mario Casciaro','alpha');
 	}
 	
+	
+	
 	/**
-	* Installs the cms in a Mysql db
-	*/
-	function installDBMySql()
+	 * {@inheritdoc}
+	 */
+	function xm_fetchDAO($db_type,$name)
+	{
+		if($db_type == 'mysql')
+		{
+			switch($name)
+			{
+				case 'module':
+					return new xModuleDAO();	
+			}	
+		}	
+	}
+	
+	
+	/**
+	 * {@inheritdoc}
+	 */
+	function xm_install()
 	{
 		$db =& xDB::getDB();
 		
@@ -90,53 +111,7 @@ class xInstallCMS
 			PRIMARY KEY (name)
 			)TYPE=InnoDB DEFAULT CHARACTER SET utf8"
 		);
-		
-		global $xanth_working_dir;
-		
-		$mod = new xModuleDTO('modules/cms_base',true,true);
-		xModuleDAO::update($mod);
 	}
-};
-
-
-/**
-*
-*/
-function xanth_install_main()
-{
-	//select DB
-	if(xConf::get('db_type','mysql') == 'mysql')
-	{
-		$db = new xDBMysql();
-		$db->connect(xConf::get('db_host',''),xConf::get('db_user',''),xConf::get('db_pass',''),xConf::get('db_port',''));
-		xDB::setDB($db);
-		
-		$name = xConf::get('db_name','');
-		$db->query("DROP DATABASE $name");
-		$db->query("CREATE DATABASE $name");
-		
-		$db->selectDB($name);
-	}
-	else
-	{
-		exit('Unknown database type');
-	}
-	
-	//error handler
-	set_error_handler('xanth_php_error_handler');
-	
-	//install cms
-	xInstallCMS::installDBMySql();
-	
-	//modules
-	xModuleManager::initModules(true,true);
-	xModuleManager::invokeAll('xm_install',$name = xConf::get('db_name',''));
-	
-	//print log
-	echo xLogEntry::renderFromScreen();
-	
-	echo "Xanthin Successfully installed";
 }
-
 
 ?>

@@ -20,16 +20,13 @@
 define('X_CM_SUCCESS',1);
 define('X_CM_BYPASS',3);
 
-
 define('X_COMPONENT_NOT_INITIALIZED',0);
 define('X_COMPONENT_INIT_FAILED',1);
-define('X_COMPONENT_PREPROCESS_FAILED',2);
-define('X_COMPONENT_AUTHORIZE_FAILED',3);
-define('X_COMPONENT_PROCESS_FAILED',4);
-define('X_COMPONENT_FILTER_FAILED',5);
+define('X_COMPONENT_AUTHORIZE_FAILED',2);
+define('X_COMPONENT_PROCESS_FAILED',3);
+define('X_COMPONENT_FILTER_FAILED',4);
 
 define('X_COMPONENT_INITIALIZED',10);
-define('X_COMPONENT_PREPROCESSED',11);
 define('X_COMPONENT_AUTHORIZED',12);
 define('X_COMPONENT_PROCESSED',13);
 define('X_COMPONENT_FILTERED',14);
@@ -39,7 +36,7 @@ define('X_COMPONENT_FILTERED',14);
 /**
  * Represent a component in a form ready to be rendered.
  */
-class xVisualComponent extends xObject
+class xComponentView extends xObject
 {
 	function __construct()
 	{
@@ -47,9 +44,16 @@ class xVisualComponent extends xObject
 	}
 	
 	/**
+	 * @return mixed True on success, an xError object on error
+	 */
+	function filter()
+	{}
+	
+	
+	/**
 	 * 
 	 */
-	function render()
+	function display()
 	{
 	}
 }
@@ -59,7 +63,7 @@ class xVisualComponent extends xObject
  * A component is a part of a web document. A component is composed by one or more
  * extensions, the contents and behaviour of a component is defined by such extensions. 
  */
-class xComponent extends xObject
+class xComponentController extends xObject
 {	
 	/**
 	 * @var string
@@ -75,107 +79,81 @@ class xComponent extends xObject
 	/**
 	 * {@inheritdoc}
 	 */
-	function __construct($type)
+	function __construct()
 	{
 		parent::__construct();
-		$this->m_type = $type;
-	}
-	
-	
-	/**
-	 * Insert this component into db. All operations are wrapped in a transaction.
-	 * 
-	 * @return bool
-	 */
-	function insert()
-	{
-	}
-	
-	
-	/**
-	 * Delete this component from db
-	 * 
-	 * @return bool
-	 */
-	function delete()
-	{
-	}
-	
-	/**
-	 * Update this component into db
-	 * 
-	 * @return bool
-	 */
-	function update()
-	{
-
-	}
-	
-	
-	/**
-	 * Finds components
-	 * @return array An array containing the elements found
-	 */
-	function find()
-	{
-
 	}
 	
 	/**
 	 * Init this component
-	 *
+	 * 
+	 * @access private
 	 * @return mixed True on success, an xError object on error
 	 */
-	function init()
-	{
-	}
+	function _init()
+	{}
 	
 	
 	/**
 	 * Check authorization for this components
 	 * 
+	 * @access private
 	 * @return bool True if the access is permitted
 	 */
-	function authorize()
+	function _authorize()
 	{}
 	
 	
 	/**
 	 * Crete and process contents for this component
 	 * 
+	 * @access private
+	 * @return mixed True on success, an xError object on error
+	 */
+	function _process()
+	{}
+	
+	/**
+	 * Executes _init(),_authorize(),_process().
+	 * 
 	 * @return mixed True on success, an xError object on error
 	 */
 	function process()
 	{}
-	
-	
+}
+
+
+
+/**
+ * 
+ */
+class xContentView extends xComponentController
+{
 	/**
-	 * Create a copy of this object and filters its contents before rendering. 
-	 * This function creates a copy of the object in $this->m_filtered, becouse after
-	 * processing its contents, they are usually non consistent with the original object logic.
-	 * 
-	 * @return mixed True on success, an xError object on error
+	 * {@inheritdoc}
 	 */
-	function filter()
-	{}
-	
-	
+	function __construct()
+	{
+		parent::__construct();
+	}
+}
+
+
+
+/**
+ * Represent the controller for the main page content.
+ */
+class xContentController extends xComponentController
+{	
 	/**
-	 * Preprocess this component
-	 * 
-	 * @return string
+	 * {@inheritdoc}
 	 */
-	function render()
-	{}
+	function __construct()
+	{
+		parent::__construct();
+	}
 	
 	
-	/**
-	 * Executes preprocess(),permissions(), process(),filter().
-	 * 
-	 * @return mixed True on success, an xError object on error
-	 */
-	function autoProcess()
-	{}
 }
 
 
@@ -187,14 +165,17 @@ class xComponent extends xObject
 /**
  * Represent the whole document. Implements singletone pattern 
  */
-class xDocument extends xComponent
+class xDocument extends xComponentController
 {
+	var $m_used_components;
+	
 	/**
 	 * {@inheritdoc}
 	 */
 	function __construct()
 	{
 		parent::__construct();
+		
 	}
 }
 

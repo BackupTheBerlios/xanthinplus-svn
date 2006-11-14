@@ -530,6 +530,7 @@ class xDB extends xObject
 		$first = true;
 		$out_columns = '';
 		$out_values = '';
+		
 		foreach($records as $record)
 		{
 			$type = $record['type'];

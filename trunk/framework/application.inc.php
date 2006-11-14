@@ -17,33 +17,38 @@
 
 require_once(dirname(__FILE__) . '/base.inc.php');
 require_once(dirname(__FILE__) . '/error.inc.php');
-require_once(dirname(__FILE__) . '/widget.inc.php');
-require_once(dirname(__FILE__) . '/install.inc.php');
+require_once(dirname(__FILE__) . '/component.inc.php');
 require_once(dirname(__FILE__) . '/log.inc.php');
-require_once(dirname(__FILE__) . '/language.inc.php');
 require_once(dirname(__FILE__) . '/module.inc.php');
 require_once(dirname(__FILE__) . '/framework.dao.php');
 require_once(dirname(__FILE__) . '/path.inc.php');
 require_once(dirname(__FILE__) . '/session.inc.php');
 require_once(dirname(__FILE__) . '/headermanager.inc.php');
-require_once(dirname(__FILE__) . '/notifications.inc.php');
 require_once(dirname(__FILE__) . '/utf8.inc.php');
 require_once(dirname(__FILE__) . '/utilities.inc.php');
+require_once(dirname(__FILE__) . '/template.inc.php');
+require_once(dirname(__FILE__) . '/framework.comp.php');
 
 require_once(dirname(__FILE__) . '/dbaccess/db.inc.php');
 require_once(dirname(__FILE__) . '/dbaccess/mysql_db.inc.php');
-require_once(dirname(__FILE__) . '/dbaccess/dao.inc.php');
+require_once(dirname(__FILE__) . '/dbaccess/daomanager.inc.php');
 
 
 /**
  * 
  */
-class xXanthin
+class xApplication
 {
 	/**
 	 * 
 	 */
 	var $m_module_manager = NULL;
+	
+	/**
+	 * 
+	 */
+	var $m_theme_manager = NULL;
+	
 	
 	/**
 	 * 
@@ -66,6 +71,14 @@ class xXanthin
 		return $this->m_dao_manager;
 	}
 	
+	/**
+	 * 
+	 */
+	function &getThemeManager()
+	{
+		return $this->m_theme_manager;
+	}
+	
 	
 	/**
 	 * 
@@ -74,7 +87,7 @@ class xXanthin
 	{
 		global $g_xanthin;
 		if(!isset($g_xanthin))
-			$g_xanthin = new xXanthin();
+			$g_xanthin = new xApplication();
 			
 		return $g_xanthin;
 	}
@@ -101,20 +114,6 @@ class xXanthin
 	/**
 	 * 
 	 */
-	function initUtilities()
-	{
-		xTimer::start('script_execution_time');
-		xanth_fix_gpc_magic();
-		
-		//error handler
-		set_error_handler('xanth_php_error_handler');
-		
-		$this->m_module_manager->invokeAll('xm_initUtilities',array());
-	}
-	
-	/**
-	 * 
-	 */
 	function initSession()
 	{
 		//session
@@ -125,23 +124,35 @@ class xXanthin
 	
 	/**
 	 * 
+	 * @todo Migliorare le prestazioni per il fetch dei componenti
 	 */
 	function initModules()
 	{
-		$this->m_module_manager = new xModuleManager('modules','module');
-		$this->m_module_manager->initModules(true,true);
-		$this->m_module_manager->invokeAll('xm_initModules',array());
+		$this->m_module_manager = new xModuleManager();
+		$this->m_module_manager->initModules('engine','comp',false,false,array(new xFrameworkComponent()));
 		
-		if(xConf::get('db_name','') == 'mysql')
-		{
-			$this->m_dao_manager = new xDAOManagerMysql();
+		if(xConf::get('db_type','mysql') == 'mysql')
+			$this->m_dao_manager = new xDAOManager(xConf::get('db_type','mysql'));
 			
-			//set framework daos
-			$this->m_dao_manager->setDAO('modules',new xModuleDAO());
-		}
+		$comp = new xModuleManager();
+		$comp->initModules('extensions','ext',true,true);
 		
-		$this->m_module_manager->invokeAll('xm_fillDAOManager',array(&$this->m_dao_manager));
+		$this->m_module_manager->merge($comp);
+		$this->m_module_manager->invokeAll('xm_initModules',array());
 	}
+	
+	
+	/**
+	 * 
+	 */
+	function initUtilities()
+	{
+		
+		
+		$this->m_module_manager->invokeAll('xm_initUtilities',array());
+	}
+	
+
 	
 	
 	/**
@@ -149,23 +160,6 @@ class xXanthin
 	 */
 	function finalDatabase()
 	{
-	}
-	
-	
-	/**
-	 * 
-	 */
-	function finalUtilities()
-	{
-		xNotificationsManager::postProcessing();
-		$this->m_module_manager->invokeAll('xm_finalUtilities',array());
-		
-		if(xConf::get('debug',false))
-		{
-			$db =& xDB::getDB(); 
-			echo '<br><br><br>Execution Time: ' . xTimer::stop('script_execution_time').' Queries: '. var_export($db->dumpGet(),true);
-			echo xLogEntry::renderFromScreen();
-		}
 	}
 	
 	/**
@@ -190,12 +184,17 @@ class xXanthin
 	 */
 	function main()
 	{
+		xTimer::start('script_execution_time');
+		
 		ob_start();
 	
 		$this->initDatabase();
 		$this->initSession();
-		$this->initUtilities();
 		$this->initModules();
+		
+		xanth_fix_gpc_magic();
+		//error handler
+		set_error_handler('xanth_php_error_handler');
 		
 		// Setting the Content-Type header with charset
 		header('Content-Type: text/html; charset=utf-8');
@@ -204,35 +203,94 @@ class xXanthin
 		$this->m_module_manager->invoke('xm_createPage',array(&$path));
 		
 		$this->finalModules();
-		$this->finalUtilities();
 		$this->finalSession();
 		$this->finalDatabase();
 		
-		ob_end_flush;
+		ob_end_flush();
+		
+		if(xConf::get('debug',false))
+		{
+			$db =& xDB::getDB(); 
+			echo '<br><br><br>Execution Time: ' . xTimer::stop('script_execution_time').' Queries: '. var_export($db->dumpGet(),true);
+			xLogEntry::renderFromScreen();
+		}
+	}
+	
+	
+	
+	/**
+	 *
+	 */
+	function install()
+	{
+		ob_start();
+		//select DB
+		if(xConf::get('db_type','mysql') == 'mysql')
+		{
+			$db = new xDBMysql();
+			$db->connect(xConf::get('db_host',''),xConf::get('db_user',''),xConf::get('db_pass',''),xConf::get('db_port',''));
+			xDB::setDB($db);
+			
+			$name = xConf::get('db_name','');
+			$db->query("DROP DATABASE $name");
+			$db->query("CREATE DATABASE $name");
+			
+			$db->selectDB($name);
+		}
+		else
+		{
+			exit('Unknown database type');
+		}
+		
+		//error handler
+		set_error_handler('xanth_php_error_handler');
+		
+		
+		$comp = new xModuleManager();
+		$comp->initModules('engine','comp',false,false,array(new xFrameworkComponent()));
+		$comp->invokeAll('xm_install',array($name = xConf::get('db_name','')));
+		
+		$comp = new xModuleManager();
+		$comp->initModules('extensions','ext',true,true);
+		$comp->invokeAll('xm_install',array($name = xConf::get('db_name','')));
+		
+		//print log
+		echo xLogEntry::renderFromScreen();
+		
+		echo "Xanthin Successfully installed";
+		ob_end_flush();
 	}
 }
-
-
-
-//###########################################################################
-//###########################################################################
-//###########################################################################
 
 
 /**
- * Module to manage basic fucntionalities.
- * <br><strong>Weight = -900</strong>.
+ * Wrapper
  */
- 
-/*
-class xModuleXanthin extends xModule
+function &x_getDAO($name)
 {
-	function xModuleXanthin()
-	{
-		$this->xModule(-900);
-	}
+	$app =& xApplication::getInstance();
+	$dao_m =& $app->getDAOManager();
+	return $dao_m->getDAO($name);
 }
-xModuleManager::registerModule(new xModuleXanthin());
-*/
+
+
+/**
+ * Wrapper
+ */
+function &x_getModuleManager()
+{
+	$app =& xApplication::getInstance();
+	return $app->getModuleManager();
+}
+
+
+/**
+ * Wrapper
+ */
+function &x_geThemeManager()
+{
+	$app =& xApplication::getInstance();
+	return $app->getThemeManager();
+}
 
 ?>

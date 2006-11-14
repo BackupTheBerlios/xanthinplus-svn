@@ -90,7 +90,7 @@ class xModuleDAO extends xObject
 		$where[2]["connector"] = "AND";
 		$where[2]["value"] = $installed;
 		
-		$result = $db->autoQuerySelect('*','active_modules',$where);
+		$result = $db->autoQuerySelect(array('*'),array('active_modules'),$where);
 		$objs = array();
 		while($row = $db->fetchObject($result))
 			$objs[] = xModuleDAO::_dtoFromRow($row);

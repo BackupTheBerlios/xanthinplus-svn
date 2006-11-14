@@ -182,6 +182,7 @@ class xLogEntry
 		if(!is_int($this->m_level) || !is_int($this->m_line))
 			return;
 		
+		
 		$i = 0;
 		$records[$i]["name"] = "level";
 		$records[$i]["type"] = "%d";
@@ -298,6 +299,13 @@ class xLog
 	*/
 	function log($cathegory,$level,$message,$filename = '',$line = 0)
 	{
+		//prevent deadlock
+		global $g_in_log;
+		if(isset($g_in_log))
+			exit("Fatal Error, contact webmaster (Error: Log Recursion)");
+		
+		$g_in_log = true;
+		
 		$log_entry = new xLogEntry(0,$cathegory,$level,$message,$filename,$line,
 			isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '',
 			$_SERVER['REQUEST_URI'],time(),$_SERVER['REMOTE_ADDR'],NULL);
@@ -314,6 +322,8 @@ class xLog
 		
 		if($level == LOG_LEVEL_FATAL_ERROR)
 			exit("Fatal Error, please contact the webmaster");
+			
+		$g_in_log = NULL;
 	}
 	
 	/**

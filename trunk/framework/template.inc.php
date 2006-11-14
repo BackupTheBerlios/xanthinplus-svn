@@ -16,37 +16,43 @@
 */
 
 
+
 /**
  * 
  */
-class xDAOManager extends xObject
+class xTemplate extends xObject
 {
 	/**
 	 * 
 	 */
-	var $m_cached = array();
-	
-	
-	var $m_db_type;
-	
-	function __construct($db_type)
-	{
-		$this->m_db_type = $db_type;
-	}
+	var $m_name;
 	
 	/**
 	 * 
 	 */
-	function &getDAO($name)
+	var $m_template_file;
+	
+	
+	/**
+	 * 
+	 */
+	function __construct($name)
 	{
-		if(! isset($this->m_cached[$name]))
-		{
-			$mod =& x_getModuleManager();
-			$this->m_cached[$name] = $mod->invoke('xm_fetchDAO',array($this->m_db_type,$name));
-		} 
-		
-		return $this->m_cached[$name];
+		$app =& xApplication::getInstance();
+		$theme =& $app->getThemeManager();
+		$this->m_template_file = $theme->invoke('xt_templateMapping',$name);
+		if($this->m_template_file === NULL)
+			xLog::log('Template',LOG_LEVEL_ERROR,'Template mapping does not exists',__FILE__,__LINE__);
+	}
+	
+	/**
+	 * Echoes the data resulting from this template.
+	 * 
+	 * @param mixed $data Data to be passed to template
+	 */
+	function display($data)
+	{
+		include_once($this->m_template_file);
 	}
 }
-
 ?>

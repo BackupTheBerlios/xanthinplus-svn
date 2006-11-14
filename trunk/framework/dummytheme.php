@@ -19,33 +19,17 @@
 /**
  * 
  */
-class xDAOManager extends xObject
+class xDummyTheme
 {
-	/**
-	 * 
-	 */
-	var $m_cached = array();
-	
-	
-	var $m_db_type;
-	
-	function __construct($db_type)
-	{
-		$this->m_db_type = $db_type;
-	}
 	
 	/**
+	 * Returns the absolute path to template that maps the given name.
+	 * <br> Called with invoke()
 	 * 
+	 * @return string
 	 */
-	function &getDAO($name)
+	function xt_templateMapping($name)
 	{
-		if(! isset($this->m_cached[$name]))
-		{
-			$mod =& x_getModuleManager();
-			$this->m_cached[$name] = $mod->invoke('xm_fetchDAO',array($this->m_db_type,$name));
-		} 
-		
-		return $this->m_cached[$name];
 	}
 }
 

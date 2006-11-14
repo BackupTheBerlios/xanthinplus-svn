@@ -47,7 +47,7 @@ function x_objWeightCompare($a, $b)
  */
 function x_full_path($rel_path)
 {
-	return $_SERVER['DOCUMENT_ROOT'] . xConf::get('install_path','xanthin') . '/' . $rel_path;
+	return $_SERVER['DOCUMENT_ROOT'] .'/'. xConf::get('install_path','xanthin') . '/' . $rel_path;
 }
 
 
