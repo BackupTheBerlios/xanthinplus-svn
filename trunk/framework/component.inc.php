@@ -21,15 +21,14 @@ define('X_CM_SUCCESS',1);
 define('X_CM_BYPASS',3);
 
 define('X_COMPONENT_NOT_INITIALIZED',0);
-define('X_COMPONENT_INIT_FAILED',1);
-define('X_COMPONENT_AUTHORIZE_FAILED',2);
-define('X_COMPONENT_PROCESS_FAILED',3);
-define('X_COMPONENT_FILTER_FAILED',4);
+define('X_COMPONENT_BYPASS',1);
+define('X_COMPONENT_INIT_FAILED',2);
+define('X_COMPONENT_AUTHORIZE_FAILED',3);
+define('X_COMPONENT_PROCESS_FAILED',4);
 
 define('X_COMPONENT_INITIALIZED',10);
 define('X_COMPONENT_AUTHORIZED',12);
 define('X_COMPONENT_PROCESSED',13);
-define('X_COMPONENT_FILTERED',14);
 
 
 
@@ -44,16 +43,71 @@ class xComponentView extends xObject
 	}
 	
 	/**
-	 * @return mixed True on success, an xError object on error
+	 * @return void
 	 */
-	function filter()
-	{}
+	function _filter()
+	{
+		if($this->_doFilter() === false)
+		{
+			$mod =& x_getModuleManager();
+			$mod->invokeAll('xh_filterComponentView',array(&$this));
+		}
+	}
+	
+	/**
+	 * Override this to feet your needs.
+	 * @return bool Return false if fail
+	 */
+	function _doFilter()
+	{
+	}
 	
 	
 	/**
-	 * 
+	 * Execute a mirroring of the properties of the given compoenent view inside
+	 * this object properties.
+	 */
+	function mirror($other_view)
+	{
+		$vars = get_object_vars($other_view);
+		foreach($vars as $name => $var)
+			$this->$name = $var;
+	}
+	
+	
+	/**
+	 * Reset the contents of this view.
+	 */
+	function reset()
+	{
+		$vars = get_object_vars($this);
+		foreach($vars as $name => $var)
+		{
+			if(is_array($this->$name))
+				$this->$name = array();
+			elseif(is_string($this->$name))
+				$this->$name = '';
+			elseif(is_int($this->$name))
+				$this->$name = 0;
+			elseif(is_object($this->$name))
+				$this->$name = NULL;
+		}
+	}
+	
+	/**
+	 * @return void
 	 */
 	function display()
+	{
+		$this->_filter();
+		$this->_doDisplay();
+	}
+	
+	/**
+	 * Override this to feet your needs.
+	 * @return void
+	 */
+	function _doDisplay()
 	{
 	}
 }
@@ -66,14 +120,14 @@ class xComponentView extends xObject
 class xComponentController extends xObject
 {	
 	/**
-	 * @var string
+	 * @var int
 	 */
 	var $m_state = X_COMPONENT_NOT_INITIALIZED;
 	
 	/**
-	 * @var xVisualComponent
+	 * @var object
 	 */
-	var $m_visual_component = NULL;
+	var $m_component_view = NULL;
 	
 	
 	/**
@@ -88,97 +142,114 @@ class xComponentController extends xObject
 	 * Init this component
 	 * 
 	 * @access private
-	 * @return mixed True on success, an xError object on error
+	 * @return void
 	 */
 	function _init()
-	{}
-	
+	{
+		$this->m_state = X_COMPONENT_INITIALIZED;
+		if($this->_doInit() === false)
+			$this->m_state = X_COMPONENT_INIT_FAILED;
+		else
+		{
+			$mod =& x_getModuleManager();
+			$mod->invokeAll('xh_initComponentController',array(&$this));
+		}
+	}
 	
 	/**
-	 * Check authorization for this components
+	 * Init this component
 	 * 
 	 * @access private
-	 * @return bool True if the access is permitted
+	 * @return bool Return false if fail
 	 */
-	function _authorize()
+	function _doInit()
 	{}
 	
+	/**
+	 * Check authorization for this components.
+	 * 
+	 * @access private
+	 * @return void
+	 */
+	function _authorize()
+	{
+		if($this->m_state < X_COMPONENT_INITIALIZED)
+			return;
+		
+		$this->m_state = X_COMPONENT_AUTHORIZED;
+		if(!$this->_doAuthorize() === false)
+			$this->m_state = X_COMPONENT_AUTHORIZE_FAILED;
+		else
+		{
+			$mod =& x_getModuleManager();
+			$mod->invokeAll('xh_authComponentController',array(&$this));
+		}
+	}
+	
+	/**
+	 * Check authorization for this components. If authorization 
+	 * 
+	 * @access private
+	 * @return bool Return false if fail
+	 */
+	function _doAuthorize()
+	{}
 	
 	/**
 	 * Crete and process contents for this component
 	 * 
 	 * @access private
-	 * @return mixed True on success, an xError object on error
+	 * @return void
 	 */
 	function _process()
+	{
+		if($this->m_state < X_COMPONENT_AUTHORIZED)
+			return;
+		
+		$this->m_state = X_COMPONENT_PROCESSED;
+		if(!$this->_doProcess() === false)
+			$this->m_state = X_COMPONENT_PROCESS_FAILED;
+		else
+		{
+			$mod =& x_getModuleManager();
+			$mod->invokeAll('xh_processComponentController',array(&$this));
+		}
+	}
+	
+	/**
+	 * Create and process contents for this component. Thi method must create a component view
+	 * and fill it with contents.
+	 * 
+	 * @access private
+	 * @return bool Return false if fail
+	 */
+	function _doProcess()
 	{}
 	
 	/**
 	 * Executes _init(),_authorize(),_process().
 	 * 
-	 * @return mixed True on success, an xError object on error
+	 * @return void
 	 */
 	function process()
-	{}
-}
-
-
-
-/**
- * 
- */
-class xContentView extends xComponentController
-{
-	/**
-	 * {@inheritdoc}
-	 */
-	function __construct()
 	{
-		parent::__construct();
-	}
-}
-
-
-
-/**
- * Represent the controller for the main page content.
- */
-class xContentController extends xComponentController
-{	
-	/**
-	 * {@inheritdoc}
-	 */
-	function __construct()
-	{
-		parent::__construct();
+		$this->_init();
+		$this->_authorize();
+		$this->_process();
 	}
 	
 	
-}
-
-
-//###########################################################################
-//###########################################################################
-//###########################################################################
-
-
-/**
- * Represent the whole document. Implements singletone pattern 
- */
-class xDocument extends xComponentController
-{
-	var $m_used_components;
-	
 	/**
-	 * {@inheritdoc}
+	 * Display this component
+	 * 
+	 * @return void
 	 */
-	function __construct()
+	function display()
 	{
-		parent::__construct();
-		
+		if(($this->m_state === X_COMPONENT_PROCESSED || $this->m_state === X_COMPONENT_BYPASS)
+			&& $this->m_component_view !== NULL)
+			$this->m_component_view->display();
 	}
 }
-
-
 
 ?>

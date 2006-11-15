@@ -16,20 +16,35 @@
 */
 
 
+
+
 /**
  * 
  */
-class xDummyTheme
+class xContentView extends xComponentController
 {
-	
 	/**
-	 * Returns the absolute path to template that maps the given name.
-	 * <br> Called with invoke()
-	 * 
-	 * @return string
+	 * {@inheritdoc}
 	 */
-	function xt_templateMapping($name)
+	function __construct()
 	{
+		parent::__construct();
+	}
+}
+
+
+
+/**
+ * Represent the controller for the main page content.
+ */
+class xContentController extends xComponentController
+{	
+	/**
+	 * {@inheritdoc}
+	 */
+	function __construct()
+	{
+		parent::__construct();
 	}
 }
 

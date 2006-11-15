@@ -26,7 +26,7 @@ class xDummyModule extends xModule
 	 * 
 	 * @return NULL
 	 */
-	function xm_install($db_name)
+	function xh_install($db_name)
 	{
 	}
 	
@@ -37,7 +37,7 @@ class xDummyModule extends xModule
 	 * 
 	 * @return NULL
 	 */
-	function xm_createPage(&$path)
+	function xh_createDocument(&$path)
 	{
 	}
 	
@@ -47,7 +47,7 @@ class xDummyModule extends xModule
 	 * 
 	 * @return NULL
 	 */
-	function xm_initModules()
+	function xh_initModules()
 	{
 	}
 
@@ -58,7 +58,7 @@ class xDummyModule extends xModule
 	 * 
 	 * @return NULL
 	 */
-	function xm_finalModules()
+	function xh_finalModules()
 	{
 	}
 	
@@ -66,32 +66,44 @@ class xDummyModule extends xModule
 	/**
 	 * Return the specified dao for the specified db type.
 	 */
-	function xm_fetchDAO($db_type,$name)
+	function xh_fetchDAO($db_type,$name)
 	{
 	}
 	
-	
 	/**
-	 * Called on component init, returns a component extension or null
-	 * <br> Called with xModuleManager::invokeAll();
-	 * 
-	 * @return xComponentExtension
-	 */
-	function xm_componentExtensions(&$component)
-	{
-	}
-	
-	
-	/**
-	 * Called on component init, returns a list of extension to block in the provided
-	 * component
-	 * <br> Called with xModuleManager::invokeAll();
+	 * Returns the absolute path to template that maps the given name.
+	 * <br> Called with invoke()
 	 * 
 	 * @return string
 	 */
-	function xm_componentBlockedExtensions(&$component)
+	function xh_templateMapping($name)
 	{
 	}
+	
+	/**
+	 * @return void
+	 */
+	function xh_filterCompoenentView(&$component_view)
+	{
+	}
+	
+	/**
+	 * @return void
+	 */
+	function xh_initComponentController(&$component)
+	{}
+	
+	/**
+	 * @return void
+	 */
+	function xh_authComponentController(&$component)
+	{}
+	
+	/**
+	 * @return void
+	 */
+	function xh_processComponentController(&$component)
+	{}
 }
 
 

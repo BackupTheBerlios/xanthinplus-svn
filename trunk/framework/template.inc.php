@@ -38,9 +38,8 @@ class xTemplate extends xObject
 	 */
 	function __construct($name)
 	{
-		$app =& xApplication::getInstance();
-		$theme =& $app->getThemeManager();
-		$this->m_template_file = $theme->invoke('xt_templateMapping',$name);
+		$theme =& x_getModuleManager();
+		$this->m_template_file = $theme->invoke('xh_templateMapping',$name);
 		if($this->m_template_file === NULL)
 			xLog::log('Template',LOG_LEVEL_ERROR,'Template mapping does not exists',__FILE__,__LINE__);
 	}
@@ -50,9 +49,22 @@ class xTemplate extends xObject
 	 * 
 	 * @param mixed $data Data to be passed to template
 	 */
-	function display($data)
+	function display(&$data)
 	{
-		include_once($this->m_template_file);
+		include($this->m_template_file);
+	}
+	
+	
+	/**
+	 * Returns a string resulting from this template.
+	 * 
+	 * @param mixed $data Data to be passed to template
+	 */
+	function render($data)
+	{
+		ob_start();
+		$this->display($data);
+		return ob_get_clean();
 	}
 }
 ?>

@@ -42,7 +42,7 @@ class xDAOManager extends xObject
 		if(! isset($this->m_cached[$name]))
 		{
 			$mod =& x_getModuleManager();
-			$this->m_cached[$name] = $mod->invoke('xm_fetchDAO',array($this->m_db_type,$name));
+			$this->m_cached[$name] = $mod->invoke('xh_fetchDAO',array($this->m_db_type,$name));
 		} 
 		
 		return $this->m_cached[$name];

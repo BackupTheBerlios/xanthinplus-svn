@@ -23,7 +23,6 @@ require_once(dirname(__FILE__) . '/module.inc.php');
 require_once(dirname(__FILE__) . '/framework.dao.php');
 require_once(dirname(__FILE__) . '/path.inc.php');
 require_once(dirname(__FILE__) . '/session.inc.php');
-require_once(dirname(__FILE__) . '/headermanager.inc.php');
 require_once(dirname(__FILE__) . '/utf8.inc.php');
 require_once(dirname(__FILE__) . '/utilities.inc.php');
 require_once(dirname(__FILE__) . '/template.inc.php');
@@ -43,12 +42,6 @@ class xApplication
 	 * 
 	 */
 	var $m_module_manager = NULL;
-	
-	/**
-	 * 
-	 */
-	var $m_theme_manager = NULL;
-	
 	
 	/**
 	 * 
@@ -74,22 +67,13 @@ class xApplication
 	/**
 	 * 
 	 */
-	function &getThemeManager()
-	{
-		return $this->m_theme_manager;
-	}
-	
-	
-	/**
-	 * 
-	 */
 	function &getInstance()
 	{
-		global $g_xanthin;
-		if(!isset($g_xanthin))
-			$g_xanthin = new xApplication();
+		static $s_xanthin;
+		if(!isset($s_xanthin))
+			$s_xanthin = new xApplication();
 			
-		return $g_xanthin;
+		return $s_xanthin;
 	}
 	
 	/**
@@ -128,31 +112,18 @@ class xApplication
 	 */
 	function initModules()
 	{
+		$params[] = array('search dir' => 'engine','suffix' => 'comp','enabled' => false,'installed' => false); 
+		$params[] = array('search dir' => 'extensions','suffix' => 'ext','enabled' => true,'installed' => true);
+		$params[] = array('search dir' => 'themes','suffix' => 'theme','enabled' => true,'installed' => true);
+		
 		$this->m_module_manager = new xModuleManager();
-		$this->m_module_manager->initModules('engine','comp',false,false,array(new xFrameworkComponent()));
+		$this->m_module_manager->initModules($params,array(new xFrameworkComponent()));
 		
 		if(xConf::get('db_type','mysql') == 'mysql')
 			$this->m_dao_manager = new xDAOManager(xConf::get('db_type','mysql'));
 			
-		$comp = new xModuleManager();
-		$comp->initModules('extensions','ext',true,true);
-		
-		$this->m_module_manager->merge($comp);
-		$this->m_module_manager->invokeAll('xm_initModules',array());
+		$this->m_module_manager->invokeAll('xh_initModules',array());
 	}
-	
-	
-	/**
-	 * 
-	 */
-	function initUtilities()
-	{
-		
-		
-		$this->m_module_manager->invokeAll('xm_initUtilities',array());
-	}
-	
-
 	
 	
 	/**
@@ -200,7 +171,8 @@ class xApplication
 		header('Content-Type: text/html; charset=utf-8');
 		
 		$path = xPath::getCurrent();
-		$this->m_module_manager->invoke('xm_createPage',array(&$path));
+		
+		$this->m_module_manager->invoke('xh_createDocument',array(&$path));
 		
 		$this->finalModules();
 		$this->finalSession();

@@ -33,6 +33,22 @@ class xModuleDTO
 	}
 }
 
+/**
+ * An object to tell module manager to bypass successive hook invocation in invokeAll function.
+ */
+class xBypassObject extends xObject
+{
+	var $m_data = NULL;
+	
+	/**
+	 * 
+	 */
+	function __construct($data)
+	{
+		parent::__construct();
+		$this->m_data = $data;
+	}
+}
 
 /**
  * The base class for modules.
@@ -42,11 +58,6 @@ class xModuleDTO
  */
 class xModule extends xObject
 {
-	/**
-	 * @var int
-	 */
-	var $m_weight;
-	
 	/**
 	 * @ver string
 	 */
@@ -67,18 +78,40 @@ class xModule extends xObject
 	 * Modules with higher weights are processed after. Weights between 1000 and -1000 are 
 	 * reserved for xanthin default modules.
 	 */
-	function __construct($weight,$description,$authors,$version)
+	function __construct($description,$authors,$version)
 	{
-		$this->m_weight = $weight;
 		$this->m_description = $description;
 		$this->m_authors = $authors;
 		$this->m_version = $version;
 	}
+	
+	
+	/**
+	 * Return an associative array containing
+	 * 
+	 * @return array
+	 */
+	function registerHooks(&$module_manager)
+	{
+	}
 }
+
 
 //###########################################################################
 //###########################################################################
 //###########################################################################
+
+/**
+ * 
+ */
+function x_hook_compare($a, $b)
+{
+    if ($a[2] == $b[2]) 
+        return 0;
+	
+    return ($a[2] < $b[2]) ? -1 : 1;
+}
+
 
 /**
  * @package modules
@@ -87,6 +120,8 @@ class xModuleManager extends xObject
 {
 	var $m_modules = array();
 	
+	var $m_hooks = array();
+	
 	/**
 	 * 
 	 * @param string $search_dir The directory to search for modules
@@ -94,6 +129,7 @@ class xModuleManager extends xObject
 	 */
 	function __construct()
 	{
+		parent::__construct();
 	}
 	
 	/**
@@ -112,13 +148,13 @@ class xModuleManager extends xObject
 				if($file != "." && $file != "..")
 				{
 					//search for spare file module
-					$mod_file = $search_dir .'/'.$file.'.'.$suffix.'.php';
-					if(is_file($mod_file))  
+					if(preg_match("#.\.".$suffix."\.php#i",$file))
 					{
+						$mod_file = $search_dir.'/'.$file;
 						$ret[] = $mod_file;
 					}
-					//search for file module inside directories
-					else			
+					//search for file module inside directory
+					else
 					{
 						$mod_file = $search_dir .'/'. $file . '/'.$file.'.'.$suffix.'.php';
 						if(is_file($mod_file))
@@ -131,64 +167,95 @@ class xModuleManager extends xObject
 		else
 			xLog::log('Framework',LOG_LEVEL_ERROR,'Invalid search directory for modules. Dump: '.
 				var_export($full_search_dir,true),__FILE__,__LINE__);
-				
+		
 		return $ret;
 	}
 	
 	
 	/**
-	 * @todo Resolv dao
+	 * @todo Resolv dao problem
+	 * 
+	 * @param array $search_param An array of arrays with such a structure
+	 * <code>
+	 * array(
+	 * 		'search dir' => [search dir]
+	 * 		'suffix' => [suffix]
+	 * 		'enabled' => [enabled]
+	 * 		'installed' => [installed]
+	 * )
+	 * </code> 
 	 * @static
 	 */
-	function initModules($search_dir,$suffix,$enabled,$installed,$additionalModules = array())
+	function initModules($search_params,$additionalModules = array())
 	{
-		if($enabled || $installed)
+		foreach($additionalModules as $k => $v)
 		{
-			$modules = array();
-			$dao =& x_getDAO('module');
-			$dtos = $dao->find(NULL,$enabled,$installed);
-			foreach($dtos as $dto)
-				$modules[] = $dto->m_path;
+			$additionalModules[$k]->registerHooks($this);
+			$this->m_modules[] =& $additionalModules[$k];
 		}
-		else
-			$modules = xModuleManager::findAllModules($search_dir,$suffix);
 		
-		foreach($modules as $module)
+		foreach($search_params as $param)
 		{
-			if(strpos($module->m_path,$this->m_search_dir) === 0)
+			if($param['enabled'] || $param['installed'])
 			{
-				if(is_file($module->m_path))
-				{
-					$name = basename($module->m_path,'.'.$suffix.'.php');
-					include_once($module->m_path);
-					$mod = call_user_func('xm_load_' . $name);
-					
-					if(xanth_instanceof($mod,'xModule'))
-						$this->m_modules[] = $mod;
-				}
+				$modules = array();
+				$dao =& new xModuleDAO();
+				$dtos = $dao->find(NULL,$param['enabled'],$param['installed']);
+				foreach($dtos as $dto)
+					$modules[] = $dto->m_path;
 			}
-		}
+			else
+				$modules = xModuleManager::findAllModules($param['search dir'],$param['suffix']);
+			
+			foreach($modules as $module)
+			{
+				if(strpos($module,$param['search dir']) !== 0)
+					continue;
+				
+				if(! is_file($module))
+					continue;
+						
+				$name = basename($module,'.'.$param['suffix'].'.php');
+				include_once($module);
+				
+				if(function_exists('xm_load_module_' . $name))
+				{
+					$mod = call_user_func('xm_load_module_' . $name);
+					if(!is_array($mod))
+						$mod = array($mod);
+					
+					foreach($mod as $m)
+					{
+						if(xanth_instanceof($m,'xModule'))
+						{
+							$m->registerHooks($this);
+							$this->m_modules[] =& $m;
+						}
+					}
+				}
+			}//foreach modules
+		}//foreach search params
 		
-		$this->m_modules = array_merge($this->m_modules,$additionalModules);
-		$this->sort();
+		$this->sortHooks();
 	}
 	
 	
 	/**
 	 * 
 	 */
-	function sort()
+	function sortHooks()
 	{
-		usort($this->m_modules,'x_objWeightCompare');
+		foreach($this->m_hooks as $k => $v)
+			usort($this->m_hooks[$k],'x_hook_compare');
 	}
+	
 	
 	/**
 	 * 
 	 */
-	function merge($other_module_manager)
+	function registerHook(&$module,$hook_name,$function,$priority = 1)
 	{
-		$this->m_modules = array_merge($this->m_modules,$other_module_manager->m_modules);
-		$this->sort();
+		$this->m_hooks[$hook_name][] = array(&$module,$function,$priority); 
 	}
 	
 	
@@ -200,13 +267,14 @@ class xModuleManager extends xObject
 	 * @static
 	 * @return mixed
 	 */
-	function invoke($function,$args = array())
+	function invoke($hook,$args = array())
 	{
-		foreach($this->m_modules as $module)
+		if(isset($this->m_hooks[$hook]))
 		{
-			if(method_exists($module,$function))
+			foreach($this->m_hooks[$hook] as $k => $v)
 			{
-				$result = call_user_func_array(array(&$module,$function),$args);
+				$result = call_user_func_array(array(&$this->m_hooks[$hook][$k][0],$this->m_hooks[$hook][$k][1]),
+					$args);
 				if($result !== NULL)
 					return $result;
 			}
@@ -219,26 +287,36 @@ class xModuleManager extends xObject
 
 	
 	/**
-	 * Make a method call to all modules.
+	 * Make a method call to all modules. 
+	 * <br><strong>Note</strong>: if a xBypassObject is received hook invocation
+	 * is immediately interrupted and results returned.
 	 *
 	 * @param string $function The method to call
 	 * @param args An array containing the arguments to pass to the function
 	 * @static
 	 * @return xResultSet
 	 */
-	function invokeAll($function,$args = array())
+	function invokeAll($hook,$args = array())
 	{
 		$rs = new xResultSet();
-		foreach($this->m_modules as $module)
+		
+		if(isset($this->m_hooks[$hook]))
 		{
-			if(method_exists($module,$function))
+			foreach($this->m_hooks[$hook] as $k => $v)
 			{
-				$result = call_user_func_array(array(&$module,$function),$args);
-				if($result !== NULL)
+				$result = call_user_func_array(array(&$this->m_hooks[$hook][$k][0],$this->m_hooks[$hook][$k][1]),
+					$args);
+				
+				if(xanth_instanceof($result,'xBypassObject'))
+				{
+					if($result->m_data !== NULL)
+						$rs->m_results[] = $result->m_data;
+					break;
+				}
+				elseif($result !== NULL)
 					$rs->m_results[] = $result;
 			}
 		}
-		
 		return $rs;
 	}
 };

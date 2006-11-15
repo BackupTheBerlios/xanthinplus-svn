@@ -18,7 +18,6 @@
 
 /**
  * The component to manage xanthin framework.
- * <br><strong>Weight = 0</strong>
  */
 class xFrameworkComponent extends xModule
 {
@@ -27,10 +26,19 @@ class xFrameworkComponent extends xModule
 	 */
 	function __construct()
 	{
-		parent::__construct(0,'Manager framework function','Mario Casciaro','alpha');
+		parent::__construct('Manage framework function','Mario Casciaro','alpha');
 	}
 	
 	
+	/**
+	 * 
+	 */
+	function registerHooks(&$mod_man)
+	{
+		$mod_man->registerHook($this,'xh_fetchDAO','xm_fetchDAO');
+		$mod_man->registerHook($this,'xh_install','xm_install');
+		$mod_man->registerHook($this,'xh_templateMapping','xm_templateMapping');
+	}
 	
 	/**
 	 * {@inheritdoc}
@@ -45,6 +53,18 @@ class xFrameworkComponent extends xModule
 					return new xModuleDAO();	
 			}	
 		}	
+	}
+	
+	
+	/**
+	 * {@inheritdoc}
+	 */
+	function xm_templateMapping($name)
+	{
+		if($name === 'test')
+			return dirname(__FILE__).'/templates/test.tpl.php';
+		if($name === 'document')
+			return dirname(__FILE__).'/templates/document.tpl.php';
 	}
 	
 	
