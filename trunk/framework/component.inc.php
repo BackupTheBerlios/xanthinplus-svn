@@ -37,9 +37,12 @@ define('X_COMPONENT_PROCESSED',13);
  */
 class xComponentView extends xObject
 {
-	function __construct()
+	var $m_template_name = '';
+	
+	function __construct($template_name)
 	{
 		parent::__construct();
+		$this->m_template_name = $template_name;
 	}
 	
 	/**
@@ -109,6 +112,8 @@ class xComponentView extends xObject
 	 */
 	function _doDisplay()
 	{
+		$tpl = new xTemplate($this->m_template_name);
+		$tpl->display($this);
 	}
 }
 
@@ -246,9 +251,25 @@ class xComponentController extends xObject
 	 */
 	function display()
 	{
+
 		if(($this->m_state === X_COMPONENT_PROCESSED || $this->m_state === X_COMPONENT_BYPASS)
 			&& $this->m_component_view !== NULL)
+		{
 			$this->m_component_view->display();
+		}
+	}
+	
+	
+	/**
+	 * Renders this component
+	 * 
+	 * @return void
+	 */
+	function render()
+	{
+		ob_start();
+		$this->display();
+		return ob_get_clean();
 	}
 }
 

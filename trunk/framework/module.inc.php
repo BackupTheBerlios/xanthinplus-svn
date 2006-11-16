@@ -173,7 +173,7 @@ class xModuleManager extends xObject
 	
 	
 	/**
-	 * @todo Resolv dao problem
+	 * @todo Fix dao problem
 	 * 
 	 * @param array $search_param An array of arrays with such a structure
 	 * <code>

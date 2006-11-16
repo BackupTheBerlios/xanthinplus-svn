@@ -170,9 +170,7 @@ class xApplication
 		// Setting the Content-Type header with charset
 		header('Content-Type: text/html; charset=utf-8');
 		
-		$path = xPath::getCurrent();
-		
-		$this->m_module_manager->invoke('xh_createDocument',array(&$path));
+		$this->m_module_manager->invoke('xh_createDocument');
 		
 		$this->finalModules();
 		$this->finalSession();
@@ -183,8 +181,9 @@ class xApplication
 		if(xConf::get('debug',false))
 		{
 			$db =& xDB::getDB(); 
+			echo xLogEntry::renderFromScreen();
 			echo '<br><br><br>Execution Time: ' . xTimer::stop('script_execution_time').' Queries: '. var_export($db->dumpGet(),true);
-			xLogEntry::renderFromScreen();
+			
 		}
 	}
 	

@@ -6,11 +6,13 @@
 <META name="description" content="<?php print $data->m_description ?>">
 <META name="keywords" content="<?php print implode(',',$data->m_keywords) ?>">
 <META name="Content-language" content="<?php print $data->m_language ?>">
-<META name="Content-language" content="<?php print $data->m_language ?>">
 <?php foreach($data->m_stylesheets as $style):?>
-<style type="text/css" media="all">@import "<?php print $style ?>"</style>';
+<style type="text/css" media="all">@import "<?php print $style ?>"</style>
 <?php endforeach; ?>
 </head>
 <body>
+<div id="content">
+<?php $data->m_components['content']->display() ?>
+</div>
 </body>
 </html>

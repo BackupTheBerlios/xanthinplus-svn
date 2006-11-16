@@ -41,24 +41,39 @@ class xDocumentComponent extends xModule
 	 */
 	function registerHooks(&$mod_man)
 	{
-		$mod_man->registerHook($this,'xh_fetchDAO','xm_fetchDAO');
 		$mod_man->registerHook($this,'xh_templateMapping','xm_templateMapping');
 		$mod_man->registerHook($this,'xh_createDocument','xm_createDocument');
+		$mod_man->registerHook($this,'xh_documentComponents','xm_documentComponents');
+		$mod_man->registerHook($this,'xh_documentStylesheets','xm_documentStylesheets');
 	}
 	
+	
 	/**
-	 * {@inheritdoc}
+	 * @see xEngineDummyModule::xh_documentComponents()
 	 */
-	function xm_fetchDAO($db_type,$name)
+	function xm_documentComponents(&$path)
 	{
+		$arr['content'] = xContentController::fetchContent($path);
+		return $arr;
+	}
+	
+	
+	/**
+	 * @see xEngineDummyModule::xh_documentStylesheets()
+	 */
+	function xm_documentStylesheets(&$path)
+	{
+		return dirname(__FILE__).'/engine.css';
 	}
 	
 	/**
 	 * 
 	 */
-	function xm_createDocument(&$path)
+	function xm_createDocument()
 	{
-		echo "HI!";
+		$doc =& xDocument::getInstance();
+		$doc->process();
+		$doc->display();
 	}
 	
 	/**
@@ -71,11 +86,14 @@ class xDocumentComponent extends xModule
 	}
 }
 
+//###########################################################################
+//###########################################################################
+//###########################################################################
 
 /**
  * 
  */
-class xDocumentView extends xComponentController
+class xDocumentView extends xComponentView
 {
 	var $m_title = '';
 	var $m_keywords = array();
@@ -89,7 +107,7 @@ class xDocumentView extends xComponentController
 	 */
 	function __construct()
 	{
-		parent::__construct();
+		parent::__construct('document');
 	}
 	
 	/**
@@ -104,19 +122,14 @@ class xDocumentView extends xComponentController
 		foreach($this->m_stylesheets as $k => $v)
 			$this->m_stylesheets[$k] = htmlspecialchars($this->m_stylesheets[$k],ENT_QUOTES,'UTF-8');
 		$this->m_language = htmlspecialchars($this->m_language,ENT_QUOTES,'UTF-8');
-		
 		return true;
 	}
-	
-	/**
-	 * 
-	 */
-	function _doDisplay()
-	{
-		$tpl = new xTemplate('document');
-		$tpl->display($this);	
-	}
 }
+
+
+//###########################################################################
+//###########################################################################
+//###########################################################################
 
 
 /**
@@ -126,6 +139,8 @@ class xDocument extends xComponentController
 {
 	var $m_http_headers = array();
 	var $m_components;
+	var $m_path;
+	
 	
 	/**
 	 * Singleton object,call getInstance()
@@ -133,17 +148,12 @@ class xDocument extends xComponentController
 	function __construct()
 	{
 		parent::__construct();
-	}
-	
-	
-	/**
-	 * 
-	 */
-	function _doProcess()
-	{
-		$this->m_component_view = new xDocumentView();
-		$this->m_component_view->m_title = $this->m_title;
+		$this->m_path =& xPath::getCurrent();
+		$mod =& x_getModuleManager();
+		$components = $mod->invokeAll('xh_documentComponents',array(&$this->m_path));
+		$this->m_components = $components->getValidValues(true);
 		
+		$this->m_component_view = new xDocumentView();
 	}
 	
 	/**
@@ -156,6 +166,52 @@ class xDocument extends xComponentController
 			$s_document = new xDocument();
 			
 		return $s_document;
+	}
+	
+	
+	/**
+	 * 
+	 */
+	function _doInit()
+	{
+		foreach($this->m_components as $k => $v)
+			$this->m_components[$k]->_init();
+	}
+	
+	
+	/**
+	 * 
+	 */
+	function _doAuthorize()
+	{
+		foreach($this->m_components as $k => $v)
+			$this->m_components[$k]->_authorize();
+	}
+	
+	
+	/**
+	 * 
+	 */
+	function _doProcess()
+	{
+		$mod =& x_getModuleManager();
+		$ss = $mod->invokeAll('xh_documentStylesheets',array(&$this->m_path));
+		$this->m_component_view->m_stylesheets = $ss->getValidValues(true);
+		
+		$this->m_component_view->m_language = $this->m_path->m_lang;
+				
+		foreach($this->m_components as $k => $v)
+		{
+			$this->m_components[$k]->_process();
+			$this->m_component_view->m_components[$k] =& $this->m_components[$k]->m_component_view; 
+			
+			if(xanth_instanceof($this->m_components[$k],'xContentController'))
+			{
+				$this->m_component_view->m_title = $this->m_components[$k]->m_component_view->m_title;
+				$this->m_component_view->m_keywords = $this->m_components[$k]->m_component_view->m_keywords;
+				$this->m_component_view->m_description = $this->m_components[$k]->m_component_view->m_description;
+			}
+		}
 	}
 }
 

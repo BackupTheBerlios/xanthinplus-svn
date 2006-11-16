@@ -99,13 +99,13 @@ class xPath
 	 * @return xPath
 	 * @static
 	 */
-	function getCurrent()
+	function &getCurrent()
 	{
-		global $g_xanth_current_path;
-		if(! isset($g_xanth_current_path))
-			$g_xanth_current_path = xPath::_getCurrent();
+		static $s_xanth_current_path;
+		if(! isset($s_xanth_current_path))
+			$s_xanth_current_path = xPath::_getCurrent();
 
-		return $g_xanth_current_path;
+		return $s_xanth_current_path;
 	}
 	
 	

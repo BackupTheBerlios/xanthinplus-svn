@@ -37,7 +37,7 @@ class xDummyModule extends xModule
 	 * 
 	 * @return NULL
 	 */
-	function xh_createDocument(&$path)
+	function xh_createDocument()
 	{
 	}
 	
