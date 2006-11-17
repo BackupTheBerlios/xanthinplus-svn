@@ -27,6 +27,8 @@ require_once(dirname(__FILE__) . '/utf8.inc.php');
 require_once(dirname(__FILE__) . '/utilities.inc.php');
 require_once(dirname(__FILE__) . '/template.inc.php');
 require_once(dirname(__FILE__) . '/framework.comp.php');
+require_once(dirname(__FILE__) . '/content.inc.php');
+require_once(dirname(__FILE__) . '/document.inc.php');
 
 require_once(dirname(__FILE__) . '/dbaccess/db.inc.php');
 require_once(dirname(__FILE__) . '/dbaccess/mysql_db.inc.php');
@@ -113,7 +115,7 @@ class xApplication
 	function initModules()
 	{
 		$params[] = array('search dir' => 'engine','suffix' => 'comp','enabled' => false,'installed' => false); 
-		$params[] = array('search dir' => 'extensions','suffix' => 'ext','enabled' => true,'installed' => true);
+		$params[] = array('search dir' => 'plugins','suffix' => 'plugin','enabled' => true,'installed' => true);
 		$params[] = array('search dir' => 'themes','suffix' => 'theme','enabled' => true,'installed' => true);
 		
 		$this->m_module_manager = new xModuleManager();

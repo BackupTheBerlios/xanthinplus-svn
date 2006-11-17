@@ -104,6 +104,38 @@ class xDummyModule extends xModule
 	 */
 	function xh_processComponentController(&$component)
 	{}
+	
+	/**
+	 * Return a content component.
+	 * Called with invoke().
+	 * 
+	 * @return NULL
+	 */
+	function xh_fetchContent(&$path)
+	{
+	}
+	
+	
+	
+	/**
+	 * Return a list of raw components to be included in the current document.
+	 * Called with invokeAll().
+	 * 
+	 * @return mixed A named array of xComponent objects.
+	 */
+	function xh_documentComponents(&$path)
+	{
+	}
+	
+	/**
+	 * Return a list of string representing the relative path to a css file.
+	 * Called with invokeAll().
+	 * 
+	 * @return mixed A named array of xComponent objects.
+	 */
+	function xh_documentStylesheets(&$path)
+	{
+	}
 }
 
 

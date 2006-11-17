@@ -19,7 +19,7 @@ error_reporting(E_ALL);
 
 $g_xanth_conf['install_path'] = dirname($_SERVER['PHP_SELF']);
 require_once('conf.inc.php');
-require_once('framework/application.inc.php');
+require_once('framework/framework.inc.php');
 
 $app =& xApplication::getInstance();
 $app->main();

@@ -38,6 +38,9 @@ class xFrameworkComponent extends xModule
 		$mod_man->registerHook($this,'xh_fetchDAO','xm_fetchDAO');
 		$mod_man->registerHook($this,'xh_install','xm_install');
 		$mod_man->registerHook($this,'xh_templateMapping','xm_templateMapping');
+		$mod_man->registerHook($this,'xh_createDocument','xm_createDocument');
+		$mod_man->registerHook($this,'xh_documentComponents','xm_documentComponents');
+		$mod_man->registerHook($this,'xh_documentStylesheets','xm_documentStylesheets');
 	}
 	
 	/**
@@ -65,6 +68,38 @@ class xFrameworkComponent extends xModule
 			return dirname(__FILE__).'/templates/test.tpl.php';
 		if($name === 'document')
 			return dirname(__FILE__).'/templates/document.tpl.php';
+		if($name === 'content')
+			return dirname(__FILE__).'/templates/content.tpl.php';
+		if($name === 'page_not_found')
+			return dirname(__FILE__).'/templates/page_not_found.tpl.php';
+	}
+	
+		/**
+	 * @see xEngineDummyModule::xh_documentComponents()
+	 */
+	function xm_documentComponents(&$path)
+	{
+		$arr['content'] = xContentController::fetchContent($path);
+		return $arr;
+	}
+	
+	
+	/**
+	 * @see xEngineDummyModule::xh_documentStylesheets()
+	 */
+	function xm_documentStylesheets(&$path)
+	{
+		return dirname(__FILE__).'/engine.css';
+	}
+	
+	/**
+	 * 
+	 */
+	function xm_createDocument()
+	{
+		$doc =& xDocument::getInstance();
+		$doc->process();
+		$doc->display();
 	}
 	
 	

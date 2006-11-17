@@ -17,7 +17,7 @@
 
 error_reporting(E_ALL);
 require_once('conf.inc.php');
-require_once('framework/application.inc.php');
+require_once('framework/framework.inc.php');
 
 
 $app =& xApplication::getInstance();

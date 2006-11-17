@@ -16,60 +16,6 @@
 */
 
 
-
-
-function xm_load_module_content()
-{
-	return new xContentComponent();
-}
-
-
-/**
- * The component to manage web documents.
- */
-class xContentComponent extends xModule
-{
-	/**
-	 * 
-	 */
-	function __construct()
-	{
-		parent::__construct('Manage web contents','Mario Casciaro','alpha');
-	}
-	
-	
-	/**
-	 * 
-	 */
-	function registerHooks(&$mod_man)
-	{
-		$mod_man->registerHook($this,'xh_fetchDAO','xm_fetchDAO');
-		$mod_man->registerHook($this,'xh_templateMapping','xm_templateMapping');
-	}
-	
-	/**
-	 * {@inheritdoc}
-	 */
-	function xm_fetchDAO($db_type,$name)
-	{
-	}
-	
-	/**
-	 * {@inheritdoc}
-	 */
-	function xm_templateMapping($name)
-	{
-		if($name === 'content')
-			return dirname(__FILE__).'/templates/content.tpl.php';
-		if($name === 'page_not_found')
-			return dirname(__FILE__).'/templates/page_not_found.tpl.php';
-	}
-}
-
-//###########################################################################
-//###########################################################################
-//###########################################################################
-
 /**
  * 
  */
