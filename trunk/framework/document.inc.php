@@ -101,6 +101,8 @@ class xDocument extends xComponentController
 	{
 		foreach($this->m_components as $k => $v)
 			$this->m_components[$k]->_init();
+			
+		return true;
 	}
 	
 	
@@ -111,6 +113,8 @@ class xDocument extends xComponentController
 	{
 		foreach($this->m_components as $k => $v)
 			$this->m_components[$k]->_authorize();
+			
+		return true;
 	}
 	
 	
@@ -124,19 +128,23 @@ class xDocument extends xComponentController
 		$this->m_component_view->m_stylesheets = $ss->getValidValues(true);
 		
 		$this->m_component_view->m_language = $this->m_path->m_lang;
-				
 		foreach($this->m_components as $k => $v)
 		{
 			$this->m_components[$k]->_process();
-			$this->m_component_view->m_components[$k] =& $this->m_components[$k]->m_component_view; 
 			
-			if(xanth_instanceof($this->m_components[$k],'xContentController'))
+			if($this->m_components[$k]->isReadyToDisplay())
 			{
-				$this->m_component_view->m_title = $this->m_components[$k]->m_component_view->m_title;
-				$this->m_component_view->m_keywords = $this->m_components[$k]->m_component_view->m_keywords;
-				$this->m_component_view->m_description = $this->m_components[$k]->m_component_view->m_description;
+				$this->m_component_view->m_components[$k] =& $this->m_components[$k]->m_component_view; 
+				
+				if(xanth_instanceof($this->m_components[$k],'xContentController'))
+				{
+					$this->m_component_view->m_title = $this->m_components[$k]->m_component_view->m_title;
+					$this->m_component_view->m_keywords = $this->m_components[$k]->m_component_view->m_keywords;
+					$this->m_component_view->m_description = $this->m_components[$k]->m_component_view->m_description;
+				}
 			}
 		}
+		return true;
 	}
 }
 

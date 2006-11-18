@@ -29,6 +29,8 @@ require_once(dirname(__FILE__) . '/template.inc.php');
 require_once(dirname(__FILE__) . '/framework.comp.php');
 require_once(dirname(__FILE__) . '/content.inc.php');
 require_once(dirname(__FILE__) . '/document.inc.php');
+require_once(dirname(__FILE__) . '/bbcode.inc.php');
+require_once(dirname(__FILE__) . '/filter.inc.php');
 
 require_once(dirname(__FILE__) . '/dbaccess/db.inc.php');
 require_once(dirname(__FILE__) . '/dbaccess/mysql_db.inc.php');

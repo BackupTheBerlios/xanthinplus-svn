@@ -65,10 +65,34 @@ class xDummyModule extends xModule
 	
 	/**
 	 * Return the specified dao for the specified db type.
+	 * <br> Called with xModuleManager::invoke();
+	 * 
+	 * @return object
 	 */
 	function xh_fetchDAO($db_type,$name)
 	{
 	}
+	
+	
+	/**
+	 * Returns a xFilter object for the given filter name.
+	 * <br> Called with xModuleManager::invoke();
+	 * @return object 
+	 */
+	function xh_fetchFilter($filter_name)
+	{
+	}
+	
+	
+	/**
+	 * Returns a string or an array of strings representing available filters name
+	 * <br> Called with xModuleManager::invokeAll();
+	 * @return mixed
+	 */
+	function xh_listFilters()
+	{
+	}
+	
 	
 	/**
 	 * Returns the absolute path to template that maps the given name.
@@ -83,7 +107,7 @@ class xDummyModule extends xModule
 	/**
 	 * @return void
 	 */
-	function xh_filterCompoenentView(&$component_view)
+	function xh_filterComponentView(&$component_view)
 	{
 	}
 	
@@ -103,6 +127,12 @@ class xDummyModule extends xModule
 	 * @return void
 	 */
 	function xh_processComponentController(&$component)
+	{}
+	
+	/**
+	 * @return void
+	 */
+	function xh_preprocessComponentController(&$component)
 	{}
 	
 	/**

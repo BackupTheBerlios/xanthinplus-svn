@@ -24,11 +24,13 @@ define('X_COMPONENT_NOT_INITIALIZED',0);
 define('X_COMPONENT_BYPASS',1);
 define('X_COMPONENT_INIT_FAILED',2);
 define('X_COMPONENT_AUTHORIZE_FAILED',3);
-define('X_COMPONENT_PROCESS_FAILED',4);
+define('X_COMPONENT_PREPROCESS_FAILED',4);
+define('X_COMPONENT_PROCESS_FAILED',5);
 
 define('X_COMPONENT_INITIALIZED',10);
 define('X_COMPONENT_AUTHORIZED',12);
-define('X_COMPONENT_PROCESSED',13);
+define('X_COMPONENT_PREPROCESSED',13);
+define('X_COMPONENT_PROCESSED',14);
 
 
 
@@ -152,7 +154,10 @@ class xComponentController extends xObject
 	function _init()
 	{
 		$this->m_state = X_COMPONENT_INITIALIZED;
-		if($this->_doInit() === false)
+		$res = $this->_doInit();
+		if($res === null)
+			$this->m_state = X_COMPONENT_BYPASS;
+		elseif($res === false)
 			$this->m_state = X_COMPONENT_INIT_FAILED;
 		else
 		{
@@ -165,10 +170,12 @@ class xComponentController extends xObject
 	 * Init this component
 	 * 
 	 * @access private
-	 * @return bool Return false if fail
+	 * @return bool Return false if fail, NULL to bypass other processings, true on success
 	 */
 	function _doInit()
-	{}
+	{
+		return true;
+	}
 	
 	/**
 	 * Check authorization for this components.
@@ -182,7 +189,10 @@ class xComponentController extends xObject
 			return;
 		
 		$this->m_state = X_COMPONENT_AUTHORIZED;
-		if(!$this->_doAuthorize() === false)
+		$res = $this->_doAuthorize();
+		if($res === null)
+			$this->m_state = X_COMPONENT_BYPASS;
+		elseif($res === false)
 			$this->m_state = X_COMPONENT_AUTHORIZE_FAILED;
 		else
 		{
@@ -195,10 +205,48 @@ class xComponentController extends xObject
 	 * Check authorization for this components. If authorization 
 	 * 
 	 * @access private
-	 * @return bool Return false if fail
+	 * @return bool Return false if fail, NULL to bypass other processings, true on success
 	 */
 	function _doAuthorize()
-	{}
+	{
+		return true;
+	}
+	
+	
+	/**
+	 * 
+	 * @access private
+	 * @return void
+	 */
+	function _preprocess()
+	{
+		if($this->m_state < X_COMPONENT_AUTHORIZED)
+			return;
+		
+		$this->m_state = X_COMPONENT_PREPROCESSED;
+		$res = $this->_doPreprocess();
+		if($res === null)
+			$this->m_state = X_COMPONENT_BYPASS;
+		elseif($res === false)
+			$this->m_state = X_COMPONENT_PREPROCESS_FAILED;
+		else
+		{
+			$mod =& x_getModuleManager();
+			$mod->invokeAll('xh_preprocessComponentController',array(&$this));
+		}
+	}
+	
+	/**
+	 * 
+	 * @access private
+	 * @return bool Return false if fail, NULL to bypass other processings, true on success
+	 */
+	function _doPreprocess()
+	{
+		return true;
+	}
+	
+	
 	
 	/**
 	 * Crete and process contents for this component
@@ -208,11 +256,14 @@ class xComponentController extends xObject
 	 */
 	function _process()
 	{
-		if($this->m_state < X_COMPONENT_AUTHORIZED)
+		if($this->m_state < X_COMPONENT_PREPROCESSED)
 			return;
 		
 		$this->m_state = X_COMPONENT_PROCESSED;
-		if(!$this->_doProcess() === false)
+		$res = $this->_doProcess();
+		if($res === null)
+			$this->m_state = X_COMPONENT_BYPASS;
+		elseif($res === false)
 			$this->m_state = X_COMPONENT_PROCESS_FAILED;
 		else
 		{
@@ -226,10 +277,12 @@ class xComponentController extends xObject
 	 * and fill it with contents.
 	 * 
 	 * @access private
-	 * @return bool Return false if fail
+	 * @return bool Return false if fail, NULL to bypass other processings, true on success
 	 */
 	function _doProcess()
-	{}
+	{
+		return true;
+	}
 	
 	/**
 	 * Executes _init(),_authorize(),_process().
@@ -240,9 +293,18 @@ class xComponentController extends xObject
 	{
 		$this->_init();
 		$this->_authorize();
+		$this->_preprocess();
 		$this->_process();
 	}
 	
+	/**
+	 * 
+	 */
+	function isReadyToDisplay()
+	{
+		return $this->m_state === X_COMPONENT_PROCESSED || 
+			$this->m_state === X_COMPONENT_BYPASS && $this->m_component_view !== NULL;
+	} 
 	
 	/**
 	 * Display this component
@@ -251,12 +313,8 @@ class xComponentController extends xObject
 	 */
 	function display()
 	{
-
-		if(($this->m_state === X_COMPONENT_PROCESSED || $this->m_state === X_COMPONENT_BYPASS)
-			&& $this->m_component_view !== NULL)
-		{
+		if($this->isReadyToDisplay())
 			$this->m_component_view->display();
-		}
 	}
 	
 	

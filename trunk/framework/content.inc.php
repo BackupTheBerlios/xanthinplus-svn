@@ -113,8 +113,8 @@ class xStaticContentController extends xContentController
 	 */
 	function _doInit()
 	{
-		//deny all other processing
-		return false;	
+		//bypass all other processing
+		return null;	
 	}
 }
 
